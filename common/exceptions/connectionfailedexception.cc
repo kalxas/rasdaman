@@ -27,12 +27,15 @@ namespace common
 {
 ConnectionFailedException::ConnectionFailedException()
     : RuntimeException("The server is not responding to requests.")
-{}
+{
+}
 
-ConnectionFailedException::ConnectionFailedException(const std::string& reason)
+ConnectionFailedException::ConnectionFailedException(const std::string &reason)
     : RuntimeException(reason)
-{}
+{
+}
 
 ConnectionFailedException::~ConnectionFailedException() noexcept
-{}
+{
 }
+}  // namespace common

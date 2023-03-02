@@ -41,7 +41,6 @@ rasdaman GmbH.
 #endif
 #endif
 
-
 #include <iostream>
 #include <stdio.h>
 #include "rasodmg/marray.hh"
@@ -49,8 +48,7 @@ rasdaman GmbH.
 #include "rasodmg/dirtiling.hh"
 #include "rasodmg/dirdecompose.hh"
 
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int tilesize = 10000;
 
@@ -73,23 +71,25 @@ int main(int argc, char* argv[])
     r_Dir_Tiling tiling(2, decomp, tilesize);
     tiling.print_status(cout);
 
-    cout << endl << "----- Domain decomposition -----" << endl;
+    cout << endl
+         << "----- Domain decomposition -----" << endl;
 
     // Create a domain and an image
 
     r_Minterval domain(2);
-    domain << r_Sinterval((r_Range) 0L, (r_Range) 999L)
-           << r_Sinterval((r_Range) 0L, (r_Range) 99L);
+    domain << r_Sinterval((r_Range)0L, (r_Range)999L)
+           << r_Sinterval((r_Range)0L, (r_Range)99L);
 
     r_Marray<char> image(domain);
 
     // Compute tiles
 
-    vector<r_Minterval>* tiles = tiling.compute_tiles(domain, sizeof(char));
+    vector<r_Minterval> *tiles = tiling.compute_tiles(domain, sizeof(char));
 
     // Output the information
 
-    cout << "Domain: " << domain << endl << endl;
+    cout << "Domain: " << domain << endl
+         << endl;
     cout << "Tiles:  " << endl;
 
     vector<r_Minterval>::iterator it;
@@ -101,11 +101,3 @@ int main(int argc, char* argv[])
 
     delete tiles;
 }
-
-
-
-
-
-
-
-

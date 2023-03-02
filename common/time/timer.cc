@@ -28,39 +28,40 @@
 
 namespace common
 {
-Timer::Timer(std::int32_t periodArg): period{periodArg}
+Timer::Timer(std::int32_t periodArg)
+    : period{periodArg}
 {
-  if (periodArg < 0)
-  {
-      throw InvalidArgumentException("period");
-  }
+    if (periodArg < 0)
+    {
+        throw InvalidArgumentException("period");
+    }
 
-  gettimeofday(&this->start, NULL);
-  gettimeofday(&this->current, NULL);
-  timerclear(&this->timeout);
-  //Get the number of full seconds
-  this->timeout.tv_sec = periodArg / 1000;
-  //Get the number of microseconds
-  this->timeout.tv_usec = (periodArg % 1000) * 1000;
-  timeradd(&this->start, &this->timeout, &this->end);
+    gettimeofday(&this->start, NULL);
+    gettimeofday(&this->current, NULL);
+    timerclear(&this->timeout);
+    //Get the number of full seconds
+    this->timeout.tv_sec = periodArg / 1000;
+    //Get the number of microseconds
+    this->timeout.tv_usec = (periodArg % 1000) * 1000;
+    timeradd(&this->start, &this->timeout, &this->end);
 }
 
 std::int32_t Timer::getPeriod() const
 {
-  return this->period;
+    return this->period;
 }
 
 bool Timer::hasExpired()
 {
-  gettimeofday(&this->current, NULL);
-  return timercmp(&this->current, &this->end, >);
+    gettimeofday(&this->current, NULL);
+    return timercmp(&this->current, &this->end, >);
 }
 
 void Timer::reset()
 {
-  gettimeofday(&this->start, NULL);
-  gettimeofday(&this->current, NULL);
-  timeradd(&this->start, &this->timeout, &this->end);
+    gettimeofday(&this->start, NULL);
+    gettimeofday(&this->current, NULL);
+    timeradd(&this->start, &this->timeout, &this->end);
 }
 
-}
+}  // namespace common

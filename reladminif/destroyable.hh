@@ -40,5 +40,4 @@ public:
         delete the object.
         object may not be deleted when reference counting is enabled.
     */
-
 };

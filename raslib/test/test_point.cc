@@ -43,39 +43,46 @@ using namespace std;
 
 int main()
 {
-    cout << endl << endl;
+    cout << endl
+         << endl;
     cout << "Point Examples" << endl;
-    cout << "===============" << endl << endl;
+    cout << "===============" << endl
+         << endl;
 
     cout << "initialize 1D-point: " << flush;
     r_Point d1(1);
     cout << d1 << endl;
 
-    cout <<  "set value to 9 : " << flush;
+    cout << "set value to 9 : " << flush;
     d1[0] = 9;
     cout << d1 << endl;
 
     r_Point a(3);
     a << 1 << 2 << 3;
-    cout << "stream initializing point (1,2,3) : " << a << endl << endl;
+    cout << "stream initializing point (1,2,3) : " << a << endl
+         << endl;
 
     try
     {
         cout << "read out of range : " << a[3] << endl;
     }
-    catch (r_Eindex_violation& ex)
+    catch (r_Eindex_violation &ex)
     {
         cout << ex.what();
     }
-    cout << endl << endl;
+    cout << endl
+         << endl;
 
     r_Point b = r_Point(3) << 1 << 2 << 3;
-    cout << "assignment point (1,2,3) : " << b << endl << endl;
+    cout << "assignment point (1,2,3) : " << b << endl
+         << endl;
 
-    cout << "temp. obj. (1,2,3), access second coord. : " << (r_Point(3) << 1 << 2 << 3)[1] << endl << endl;
+    cout << "temp. obj. (1,2,3), access second coord. : " << (r_Point(3) << 1 << 2 << 3)[1] << endl
+         << endl;
 
     a[1] = 4;
-    cout << "assignment a[1]=4 to a(1,2,3) : " << a << endl << endl;
+    cout << "assignment a[1]=4 to a(1,2,3) : " << a << endl
+         << endl;
 
     r_Point c = b;
     cout << "equal operator test: " << flush;
@@ -88,8 +95,9 @@ int main()
         cout << "FALSE" << endl;
     }
 
-    char* stringRep = b.get_string_representation();
-    cout << endl << "String representation of point " << b << ": " << stringRep << endl;
+    char *stringRep = b.get_string_representation();
+    cout << endl
+         << "String representation of point " << b << ": " << stringRep << endl;
     cout << "Result of string constructor: " << r_Point(stringRep) << endl;
     free(stringRep);
 

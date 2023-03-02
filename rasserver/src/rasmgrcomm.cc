@@ -39,8 +39,8 @@ namespace rasserver
 {
 
 using common::GrpcUtils;
-using rasnet::service::Void;
 using rasnet::service::RegisterServerReq;
+using rasnet::service::Void;
 
 RasmgrComm::RasmgrComm(const std::string &_rasmgrHost, const uint32_t rasmgrPort)
 {
@@ -109,4 +109,4 @@ void RasmgrComm::configureDeadline(grpc::ClientContext &context, int deadline)
     context.set_deadline(system_clock::now() + milliseconds(deadline));
 }
 
-}
+}  // namespace rasserver

@@ -22,11 +22,11 @@ rasdaman GmbH.
 */
 // This is -*- C++ -*-
 
-#include "oidif.hh"             // for OId, OId::OIdCounter, OId::OIdType
-#include "databaseif.hh"        // for ostream
-#include "raslib/error.hh"      // for r_Error, r_Error::r_Error_CreatingOId...
-#include <logging.hh>           // for Writer, CTRACE, LTRACE, CFATAL, LERROR
-#include <ostream>              // for operator<<, ostream, basic_ostream
+#include "oidif.hh"         // for OId, OId::OIdCounter, OId::OIdType
+#include "databaseif.hh"    // for ostream
+#include "raslib/error.hh"  // for r_Error, r_Error::r_Error_CreatingOId...
+#include <logging.hh>       // for Writer, CTRACE, LTRACE, CFATAL, LERROR
+#include <ostream>          // for operator<<, ostream, basic_ostream
 #include <cassert>
 
 long long OId::ID_MULTIPLIER = 512;
@@ -53,23 +53,21 @@ OId::OIdCounter OId::nextDBNULLVALUESOID = 0;
 unsigned int OId::maxCounter = 22;
 
 const char *OId::counterNames[] =
-{
-    "INVALID", "MDDOID", "MDDCOLLOID", "MDDTYPEOID", "MDDBASETYPEOID",
-    "MDDDIMTYPEOID", "MDDDOMTYPEOID", "STRUCTTYPEOID", "SETTYPEOID", "BLOBOID",
-    "DBMINTERVALOID", "STORAGEOID", "MDDHIERIXOID", "INLINEINDEXOID",
-    "INLINETILEOID", "INNEROID", "ATOMICTYPEOID", "UDFOID", "UDFPACKAGEOID",
-    "MDDRCIXOID", "FILETILEOID", "DBNULLVALUESOID"
-};
+    {
+        "INVALID", "MDDOID", "MDDCOLLOID", "MDDTYPEOID", "MDDBASETYPEOID",
+        "MDDDIMTYPEOID", "MDDDOMTYPEOID", "STRUCTTYPEOID", "SETTYPEOID", "BLOBOID",
+        "DBMINTERVALOID", "STORAGEOID", "MDDHIERIXOID", "INLINEINDEXOID",
+        "INLINETILEOID", "INNEROID", "ATOMICTYPEOID", "UDFOID", "UDFPACKAGEOID",
+        "MDDRCIXOID", "FILETILEOID", "DBNULLVALUESOID"};
 
 OId::OIdCounter *OId::counterIds[] =
-{
-    nullptr, &nextMDDOID, &nextMDDCOLLOID, &nextMDDTYPEOID, &nextMDDBASETYPEOID,
-    &nextMDDDIMTYPEOID, &nextMDDDOMTYPEOID, &nextSTRUCTTYPEOID, &nextSETTYPEOID,
-    &nextBLOBOID, &nextDBMINTERVALOID, &nextSTORAGEOID, &nextMDDHIERIXOID,
-    &nextMDDHIERIXOID, &nextBLOBOID, &nextBLOBOID, &nextATOMICTYPEOID,
-    &nextUDFOID, &nextUDFPACKAGEOID, &nextMDDRCIXOID, &nextFILETILEOID,
-    &nextDBNULLVALUESOID
-};
+    {
+        nullptr, &nextMDDOID, &nextMDDCOLLOID, &nextMDDTYPEOID, &nextMDDBASETYPEOID,
+        &nextMDDDIMTYPEOID, &nextMDDDOMTYPEOID, &nextSTRUCTTYPEOID, &nextSETTYPEOID,
+        &nextBLOBOID, &nextDBMINTERVALOID, &nextSTORAGEOID, &nextMDDHIERIXOID,
+        &nextMDDHIERIXOID, &nextBLOBOID, &nextBLOBOID, &nextATOMICTYPEOID,
+        &nextUDFOID, &nextUDFPACKAGEOID, &nextMDDRCIXOID, &nextFILETILEOID,
+        &nextDBNULLVALUESOID};
 
 bool OId::loadedOk = false;
 
@@ -167,32 +165,31 @@ std::ostream &operator<<(std::ostream &s, OId::OIdType d)
 {
     switch (d)
     {
-    case OId::INVALID:          s << "INVALID"; break;
-    case OId::MDDOID:           s << "MDDOID"; break;
-    case OId::MDDCOLLOID:       s << "MDDCOLLOID"; break;
-    case OId::MDDTYPEOID:       s << "MDDTYPEOID"; break;
-    case OId::MDDBASETYPEOID:   s << "MDDBASETYPEOID"; break;
-    case OId::MDDDIMTYPEOID:    s << "MDDDIMTYPEOID"; break;
-    case OId::MDDDOMTYPEOID:    s << "MDDDOMTYPEOID"; break;
-    case OId::STRUCTTYPEOID:    s << "STRUCTTYPEOID"; break;
-    case OId::SETTYPEOID:       s << "SETTYPEOID"; break;
-    case OId::BLOBOID:          s << "BLOBOID"; break;
-    case OId::DBMINTERVALOID:   s << "DBMINTERVALOID"; break;
-    case OId::DBNULLVALUESOID:  s << "DBNULLVALUESOID"; break;
-    case OId::STORAGEOID:       s << "STORAGEOID"; break;
-    case OId::MDDHIERIXOID:     s << "MDDHIERIXOID"; break;
-    case OId::DBTCINDEXOID:     s << "DBTCINDEXOID"; break;
-    case OId::INLINETILEOID:    s << "INLINETILEOID"; break;
-    case OId::INNEROID:         s << "INNEROIDOID"; break;
-    case OId::ATOMICTYPEOID:    s << "ATOMICTYPEOID"; break;
-    case OId::UDFOID:           s << "UDFOID"; break;
-    case OId::UDFPACKAGEOID:    s << "UDFPACKAGEOID"; break;
-    case OId::MDDRCIXOID:       s << "MDDRCIXOID"; break;
-    case OId::FILETILEOID:      s << "FILETILEOID"; break;
+    case OId::INVALID: s << "INVALID"; break;
+    case OId::MDDOID: s << "MDDOID"; break;
+    case OId::MDDCOLLOID: s << "MDDCOLLOID"; break;
+    case OId::MDDTYPEOID: s << "MDDTYPEOID"; break;
+    case OId::MDDBASETYPEOID: s << "MDDBASETYPEOID"; break;
+    case OId::MDDDIMTYPEOID: s << "MDDDIMTYPEOID"; break;
+    case OId::MDDDOMTYPEOID: s << "MDDDOMTYPEOID"; break;
+    case OId::STRUCTTYPEOID: s << "STRUCTTYPEOID"; break;
+    case OId::SETTYPEOID: s << "SETTYPEOID"; break;
+    case OId::BLOBOID: s << "BLOBOID"; break;
+    case OId::DBMINTERVALOID: s << "DBMINTERVALOID"; break;
+    case OId::DBNULLVALUESOID: s << "DBNULLVALUESOID"; break;
+    case OId::STORAGEOID: s << "STORAGEOID"; break;
+    case OId::MDDHIERIXOID: s << "MDDHIERIXOID"; break;
+    case OId::DBTCINDEXOID: s << "DBTCINDEXOID"; break;
+    case OId::INLINETILEOID: s << "INLINETILEOID"; break;
+    case OId::INNEROID: s << "INNEROIDOID"; break;
+    case OId::ATOMICTYPEOID: s << "ATOMICTYPEOID"; break;
+    case OId::UDFOID: s << "UDFOID"; break;
+    case OId::UDFPACKAGEOID: s << "UDFPACKAGEOID"; break;
+    case OId::MDDRCIXOID: s << "MDDRCIXOID"; break;
+    case OId::FILETILEOID: s << "FILETILEOID"; break;
     default:
         s << "UNKNOWN: " << static_cast<int>(d);
         break;
     }
     return s;
 }
-

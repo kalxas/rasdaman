@@ -37,7 +37,7 @@ class ControlCommandExecutor;
  * Handles network requests from a `rascontrol` client, and executes them with
  * the ControlCommandExecutor.
  */
-class ControlService: public ::rasnet::service::RasMgrRasCtrlService::Service
+class ControlService : public ::rasnet::service::RasMgrRasCtrlService::Service
 {
 public:
     explicit ControlService(std::shared_ptr<ControlCommandExecutor> commandExecutor);

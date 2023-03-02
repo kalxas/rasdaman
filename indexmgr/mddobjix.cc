@@ -21,31 +21,31 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "mddobjix.hh"                 // for MDDObjIx
-#include "hierindexds.hh"              // for HierIndexDS
-#include "keyobject.hh"                // for KeyObject, operator<<
-#include "indexds.hh"                  // for IndexDS
-#include "sdirindexlogic.hh"           // for SDirIndexLogic
-#include "srcindexlogic.hh"            // for SRCIndexLogic
-#include "srptindexlogic.hh"           // for SRPTIndexLogic
-#include "transdirix.hh"               // for TransDirIx
-#include "reladminif/lists.h"          // for KeyObjectVector
-#include "reladminif/dbobject.hh"      // for DBObjectId, DBObject
-#include "relindexif/dbrcindexds.hh"   // for DBRCIndexDS
-#include "relindexif/dbtcindex.hh"     // for DBTCIndex
-#include "relindexif/hierindex.hh"     // for DBHierIndex
-#include "relblobif/tileid.hh"         // for DBTileId
-#include "tilemgr/tile.hh"             // for Tile
-#include "storagemgr/sstoragelayout.hh"// for StorageLayout
-#include "raslib/error.hh"             // for r_Error, ILLEGAL_INDEX_TYPE
-#include "raslib/mddtypes.hh"          // for r_Auto_Index, r_Directory_Index
-#include "raslib/minterval.hh"         // for r_Minterval, operator<<
-#include "raslib/point.hh"             // for r_Point
+#include "mddobjix.hh"                   // for MDDObjIx
+#include "hierindexds.hh"                // for HierIndexDS
+#include "keyobject.hh"                  // for KeyObject, operator<<
+#include "indexds.hh"                    // for IndexDS
+#include "sdirindexlogic.hh"             // for SDirIndexLogic
+#include "srcindexlogic.hh"              // for SRCIndexLogic
+#include "srptindexlogic.hh"             // for SRPTIndexLogic
+#include "transdirix.hh"                 // for TransDirIx
+#include "reladminif/lists.h"            // for KeyObjectVector
+#include "reladminif/dbobject.hh"        // for DBObjectId, DBObject
+#include "relindexif/dbrcindexds.hh"     // for DBRCIndexDS
+#include "relindexif/dbtcindex.hh"       // for DBTCIndex
+#include "relindexif/hierindex.hh"       // for DBHierIndex
+#include "relblobif/tileid.hh"           // for DBTileId
+#include "tilemgr/tile.hh"               // for Tile
+#include "storagemgr/sstoragelayout.hh"  // for StorageLayout
+#include "raslib/error.hh"               // for r_Error, ILLEGAL_INDEX_TYPE
+#include "raslib/mddtypes.hh"            // for r_Auto_Index, r_Directory_Index
+#include "raslib/minterval.hh"           // for r_Minterval, operator<<
+#include "raslib/point.hh"               // for r_Point
 #include <logging.hh>
 
-#include <iostream>                    // for operator<<, ostream, basic_ost...
-#include <memory>                      // for allocator_traits<>::value_type
-#include <vector>                      // for vector, vector<>::iterator
+#include <iostream>  // for operator<<, ostream, basic_ost...
+#include <memory>    // for allocator_traits<>::value_type
+#include <vector>    // for vector, vector<>::iterator
 #include <cassert>
 
 using std::shared_ptr;
@@ -136,7 +136,7 @@ void MDDObjIx::insertTile(shared_ptr<Tile> newTile)
 {
     if (isPersistent())
         newTile->setPersistent();
-    
+
     KeyObject t(newTile);
     do_insertObj(actualIx, t, myStorageLayout);
     setNewLastAccess(newTile, false);
@@ -192,7 +192,7 @@ vector<shared_ptr<Tile>> *MDDObjIx::intersect(const r_Minterval &searchInter) co
                 {
                     LDEBUG << "found persistent entry in index with domain " << resultKeys[i].getDomain();
                     result->push_back(shared_ptr<Tile>(
-                                          new Tile(resultKeys[i].getDomain(), cellBaseType, DBTileId(resultKeys[i].getObject()))));
+                        new Tile(resultKeys[i].getDomain(), cellBaseType, DBTileId(resultKeys[i].getObject()))));
                 }
             }
             else
@@ -237,7 +237,7 @@ shared_ptr<Tile> MDDObjIx::containPointQuery(const r_Point &searchPoint) const
 #ifdef RMANBENCHMARK
     if (RManBenchmark >= 4) pointQueryTimer->start();
 #endif
-    
+
     auto resultTile = lastAccessPointQuery(searchPoint);
     if (!resultTile)
     {
@@ -359,7 +359,7 @@ bool MDDObjIx::isPersistent() const
     return _isPersistent;
 }
 
-void MDDObjIx::setNewLastAccess(const r_Minterval &newLastAccess, 
+void MDDObjIx::setNewLastAccess(const r_Minterval &newLastAccess,
                                 const std::vector<shared_ptr<Tile>> *newLastTiles)
 {
     lastAccess = newLastAccess;
@@ -448,26 +448,26 @@ void MDDObjIx::initializeLogicStructure()
     case r_Auto_Index:
     case r_RPlus_Tree_Index:
     case r_Tile_Container_Index:
-        do_getObjs    = SRPTIndexLogic::getObjects;
-        do_insertObj  = SRPTIndexLogic::insertObject;
+        do_getObjs = SRPTIndexLogic::getObjects;
+        do_insertObj = SRPTIndexLogic::insertObject;
         do_pointQuery = SRPTIndexLogic::containPointQuery;
-        do_removeObj  = SRPTIndexLogic::removeObject;
-        do_intersect  = SRPTIndexLogic::intersect;
+        do_removeObj = SRPTIndexLogic::removeObject;
+        do_intersect = SRPTIndexLogic::intersect;
         break;
     case r_Reg_Computed_Index:
-        do_getObjs    = SRCIndexLogic::getObjects;
-        do_insertObj  = SRCIndexLogic::insertObject;
+        do_getObjs = SRCIndexLogic::getObjects;
+        do_insertObj = SRCIndexLogic::insertObject;
         do_pointQuery = SRCIndexLogic::containPointQuery;
-        do_removeObj  = SRCIndexLogic::removeObject;
-        do_intersect  = SRCIndexLogic::intersect;
+        do_removeObj = SRCIndexLogic::removeObject;
+        do_intersect = SRCIndexLogic::intersect;
         break;
     case r_Directory_Index:
         // chosen before this
-        do_getObjs    = SDirIndexLogic::getObjects;
-        do_insertObj  = SDirIndexLogic::insertObject;
+        do_getObjs = SDirIndexLogic::getObjects;
+        do_insertObj = SDirIndexLogic::insertObject;
         do_pointQuery = SDirIndexLogic::containPointQuery;
-        do_removeObj  = SDirIndexLogic::removeObject;
-        do_intersect  = SDirIndexLogic::intersect;
+        do_removeObj = SDirIndexLogic::removeObject;
+        do_intersect = SDirIndexLogic::intersect;
         break;
     default:
         LERROR << "unknown index: " << myStorageLayout.getIndexType();
@@ -483,4 +483,3 @@ void MDDObjIx::initializeTimerPointers()
     getTilesTimer = new RMTimer("DirIx", "getTiles");
 }
 #endif
-

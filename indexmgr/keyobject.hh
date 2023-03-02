@@ -24,13 +24,12 @@ rasdaman GmbH.
 #ifndef _KEYOBJECT_HH_
 #define _KEYOBJECT_HH_
 
-#include "reladminif/dbobject.hh"   // for DBObjectId
+#include "reladminif/dbobject.hh"  // for DBObjectId
 #include "reladminif/dbref.hh"
-#include "raslib/minterval.hh"      // for r_Minterval
+#include "raslib/minterval.hh"  // for r_Minterval
 
-#include <iosfwd>                   // for ostream
+#include <iosfwd>  // for ostream
 #include <memory>
-
 
 class KeyObject;
 class Tile;

@@ -24,5 +24,4 @@
 #include "useralreadyexistsexception.hh"
 #include "userdbrightsexception.hh"
 
-
-#endif // RASMGR_X_SRC_EXCEPTIONS_RASMGREXCEPTIONS
+#endif  // RASMGR_X_SRC_EXCEPTIONS_RASMGREXCEPTIONS

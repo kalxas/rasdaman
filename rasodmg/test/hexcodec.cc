@@ -25,40 +25,53 @@
 
 #include "hexcodec.hh"
 
-using std::ostringstream;
-using std::ios;
 using std::endl;
 using std::hex;
+using std::ios;
+using std::ostringstream;
 
 char
-HexCodec::hexVal[] = { 0x00, 0x01, 0x02, 0x03,
-                       0x04, 0x05, 0x06, 0x07,
-                       0x08, 0x09, 0x0a, 0x0b,
-                       0x0c, 0x0d, 0x0e, 0x0f,
-                     };
+    HexCodec::hexVal[] = {
+        0x00,
+        0x01,
+        0x02,
+        0x03,
+        0x04,
+        0x05,
+        0x06,
+        0x07,
+        0x08,
+        0x09,
+        0x0a,
+        0x0b,
+        0x0c,
+        0x0d,
+        0x0e,
+        0x0f,
+};
 const string
-HexCodec::hexFig = "0123456789abcdef";
+    HexCodec::hexFig = "0123456789abcdef";
 
 const string
-HexCodec::hexId = "0x";
+    HexCodec::hexId = "0x";
 
 const string
-HexCodec::emptyStr = "";
+    HexCodec::emptyStr = "";
 
 const char
-HexCodec::hexBase = 16;
+    HexCodec::hexBase = 16;
 
 const char
-HexCodec::hexPerByte = 2;
+    HexCodec::hexPerByte = 2;
 
 string
-HexCodec::hexStr;
+    HexCodec::hexStr;
 
 string
-HexCodec::figStr;
+    HexCodec::figStr;
 
 string
-HexCodec::convertTo(const string& figureStr)
+HexCodec::convertTo(const string &figureStr)
 {
     string errMsg;
     string::size_type sizeHexStr = 0, sizeFigStr = 0;
@@ -77,7 +90,7 @@ HexCodec::convertTo(const string& figureStr)
     }
 
     if ((tolower(figStr[0]) != hexId[0]) ||
-            (tolower(figStr[1]) != hexId[1]))
+        (tolower(figStr[1]) != hexId[1]))
     {
         TALK("HexCodec::ConverTo(\"" + figStr + "\"), \"" + hexId + "\" is missing for user input.");
         throw ImportError(INVALIDHEX);
@@ -100,7 +113,7 @@ HexCodec::convertTo(const string& figureStr)
         idxHexFig = hexFig.find(tolower(figStr[idxFig]));
         if (idxHexFig == string::npos)
         {
-            TALK("HexCodec::ConvertTo(\"" + figStr + "\"), \"" + figStr[idxFig] + "\" from user input is not a hexadecimal figure.") ;
+            TALK("HexCodec::ConvertTo(\"" + figStr + "\"), \"" + figStr[idxFig] + "\" from user input is not a hexadecimal figure.");
             throw ImportError(INVALIDHEX);
         }
 
@@ -127,7 +140,7 @@ HexCodec::convertTo(const string& figureStr)
 }
 
 string
-HexCodec::convertFrom(const string& hexaStr)
+HexCodec::convertFrom(const string &hexaStr)
 {
     string::size_type sizeHexStr = 0, idxHexStr = 0;
     string::size_type sizeFigStr = 0, idxFigStr = 0;
@@ -139,8 +152,8 @@ HexCodec::convertFrom(const string& hexaStr)
     figStr.resize(sizeFigStr, '\0');
 
     for (idxHexStr = 0, idxFigStr = 0;
-            idxHexStr < sizeHexStr;
-            idxHexStr++)
+         idxHexStr < sizeHexStr;
+         idxHexStr++)
     {
 #if defined(IS_LITTLE_ENDIAN)
         figStr[idxFigStr++] = hexFig[hexStr[idxHexStr] / hexBase];
@@ -156,11 +169,9 @@ HexCodec::convertFrom(const string& hexaStr)
     return figStr;
 }
 
-void
-HexCodec::printStatus(ostream& s)
+void HexCodec::printStatus(ostream &s)
 {
     string::size_type i = 0, n = 0;
     s << "FigureStr: '" << figStr << "' size " << figStr.size() << endl;
-    s << "HexaStr: '" << convertFrom(hexStr) << "' size " << hexStr.size() <<  endl;
+    s << "HexaStr: '" << convertFrom(hexStr) << "' size " << hexStr.size() << endl;
 }
-

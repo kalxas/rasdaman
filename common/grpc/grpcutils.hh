@@ -48,7 +48,7 @@ public:
      * @param port
      * @return String of the format host:port
      */
-    static std::string constructAddressString(const std::string& host, std::uint32_t port);
+    static std::string constructAddressString(const std::string &host, std::uint32_t port);
 
     /**
      * @brief convertExceptionToStatus Convert a given a std::exception object or one of its subclasses to a grpc::Status
@@ -56,7 +56,7 @@ public:
      * @return grpc::Status object with the error code UNKNOWN and the error_message represented
      * by the serialized exception information.
      */
-    static grpc::Status convertExceptionToStatus(std::exception& exception);
+    static grpc::Status convertExceptionToStatus(std::exception &exception);
 
     /**
      * @brief convertExceptionToStatus Convert a given a common::Exception object or one of its subclasses to a grpc::Status
@@ -64,27 +64,26 @@ public:
      * @return grpc::Status object with the error code UNKNOWN and the error_message represented
      * by the serialized exception information.
      */
-    static grpc::Status convertExceptionToStatus(common::Exception& exception);
+    static grpc::Status convertExceptionToStatus(common::Exception &exception);
 
     /**
      * @brief convertExceptionToStatus
      * @param errorMessage Message that will be set as the error_message of the created status object.
      * @return grpc::Status object with the error code UNKNOWN.
      */
-    static grpc::Status convertExceptionToStatus(const std::string& errorMessage);
-    
+    static grpc::Status convertExceptionToStatus(const std::string &errorMessage);
+
     /**
      * @brief convertStatusToExceptionAndThrow Create the appropriate type of exception that is represented by the given status message
      * and throw it. If status.ok() returns true, no exception will be thrown.
      * @param status The error_message must contained a string representation of an ErrorMessage.F
      */
-    static void convertStatusToExceptionAndThrow(const grpc::Status& status);
-    
+    static void convertStatusToExceptionAndThrow(const grpc::Status &status);
+
     /**
      * @return a string representation of a Status returned from a grpc call, usually for logging.
      */
-    static std::string convertStatusToString(const grpc::Status& status);
-
+    static std::string convertStatusToString(const grpc::Status &status);
 
     /**
      * @brief isServerAlive Utility function used to check if the server is alive.
@@ -101,33 +100,31 @@ public:
      * @param port The port which will be cecked.
      * @return True if the port is busy, false otherwise.
      */
-    static bool isPortBusy(const std::string& host, std::uint32_t port);
+    static bool isPortBusy(const std::string &host, std::uint32_t port);
 
     /**
      * @brief getDefaultChannelArguments Utility function returning default channel arguments,
      * with unlimited max send/receive message size.
      */
     static grpc::ChannelArguments getDefaultChannelArguments();
-    
+
     /**
      * @brief redirectGRPCLogToEasyLogging Redirect the GRPC log to use Easyloggingpp
      */
     static void redirectGRPCLogToEasyLogging();
-    
+
     /**
      * @brief setDeadline Set the specified deadline to the client context.
      * @param deadlineInMs deadline in milliseconds
      */
     static void setDeadline(grpc::ClientContext &context, size_t deadlineInMs);
-    
+
     /**
      * @return true if ex is a DeadlineExceeded error
      */
     static bool errorIsDeadlineExceeded(const common::Exception &ex);
-    
 };
 
-}
+}  // namespace common
 
-
-#endif // GRPCUTILS_HH
+#endif  // GRPCUTILS_HH

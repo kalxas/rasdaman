@@ -29,8 +29,8 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-#include <iostream.h>      // cout
-#include <stdio.h>         // fopen, perror
+#include <iostream.h>  // cout
+#include <stdio.h>     // fopen, perror
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -50,21 +50,20 @@ rasdaman GmbH.
 // init globals for server initialization
 RMINITGLOBALS('S')
 
-extern int   yyparse();
-extern char* myExecArgv0 = "";
-extern int   globalOptimizationLevel = 4;
-extern char* beginParseString;
-extern char* iterParseString;
+extern int yyparse();
+extern char *myExecArgv0 = "";
+extern int globalOptimizationLevel = 4;
+extern char *beginParseString;
+extern char *iterParseString;
 
 extern int RManDebug;
 extern int RManInfo = 0;
 extern int rewrite = 0;
 extern int loadopt = 0;
 
-extern QueryTree* parseQueryTree;
+extern QueryTree *parseQueryTree;
 
-
-int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
+int checkArguments(int argc, char **argv, const char *searchText, int &optionValueIndex)
 {
     int found = 0;
     int i = 1;
@@ -86,17 +85,16 @@ int checkArguments(int argc, char** argv, const char* searchText, int& optionVal
     return found;
 }
 
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    FILE*  inFile;
-    char   baseName[255];
-    char   query[4096];
+    FILE *inFile;
+    char baseName[255];
+    char query[4096];
     struct timezone tzp;
-    struct timeval  startTime, stopTime, deltaTime;
-    int    timeTest;
-    int    optionValueIndex;
-    int    noOutput;
+    struct timeval startTime, stopTime, deltaTime;
+    int timeTest;
+    int optionValueIndex;
+    int noOutput;
 
     if (checkArguments(argc, argv, "-h", optionValueIndex))
     {
@@ -153,7 +151,7 @@ int main(int argc, char** argv)
     if (checkArguments(argc, argv, "-dl", optionValueIndex))
         if (optionValueIndex)
         {
-            RManDebug = (int)strtoul(argv[optionValueIndex], (char**)NULL, 10);
+            RManDebug = (int)strtoul(argv[optionValueIndex], (char **)NULL, 10);
         }
 
     timeTest = checkArguments(argc, argv, "-t", optionValueIndex);
@@ -170,20 +168,23 @@ int main(int argc, char** argv)
     fread(&query, 1, 4095, inFile);
     fclose(inFile);
 
-    cout << endl << "Query:" << endl << endl << query << endl;
+    cout << endl
+         << "Query:" << endl
+         << endl
+         << query << endl;
 
     //
     // open database, start transaction
     //
 
     // variables representing O2 database, ta and session
-    DatabaseIf    db;
+    DatabaseIf db;
     TransactionIf ta;
 
     // don't forget to initialize before using AdminIf!
     cout << "Connecting to O2 ..." << flush;
     myExecArgv0 = argv[0];
-    AdminIf* myAdmin = AdminIf::instance();
+    AdminIf *myAdmin = AdminIf::instance();
     cout << "OK" << endl;
 
     // connect to the database
@@ -200,9 +201,9 @@ int main(int argc, char** argv)
     //
 
     beginParseString = query;
-    iterParseString  = query;
+    iterParseString = query;
 
-    parseQueryTree = new QueryTree();   // create a query tree object...
+    parseQueryTree = new QueryTree();  // create a query tree object...
 
     if (timeTest)
     {
@@ -213,32 +214,36 @@ int main(int argc, char** argv)
 
     if (yyparse() == 0)
     {
-        RMInit::logOut << "OK" << endl << endl;
+        RMInit::logOut << "OK" << endl
+                       << endl;
 
         parseQueryTree->printTree(2, RMInit::logOut);
         RMInit::logOut << endl;
 
         parseQueryTree->getRoot()->printAlgebraicExpression();
-        cout << endl << endl;
+        cout << endl
+             << endl;
 
         RMInit::logOut << "Evaluating... " << flush;
 
-        vector<QtData*>*    transColl = 0;
+        vector<QtData *> *transColl = 0;
 
         try
         {
             transColl = parseQueryTree->evaluateRetrieval();
         }
-        catch (ParseInfo& info)
+        catch (ParseInfo &info)
         {
-            RMInit::logOut << endl << "Query Execution Error" << endl;
+            RMInit::logOut << endl
+                           << "Query Execution Error" << endl;
             info.printStatus();
             cout << endl;
 
             return 0;
         }
 
-        RMInit::logOut << "OK" << endl << endl;
+        RMInit::logOut << "OK" << endl
+                       << endl;
 
         if (timeTest)
         {
@@ -251,12 +256,12 @@ int main(int argc, char** argv)
             }
 
             deltaTime.tv_usec = stopTime.tv_usec - startTime.tv_usec;
-            deltaTime.tv_sec  = stopTime.tv_sec  - startTime.tv_sec;
+            deltaTime.tv_sec = stopTime.tv_sec - startTime.tv_sec;
 
             cout << "Time for query processing " << deltaTime.tv_sec << " sec " << deltaTime.tv_usec << " msec " << endl;
         }
 
-        vector<QtData*>::iterator  transIter;
+        vector<QtData *>::iterator transIter;
         int collNum;
         collNum = transColl->size();
 
@@ -268,9 +273,11 @@ int main(int argc, char** argv)
 
             for (transIter = transColl->begin(), i = 0; transIter != transColl->end(); transIter++, i++)
             {
-                QtData* mddObj = *transIter;
+                QtData *mddObj = *transIter;
 
-                cout << endl << "    --" << i << ". MDD object in set:" << endl << "   ";
+                cout << endl
+                     << "    --" << i << ". MDD object in set:" << endl
+                     << "   ";
                 mddObj->printStatus();
 
                 /*vector<Tile* >* tiles = mddObj->getTiles();
@@ -296,7 +303,6 @@ int main(int argc, char** argv)
 
             // delete transIter;
         };
-
     }
     else
     {

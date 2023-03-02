@@ -64,19 +64,18 @@ QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *cr
     : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, "", 0, 0},
       resampleAlg{static_cast<common::ResampleAlg>(ra)}
 {
-    (void) ra; // fix buggy warning on CentOS 7
+    (void)ra;  // fix buggy warning on CentOS 7
 #ifdef HAVE_GDAL
     GDALAllRegister();
 #endif
 }
-
 
 QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *crsIn, const char *boundsOut,
                      const char *crsOut, int widthOut, int heightOut, int ra, double et)
     : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, boundsOut, widthOut, heightOut},
       resampleAlg{static_cast<common::ResampleAlg>(ra)}, errThreshold{et}
 {
-    (void) ra; // fix buggy warning on CentOS 7
+    (void)ra;  // fix buggy warning on CentOS 7
 #ifdef HAVE_GDAL
     GDALAllRegister();
 #endif
@@ -84,23 +83,23 @@ QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *cr
 
 QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *crsIn, const char *boundsOut,
                      const char *crsOut, double xres, double yres, int ra, double et)
-    : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, boundsOut,0,0},
+    : QtUnaryOperation(mddOpArg), in{crsIn, boundsIn, 0, 0}, out{crsOut, boundsOut, 0, 0},
       resampleAlg{static_cast<common::ResampleAlg>(ra)}, errThreshold{et}
 {
-    (void) ra; // fix buggy warning on CentOS 7
+    (void)ra;  // fix buggy warning on CentOS 7
     if (xres == 0 || yres == 0)
     {
         LERROR << "Invalid resolution, xres and yres must not be 0";
         throw r_Error(PROJECT_XY_INVALID);
     }
-    out.width = static_cast<int>((out.xmax - out.xmin + (xres/2.0)) / xres);
-    out.height = static_cast<int>(std::fabs(out.ymax - out.ymin + (yres/2.0)) / yres);
-    if (out.width <= 0 )
+    out.width = static_cast<int>((out.xmax - out.xmin + (xres / 2.0)) / xres);
+    out.height = static_cast<int>(std::fabs(out.ymax - out.ymin + (yres / 2.0)) / yres);
+    if (out.width <= 0)
     {
         LERROR << "Invalid X resolution " << xres << ", output width is 0.";
         throw r_Error(PROJECT_X_INVALID);
     }
-     if (out.height <= 0)
+    if (out.height <= 0)
     {
         LERROR << "Invalid Y resolution " << yres << ", output height is 0.";
         throw r_Error(PROJECT_Y_INVALID);
@@ -109,7 +108,7 @@ QtProject::QtProject(QtOperation *mddOpArg, const char *boundsIn, const char *cr
     out.gt[3] = out.ymax;
     out.gt[1] = xres;
     out.gt[5] = (out.ymax > out.ymin) ? -yres : yres;
-    
+
 #ifdef HAVE_GDAL
     GDALAllRegister();
 #endif
@@ -148,7 +147,6 @@ QtData *QtProject::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
 QtData *QtProject::evaluateMDD(QtMDD *qtMDD)
 {
 #ifdef HAVE_GDAL
@@ -185,12 +183,12 @@ QtData *QtProject::evaluateMDD(QtMDD *qtMDD)
     }
     int numBands = 1;
     std::unique_ptr<r_Primitive_Type> bandType;
-    if (baseSchema->isPrimitiveType())      // = one band
+    if (baseSchema->isPrimitiveType())  // = one band
     {
         numBands = 1;
         bandType.reset(static_cast<r_Primitive_Type *>(baseSchema.release()));
     }
-    else if (baseSchema->isStructType())    // = multiple bands
+    else if (baseSchema->isStructType())  // = multiple bands
     {
         auto *stype = static_cast<r_Structure_Type *>(baseSchema.get());
         numBands = static_cast<int>(stype->count_elements());
@@ -242,10 +240,10 @@ QtData *QtProject::evaluateMDD(QtMDD *qtMDD)
     resultMDD->insertTile(resultTile.get());
     resultTile.release();
     return new QtMDD(resultMDD);
-#else // HAVE_GDAL
+#else   // HAVE_GDAL
     LERROR << "GDAL support has been disabled, hence the project function is not available.";
     throw r_Error(r_Error::r_Error_RuntimeProjectionError);
-#endif // HAVE_GDAL
+#endif  // HAVE_GDAL
 }
 
 #ifdef HAVE_GDAL
@@ -255,10 +253,10 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
 {
     const auto &domain = srcTile->getDomain();
     auto wi = static_cast<int>(domain[0].high() - domain[0].low() + 1);
-    auto w  = static_cast<size_t>(wi);
+    auto w = static_cast<size_t>(wi);
     auto hi = static_cast<int>(domain[1].high() - domain[1].low() + 1);
-    auto h  = static_cast<size_t>(hi);
-    auto n  = static_cast<size_t>(ni);
+    auto h = static_cast<size_t>(hi);
+    auto n = static_cast<size_t>(ni);
     // update input bbox
     in.width = wi;
     in.height = hi;
@@ -276,7 +274,7 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
 
     LRDEBUG("Tile with domain " << domain.to_string() << " -> GDAL dataset...");
     CPLErrorReset();
-    GDALDriver *driver = (GDALDriver *) GDALGetDriverByName("MEM");
+    GDALDriver *driver = (GDALDriver *)GDALGetDriverByName("MEM");
     if (driver == NULL)
     {
         LERROR << "Could not init GDAL driver.";
@@ -286,18 +284,19 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
                          deleteGDALDataset);
     srcDs->SetGeoTransform(in.gt);
     srcDs->SetProjection(in.wkt.c_str());
-    
+
     // set null values in the source dataset
     double nullValue = 0;
-    if (nullValues != NULL && !nullValues->getNullvalues().empty()) {
-      LDEBUG << "set null value to " << nullValue << " in " << ni << " source bands.";
-      nullValue = nullValues->getFirstNullValue();
-      for (int band = 1; band <= ni; ++band)
-        srcDs->GetRasterBand(band)->SetNoDataValue(nullValue);
+    if (nullValues != NULL && !nullValues->getNullvalues().empty())
+    {
+        LDEBUG << "set null value to " << nullValue << " in " << ni << " source bands.";
+        nullValue = nullValues->getFirstNullValue();
+        for (int band = 1; band <= ni; ++band)
+            srcDs->GetRasterBand(band)->SetNoDataValue(nullValue);
     }
     GDALReferenceDataset(srcDs.get());
 
-    const char *srcCells = reinterpret_cast<const char*>(srcTile->getContents());
+    const char *srcCells = reinterpret_cast<const char *>(srcTile->getContents());
     char *dstCells RAS_ALIGNED = static_cast<char *>(mymalloc(w * h * bandCellSz));
 
     //
@@ -330,7 +329,7 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
         }
         // 2. add to GDAL data set
         if (srcDs->GetRasterBand(band + 1)->RasterIO(
-                    GF_Write, 0, 0, wi, hi, (void *) dstCells, wi, hi, gBandType, 0, 0) != CE_None)
+                GF_Write, 0, 0, wi, hi, (void *)dstCells, wi, hi, gBandType, 0, 0) != CE_None)
         {
             LERROR << "failed writing data to GDAL raster band, reason: " << CPLGetLastErrorMsg();
             free(dstCells);
@@ -344,12 +343,12 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
     // ----------------------------------------------------------------------------------------
 
     LDEBUG << "Reprojecting dataset...";
-    
+
     GDALDatasetPtr dstDs(nullptr, deleteGDALDataset);
 
     auto interpolation = static_cast<GDALResampleAlg>(resampleAlg);
     GDALWarpOptions *psWO = GDALCreateWarpOptions();
-    
+
     psWO->eWorkingDataType = gBandType;
     psWO->eResampleAlg = interpolation;
     psWO->hSrcDS = srcDs.get();
@@ -358,28 +357,31 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
     psWO->panDstBands = static_cast<int *>(CPLMalloc(n * sizeof(int)));
     for (int i = 0; i < psWO->nBandCount; i++)
         psWO->panSrcBands[i] = psWO->panDstBands[i] = i + 1;
-    
-    if (nullValues != NULL && !nullValues->getNullvalues().empty()) {
-      LDEBUG << "set null value to " << nullValue;
-      psWO->padfSrcNoDataReal = static_cast<double *>(CPLMalloc(n*sizeof(double)));
-      psWO->padfSrcNoDataImag = static_cast<double *>(CPLMalloc(n*sizeof(double)));
-      psWO->padfDstNoDataReal = static_cast<double *>(CPLMalloc(n*sizeof(double)));
-      psWO->padfDstNoDataImag = static_cast<double *>(CPLMalloc(n*sizeof(double)));
-      for(size_t i = 0; i < n; i++) {
-        psWO->padfSrcNoDataReal[i] = psWO->padfDstNoDataReal[i] = nullValue;
-        psWO->padfSrcNoDataImag[i] = psWO->padfDstNoDataImag[i] = 0.0;
-      }
-      
-      psWO->papszWarpOptions = CSLSetNameValue(psWO->papszWarpOptions,
-                                               "INIT_DEST", "NO_DATA" );
+
+    if (nullValues != NULL && !nullValues->getNullvalues().empty())
+    {
+        LDEBUG << "set null value to " << nullValue;
+        psWO->padfSrcNoDataReal = static_cast<double *>(CPLMalloc(n * sizeof(double)));
+        psWO->padfSrcNoDataImag = static_cast<double *>(CPLMalloc(n * sizeof(double)));
+        psWO->padfDstNoDataReal = static_cast<double *>(CPLMalloc(n * sizeof(double)));
+        psWO->padfDstNoDataImag = static_cast<double *>(CPLMalloc(n * sizeof(double)));
+        for (size_t i = 0; i < n; i++)
+        {
+            psWO->padfSrcNoDataReal[i] = psWO->padfDstNoDataReal[i] = nullValue;
+            psWO->padfSrcNoDataImag[i] = psWO->padfDstNoDataImag[i] = 0.0;
+        }
+
+        psWO->papszWarpOptions = CSLSetNameValue(psWO->papszWarpOptions,
+                                                 "INIT_DEST", "NO_DATA");
     }
     psWO->papszWarpOptions = CSLSetNameValue(psWO->papszWarpOptions,
-                                             "STRIP_VERT_CS", "YES" );
-    
-    const auto freeWarpOptions = common::make_scope_guard([psWO]() noexcept {
-        GDALDestroyWarpOptions(psWO);
-    });
-    
+                                             "STRIP_VERT_CS", "YES");
+
+    const auto freeWarpOptions = common::make_scope_guard([psWO]() noexcept
+                                                          {
+                                                              GDALDestroyWarpOptions(psWO);
+                                                          });
+
     if (!out.bounds.empty())
     {
         // verify bounds are > 0
@@ -393,10 +395,11 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
         dstDs.reset(driver->Create("mem_out", out.width, out.height, ni, gBandType, NULL));
         dstDs->SetGeoTransform(out.gt);
         dstDs->SetProjection(out.wkt.c_str());
-        if (nullValues != NULL && !nullValues->getNullvalues().empty()) {
-          LDEBUG << "set null value to " << nullValue << " in " << ni << " target bands.";
-          for (int band = 1; band <= ni; ++band)
-            dstDs->GetRasterBand(band)->SetNoDataValue(nullValue);
+        if (nullValues != NULL && !nullValues->getNullvalues().empty())
+        {
+            LDEBUG << "set null value to " << nullValue << " in " << ni << " target bands.";
+            for (int band = 1; band <= ni; ++band)
+                dstDs->GetRasterBand(band)->SetNoDataValue(nullValue);
         }
 #define USE_GDALWARP_OPERATION
 #ifdef USE_GDALWARP_OPERATION
@@ -404,22 +407,23 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
         // The gdalwarp way: the code below works if replaced instead of the
         //                   the GDALReprojectImage method. Keeping it in case it
         //                   is needed for more advanced use case in future.
-        
+
         GDALTransformerFunc pfnTransformer = nullptr;
         void *hTransformArg = nullptr;
-        void* hUniqueTransformArg = nullptr;
-        
+        void *hUniqueTransformArg = nullptr;
+
         hTransformArg = GDALCreateGenImgProjTransformer2(srcDs.get(), dstDs.get(), nullptr);
-        if (hTransformArg == nullptr) {
-          LERROR << "cannot reproject image, reason: " << CPLGetLastErrorMsg();
-          throw r_Error(r_Error::r_Error_RuntimeProjectionError);
+        if (hTransformArg == nullptr)
+        {
+            LERROR << "cannot reproject image, reason: " << CPLGetLastErrorMsg();
+            throw r_Error(r_Error::r_Error_RuntimeProjectionError);
         }
         void *phTransformArg = hTransformArg;
         GDALSetGenImgProjTransformerDstGeoTransform(phTransformArg, out.gt);
         pfnTransformer = GDALGenImgProjTransform;
 
         hTransformArg = GDALCreateApproxTransformer(
-                            GDALGenImgProjTransform, hTransformArg, errThreshold);
+            GDALGenImgProjTransform, hTransformArg, errThreshold);
         pfnTransformer = GDALApproxTransform;
         GDALApproxTransformerOwnsSubtransformer(hTransformArg, TRUE);
         psWO->pfnTransformer = pfnTransformer;
@@ -456,8 +460,8 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
     else
     {
         LDEBUG << "Reprojecting with GDALAutoCreateWarpedVRT as output bounds were not set";
-        dstDs.reset((GDALDataset *) GDALAutoCreateWarpedVRT(srcDs.get(), in.wkt.c_str(), out.wkt.c_str(),
-                    interpolation, errThreshold, psWO));
+        dstDs.reset((GDALDataset *)GDALAutoCreateWarpedVRT(srcDs.get(), in.wkt.c_str(), out.wkt.c_str(),
+                                                           interpolation, errThreshold, psWO));
         if (!dstDs)
         {
             LERROR << "failed reprojecting image, reason: " << CPLGetLastErrorMsg();
@@ -479,20 +483,21 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
 
     char *tileCells RAS_ALIGNED = static_cast<char *>(mymalloc(w * h * n * bandCellSz));
     char *bandCells RAS_ALIGNED = NULL;
-    
+
     const auto freeData = common::make_scope_guard(
-                [&tileCells, &bandCells]() noexcept {
-        if (tileCells) free(tileCells);
-        if (bandCells) free(bandCells);
-    });
-    
+        [&tileCells, &bandCells]() noexcept
+        {
+            if (tileCells) free(tileCells);
+            if (bandCells) free(bandCells);
+        });
+
     bandCells = static_cast<char *>(mymalloc(w * h * bandCellSz));
 
     // transpose GDAL bands into result tile
     for (int band = 0; band < ni; ++band)
     {
         if (dstDs->GetRasterBand(band + 1)->RasterIO(
-                    GF_Read, 0, 0, wi, hi, (void *) bandCells, wi, hi, gBandType, 0, 0) != CE_None)
+                GF_Read, 0, 0, wi, hi, (void *)bandCells, wi, hi, gBandType, 0, 0) != CE_None)
         {
             LERROR << "failed reading raster band data from GDAL, reason: " << CPLGetLastErrorMsg();
             throw r_Error(r_Error::r_Error_RuntimeProjectionError);
@@ -525,18 +530,16 @@ std::unique_ptr<Tile> QtProject::reprojectTile(Tile *srcTile, int ni, r_Primitiv
     const auto wlo = domain[0].low();
     const auto hlo = domain[1].low();
     auto resDomain = r_Minterval(2)
-        << r_Sinterval(wlo, wlo + r_Range(wi) - 1)
-        << r_Sinterval(hlo, hlo + r_Range(hi) - 1);
+                     << r_Sinterval(wlo, wlo + r_Range(wi) - 1)
+                     << r_Sinterval(hlo, hlo + r_Range(hi) - 1);
     // And finally build the tile
     std::unique_ptr<Tile> resultTile;
-    resultTile.reset(new Tile(resDomain, srcTile->getType(), true, reinterpret_cast<char*>(tileCells), static_cast<r_Bytes>(0), r_Array));
-    tileCells = NULL; // important to avoid free by the freeData scope guard
+    resultTile.reset(new Tile(resDomain, srcTile->getType(), true, reinterpret_cast<char *>(tileCells), static_cast<r_Bytes>(0), r_Array));
+    tileCells = NULL;  // important to avoid free by the freeData scope guard
     return resultTile;
 }
 
-
-#endif // HAVE_GDAL
-
+#endif  // HAVE_GDAL
 
 const QtTypeElement &
 QtProject::checkType(QtTypeTuple *typeTuple)
@@ -563,15 +566,14 @@ QtProject::checkType(QtTypeTuple *typeTuple)
         LERROR << "operand branch invalid.";
     }
     return dataStreamType;
-#else // HAVE_GDAL
+#else   // HAVE_GDAL
     LERROR << "GDAL support has been disabled, hence the project function is not available.";
     parseInfo.setErrorNo(FEATURENOTSUPPORTED);
     throw parseInfo;
-#endif // HAVE_GDAL
+#endif  // HAVE_GDAL
 }
 
-void
-QtProject::optimizeLoad(QtTrimList *trimList)
+void QtProject::optimizeLoad(QtTrimList *trimList)
 {
     if (trimList)
     {
@@ -583,8 +585,7 @@ QtProject::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-void
-QtProject::printTree(int tab, ostream &s, QtChildType mode)
+void QtProject::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(tab).c_str() << "QtProject object" << endl;
     QtUnaryOperation::printTree(tab, s, mode);

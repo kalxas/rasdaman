@@ -52,12 +52,31 @@ class r_Type : public r_Meta_Object
 public:
     /// typedef for the enum specifying a primitive type, structure type,
     /// marray type, interval type, minterval type, point type or oid type
-    enum r_Type_Id { ULONG, USHORT, BOOL, LONG, SHORT, OCTET,
-                     DOUBLE, FLOAT, CHAR, COMPLEXTYPE1, COMPLEXTYPE2, CINT16, CINT32,
-                     STRUCTURETYPE, MARRAYTYPE, COLLECTIONTYPE,
-                     SINTERVALTYPE, MINTERVALTYPE, POINTTYPE, OIDTYPE, STRINGTYPE,
-                     UNKNOWNTYPE
-                   };
+    enum r_Type_Id
+    {
+        ULONG,
+        USHORT,
+        BOOL,
+        LONG,
+        SHORT,
+        OCTET,
+        DOUBLE,
+        FLOAT,
+        CHAR,
+        COMPLEXTYPE1,
+        COMPLEXTYPE2,
+        CINT16,
+        CINT32,
+        STRUCTURETYPE,
+        MARRAYTYPE,
+        COLLECTIONTYPE,
+        SINTERVALTYPE,
+        MINTERVALTYPE,
+        POINTTYPE,
+        OIDTYPE,
+        STRINGTYPE,
+        UNKNOWNTYPE
+    };
     /// default constructor.
     r_Type() = default;
     /// constructor getting name of type.
@@ -100,7 +119,7 @@ public:
 
     /// check, if type is a oid
     virtual bool isOidType() const;
-    
+
     /// check, if type is a string
     virtual bool isStringType() const;
 
@@ -114,20 +133,45 @@ public:
     /// converts array of cells from Unix byte order to NT byte order.
     virtual void convertToBigEndian(char *cells, r_Area noCells) const = 0;
 
-
 private:
-
     //@Man: Methodes and structures for dl parser:
     //@{
     ///
-    
+
     /// token enumeration for parser
-    enum DLTOKEN   { DLMARRAY, DLSET, DLSTRUCT, DLCOMMA,
-                     DLLEP, DLREP, DLLAP, DLRAP, DLLCP, DLRCP,
-                     DLIDENTIFIER, DLCHAR, DLOCTET, DLSHORT, DLUSHORT,
-                     DLLONG, DLULONG, DLFLOAT, DLDOUBLE, DLBOOL, DLCOMPLEXTYPE1, DLCOMPLEXTYPE2, DLCINT16, DLCINT32, 
-                     DLINTERVAL,  DLMINTERVAL, DLPOINT, DLOID, DLSTRING, DLUNKNOWN
-                   };
+    enum DLTOKEN
+    {
+        DLMARRAY,
+        DLSET,
+        DLSTRUCT,
+        DLCOMMA,
+        DLLEP,
+        DLREP,
+        DLLAP,
+        DLRAP,
+        DLLCP,
+        DLRCP,
+        DLIDENTIFIER,
+        DLCHAR,
+        DLOCTET,
+        DLSHORT,
+        DLUSHORT,
+        DLLONG,
+        DLULONG,
+        DLFLOAT,
+        DLDOUBLE,
+        DLBOOL,
+        DLCOMPLEXTYPE1,
+        DLCOMPLEXTYPE2,
+        DLCINT16,
+        DLCINT32,
+        DLINTERVAL,
+        DLMINTERVAL,
+        DLPOINT,
+        DLOID,
+        DLSTRING,
+        DLUNKNOWN
+    };
     ///
     static DLTOKEN getNextToken(char *&pos, char *&identifier);
     ///
@@ -155,8 +199,6 @@ private:
 
     ///
     //@}
-
-
 };
 
 extern std::ostream &operator<<(std::ostream &s, r_Type::r_Type_Id t);
@@ -174,18 +216,57 @@ extern std::ostream &operator<<(std::ostream &s, r_Type::r_Type_Id t);
 //
 #define CODE(...) __VA_ARGS__
 #define MAKE_SWITCH_TYPEID(cellType, T, code, codeDefault) \
-    switch (cellType) { \
-    case r_Type::r_Type_Id::ULONG: { using T = r_ULong;   code break; } \
-    case r_Type::r_Type_Id::USHORT:{ using T = r_UShort;  code break; } \
-    case r_Type::r_Type_Id::CHAR:  { using T = r_Char;    code break; } \
-    case r_Type::r_Type_Id::BOOL:  { using T = r_Boolean; code break; } \
-    case r_Type::r_Type_Id::LONG:  { using T = r_Long;    code break; } \
-    case r_Type::r_Type_Id::SHORT: { using T = r_Short;   code break; } \
-    case r_Type::r_Type_Id::OCTET: { using T = r_Octet;   code break; } \
-    case r_Type::r_Type_Id::DOUBLE:{ using T = r_Double;  code break; } \
-    case r_Type::r_Type_Id::FLOAT: { using T = r_Float;   code break; } \
-    default:       { codeDefault break; } \
+    switch (cellType)                                      \
+    {                                                      \
+    case r_Type::r_Type_Id::ULONG:                         \
+    {                                                      \
+        using T = r_ULong;                                 \
+        code break;                                        \
+    }                                                      \
+    case r_Type::r_Type_Id::USHORT:                        \
+    {                                                      \
+        using T = r_UShort;                                \
+        code break;                                        \
+    }                                                      \
+    case r_Type::r_Type_Id::CHAR:                          \
+    {                                                      \
+        using T = r_Char;                                  \
+        code break;                                        \
+    }                                                      \
+    case r_Type::r_Type_Id::BOOL:                          \
+    {                                                      \
+        using T = r_Boolean;                               \
+        code break;                                        \
+    }                                                      \
+    case r_Type::r_Type_Id::LONG:                          \
+    {                                                      \
+        using T = r_Long;                                  \
+        code break;                                        \
+    }                                                      \
+    case r_Type::r_Type_Id::SHORT:                         \
+    {                                                      \
+        using T = r_Short;                                 \
+        code break;                                        \
+    }                                                      \
+    case r_Type::r_Type_Id::OCTET:                         \
+    {                                                      \
+        using T = r_Octet;                                 \
+        code break;                                        \
+    }                                                      \
+    case r_Type::r_Type_Id::DOUBLE:                        \
+    {                                                      \
+        using T = r_Double;                                \
+        code break;                                        \
+    }                                                      \
+    case r_Type::r_Type_Id::FLOAT:                         \
+    {                                                      \
+        using T = r_Float;                                 \
+        code break;                                        \
+    }                                                      \
+    default:                                               \
+    {                                                      \
+        codeDefault break;                                 \
+    }                                                      \
     }
-
 
 #endif

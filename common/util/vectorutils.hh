@@ -29,70 +29,87 @@ rasdaman GmbH.
 #include <vector>
 #include <algorithm>
 
-namespace common {
-class VectorUtils final {
- public:
-  template<typename T>
-  static std::string join(const std::vector<T> &list,
-                          const std::string &separator) {
-    std::vector<std::string> strList(list.size());
-    std::transform(std::begin(list), std::end(list), std::begin(strList),
-                   [](T d) { return boost::lexical_cast<std::string>(d); });
+namespace common
+{
+class VectorUtils final
+{
+public:
+    template <typename T>
+    static std::string join(const std::vector<T> &list,
+                            const std::string &separator)
+    {
+        std::vector<std::string> strList(list.size());
+        std::transform(std::begin(list), std::end(list), std::begin(strList),
+                       [](T d)
+                       {
+                           return boost::lexical_cast<std::string>(d);
+                       });
 
-    std::string joinedString = boost::algorithm::join(strList, separator);
-    return joinedString;
-  }
+        std::string joinedString = boost::algorithm::join(strList, separator);
+        return joinedString;
+    }
 
-  /**
+    /**
    * Appends the elements of src to dst by copying them.
    */
-  template<typename T>
-  static void append(const std::vector<T> &src, std::vector<T> &dst) {
-    if (dst.empty()) {
-      dst = src;
-    } else {
-      dst.reserve(src.size() + dst.size());
-      for (const auto &el: src) {
-        dst.push_back(el);
-      }
+    template <typename T>
+    static void append(const std::vector<T> &src, std::vector<T> &dst)
+    {
+        if (dst.empty())
+        {
+            dst = src;
+        }
+        else
+        {
+            dst.reserve(src.size() + dst.size());
+            for (const auto &el: src)
+            {
+                dst.push_back(el);
+            }
+        }
     }
-  }
 
-  /**
+    /**
    * Appends the elements of src to dst by moving them, i.e. src is empty
    * afterwards.
    */
-  template<typename T>
-  static void append(std::vector<T> &&src, std::vector<T> &dst) {
-    if (dst.empty()) {
-      dst = std::move(src);
-    } else {
-      dst.reserve(src.size() + dst.size());
-      for (auto &el: src) {
-        dst.push_back(std::move(el));
-      }
+    template <typename T>
+    static void append(std::vector<T> &&src, std::vector<T> &dst)
+    {
+        if (dst.empty())
+        {
+            dst = std::move(src);
+        }
+        else
+        {
+            dst.reserve(src.size() + dst.size());
+            for (auto &el: src)
+            {
+                dst.push_back(std::move(el));
+            }
+        }
     }
-  }
 
-  /**
+    /**
    * Check if the elements in v are unique; this a simple straightforward
    * implementation that works in O(N^2), so it's not suitable for large
    * vectors.
    * 
    * @return true if all elements are unique, false otherwise.
    */
-  template<typename T>
-  static bool hasUniqueElements(const std::vector<T> &v) {
-    for (size_t i = 1; i < v.size(); ++i)
-      for (size_t j = 0; j < i; ++j)
-        if (v[i] == v[j]) return false;
-    // no duplicates found
-    return true;
-  }
+    template <typename T>
+    static bool hasUniqueElements(const std::vector<T> &v)
+    {
+        for (size_t i = 1; i < v.size(); ++i)
+            for (size_t j = 0; j < i; ++j)
+                if (v[i] == v[j]) return false;
+        // no duplicates found
+        return true;
+    }
 
- private:
-  VectorUtils() = delete;
+private:
+    VectorUtils() = delete;
 };
-}
+}  // namespace common
 
 #endif

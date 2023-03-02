@@ -29,23 +29,23 @@ rasdaman GmbH.
 #include <logging.hh>
 
 r_Attribute::r_Attribute()
-    :   r_Property(),
-        localOffset(0),
-        globalOffset(0)
+    : r_Property(),
+      localOffset(0),
+      globalOffset(0)
 {
 }
 
 r_Attribute::r_Attribute(const char *newTypeName, const r_Base_Type &newType)
-    :   r_Property(newTypeName, newType),
-        localOffset(0),
-        globalOffset(0)
+    : r_Property(newTypeName, newType),
+      localOffset(0),
+      globalOffset(0)
 {
 }
 
 r_Attribute::r_Attribute(const r_Attribute &oldObj)
-    :   r_Property(oldObj),
-        localOffset(oldObj.localOffset),
-        globalOffset(oldObj.globalOffset)
+    : r_Property(oldObj),
+      localOffset(oldObj.localOffset),
+      globalOffset(oldObj.globalOffset)
 {
 }
 
@@ -55,7 +55,7 @@ r_Attribute::operator=(const r_Attribute &oldObj)
     // Gracefully handle self assignment
     if (this != &oldObj)
     {
-        r_Property::operator=(oldObj) ;
+        r_Property::operator=(oldObj);
         localOffset = oldObj.localOffset;
         globalOffset = oldObj.globalOffset;
     }
@@ -73,8 +73,7 @@ r_Attribute::offset() const
     return localOffset;
 }
 
-void
-r_Attribute::set_offset(r_Bytes newOffset)
+void r_Attribute::set_offset(r_Bytes newOffset)
 {
     localOffset = newOffset;
 }
@@ -85,20 +84,16 @@ r_Attribute::global_offset() const
     return globalOffset;
 }
 
-void
-r_Attribute::set_global_offset(r_Bytes newOffset)
+void r_Attribute::set_global_offset(r_Bytes newOffset)
 {
     globalOffset = newOffset;
 }
 
-void
-r_Attribute::print_status(std::ostream &s) const
+void r_Attribute::print_status(std::ostream &s) const
 {
     type_of().print_status(s);
     s << " " << name() << std::flush;
 }
-
-
 
 r_Attribute
 r_Attribute::operator[](unsigned int number) const
@@ -106,7 +101,7 @@ r_Attribute::operator[](unsigned int number) const
     if (type_of().type_id() != r_Type::STRUCTURETYPE)
     {
         LERROR << "r_Attribute::operator[](" << number << ") not a struct type";
-        throw r_Error(r_Error::r_Error_TypeInvalid) ;
+        throw r_Error(r_Error::r_Error_TypeInvalid);
     }
 
     const r_Structure_Type &structValue = (const r_Structure_Type &)type_of();
@@ -114,139 +109,121 @@ r_Attribute::operator[](unsigned int number) const
     return structValue[number];
 }
 
-
-
 r_Boolean
 r_Attribute::get_boolean(const char *cell) const
 {
     if (type_of().type_id() != r_Type::BOOL)
     {
         LERROR << "r_Attribute::get_boolean(data) not a boolean";
-        r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw (err) ;
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw(err);
     }
 
-    return *((r_Boolean *)(const_cast<char *>(cell) + globalOffset)) ;
+    return *((r_Boolean *)(const_cast<char *>(cell) + globalOffset));
 }
-
-
 
 r_Char
 r_Attribute::get_char(const char *cell) const
 {
-    if (type_of() .type_id() != r_Type::CHAR)
+    if (type_of().type_id() != r_Type::CHAR)
     {
         LERROR << "r_Attribute::get_char(data) not a char";
-        r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw (err) ;
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw(err);
     }
 
-    return *((r_Char *)(const_cast<char *>(cell) + globalOffset)) ;
+    return *((r_Char *)(const_cast<char *>(cell) + globalOffset));
 }
-
-
 
 r_Octet
 r_Attribute::get_octet(const char *cell) const
 {
-    if (type_of() .type_id() != r_Type::OCTET)
+    if (type_of().type_id() != r_Type::OCTET)
     {
         LERROR << "r_Attribute::get_octet(data) not a octet";
-        r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw (err) ;
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw(err);
     }
 
-    return *((r_Octet *)(const_cast<char *>(cell) + globalOffset)) ;
+    return *((r_Octet *)(const_cast<char *>(cell) + globalOffset));
 }
-
-
 
 r_Short
 r_Attribute::get_short(const char *cell) const
 {
-    if (type_of() .type_id() != r_Type::SHORT)
+    if (type_of().type_id() != r_Type::SHORT)
     {
         LERROR << "r_Attribute::get_short(data) not a short";
-        r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw (err) ;
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw(err);
     }
 
-    return *((r_Short *)(const_cast<char *>(cell) + globalOffset)) ;
+    return *((r_Short *)(const_cast<char *>(cell) + globalOffset));
 }
-
-
 
 r_UShort
 r_Attribute::get_ushort(const char *cell) const
 {
-    if (type_of() .type_id() != r_Type::USHORT)
+    if (type_of().type_id() != r_Type::USHORT)
     {
         LERROR << "r_Attribute::get_ushort(data) not a ushort";
-        r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw (err) ;
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw(err);
     }
 
-    return *((r_UShort *)(const_cast<char *>(cell) + globalOffset)) ;
+    return *((r_UShort *)(const_cast<char *>(cell) + globalOffset));
 }
-
-
 
 r_Long
 r_Attribute::get_long(const char *cell) const
 {
-    if (type_of() .type_id() != r_Type::LONG)
+    if (type_of().type_id() != r_Type::LONG)
     {
         LERROR << "r_Attribute::get_long(data) not a long";
-        r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw (err) ;
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw(err);
     }
 
-    return *((r_Long *)(const_cast<char *>(cell) + globalOffset)) ;
+    return *((r_Long *)(const_cast<char *>(cell) + globalOffset));
 }
-
-
 
 r_ULong
 r_Attribute::get_ulong(const char *cell) const
 {
-    if (type_of() .type_id() != r_Type::ULONG)
+    if (type_of().type_id() != r_Type::ULONG)
     {
         LERROR << "r_Attribute::get_ulong(data) not a ulong";
-        r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw (err) ;
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw(err);
     }
 
-    return *((r_ULong *)(const_cast<char *>(cell) + globalOffset)) ;
+    return *((r_ULong *)(const_cast<char *>(cell) + globalOffset));
 }
-
-
 
 r_Float
 r_Attribute::get_float(const char *cell) const
 {
-    if (type_of() .type_id() != r_Type::FLOAT)
+    if (type_of().type_id() != r_Type::FLOAT)
     {
         LERROR << "r_Attribute::get_float(data) not a float";
-        r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw (err) ;
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw(err);
     }
 
-    return *((r_Float *)(const_cast<char *>(cell) + globalOffset)) ;
+    return *((r_Float *)(const_cast<char *>(cell) + globalOffset));
 }
-
-
 
 r_Double
 r_Attribute::get_double(const char *cell) const
 {
-    if (type_of() .type_id() != r_Type::DOUBLE)
+    if (type_of().type_id() != r_Type::DOUBLE)
     {
         LERROR << "r_Attribute::get_double(data) not a double";
-        r_Error err(r_Error::r_Error_TypeInvalid) ;
-        throw (err) ;
+        r_Error err(r_Error::r_Error_TypeInvalid);
+        throw(err);
     }
 
-    return *((r_Double *)(const_cast<char *>(cell) + globalOffset)) ;
+    return *((r_Double *)(const_cast<char *>(cell) + globalOffset));
 }
 
 std::ostream &operator<<(std::ostream &str, const r_Attribute &type)

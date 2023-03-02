@@ -25,19 +25,21 @@
 
 #include "exception.hh"
 
-namespace common {
+namespace common
+{
 /**
  * @brief The RuntimeException class defines a type of object to be thrown as
  * exception.
  *  It reports errors that arise at runtime. It should be subclassed and used to
  * report recoverable errors.
  */
-class RuntimeException : public Exception {
- public:
-  RuntimeException(const std::string& message);
+class RuntimeException : public Exception
+{
+public:
+    RuntimeException(const std::string &message);
 
-  ~RuntimeException() noexcept override;
+    ~RuntimeException() noexcept override;
 };
-} // namespace common
+}  // namespace common
 
 #endif

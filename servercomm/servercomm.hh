@@ -58,9 +58,8 @@ private:
     static ClientTblElt *clientTbl;
     /// mutex to control write access to clientTbl
     static std::mutex clientTblMutex;
-    
-public:
 
+public:
     /// default constructor
     ServerComm();
 
@@ -344,8 +343,8 @@ public:
 
     /// create a new persistent MDD object for tile based transfers
     virtual unsigned short startInsertPersMDD(unsigned long callingClientId,
-            const char *collName, r_Minterval &domain,
-            unsigned long typeLength, const char *typeName, r_OId &oid);
+                                              const char *collName, r_Minterval &domain,
+                                              unsigned long typeLength, const char *typeName, r_OId &oid);
     /**
       Creates an object for tile based transfer with method insertTile to be
       inserted into the specified MDD collection.
@@ -389,8 +388,8 @@ public:
     ///
     /// prepares an MDD (transient) for transfer of tiles
     virtual unsigned short startInsertTransMDD(unsigned long callingClientId,
-            r_Minterval &domain,
-            unsigned long typeLength, const char *typeName);
+                                               r_Minterval &domain,
+                                               unsigned long typeLength, const char *typeName);
     /**
       Creates an object for tile based transfer with method insertTile.
 
@@ -568,7 +567,7 @@ public:
       \end{tabular}
       \endlatexonly
     */
-    
+
     virtual void reportExecutionTimes(ClientTblElt *context);
 
     // -----------------------------------------------------------------------------------------
@@ -643,7 +642,7 @@ public:
     ///
     /// remove object specified by oid from collection specified by name
     virtual unsigned short removeObjFromColl(unsigned long callingClientId,
-            const char *collName, r_OId &oid);
+                                             const char *collName, r_OId &oid);
     /**
       The method removes the object with {\\t oid} from collection with \c collName.
       The first parameter is the unique client id for which the object should be removed.
@@ -734,9 +733,9 @@ public:
 
     /// gets oids of the collection specified by name
     virtual unsigned short getCollOIdsByName(unsigned long callingClientId,
-            const char *collName,
-            std::string &typeName, std::string &typeStructure, r_OId &oid,
-            RPCOIdEntry *&oidTable, unsigned int &oidTableSize);
+                                             const char *collName,
+                                             std::string &typeName, std::string &typeStructure, r_OId &oid,
+                                             RPCOIdEntry *&oidTable, unsigned int &oidTableSize);
     /**
       Gets the collection of oids of the collection with \c collName.
 
@@ -908,7 +907,7 @@ public:
     /**
     return values exactly like setTransferMode()
     */
-    
+
     void setAdmin(AdminIf *newAdmin);
 
     static const int RESPONSE_ERROR;
@@ -948,7 +947,7 @@ protected:
     static void cleanExecuteQueryRes(ExecuteQueryRes &res);
     /// return type name and type structure of the first transfer element in context
     std::pair<std::string, std::string> getTypeNameStructure(ClientTblElt *context) const;
-    unsigned short handleExecuteQueryResult(ClientTblElt *context, unsigned short returnValue, 
+    unsigned short handleExecuteQueryResult(ClientTblElt *context, unsigned short returnValue,
                                             ExecuteQueryRes &returnStructure) const;
     unsigned short getTransferCollInfo(
         ClientTblElt *context, r_OId &oid, std::string &typeName, std::string &typeStructure, MDDColl *coll) const;

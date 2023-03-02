@@ -36,12 +36,11 @@ rasdaman GmbH.
 class r_Nullvalues
 {
 public:
-    
     /// the * in *:hi, it is the smallest double number
     static const double_t unlimitedLow;
     /// the * in lo:*, it is the maximum double number
     static const double_t unlimitedHigh;
-    
+
     r_Nullvalues() = default;
     explicit r_Nullvalues(std::vector<std::pair<r_Double, r_Double>> &&nullvaluesArg);
 
@@ -54,7 +53,7 @@ public:
     template <typename T>
     inline bool isNullNonFloat(const T value) const
     {
-        for (const auto &p : nullvalues)
+        for (const auto &p: nullvalues)
         {
             if (value >= (p.first - DBL_EPSILON) && value <= (p.second + DBL_EPSILON))
             {
@@ -69,7 +68,7 @@ public:
     template <typename T>
     inline bool isNullFloat(const T value) const
     {
-        for (const auto &p : nullvalues)
+        for (const auto &p: nullvalues)
         {
             if ((value >= (p.first - DBL_EPSILON) && value <= (p.second + DBL_EPSILON)) ||
                 (std::isnan(value) && std::isnan(p.first)))
@@ -79,8 +78,8 @@ public:
         }
         return false;
     }
-    
-    /// if the null set contains any non-interval null values, then the first such 
+
+    /// if the null set contains any non-interval null values, then the first such
     /// null value is returned, otherwise the first interval bound which is not
     /// '*' is returned; useful in cases where a single nodata value is needed,
     /// e.g. when encoding the data
@@ -91,6 +90,5 @@ public:
 protected:
     std::vector<std::pair<r_Double, r_Double>> nullvalues;
 };
-
 
 #endif

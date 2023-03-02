@@ -49,14 +49,11 @@ using namespace std;
 const QtNode::QtNodeType QtMarrayOp::nodeType = QT_MARRAYOP;
 
 QtMarrayOp::QtMarrayOp(const string &initIteratorName, QtOperation *mintervalExp, QtOperation *cellExp)
-    :  QtBinaryOperation(mintervalExp, cellExp), iteratorName(initIteratorName)
+    : QtBinaryOperation(mintervalExp, cellExp), iteratorName(initIteratorName)
 {
 }
 
-
-
-void
-QtMarrayOp::optimizeLoad(QtTrimList *trimList)
+void QtMarrayOp::optimizeLoad(QtTrimList *trimList)
 {
     // delete the trimList and optimize subtrees
 
@@ -72,15 +69,10 @@ QtMarrayOp::optimizeLoad(QtTrimList *trimList)
     QtBinaryOperation::optimizeLoad(new QtNode::QtTrimList());
 }
 
-
-
-bool
-QtMarrayOp::isCommutative() const
+bool QtMarrayOp::isCommutative() const
 {
-    return false; // NOT commutative
+    return false;  // NOT commutative
 }
-
-
 
 QtData *
 QtMarrayOp::evaluate(QtDataList *inputList)
@@ -93,8 +85,11 @@ QtMarrayOp::evaluate(QtDataList *inputList)
     if (getOperand(inputList, operand1, 1))
     {
         const auto deleteOperand1 = common::make_scope_guard(
-            [&operand1]() noexcept { if (operand1) operand1->deleteRef(); });
-        
+            [&operand1]() noexcept
+            {
+                if (operand1) operand1->deleteRef();
+            });
+
         // if operand1 is a QT_INTERVAL convert it to QT_MINTERVAL
         if (operand1->getDataType() == QT_INTERVAL)
         {
@@ -134,10 +129,12 @@ QtMarrayOp::evaluate(QtDataList *inputList)
         inputList->push_back(point);
         // automatically cleanup the input list on exit
         const auto deleteInputList = common::make_scope_guard(
-            [&inputList, newInputList]() noexcept { 
+            [&inputList, newInputList]() noexcept
+            {
                 inputList->back()->deleteRef();
                 inputList->pop_back();
-                if (newInputList) {
+                if (newInputList)
+                {
                     delete inputList;
                     inputList = NULL;
                 }
@@ -169,16 +166,14 @@ QtMarrayOp::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-void
-QtMarrayOp::printTree(int tab, ostream &s, QtChildType mode)
+void QtMarrayOp::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMarrayOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "Iterator Name: " << iteratorName.c_str() << endl;
     QtBinaryOperation::printTree(tab, s, mode);
 }
 
-void
-QtMarrayOp::printAlgebraicExpression(ostream &s)
+void QtMarrayOp::printAlgebraicExpression(ostream &s)
 {
     s << "(";
     s << iteratorName.c_str() << ",";
@@ -196,8 +191,6 @@ QtMarrayOp::printAlgebraicExpression(ostream &s)
 
     s << ")";
 }
-
-
 
 const QtTypeElement &
 QtMarrayOp::checkType(QtTypeTuple *typeTuple)

@@ -31,12 +31,12 @@ namespace rasmgr
  * @brief The InvalidClientCredentialsException class defines a type of object to be thrown as exception.
  *  It reports errors that arise because a client tried to connect to rasmgr with invalid credentials.
  */
-class InvalidClientCredentialsException: public common::RuntimeException
+class InvalidClientCredentialsException : public common::RuntimeException
 {
 public:
     InvalidClientCredentialsException(const std::string &username);
 
     virtual ~InvalidClientCredentialsException() noexcept;
 };
-}
-#endif // RASMGR_X_SRC_EXCEPTIONS_INVALIDCLIENTCREDENTIALSEXCEPTION_HH
+}  // namespace rasmgr
+#endif  // RASMGR_X_SRC_EXCEPTIONS_INVALIDCLIENTCREDENTIALSEXCEPTION_HH

@@ -110,11 +110,11 @@ r_GMarray::r_GMarray(r_GMarray &obj)
       data_size(obj.data_size), type_length(obj.type_length), current_format(obj.current_format),
       band_linearization{obj.band_linearization}, cell_linearization{obj.cell_linearization}
 {
-    obj.data_size      = 0;
-    obj.data           = 0;
-    obj.tiled_data     = 0;
-    obj.domain         = r_Minterval();
-    obj.type_length    = 0;
+    obj.data_size = 0;
+    obj.data = 0;
+    obj.tiled_data = 0;
+    obj.domain = r_Minterval();
+    obj.type_length = 0;
     if (obj.storage_layout)
     {
         storage_layout = obj.storage_layout->clone();
@@ -127,8 +127,7 @@ r_GMarray::~r_GMarray()
     r_deactivate();
 }
 
-void
-r_GMarray::r_deactivate()
+void r_GMarray::r_deactivate()
 {
     if (data)
     {
@@ -160,8 +159,7 @@ r_GMarray::get_storage_layout() const
     return storage_layout;
 }
 
-void
-r_GMarray::set_storage_layout(r_Storage_Layout *stl)
+void r_GMarray::set_storage_layout(r_Storage_Layout *stl)
 {
     if (!stl->is_compatible(domain, type_length))
     {
@@ -200,8 +198,8 @@ r_GMarray::operator=(const r_GMarray &marray)
         {
             storage_layout = marray.storage_layout->clone();
         }
-        domain         = marray.domain;
-        type_length    = marray.type_length;
+        domain = marray.domain;
+        type_length = marray.type_length;
         current_format = marray.current_format;
         band_linearization = marray.band_linearization;
         cell_linearization = marray.cell_linearization;
@@ -209,16 +207,14 @@ r_GMarray::operator=(const r_GMarray &marray)
     return *this;
 }
 
-void
-r_GMarray::insert_obj_into_db()
+void r_GMarray::insert_obj_into_db()
 {
     // Nothing is done in that case. r_Marray objects can just be inserted as elements
     // of a collection which invokes r_GMarray::insert_obj_into_db(const char* collName)
     // of the r_Marray objects.
 }
 
-void
-r_GMarray::insert_obj_into_db(const char *collName)
+void r_GMarray::insert_obj_into_db(const char *collName)
 {
     update_transaction();
 
@@ -229,11 +225,10 @@ r_GMarray::insert_obj_into_db(const char *collName)
     transaction->getDatabase()->getComm()->insertMDD(collName, this);
 }
 
-void
-r_GMarray::print_status(std::ostream &s)
+void r_GMarray::print_status(std::ostream &s)
 {
-    const r_Type       *typeSchema     = get_type_schema();
-    const r_Base_Type  *baseTypeSchema = get_base_type_schema();
+    const r_Type *typeSchema = get_type_schema();
+    const r_Base_Type *baseTypeSchema = get_base_type_schema();
 
     s << "GMarray";
     s << "\n  Oid...................: " << get_oid();
@@ -256,12 +251,11 @@ r_GMarray::print_status(std::ostream &s)
     s << "\n  Cell linearization... : " << cell_linearization << std::endl;
 }
 
-void
-r_GMarray::print_status(std::ostream &s, int hexoutput)
+void r_GMarray::print_status(std::ostream &s, int hexoutput)
 {
     print_status(s);
-    const r_Type       *typeSchema     = get_type_schema();
-    const r_Base_Type  *baseTypeSchema = get_base_type_schema();
+    const r_Type *typeSchema = get_type_schema();
+    const r_Base_Type *baseTypeSchema = get_base_type_schema();
 
     if (domain.dimension())
     {
@@ -282,7 +276,7 @@ r_GMarray::print_status(std::ostream &s, int hexoutput)
             else
             {
                 if (baseTypeSchema)
-                    baseTypeSchema->print_value(cell,  s);
+                    baseTypeSchema->print_value(cell, s);
                 else
                     s << "<nn>" << std::flush;
             }
@@ -319,7 +313,7 @@ r_GMarray::print_status(std::ostream &s, int hexoutput)
         else
         {
             if (baseTypeSchema)
-                baseTypeSchema->print_value(data,  s);
+                baseTypeSchema->print_value(data, s);
             else
                 s << "<nn>";
         }
@@ -337,7 +331,7 @@ r_GMarray *r_GMarray::intersect(const r_Minterval &where) const
     const auto &src_domain = spatial_domain();
     const auto num_dims = src_domain.dimension();
     const auto tlength = get_type_length();
-    
+
     const char *src_data = get_array();
     char *dst_data = new char[where.cell_count() * tlength];
     tile->set_spatial_domain(where);
@@ -351,14 +345,14 @@ r_GMarray *r_GMarray::intersect(const r_Minterval &where) const
     r_Bytes block_length = static_cast<r_Bytes>(where[num_dims - 1].get_extent());
     // number of blocks in the intersection domain
     r_Bytes block_count = where.cell_count() / block_length;
-    
+
     if (band_linearization == r_Band_Linearization::PixelInterleaved ||
         (type_schema && static_cast<const r_Marray_Type *>(type_schema)->base_type().isPrimitiveType()))
     {
         for (r_Area cell = 0; cell < block_count; ++cell)
         {
             r_Point p = where.cell_point(cell * block_length);
-    
+
             memcpy(dst_data + where.cell_offset(p) * tlength,
                    src_data + src_domain.cell_offset(p) * tlength,
                    block_length * tlength);
@@ -371,7 +365,7 @@ r_GMarray *r_GMarray::intersect(const r_Minterval &where) const
             const auto &baseType = static_cast<const r_Marray_Type *>(type_schema)->base_type();
             const auto &structType = static_cast<const r_Structure_Type &>(baseType);
             const auto &attributes = structType.getAttributes();
-            
+
             std::vector<size_t> srcBandOffsets{0};
             std::vector<size_t> dstBandOffsets{0};
             for (const auto &att: attributes)
@@ -380,23 +374,23 @@ r_GMarray *r_GMarray::intersect(const r_Minterval &where) const
                 srcBandOffsets.push_back(srcBandOffsets.back() + (src_domain.cell_count() * attlength));
                 dstBandOffsets.push_back(dstBandOffsets.back() + (where.cell_count() * attlength));
             }
-            
+
             for (r_Area cell = 0; cell < block_count; ++cell)
             {
                 r_Point p = where.cell_point(cell * block_length);
                 const auto dstOffset = where.cell_offset(p);
                 const auto srcOffset = src_domain.cell_offset(p);
-                
+
                 size_t i = 0;
                 for (const auto &att: attributes)
                 {
                     const auto attlength = att.type_of().size();
                     const auto block_size = block_length * attlength;
-            
+
                     memcpy((dst_data + dstBandOffsets[i]) + (dstOffset * attlength),
                            (src_data + srcBandOffsets[i]) + (srcOffset * attlength),
                            block_size);
-                    
+
                     ++i;
                 }
             }
@@ -407,14 +401,14 @@ r_GMarray *r_GMarray::intersect(const r_Minterval &where) const
             throw r_Error(MDDTYPE_NULL);
         }
     }
-    
+
     return tile;
 }
 
 const r_Base_Type *
 r_GMarray::get_base_type_schema()
 {
-    const r_Type      *typePtr     = r_Object::get_type_schema();
+    const r_Type *typePtr = r_Object::get_type_schema();
     const r_Base_Type *baseTypePtr = 0;
 
     if (typePtr)
@@ -442,12 +436,12 @@ r_Band_Iterator r_GMarray::get_band_iterator(unsigned int band)
 
 r_Band_Linearization r_GMarray::get_band_linearization() const
 {
-  return band_linearization;
+    return band_linearization;
 }
 
 r_Cell_Linearization r_GMarray::get_cell_linearization() const
 {
-  return cell_linearization;
+    return cell_linearization;
 }
 
 const r_Minterval &
@@ -468,34 +462,31 @@ r_GMarray::get_array() const
     return data;
 }
 
-r_Set< r_GMarray * > *
+r_Set<r_GMarray *> *
 r_GMarray::get_tiled_array()
 {
     return tiled_data;
 }
 
-const r_Set< r_GMarray * > *
+const r_Set<r_GMarray *> *
 r_GMarray::get_tiled_array() const
 {
     return tiled_data;
 }
 
-void
-r_GMarray::set_array(char *newData)
+void r_GMarray::set_array(char *newData)
 {
     // In case the array already has an array allocated, free it first.
-//  if (data != NULL) delete [] data;
+    //  if (data != NULL) delete [] data;
     data = newData;
 }
 
-void
-r_GMarray::set_tiled_array(r_Set< r_GMarray * > *newData)
+void r_GMarray::set_tiled_array(r_Set<r_GMarray *> *newData)
 {
     tiled_data = newData;
 }
 
-void
-r_GMarray::set_current_format(r_Data_Format newFormat)
+void r_GMarray::set_current_format(r_Data_Format newFormat)
 {
     current_format = newFormat;
 }
@@ -533,20 +524,17 @@ r_GMarray::get_current_format() const
     return current_format;
 }
 
-void
-r_GMarray::set_spatial_domain(const r_Minterval &dom)
+void r_GMarray::set_spatial_domain(const r_Minterval &dom)
 {
     domain = dom;
 }
 
-void
-r_GMarray::set_type_length(r_Bytes newValue)
+void r_GMarray::set_type_length(r_Bytes newValue)
 {
     type_length = newValue;
 }
 
-void
-r_GMarray::set_array_size(r_Bytes newValue)
+void r_GMarray::set_array_size(r_Bytes newValue)
 {
     data_size = newValue;
 }

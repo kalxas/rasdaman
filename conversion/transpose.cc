@@ -38,12 +38,11 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include <logging.hh>
 
-
-void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType)
+void transposeLastTwo(char *data, r_Minterval &dimData, const r_Type *dataType)
 {
     LDEBUG << "transposing last two dimensions...";
     const auto dim = dimData.dimension();
-    auto typeSize = static_cast<const r_Base_Type*>(dataType)->size();
+    auto typeSize = static_cast<const r_Base_Type *>(dataType)->size();
     //the number of 2D slices (last two dimensions) we need to transpose
     size_t s = 1;
     for (r_Dimension i = 0; i < dim - 2; i++)
@@ -56,9 +55,9 @@ void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType)
     //a relatively small placeholder for storing the locally transposed data
     const size_t sliceSize = m * n * typeSize;
     std::unique_ptr<char[]> dataTempPtr;
-    dataTempPtr.reset(new char [sliceSize]);
-    char* dataTemp = dataTempPtr.get();
-    
+    dataTempPtr.reset(new char[sliceSize]);
+    char *dataTemp = dataTempPtr.get();
+
     //a loop for changing each 2D data slice
     for (size_t v = 0; v < s; v++)
     {
@@ -82,14 +81,14 @@ void transposeLastTwo(char* data, r_Minterval& dimData, const r_Type* dataType)
     dimData.swap_dimensions(dim - 2, dim - 1);
 }
 
-void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const std::pair<int, int> transposeParams)
+void transpose(char *data, r_Minterval &dimData, const r_Type *dataType, const std::pair<int, int> transposeParams)
 {
     int dims = static_cast<int>(dimData.dimension());
     int tParam0 = std::get<0>(transposeParams);
     int tParam1 = std::get<1>(transposeParams);
     LDEBUG << "dims: " << dims << ", transpose dim 1: " << tParam0 << ", transpose dim 2: " << tParam1;
 
-    if ((dims - 1 == tParam0 || dims - 1 == tParam1) && 
+    if ((dims - 1 == tParam0 || dims - 1 == tParam1) &&
         (dims - 2 == tParam0 || dims - 2 == tParam1) &&
         (tParam0 != tParam1))
     {
@@ -97,7 +96,7 @@ void transpose(char* data, r_Minterval& dimData, const r_Type* dataType, const s
     }
     else
     {
-        throw r_Error(r_Error::r_Error_General, 
+        throw r_Error(r_Error::r_Error_General,
                       "selected transposition dimensions do not coincide with "
                       "the last two dimensions of the MDD operand");
     }

@@ -45,7 +45,7 @@ public:
      * @param address The in6_addr representation of the host.
      * @param port The port.
      */
-    IPv6Resolver(const struct in6_addr& address, std::uint32_t port);
+    IPv6Resolver(const struct in6_addr &address, std::uint32_t port);
 
     /**
      * @brief isPortBusy Checks if the port is busy.
@@ -60,5 +60,5 @@ private:
     struct in6_addr address;
 };
 
-} // namespace common
-#endif // IPV6RESOLVER_HH
+}  // namespace common
+#endif  // IPV6RESOLVER_HH

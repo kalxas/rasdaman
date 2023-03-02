@@ -40,11 +40,10 @@ rasdaman GmbH.
 #endif
 #endif
 
-
 using namespace std;
 
-#include <iostream.h>      // cout
-#include <stdio.h>         // fopen, perror
+#include <iostream.h>  // cout
+#include <stdio.h>     // fopen, perror
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -65,18 +64,18 @@ using namespace std;
 // init globals for server initialization
 // RMINITGLOBALS('C')
 
-extern int   yyparse();
-extern char* myExecArgv0 = "";
-extern char* beginParseString;
-extern char* iterParseString;
+extern int yyparse();
+extern char *myExecArgv0 = "";
+extern char *beginParseString;
+extern char *iterParseString;
 
-extern QueryTree* parseQueryTree;
+extern QueryTree *parseQueryTree;
 
-int main(int ac, char** av)
+int main(int ac, char **av)
 {
-    FILE* inFile;
-    char  baseName[255];
-    char  query[4096];
+    FILE *inFile;
+    char baseName[255];
+    char query[4096];
 
     //
     // read program arguments
@@ -101,20 +100,22 @@ int main(int ac, char** av)
     fread(&query, 1, 4095, inFile);
     fclose(inFile);
 
-    cout << "Query:" << endl << endl << query << endl;
+    cout << "Query:" << endl
+         << endl
+         << query << endl;
 
     //
     // open database, start transaction
     //
 
     // variables representing O2 database, ta and session
-    DatabaseIf    db;
+    DatabaseIf db;
     TransactionIf ta;
 
     // don't forget to initialize before using AdminIf!
     cout << "Connecting to O2 ..." << flush;
     myExecArgv0 = av[0];
-    AdminIf* myAdmin = AdminIf::instance();
+    AdminIf *myAdmin = AdminIf::instance();
     cout << "OK" << endl;
 
     // connect to the database
@@ -133,9 +134,10 @@ int main(int ac, char** av)
     beginParseString = query;
     iterParseString = query;
 
-    parseQueryTree = new QueryTree();   // create a query tree object...
+    parseQueryTree = new QueryTree();  // create a query tree object...
 
-    cout << endl << "Parsing ..." << flush;
+    cout << endl
+         << "Parsing ..." << flush;
 
     if (!yyparse())
     {
@@ -157,7 +159,7 @@ int main(int ac, char** av)
     {
         parseQueryTree->getRoot()->simplify();
     }
-    catch (ParseInfo& info)
+    catch (ParseInfo &info)
     {
         info.printStatus(RMInit::logOut);
         cout << "FAILED" << endl;
@@ -190,16 +192,3 @@ int main(int ac, char** av)
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -24,8 +24,8 @@ rasdaman GmbH.
 
 #include "oidif.hh"  // for OId, OId::OIdType, OId::OIdCounter
 
-#include <iosfwd>    // for ostream
-#include <string>    // for string
+#include <iosfwd>  // for ostream
+#include <string>  // for string
 
 class r_Error;
 class EOId;

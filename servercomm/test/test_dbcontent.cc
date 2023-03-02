@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include <stdlib.h>
 #include <iostream.h>
 
-#include "o2template_CC.hxx"         // declaration of O2 ref and coll classes
+#include "o2template_CC.hxx"  // declaration of O2 ref and coll classes
 
 #include "ulongtype.hh"
 
@@ -53,9 +53,9 @@ rasdaman GmbH.
 
 #include <unistd.h>
 
-extern char* myExecArgv0 = "";
+extern char *myExecArgv0 = "";
 
-static void testAccessing(const char* collName);
+static void testAccessing(const char *collName);
 
 /*************************************************************
  * Function name.: int main( int argc, char** argv)
@@ -67,8 +67,7 @@ static void testAccessing(const char* collName);
  * Description...: none
  ************************************************************/
 
-void
-main(int ac, char** av)
+void main(int ac, char **av)
 {
     char baseName[255];
     char collName[255];
@@ -108,7 +107,7 @@ main(int ac, char** av)
 
     // don't forget to initialize before using AdminIf!
     myExecArgv0 = av[0];
-    AdminIf* myAdmin = AdminIf::instance();
+    AdminIf *myAdmin = AdminIf::instance();
 
     // connect to the database
     cout << getpid() << " Connecting to database " << baseName << "..." << endl;
@@ -132,8 +131,6 @@ main(int ac, char** av)
     return;
 }
 
-
-
 /*************************************************************
  * Function......: testAccessing()
  *
@@ -142,9 +139,9 @@ main(int ac, char** av)
  * Description...: reads DirTilesIx's and shows contents
  ************************************************************/
 
-static void testAccessing(const char* collName)
+static void testAccessing(const char *collName)
 {
-    PersMDDObj* accessedObj;
+    PersMDDObj *accessedObj;
 
     cout << getpid() << " ....testAccessing" << endl;
     /*
@@ -166,5 +163,3 @@ static void testAccessing(const char* collName)
     delete objsIt;
     */
 }
-
-

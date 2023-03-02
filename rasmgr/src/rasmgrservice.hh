@@ -36,7 +36,7 @@ class ServerManager;
  * A GRPC service that is offered by a rasmgr to other rasmgrs. It allows a
  * remote rasmgr to acquire and release servers from clients.
  */
-class RasmgrService: public rasnet::service::RasmgrRasmgrService::Service
+class RasmgrService : public rasnet::service::RasmgrRasmgrService::Service
 {
 public:
     explicit RasmgrService(std::shared_ptr<ClientManager> clientManager);
@@ -52,10 +52,9 @@ public:
                                          ::rasnet::service::Void *response);
 
 private:
-    std::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */
-
+    std::shared_ptr<ClientManager> clientManager; /*! Instance of the ClientManager class used for adding clients and client sessions */
 };
 
-}
+}  // namespace rasmgr
 
-#endif // RASMGR_X_SRC_RASMGRSERVICE_HH
+#endif  // RASMGR_X_SRC_RASMGRSERVICE_HH

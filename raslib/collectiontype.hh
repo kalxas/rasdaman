@@ -39,7 +39,10 @@ class r_Collection_Type : public r_Type
 {
 public:
     /// Set type in the only one needed right now.
-    typedef enum { SET } r_Kind;
+    typedef enum
+    {
+        SET
+    } r_Kind;
 
     /// copy constructor
     /// the exception is only raised when the element type of the copied type is NULL.
@@ -48,7 +51,7 @@ public:
 
     /// constructor getting element type
     explicit r_Collection_Type(r_Type &newType);
-    
+
     /// destructor
     ~r_Collection_Type() override;
 
@@ -95,4 +98,3 @@ protected:
 extern std::ostream &operator<<(std::ostream &str, const r_Collection_Type &type);
 
 #endif
-

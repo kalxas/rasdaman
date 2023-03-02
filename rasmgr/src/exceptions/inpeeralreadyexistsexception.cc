@@ -25,13 +25,13 @@
 namespace rasmgr
 {
 
-InPeerAlreadyExistsException::InPeerAlreadyExistsException(const std::string& hostName)
+InPeerAlreadyExistsException::InPeerAlreadyExistsException(const std::string &hostName)
     : common::LogicException("Inpeer rasmanager " + hostName + " already defined.")
 {
-
 }
 
 InPeerAlreadyExistsException::~InPeerAlreadyExistsException() noexcept
-{}
-
+{
 }
+
+}  // namespace rasmgr

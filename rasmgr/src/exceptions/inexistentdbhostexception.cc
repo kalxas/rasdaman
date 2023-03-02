@@ -25,12 +25,13 @@
 namespace rasmgr
 {
 
-InexistentDbHostException::InexistentDbHostException(const std::string& dbHostName)
+InexistentDbHostException::InexistentDbHostException(const std::string &dbHostName)
     : common::MissingResourceException("The database host " + dbHostName + " does not exist.")
-{}
+{
+}
 
 InexistentDbHostException::~InexistentDbHostException() noexcept
-{}
-
+{
+}
 
 } /* namespace rasmgr */

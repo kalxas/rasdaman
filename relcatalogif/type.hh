@@ -29,8 +29,8 @@ rasdaman GmbH.
 #include "reladminif/dbnamedobject.hh"  // for DBNamedObject
 #include "catalogmgr/typeenum.hh"
 
-#include <iosfwd>                     // for cout, endl, ostream
-#include <vector>                     // for vector
+#include <iosfwd>  // for cout, endl, ostream
+#include <vector>  // for vector
 
 class BaseType;
 class OId;
@@ -101,7 +101,7 @@ public:
     /*@Doc:
     checks, if two types are compatible (see also \Ref{MDDType}).
     */
-    
+
     virtual bool operator==(const Type &o) const;
 
 protected:

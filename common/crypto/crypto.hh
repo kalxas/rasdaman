@@ -25,35 +25,36 @@
 
 #include <string>
 
-namespace common {
+namespace common
+{
 /**
  * @brief The Crypto class offers MD5 cryptography used inside rasdaman.
  */
-class Crypto {
- public:
-
-  /**
+class Crypto
+{
+public:
+    /**
      * @brief isMessageDigestAvailable Check if a given digest is available
      * @param mdName Name of the digest we are checking for (e.g. MD5)
      * @return TRUE if the digest is available, FALSE otherwise
      */
-  static bool isMessageDigestAvailable(const std::string &mdName);
+    static bool isMessageDigestAvailable(const std::string &mdName);
 
-  /**
+    /**
    * @brief messageDigest Encrypt the given message using the given digest.
    * @param message Message to encrypt
    * @param mdName Digest to use
    * @return Encrypted message
    * @throws std::exception
    */
-  static std::string messageDigest(const std::string &message,
-                                   const std::string &mdName);
-  
-  /**
+    static std::string messageDigest(const std::string &message,
+                                     const std::string &mdName);
+
+    /**
    * Should be called before working with OpenSSL methods.
    */
-  static void initDigests();
+    static void initDigests();
 };
-}
+}  // namespace common
 
 #endif

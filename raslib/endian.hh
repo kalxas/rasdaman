@@ -66,8 +66,8 @@ public:
     static void swap_array(const r_Primitive_Type *type, r_Bytes size, const void *src, void *dest);
 
     /// change the endianness of a linear array of size `size`, type implicit
-    static void swap_array(r_Bytes size, const r_Octet *src, r_Octet *dest);   // dummy
-    static void swap_array(r_Bytes size, const r_Char *src, r_Char *dest);   // dummy
+    static void swap_array(r_Bytes size, const r_Octet *src, r_Octet *dest);  // dummy
+    static void swap_array(r_Bytes size, const r_Char *src, r_Char *dest);    // dummy
     static void swap_array(r_Bytes size, const r_Short *src, r_Short *dest);
     static void swap_array(r_Bytes size, const r_UShort *src, r_UShort *dest);
     static void swap_array(r_Bytes size, const r_Long *src, r_Long *dest);
@@ -106,6 +106,5 @@ public:
   Output stream operator for enum of type <tt>const</tt> r_Minterval.
   */
 extern std::ostream &operator<<(std::ostream &s, r_Endian::r_Endianness &e);
-
 
 #endif

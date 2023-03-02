@@ -60,14 +60,20 @@ class r_Database
 {
 public:
     /// possible database states
-    enum access_status { not_open, read_write, read_only, exclusive };
+    enum access_status
+    {
+        not_open,
+        read_write,
+        read_only,
+        exclusive
+    };
 
     /// possible types define by symbolic names
     enum type_schema
     {
-        CELL        = 3,
-        MARRAY      = 2,
-        COLLECTION  = 1
+        CELL = 3,
+        MARRAY = 2,
+        COLLECTION = 1
     };
 
     /// default constructor
@@ -157,8 +163,7 @@ public:
     */
 
     /// lookup named objects in a database (must be called within open database and running transaction)
-    r_Ref_Any lookup_object(const char *name) const
-    ;
+    r_Ref_Any lookup_object(const char *name) const;
     /**
       The method looks up an object with <tt>name</tt>. Right now, just objects of type r_Set are
       allowed. Error kinds:
@@ -176,8 +181,7 @@ public:
     */
 
     /// lookup objects by oids in a database (must be called within open database and running transaction)
-    r_Ref_Any lookup_object(const r_OId &oid) const
-    ;
+    r_Ref_Any lookup_object(const r_OId &oid) const;
     /**
       The method looks up an object with <tt>oid</tt>. Right now, just objects of type r_Set and
       r_GMarray are allowed.
@@ -212,7 +216,6 @@ public:
       \endlatexonly
     */
 
-
     /// set the transfer compression format, both for data sent from the server
     /// to the client and the other way around.
     void set_transfer_format(r_Data_Format format, const char *formatParams = NULL);
@@ -240,14 +243,12 @@ public:
     /// stores a pointer to the actually opened database
     static r_Database *actual_database;
 
-
     //@Man: Methods for internal use only:
     //@{
     ///
     const r_OId get_new_oid(unsigned short objType) const;
     ///
     //@}
-
 
     // creates an empty MDD collection on the server
     void insertColl(const char *collName, const char *typeName, const r_OId &oid);
@@ -256,6 +257,7 @@ public:
     void removeObjFromColl(const char *name, const r_OId &oid);
 
     ClientComm *getComm();
+
 private:
     /// stores a pointer to a communication object, which is valid while a database is opened
     ClientComm *communication{NULL};
@@ -267,7 +269,7 @@ private:
     std::string rasmgrName;
 
     /// stores the RasMGR port
-    int   rasmgrPort;
+    int rasmgrPort;
 
     /// stores the user name
     std::string userName;

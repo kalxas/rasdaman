@@ -59,8 +59,7 @@ r_Transaction::~r_Transaction()
         abort();
 }
 
-void
-r_Transaction::begin(r_Transaction::r_TAMode mode)
+void r_Transaction::begin(r_Transaction::r_TAMode mode)
 {
     if (!this->database)
         this->database = r_Database::actual_database;
@@ -76,11 +75,10 @@ r_Transaction::begin(r_Transaction::r_TAMode mode)
 
     if (actual_transaction == NULL)
         actual_transaction = this;
-    ta_mode  = mode;
+    ta_mode = mode;
 }
 
-void
-r_Transaction::commit()
+void r_Transaction::commit()
 {
     if (ta_state != active)
     {
@@ -182,7 +180,7 @@ r_Transaction::commit()
                 LDEBUG << "transient OId DELETED";
                 delete (static_cast<r_OId *>((*iter2)->ref));
                 break;
-            
+
             case STRING:
                 LDEBUG << "transient String DELETED";
                 delete (static_cast<r_String *>((*iter2)->ref));
@@ -208,8 +206,7 @@ r_Transaction::commit()
     }
 }
 
-void
-r_Transaction::abort()
+void r_Transaction::abort()
 {
     if (ta_state != active)
     {
@@ -264,7 +261,7 @@ r_Transaction::abort()
                 LDEBUG << "  Transient OId DELETED";
                 delete (static_cast<r_OId *>((*iter2)->ref));
                 break;
-            
+
             case STRING:
                 LDEBUG << "  Transient String DELETED";
                 delete (static_cast<r_String *>((*iter2)->ref));
@@ -322,25 +319,22 @@ r_Transaction::load_object(const r_OId &oid)
     }
 }
 
-void
-r_Transaction::add_object_list(const r_Ref<r_Object> &obj)
+void r_Transaction::add_object_list(const r_Ref<r_Object> &obj)
 {
     object_list.insert_element(obj);
 }
 
-void
-r_Transaction::add_object_list(GenRefType type, void *ref)
+void r_Transaction::add_object_list(GenRefType type, void *ref)
 {
     GenRefElement *element = new GenRefElement;
 
     element->type = type;
-    element->ref  = ref;
+    element->ref = ref;
 
     non_object_list.insert_element(element);
 }
 
-void
-r_Transaction::setDatabase(r_Database *databaseArg)
+void r_Transaction::setDatabase(r_Database *databaseArg)
 {
     this->database = databaseArg;
 }

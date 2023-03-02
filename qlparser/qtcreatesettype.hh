@@ -61,4 +61,4 @@ private:
     static const QtNodeType nodeType;
 };
 
-#endif // QTCREATESETTYPE_HH
+#endif  // QTCREATESETTYPE_HH

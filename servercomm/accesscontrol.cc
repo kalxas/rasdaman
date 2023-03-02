@@ -60,7 +60,7 @@ void AccessControl::setServerName(const char *newServerName)
     else
     {
         LERROR << "Server name length exceeds the maximum allowed length (" << maxServerNameSize << ").";
-        throw r_Error(INTERNALSERVERERROR); // internal error
+        throw r_Error(INTERNALSERVERERROR);  // internal error
     }
 }
 
@@ -76,13 +76,16 @@ bool AccessControl::isClient()
     return weHaveClient;
 }
 
-#define CHECK_PARAM(param, searchStart, paramName, paramPrefix) \
-    char *param = strstr(capaQ, paramPrefix); \
-    if (param) { \
-        param += 2; \
-    } else { \
+#define CHECK_PARAM(param, searchStart, paramName, paramPrefix)    \
+    char *param = strstr(capaQ, paramPrefix);                      \
+    if (param)                                                     \
+    {                                                              \
+        param += 2;                                                \
+    }                                                              \
+    else                                                           \
+    {                                                              \
         LERROR << paramName << " not found in capability string."; \
-        return CAPABILITY_REFUSED; \
+        return CAPABILITY_REFUSED;                                 \
     }
 
 int AccessControl::crunchCapability(const char *capability)
@@ -157,11 +160,11 @@ int AccessControl::messageDigest(const char *input, char *output, const char *md
 {
     std::string mdNameStr{mdName};
     std::string inputStr{input};
-    
+
     auto result = common::Crypto::messageDigest(inputStr, mdNameStr);
     if (result.empty())
         return 0;
-    
+
     strcpy(output, result.c_str());
     return int(result.size());
 }
@@ -171,7 +174,7 @@ void AccessControl::wantToRead()
     if (okToRead == false)
     {
         LERROR << "No permission for read operation.";
-        throw r_Eno_permission(); //r_Error(NO_PERMISSION_FOR_OPERATION);
+        throw r_Eno_permission();  //r_Error(NO_PERMISSION_FOR_OPERATION);
     }
 }
 
@@ -180,7 +183,6 @@ void AccessControl::wantToWrite()
     if (okToWrite == false)
     {
         LERROR << "No permission for write operation.";
-        throw r_Eno_permission(); //r_Error(NO_PERMISSION_FOR_OPERATION);
+        throw r_Eno_permission();  //r_Error(NO_PERMISSION_FOR_OPERATION);
     }
 }
-

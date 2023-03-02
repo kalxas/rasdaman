@@ -61,5 +61,5 @@ private:
     std::string options;
 };
 
-}
-#endif // RASMGR_X_SRC_SERVERCONFIG_HH
+}  // namespace rasmgr
+#endif  // RASMGR_X_SRC_SERVERCONFIG_HH

@@ -61,7 +61,6 @@ rasdaman GmbH.
 #endif
 #endif
 
-
 #include <iostream>
 #include <stdio.h>
 #include "rasodmg/marray.hh"
@@ -71,18 +70,19 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include "raslib/sinterval.hh"
 
-char* filename;
+char *filename;
 vector<r_Access> stat_info;
 unsigned int border_threshold;
 double interesting_threshold;
 unsigned long tile_size;
-r_Minterval* domain;
+r_Minterval *domain;
 
-void parse(int argc, char* argv[])
+void parse(int argc, char *argv[])
 {
     if (argc != 2)
     {
-        cout << "Usage: test_stattiling <filename>" << endl << endl;
+        cout << "Usage: test_stattiling <filename>" << endl
+             << endl;
         exit(1);
     }
 
@@ -137,22 +137,25 @@ void read_data()
     is.close();
 
     cout << endl;
-    cout << "Geting the accesses... done." << endl << endl;
+    cout << "Geting the accesses... done." << endl
+         << endl;
 
     cout << "Border threshold      = " << border_threshold << endl;
     cout << "Interesting threshold = " << interesting_threshold << endl;
     cout << "Tile size             = " << tile_size << endl;
     cout << "Domain                = " << *domain << endl;
-    cout << "Number of accesses    = " << count << endl << endl;
+    cout << "Number of accesses    = " << count << endl
+         << endl;
 }
 
 void test_tiling()
 {
-    r_Stat_Tiling tiling((r_Dimension) 2, stat_info, tile_size, border_threshold, interesting_threshold);
+    r_Stat_Tiling tiling((r_Dimension)2, stat_info, tile_size, border_threshold, interesting_threshold);
 
-    vector<r_Minterval>* tiles = tiling.compute_tiles(*domain, 1);
+    vector<r_Minterval> *tiles = tiling.compute_tiles(*domain, 1);
 
-    cout << endl << "Tiles: " << endl;
+    cout << endl
+         << "Tiles: " << endl;
     vector<r_Minterval>::iterator it;
     for (it = tiles->begin(); it != tiles->end(); it++)
     {
@@ -164,7 +167,7 @@ void test_tiling()
     delete domain;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     parse(argc, argv);
     read_data();
@@ -172,14 +175,3 @@ int main(int argc, char* argv[])
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-

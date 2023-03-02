@@ -25,12 +25,12 @@ rasdaman GmbH.
 #include "rasodmg/database.hh"
 #include "rasodmg/transaction.hh"
 
-void ClientComm::setTransaction(r_Transaction* transaction1)
+void ClientComm::setTransaction(r_Transaction *transaction1)
 {
     this->transaction = transaction1;
 }
 
-void ClientComm::setDatabase(r_Database* database1)
+void ClientComm::setDatabase(r_Database *database1)
 {
     this->database = database1;
 }

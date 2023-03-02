@@ -22,17 +22,18 @@
 
 #include "rasql_error.hh"
 
-RasqlError::RasqlError(int e) : error_code{e}
+RasqlError::RasqlError(int e)
+    : error_code{e}
 {
 }
 
 /// print error message (including error code)
 /// NB: not all messages can occur
-const char* RasqlError::what()
+const char *RasqlError::what()
 {
     if (!msg.empty())
         return msg.c_str();
-    
+
     msg = "Error " + std::to_string(error_code) + ": ";
     switch (error_code)
     {

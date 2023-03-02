@@ -35,12 +35,11 @@ rasdaman GmbH.
 #ifndef _MDDCOLLITER_HH_
 #define _MDDCOLLITER_HH_
 
-
 #include "mddobj.hh"
-#include "relmddif/mddid.hh"    // for DBMDDObjIdIter, DBMDDSetId
+#include "relmddif/mddid.hh"  // for DBMDDObjIdIter, DBMDDSetId
 
 #include <stdlib.h>
-#include <iosfwd>         // for cout, ostream
+#include <iosfwd>  // for cout, ostream
 
 class MDDColl;
 class MDDCollIter;

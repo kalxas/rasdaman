@@ -75,8 +75,6 @@ private:
     bool skipCopy{false};
 };
 
-
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -137,8 +135,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -183,9 +179,8 @@ public:
     virtual int scaleDomain(const r_Minterval &areaOp, const std::vector<double> &scaleFactors, r_Minterval &areaScaled);
 
 private:
-    
     void translateTargetDomain(r_Minterval &dst, const r_Minterval &src, r_Point &translation);
-    
+
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
@@ -193,4 +188,3 @@ private:
 #include "qlparser/qtbinaryfunc.icc"
 
 #endif
-

@@ -31,13 +31,8 @@ std::vector<double>
 QtPolytope::getHalfspace(QtOperation *pointOp)
 {
     //rows of vertices from pointOp
-    std::vector< std::vector<double>> vectorOfVertices;
+    std::vector<std::vector<double>> vectorOfVertices;
 
     //dimension of space in which the vertices live
     r_Dimension numDims = vectorOfVertices[0].size();
-
-
 }
-
-
-

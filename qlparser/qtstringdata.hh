@@ -27,7 +27,6 @@ rasdaman GmbH.
 
 #include <string>
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -47,7 +46,7 @@ public:
     ///
     inline const std::string &getStringData() const;
     ///
-    inline void          setStringData(const std::string &str);
+    inline void setStringData(const std::string &str);
 
     /// returns a null-terminated string describing the type structure
     virtual char *getTypeStructure() const;
@@ -72,7 +71,7 @@ public:
 
 private:
     /// prevents from using the default constructor
-    QtStringData() {};
+    QtStringData(){};
 
     ///
     std::string stringData;
@@ -81,7 +80,3 @@ private:
 #include "qlparser/qtstringdata.icc"
 
 #endif
-
-
-
-

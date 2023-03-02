@@ -28,7 +28,8 @@ namespace rasmgr
 RemoteClientSession::RemoteClientSession(std::uint32_t clientSessionIdArg,
                                          std::uint32_t dbSessionIdArg)
     : clientSessionId(clientSessionIdArg), dbSessionId(dbSessionIdArg)
-{}
+{
+}
 
 std::uint32_t RemoteClientSession::getClientSessionId() const
 {
@@ -40,4 +41,4 @@ std::uint32_t RemoteClientSession::getDbSessionId() const
     return dbSessionId;
 }
 
-}
+}  // namespace rasmgr

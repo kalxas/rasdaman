@@ -55,14 +55,14 @@ QtGeometryOp::evaluate(QtDataList *inputList)
     vector<QtMShapeData *> intPolyRow;
     intPolyRow.reserve(operandList->size());
 
-    for (auto *data : *operandList)
+    for (auto *data: *operandList)
     {
         //in this case, we can recast to QtGeometryData and concatenate with our result
         if (data->getDataType() == QT_GEOMETRY)
         {
-            vector<vector<QtMShapeData *>> ptData = (static_cast< QtGeometryData * >(data))->getData();
+            vector<vector<QtMShapeData *>> ptData = (static_cast<QtGeometryData *>(data))->getData();
             //do not foresee this ever being of dims more than 1 x N, but just in case, let's do a concatenation here.
-            for (auto &ptDataIter : ptData)
+            for (auto &ptDataIter: ptData)
             {
                 resultDataVector.push_back(std::move(ptDataIter));
             }
@@ -77,7 +77,7 @@ QtGeometryOp::evaluate(QtDataList *inputList)
         //in this case, we can recast to the point data, and push it back
         else if (data->getDataType() == QT_MSHAPE)
         {
-            vector<QtMShapeData *> ptData{static_cast< QtMShapeData * >(data)};
+            vector<QtMShapeData *> ptData{static_cast<QtMShapeData *>(data)};
             resultDataVector.emplace_back(std::move(ptData));
         }
     }
@@ -93,8 +93,7 @@ QtGeometryOp::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-void
-QtGeometryOp::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtGeometryOp::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtGeometryOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << std::endl;
 
@@ -106,7 +105,7 @@ QtGeometryOp::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
-//    QtOperationList::iterator iter;
+    //    QtOperationList::iterator iter;
     bool opTypesValid = true;
     for (auto iter = operationList->begin(); iter != operationList->end() && opTypesValid; iter++)
     {

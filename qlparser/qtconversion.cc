@@ -56,14 +56,12 @@ class ConvUtil;
 
 const QtNode::QtNodeType QtConversion::nodeType = QtNode::QT_CONVERSION;
 
-QtConversion::QtConversion(QtOperation *newInput, QtConversionType
-                           newConversionType, const char *paramStrArg)
+QtConversion::QtConversion(QtOperation *newInput, QtConversionType newConversionType, const char *paramStrArg)
     : QtUnaryOperation(newInput), conversionType(newConversionType), paramStr(paramStrArg), gdalConversion(false)
 {
 }
 
-QtConversion::QtConversion(QtOperation *newInput, QtConversionType
-                           newConversionType, const std::string &formatArg, const char *paramStrArg)
+QtConversion::QtConversion(QtOperation *newInput, QtConversionType newConversionType, const std::string &formatArg, const char *paramStrArg)
     : QtUnaryOperation(newInput), conversionType(newConversionType), format(formatArg), paramStr(paramStrArg), gdalConversion(true)
 {
     if (r_MimeTypes::isMimeType(format))
@@ -91,26 +89,21 @@ bool QtConversion::isInternalFormat(r_Data_Format dataFormat)
 {
     return dataFormat == r_CSV || dataFormat == r_JSON
 #ifdef HAVE_NETCDF
-        || dataFormat == r_NETCDF
+           || dataFormat == r_NETCDF
 #endif
 #ifdef HAVE_HDF4
-        || dataFormat == r_HDF
+           || dataFormat == r_HDF
 #endif
 #ifdef HAVE_GRIB
-        || (conversionType == QT_FROMGDAL && dataFormat == r_GRIB)
+           || (conversionType == QT_FROMGDAL && dataFormat == r_GRIB)
 #endif
 #ifndef HAVE_GDAL
-        || dataFormat == r_TIFF
-        || dataFormat == r_JPEG
-        || dataFormat == r_PNG
-        || dataFormat == r_BMP
-        || dataFormat == r_DEM
-#endif // HAVE_GDAL
+           || dataFormat == r_TIFF || dataFormat == r_JPEG || dataFormat == r_PNG || dataFormat == r_BMP || dataFormat == r_DEM
+#endif  // HAVE_GDAL
         ;
 }
 
-void
-QtConversion::setConversionTypeByName(string formatName)
+void QtConversion::setConversionTypeByName(string formatName)
 {
     formatName = common::StringUtil::toLowerCase(formatName);
     if (string("hdf") == formatName)
@@ -180,10 +173,10 @@ QtConversion::evaluate(QtDataList *inputList)
     if (operand)
     {
         std::unique_ptr<QtData, std::function<void(QtData *)>> deleteOperand(
-                    operand, [](QtData * op)
-        {
-            op->deleteRef();
-        });
+            operand, [](QtData *op)
+            {
+                op->deleteRef();
+            });
 
         char *typeStructure = NULL;
         unique_ptr<Tile> sourceTile = NULL;
@@ -191,7 +184,7 @@ QtConversion::evaluate(QtDataList *inputList)
         if ((conversionType == QT_TOCSV || conversionType == QT_TOJSON) && operand->isScalarData())
         {
             QtScalarData *qtScalar = static_cast<QtScalarData *>(operand);
-            r_Minterval domain = r_Minterval((r_Dimension) 0);// << r_Sinterval(0LL, 0LL) << r_Sinterval(0LL, 0LL);
+            r_Minterval domain = r_Minterval((r_Dimension)0);  // << r_Sinterval(0LL, 0LL) << r_Sinterval(0LL, 0LL);
             sourceTile.reset(new Tile(domain, qtScalar->getValueType(), qtScalar->getValueBuffer(), (r_Bytes)0, r_Array));
             typeStructure = qtScalar->getTypeStructure();
         }
@@ -246,15 +239,15 @@ QtConversion::evaluate(QtDataList *inputList)
 
         r_Minterval tileDomain = sourceTile->getDomain();
 
-        r_Data_Format convType = r_Array;   // convertor type
-        r_Data_Format convFormat = r_Array; // result type from convertor
+        r_Data_Format convType = r_Array;    // convertor type
+        r_Data_Format convFormat = r_Array;  // result type from convertor
         setConversionTypeAndResultFormat(convType, convFormat);
 
         std::shared_ptr<r_Convertor> convertor;
         try
         {
             convertor.reset(r_Convertor_Factory::create(
-                                convType, sourceTile->getContents(), tileDomain, baseSchema.get()));
+                convType, sourceTile->getContents(), tileDomain, baseSchema.get()));
             if (gdalConversion)
             {
                 convertor->set_format(format);
@@ -386,7 +379,7 @@ const BaseType *QtConversion::rasTypeToBaseType(r_Type *type)
             try
             {
                 const r_Base_Type &attr_type = att.type_of();
-                restype->addElement(att.name(), rasTypeToBaseType(static_cast<r_Type *>(const_cast<r_Base_Type *>(& attr_type))));
+                restype->addElement(att.name(), rasTypeToBaseType(static_cast<r_Type *>(const_cast<r_Base_Type *>(&attr_type))));
             }
             catch (r_Error &e)
             {
@@ -401,53 +394,94 @@ const BaseType *QtConversion::rasTypeToBaseType(r_Type *type)
     return result;
 }
 
-void
-QtConversion::setConversionTypeAndResultFormat(r_Data_Format &convType, r_Data_Format &convFormat)
+void QtConversion::setConversionTypeAndResultFormat(r_Data_Format &convType, r_Data_Format &convFormat)
 {
     switch (conversionType)
     {
     case QT_TOTIFF:
-        convType = r_TIFF; convFormat = r_TIFF; break;
+        convType = r_TIFF;
+        convFormat = r_TIFF;
+        break;
     case QT_FROMTIFF:
-        convType = r_TIFF; convFormat = r_Array; break;
+        convType = r_TIFF;
+        convFormat = r_Array;
+        break;
     case QT_TOJPEG:
-        convType = r_JPEG; convFormat = r_JPEG; break;
+        convType = r_JPEG;
+        convFormat = r_JPEG;
+        break;
     case QT_FROMJPEG:
-        convType = r_JPEG; convFormat = r_Array; break;
+        convType = r_JPEG;
+        convFormat = r_Array;
+        break;
     case QT_TOPNG:
-        convType = r_PNG; convFormat = r_PNG; break;
+        convType = r_PNG;
+        convFormat = r_PNG;
+        break;
     case QT_FROMPNG:
-        convType = r_PNG; convFormat = r_Array; break;
+        convType = r_PNG;
+        convFormat = r_Array;
+        break;
     case QT_TOBMP:
-        convType = r_BMP; convFormat = r_BMP; break;
+        convType = r_BMP;
+        convFormat = r_BMP;
+        break;
     case QT_FROMBMP:
-        convType = r_BMP; convFormat = r_Array; break;
+        convType = r_BMP;
+        convFormat = r_Array;
+        break;
     case QT_TOHDF:
-        convType = r_HDF;  convFormat = r_HDF; break;
+        convType = r_HDF;
+        convFormat = r_HDF;
+        break;
     case QT_TONETCDF:
-        convType = r_NETCDF; convFormat = r_NETCDF; break;
+        convType = r_NETCDF;
+        convFormat = r_NETCDF;
+        break;
     case QT_TOGDAL:
-        convType = r_GDAL; convFormat = ConvUtil::getDataFormat(format); break;
+        convType = r_GDAL;
+        convFormat = ConvUtil::getDataFormat(format);
+        break;
     case QT_TOCSV:
-        convType = r_CSV; convFormat = r_CSV; break;
+        convType = r_CSV;
+        convFormat = r_CSV;
+        break;
     case QT_TOJSON:
-        convType = r_JSON; convFormat = r_JSON; break;
+        convType = r_JSON;
+        convFormat = r_JSON;
+        break;
     case QT_FROMHDF:
-        convType = r_HDF; convFormat = r_Array; break;
+        convType = r_HDF;
+        convFormat = r_Array;
+        break;
     case QT_FROMNETCDF:
-        convType = r_NETCDF; convFormat = r_Array; break;
+        convType = r_NETCDF;
+        convFormat = r_Array;
+        break;
     case QT_FROMGDAL:
-        convType = r_GDAL; convFormat = ConvUtil::getDataFormat(format); break;
+        convType = r_GDAL;
+        convFormat = ConvUtil::getDataFormat(format);
+        break;
     case QT_FROMGRIB:
-        convType = r_GRIB; convFormat = r_Array; break;
+        convType = r_GRIB;
+        convFormat = r_Array;
+        break;
     case QT_FROMCSV:
-        convType = r_CSV; convFormat = r_Array; break;
+        convType = r_CSV;
+        convFormat = r_Array;
+        break;
     case QT_FROMJSON:
-        convType = r_JSON; convFormat = r_Array; break;
+        convType = r_JSON;
+        convFormat = r_Array;
+        break;
     case QT_TODEM:
-        convType = r_DEM; convFormat = r_DEM; break;
+        convType = r_DEM;
+        convFormat = r_DEM;
+        break;
     case QT_FROMDEM:
-        convType = r_DEM; convFormat = r_Array; break;
+        convType = r_DEM;
+        convFormat = r_Array;
+        break;
     default:
         LERROR << "Error: QtConversion::evaluate(): unsupported format " << conversionType;
         throw r_Error(CONVERSIONFORMATNOTSUPPORTED);
@@ -455,15 +489,14 @@ QtConversion::setConversionTypeAndResultFormat(r_Data_Format &convType, r_Data_F
     }
 }
 
-bool
-QtConversion::equalMeaning(QtNode *node)
+bool QtConversion::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     if (nodeType == node->getNodeType())
     {
         QtConversion *convNode;
-        convNode = static_cast<QtConversion *>(node); // by force
+        convNode = static_cast<QtConversion *>(node);  // by force
 
         result = input->equalMeaning(convNode->getInput());
 
@@ -473,8 +506,7 @@ QtConversion::equalMeaning(QtNode *node)
     return (result);
 }
 
-void
-QtConversion::printTree(int tab, ostream &s, QtChildType mode)
+void QtConversion::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtConversion Object: ";
 
@@ -536,8 +568,7 @@ QtConversion::printTree(int tab, ostream &s, QtChildType mode)
     QtUnaryOperation::printTree(tab, s, mode);
 }
 
-void
-QtConversion::printAlgebraicExpression(ostream &s)
+void QtConversion::printAlgebraicExpression(ostream &s)
 {
     s << conversionType << "(";
 
@@ -561,7 +592,6 @@ QtConversion::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input)
     {
-
         // get input type
         const QtTypeElement &inputType = input->checkType(typeTuple);
 
@@ -662,4 +692,3 @@ operator<<(std::ostream &os, QtConversion::QtConversionType type)
 
     return os;
 }
-

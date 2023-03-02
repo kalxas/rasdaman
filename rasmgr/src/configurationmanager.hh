@@ -89,8 +89,8 @@ private:
     void saveDatabaseHosts(std::ofstream &out);
     void saveDatabases(std::ofstream &out);
     void saveServers(std::ofstream &out);
-    \
+
     void savePeers(std::ofstream &out);
 };
-}
-#endif // RASMGR_X_SRC_CONFIGURATIONMANAGER_HH
+}  // namespace rasmgr
+#endif  // RASMGR_X_SRC_CONFIGURATIONMANAGER_HH

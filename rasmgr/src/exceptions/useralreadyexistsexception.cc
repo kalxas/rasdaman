@@ -25,12 +25,13 @@
 namespace rasmgr
 {
 
-UserAlreadyExistsException::UserAlreadyExistsException(const std::string& userName)
+UserAlreadyExistsException::UserAlreadyExistsException(const std::string &userName)
     : common::LogicException("The user " + userName + " already exists.")
-{}
+{
+}
 
 UserAlreadyExistsException::~UserAlreadyExistsException() noexcept
-{}
-
+{
+}
 
 } /* namespace rasmgr */

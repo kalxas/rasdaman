@@ -45,7 +45,7 @@ public:
 
     /// copy constructor
     r_Minterval_Type(const r_Minterval_Type &oldObj);
-    
+
     /// destructor
     ~r_Minterval_Type() override = default;
 

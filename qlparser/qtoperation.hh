@@ -77,12 +77,12 @@ public:
       The method triggers type checking of the node's subtree. If an error occurs, an exception
       is raised.
     */
-    
+
     //@Man: Read/Write methods
     //@{
     ///
     ///
-    inline void                 setDataStreamType(const QtTypeElement &type);
+    inline void setDataStreamType(const QtTypeElement &type);
     ///
     inline const QtTypeElement &getDataStreamType() const;
     ///
@@ -107,5 +107,3 @@ private:
 #include "qlparser/qtoperation.icc"
 
 #endif
-
-

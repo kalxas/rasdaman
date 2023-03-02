@@ -41,10 +41,10 @@ public:
     std::uint32_t getDbSessionId() const;
 
 private:
-    std::uint32_t clientSessionId;/*!< String identifying the client session on the remote rasmgr */
-    std::uint32_t dbSessionId;/*!< String identifying the database session on the remote rasmgr*/
+    std::uint32_t clientSessionId; /*!< String identifying the client session on the remote rasmgr */
+    std::uint32_t dbSessionId;     /*!< String identifying the database session on the remote rasmgr*/
 };
 
-}
+}  // namespace rasmgr
 
-#endif // REMOTECLIENTSESSION_HH
+#endif  // REMOTECLIENTSESSION_HH

@@ -47,16 +47,16 @@ using rasmgr::Client;
 using rasmgr::RasMgrConfig;
 using rasmgr::Server;
 
-using ::testing::AtLeast;                     // #1
 using ::testing::_;
+using ::testing::AtLeast;  // #1
 using ::testing::Return;
 
-
-class ClientTest: public ::testing::Test
+class ClientTest : public ::testing::Test
 {
 protected:
-    ClientTest(): clientId(1), userName("userName"), userPassword("userPassword"), dbRights(true, true),
-        dbName("dbName"), sessionId(2), clientLifeTime(10), serverHost("tcp://localhost"), serverPort(7010)
+    ClientTest()
+        : clientId(1), userName("userName"), userPassword("userPassword"), dbRights(true, true),
+          dbName("dbName"), sessionId(2), clientLifeTime(10), serverHost("tcp://localhost"), serverPort(7010)
     {
         adminRights.setAccessControlRights(true);
         adminRights.setInfoRights(true);
@@ -64,10 +64,10 @@ protected:
         adminRights.setSystemConfigRights(true);
 
         user.reset(new rasmgr::User(userName, userPassword, dbRights, adminRights));
-                
+
         client.reset(new Client(clientId, user, clientLifeTime, "", std::make_shared<CpuScheduler>(10)));
     }
-    
+
     std::uint32_t clientId;
     std::string userName;
     std::string userPassword;
@@ -104,9 +104,9 @@ TEST_F(ClientTest, isAliveSucceedsWhenClientAliveOnServers)
 {
     std::shared_ptr<Server> server(new MockRasServer());
     std::uint32_t out_sessionId = 1;
-    
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _, _, _, out_sessionId, dbName, _)).Times(1);
-    EXPECT_CALL(*((MockRasServer*)server.get()), isClientAlive(clientId)).WillOnce(Return(true));
+
+    EXPECT_CALL(*((MockRasServer *)server.get()), allocateClientSession(clientId, _, _, _, out_sessionId, dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer *)server.get()), isClientAlive(clientId)).WillOnce(Return(true));
     client->addDbSession(dbName, server, out_sessionId);
 
     usleep(std::uint32_t(this->clientLifeTime) * 1000);
@@ -120,8 +120,8 @@ TEST_F(ClientTest, isAliveFailsWhenClientDeadOnServers)
     std::shared_ptr<Server> server(new MockRasServer());
     std::uint32_t out_sessionId = 2;
 
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _, _, _, out_sessionId, dbName, _)).Times(1);
-    EXPECT_CALL(*((MockRasServer*)server.get()), isClientAlive(clientId)).WillOnce(Return(false));
+    EXPECT_CALL(*((MockRasServer *)server.get()), allocateClientSession(clientId, _, _, _, out_sessionId, dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer *)server.get()), isClientAlive(clientId)).WillOnce(Return(false));
     ASSERT_TRUE(client->isAlive());
 
     client->addDbSession(dbName, server, out_sessionId);
@@ -145,7 +145,6 @@ TEST_F(ClientTest, resetLiveliness)
     ASSERT_TRUE(client->isAlive());
 }
 
-
 TEST_F(ClientTest, addDbSessionFailWhenUserDoesNotHaveRights)
 {
     //This method will throw an exception because the user does not have any rights
@@ -158,13 +157,12 @@ TEST_F(ClientTest, addDbSessionFailWhenUserDoesNotHaveRights)
     EXPECT_ANY_THROW(client->addDbSession(dbName, server, out_sessionId));
 }
 
-
 TEST_F(ClientTest, addDbSessionSuccess)
 {
     std::uint32_t out_sessionId = 1;
     std::shared_ptr<Server> server(new MockRasServer());
 
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _, _, _, _, dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer *)server.get()), allocateClientSession(clientId, _, _, _, _, dbName, _)).Times(1);
 
     EXPECT_NO_THROW(client->addDbSession(dbName, server, out_sessionId));
 }
@@ -176,8 +174,8 @@ TEST_F(ClientTest, removeDbSession)
     std::uint32_t out_sessionId = 0;
     std::shared_ptr<Server> server(new MockRasServer());
 
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _, _, _, _,  dbName, _)).Times(1);
-    EXPECT_CALL(*((MockRasServer*)server.get()), deallocateClientSession(clientId, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer *)server.get()), allocateClientSession(clientId, _, _, _, _, dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer *)server.get()), deallocateClientSession(clientId, _)).Times(1);
 
     EXPECT_NO_THROW(client->addDbSession(dbName, server, out_sessionId));
     EXPECT_NO_THROW(client->removeDbSession(out_sessionId));
@@ -188,13 +186,12 @@ TEST_F(ClientTest, removeClientFromServers)
     std::uint32_t out_sessionId = 0;
     std::shared_ptr<Server> server(new MockRasServer());
 
-
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _, _, _, _, dbName, _)).Times(1);
-    EXPECT_CALL(*((MockRasServer*)server.get()), deallocateClientSession(clientId, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer *)server.get()), allocateClientSession(clientId, _, _, _, _, dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer *)server.get()), deallocateClientSession(clientId, _)).Times(1);
 
     EXPECT_NO_THROW(client->addDbSession(dbName, server, out_sessionId));
     EXPECT_NO_THROW(client->removeClientFromServer());
 }
 
-}
-}
+}  // namespace test
+}  // namespace rasmgr

@@ -26,18 +26,18 @@ rasdaman GmbH.
 #include <logging.hh>
 
 r_Collection_Type::r_Collection_Type()
-    :   r_Type()
+    : r_Type()
 {
 }
 
 r_Collection_Type::r_Collection_Type(r_Type &newElementType)
-    :   r_Type(),
-        elementType(newElementType.clone())
+    : r_Type(),
+      elementType(newElementType.clone())
 {
 }
 
 r_Collection_Type::r_Collection_Type(const r_Collection_Type &oldObj)
-    :   r_Type(oldObj)
+    : r_Type(oldObj)
 {
     if (oldObj.elementType)
     {
@@ -50,8 +50,7 @@ r_Collection_Type::r_Collection_Type(const r_Collection_Type &oldObj)
     }
 }
 
-bool
-r_Collection_Type::isCollectionType() const
+bool r_Collection_Type::isCollectionType() const
 {
     return true;
 }
@@ -109,25 +108,20 @@ r_Collection_Type::type_id() const
     return COLLECTIONTYPE;
 }
 
-void
-r_Collection_Type::convertToLittleEndian(char *, r_Area) const
+void r_Collection_Type::convertToLittleEndian(char *, r_Area) const
 {
 }
 
-void
-r_Collection_Type::convertToBigEndian(char *, r_Area) const
+void r_Collection_Type::convertToBigEndian(char *, r_Area) const
 {
 }
 
-void
-r_Collection_Type::print_status(std::ostream &s) const
+void r_Collection_Type::print_status(std::ostream &s) const
 {
     s << "set< ";
     elementType->print_status(s);
     s << " >";
 }
-
-
 
 r_Collection_Type::~r_Collection_Type()
 {

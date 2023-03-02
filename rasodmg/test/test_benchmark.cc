@@ -55,22 +55,23 @@ rasdaman GmbH.
 #include "rasodmg/oqlquery.hh"
 
 #include "raslib/type.hh"
-extern "C" {
+extern "C"
+{
 #include "raslib/shhopt.hh"
 }
 #include "raslib/rmdebug.hh"
 
 #include <sys/time.h>
 
-static int numExec = 1;  // number of repetitions for each query
-static int readEach = 0; // number of repeated queries in query file
-static int qNum = 0;     // counter for current query
+static int numExec = 1;   // number of repetitions for each query
+static int readEach = 0;  // number of repeated queries in query file
+static int qNum = 0;      // counter for current query
 
 RMTimer execTimer("test_benchmark", "r_oql_execute()");
 RMTimer wholeTimer("test_benchmark", "execQuery()");
 
-int checkArguments(int argc, char** argv, const char* searchText,
-                   int& optionValueIndex)
+int checkArguments(int argc, char **argv, const char *searchText,
+                   int &optionValueIndex)
 {
     int found = 0;
     int i = 1;
@@ -92,7 +93,7 @@ int checkArguments(int argc, char** argv, const char* searchText,
     return found;
 }
 
-void execQuery(char* serverName, char* baseName, char* queryBuffer)
+void execQuery(char *serverName, char *baseName, char *queryBuffer)
 {
 }
 
@@ -113,7 +114,7 @@ printUsage(void)
     exit(0);
 }
 
-void execQuery(char* serverName, char* baseName, char* comment, char* query)
+void execQuery(char *serverName, char *baseName, char *comment, char *query)
 {
     int i;
     r_Database db;
@@ -160,10 +161,12 @@ void execQuery(char* serverName, char* baseName, char* comment, char* query)
             execTimer.stop();
         }
 
-        catch (r_Error& errorObj)
+        catch (r_Error &errorObj)
         {
             execTimer.stop();
-            cerr << endl << "QUERY FAILED" << endl << errorObj.what() << endl;
+            cerr << endl
+                 << "QUERY FAILED" << endl
+                 << errorObj.what() << endl;
             ta.commit();
             db.close();
         }
@@ -173,14 +176,16 @@ void execQuery(char* serverName, char* baseName, char* comment, char* query)
 
         wholeTimer.stop();
     }
-    catch (r_Error& errorObj)
+    catch (r_Error &errorObj)
     {
         wholeTimer.stop();
-        cerr << endl << "FAILED" << endl << errorObj.what() << endl;
+        cerr << endl
+             << "FAILED" << endl
+             << errorObj.what() << endl;
     }
 }
 
-void execQueries(char* serverName, char* baseName, char* comment, char* query)
+void execQueries(char *serverName, char *baseName, char *comment, char *query)
 {
     if (!readEach)
     {
@@ -195,9 +200,14 @@ void execQueries(char* serverName, char* baseName, char* comment, char* query)
     }
 }
 
-void parseFile(ifstream& fileStream, char* serverName, char* baseName)
+void parseFile(ifstream &fileStream, char *serverName, char *baseName)
 {
-    enum legalStates { FIRSTCOMMENT, COMMENT, QUERY };
+    enum legalStates
+    {
+        FIRSTCOMMENT,
+        COMMENT,
+        QUERY
+    };
     legalStates parseState = FIRSTCOMMENT;
     ostrstream commentStream;
     ostrstream queryStream;
@@ -227,7 +237,8 @@ void parseFile(ifstream& fileStream, char* serverName, char* baseName)
             if (parseState == QUERY)
             {
                 // execute the query, reset buffers
-                queryStream << endl << ends;
+                queryStream << endl
+                            << ends;
                 commentStream << ends;
                 execQueries(serverName, baseName, commentStream.str(),
                             queryStream.str());
@@ -251,7 +262,8 @@ void parseFile(ifstream& fileStream, char* serverName, char* baseName)
     if (parseState == QUERY)
     {
         // execute the query, reset buffers
-        queryStream << endl << ends;
+        queryStream << endl
+                    << ends;
         commentStream << ends;
         execQueries(serverName, baseName, commentStream.str(),
                     queryStream.str());
@@ -262,23 +274,23 @@ void parseFile(ifstream& fileStream, char* serverName, char* baseName)
     }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    int  optionValueIndex;
+    int optionValueIndex;
     char serverName[255];
     char baseName[255];
     char fileName[255];
 
-    void* help = (void*)printUsage;
+    void *help = (void *)printUsage;
 
     optStruct testBenchmarkOpt[] =
-    {
-        /* short long           type        var/func        special    */
-        { 'h',   "help",        OPT_FLAG,   help,           OPT_CALLFUNC },
-        { 'n',   "nrepeat",     OPT_INT,    &numExec,       0 },
-        { 'e',   "readeach",    OPT_INT,    &readEach,      0 },
-        { 0, 0, OPT_END, 0, 0 }  /* no more options */
-    };
+        {
+            /* short long           type        var/func        special    */
+            {'h', "help", OPT_FLAG, help, OPT_CALLFUNC},
+            {'n', "nrepeat", OPT_INT, &numExec, 0},
+            {'e', "readeach", OPT_INT, &readEach, 0},
+            {0, 0, OPT_END, 0, 0} /* no more options */
+        };
 
     /* parse all options */
     optParseOptions(&argc, argv, testBenchmarkOpt, 0);

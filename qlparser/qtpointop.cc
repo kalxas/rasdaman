@@ -56,7 +56,7 @@ QtPointOp::QtPointOp(QtOperationList *opList)
         size_t i = 0;
         for (auto iter = opList->begin(); iter != opList->end(); iter++, i++)
         {
-            QtData *coordPtr  = (dynamic_cast<QtConst *>(*iter))->getDataObj();
+            QtData *coordPtr = (dynamic_cast<QtConst *>(*iter))->getDataObj();
 
             (*pt)[i] = (static_cast<QtAtomicData *>(coordPtr))->getSignedValue();
         }
@@ -68,7 +68,6 @@ QtPointOp::~QtPointOp()
     delete pt;
     pt = NULL;
 }
-
 
 QtData *
 QtPointOp::evaluate(QtDataList *inputList)
@@ -85,16 +84,16 @@ QtPointOp::evaluate(QtDataList *inputList)
     }
 
     // first check operand types
-    bool allInt = std::all_of(operandList->begin(), operandList->end(), [](const QtData * val)
-    {
-        return val->getDataType() == QT_SHORT || val->getDataType() == QT_USHORT ||
-               val->getDataType() == QT_LONG || val->getDataType() == QT_ULONG ||
-               val->getDataType() == QT_OCTET || val->getDataType() == QT_CHAR;
-    });
+    bool allInt = std::all_of(operandList->begin(), operandList->end(), [](const QtData *val)
+                              {
+                                  return val->getDataType() == QT_SHORT || val->getDataType() == QT_USHORT ||
+                                         val->getDataType() == QT_LONG || val->getDataType() == QT_ULONG ||
+                                         val->getDataType() == QT_OCTET || val->getDataType() == QT_CHAR;
+                              });
     if (!allInt)
     {
         LERROR << "Operands of point expression must be of type integer.";
-        for (auto *data : *operandList)
+        for (auto *data: *operandList)
             if (data)
                 data->deleteRef();
         delete operandList;
@@ -108,7 +107,7 @@ QtPointOp::evaluate(QtDataList *inputList)
     //
     r_Point ptVar{r_Dimension(operandList->size())};
     r_Nullvalues *nullValues = NULL;
-    for (auto *data : *operandList)
+    for (auto *data: *operandList)
     {
         if (data->getDataType() == QT_SHORT || data->getDataType() == QT_LONG || data->getDataType() == QT_OCTET)
         {
@@ -124,7 +123,7 @@ QtPointOp::evaluate(QtDataList *inputList)
     returnValue->setNullValues(nullValues);
 
     // delete the old operands
-    for (auto *data : *operandList)
+    for (auto *data: *operandList)
         if (data)
         {
             data->deleteRef();
@@ -167,11 +166,11 @@ QtPointOp::checkType(QtTypeTuple *typeTuple)
 
         // valid types: integers
         if (!(type.getDataType() == QT_SHORT ||
-                type.getDataType() == QT_LONG ||
-                type.getDataType() == QT_OCTET ||
-                type.getDataType() == QT_USHORT ||
-                type.getDataType() == QT_ULONG ||
-                type.getDataType() == QT_CHAR))
+              type.getDataType() == QT_LONG ||
+              type.getDataType() == QT_OCTET ||
+              type.getDataType() == QT_USHORT ||
+              type.getDataType() == QT_ULONG ||
+              type.getDataType() == QT_CHAR))
         {
             opTypesValid = false;
             break;
@@ -189,4 +188,3 @@ QtPointOp::checkType(QtTypeTuple *typeTuple)
 
     return dataStreamType;
 }
-

@@ -26,13 +26,13 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "raslib/type.hh"
-#include <raslib/mddtypes.hh>                    // for r_Data_Format
+#include <raslib/mddtypes.hh>  // for r_Data_Format
 #include "conversion/gdalincludes.hh"
 #include "conversion/convtypes.hh"
 
 #ifdef HAVE_GDAL
 #include <cpl_error.h>
-void customGdalErrorHandler(CPLErr errCat, int errNum, const char* errMsg);
+void customGdalErrorHandler(CPLErr errCat, int errNum, const char *errMsg);
 
 class GDALDataset;
 class GDALRasterBand;
@@ -53,7 +53,7 @@ public:
      * @param gdalBand The band to extract the type from.
      * @return A literal type supported by rasdaman.
      */
-    static std::string gdalTypeToRasTypeString(GDALRasterBand* gdalBand);
+    static std::string gdalTypeToRasTypeString(GDALRasterBand *gdalBand);
 
     /**
      * The type decision is made based on the GDALDataType of the bands and of the number of bands.
@@ -62,19 +62,19 @@ public:
      * @param bandIds a vector of the band ids to be considered for the type translation (0-indexed)
      * @return an r_Type for the dataset
      */
-    static r_Type* gdalTypeToRasType(GDALDataset* poDataSet, const std::vector<int>& bandIds);
+    static r_Type *gdalTypeToRasType(GDALDataset *poDataSet, const std::vector<int> &bandIds);
 
     /// convert rasdaman type to GDAL type
-    static GDALDataType rasTypeToGdalType(r_Type* rasType);
+    static GDALDataType rasTypeToGdalType(r_Type *rasType);
 
-#endif // HAVE_GDAL
+#endif  // HAVE_GDAL
 
 #ifdef HAVE_HDF
     /// translate an internal type into an HDF type and return the size.
-    static int ctypeToHdfType(int intType, int& size);
+    static int ctypeToHdfType(int intType, int &size);
 
     /// translate an HDF type into an internal type and return the size
-    static int hdfTypeToCtype(int hdfType, int& size);
+    static int hdfTypeToCtype(int hdfType, int &size);
 #endif
 
     /**
@@ -88,13 +88,13 @@ public:
      * @param bandId the band index, 0-based
      * @return the base type size
      */
-    static size_t getBandBaseTypeSize(const r_Type* type, int bandId);
+    static size_t getBandBaseTypeSize(const r_Type *type, int bandId);
 
     /**
      * @return the number of bands in type, 1 if type is primitive, more than 1 if struct.
      */
-    static unsigned int getNumberOfBands(const r_Type* type);
-    
+    static unsigned int getNumberOfBands(const r_Type *type);
+
 #ifdef HAVE_GDAL
 private:
     static const std::string GDAL_KEY_IMAGE_STRUCTURE;
@@ -103,4 +103,4 @@ private:
 #endif
 };
 
-#endif  /* CONVUTIL_HH */
+#endif /* CONVUTIL_HH */

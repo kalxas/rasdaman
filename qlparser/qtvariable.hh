@@ -46,7 +46,6 @@ rasdaman GmbH.
 
 */
 
-
 class QtVariable : public QtOperation
 {
 public:
@@ -106,7 +105,6 @@ public:
     virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
-
     /// attribute storing the iterator name
     std::string iteratorName;
 
@@ -129,4 +127,3 @@ private:
 #include "qlparser/qtvariable.icc"
 
 #endif
-

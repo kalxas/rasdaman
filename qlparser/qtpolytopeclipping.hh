@@ -51,7 +51,7 @@ public:
     std::vector<double> getHalfspace(QtOperation *pointOp);
 
     // either a 2-D or an n-D clipping method is used based on the underlying MDDObj
-    QtData *computeOp(QtMDD *operand, std::vector< std::vector<double>> halfspacesArg);
+    QtData *computeOp(QtMDD *operand, std::vector<std::vector<double>> halfspacesArg);
 
     // method for evaluating the node
     QtData *evaluate(QtDataList *inputList);
@@ -63,7 +63,6 @@ public:
     virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
-
     //attribute for identification of nodes
     static const QtNodeType nodeType;
 
@@ -77,8 +76,7 @@ private:
     //
     // # rows = dimension of MDDObj
     // # cols = number of features
-    std::vector< std::vector<double>> halfspaces;
+    std::vector<std::vector<double>> halfspaces;
 };
 
-#endif  /* QTPOLYTOPECLIPPING_HH */
-
+#endif /* QTPOLYTOPECLIPPING_HH */

@@ -31,11 +31,11 @@ rasdaman GmbH.
 */
 #include "point.hh"
 #include "raslib/error.hh"
-#include <logging.hh>              // for Writer, CFATAL, LOG
-#include <string.h>                // for strchr, strdup
-#include <iostream>                 // for operator<<, basic_ostream<>::__ost...
-#include <stdexcept>               // for runtime_error
-#include <string>                  // for basic_string
+#include <logging.hh>  // for Writer, CFATAL, LOG
+#include <string.h>    // for strchr, strdup
+#include <iostream>    // for operator<<, basic_ostream<>::__ost...
+#include <stdexcept>   // for runtime_error
+#include <string>      // for basic_string
 
 r_Point::r_Point(char *stringRep)
 {
@@ -48,12 +48,12 @@ r_Point::r_Point(char *stringRep)
     while ((p = strchr(++p, ',')))
         dim++;
     points.reserve(dim);
-    
+
     char charToken;
     str >> charToken;
     if (charToken != '[')
         throw r_Error(NOPOINT);
-    
+
     for (r_Dimension i = 0; i < dim; i++)
     {
         r_Range valueToken;
@@ -72,10 +72,10 @@ r_Point::r_Point(char *stringRep)
 r_Point::r_Point(r_Range p1)
     : points{p1}, streamIndex{1}
 {
-    
 }
 
-r_Point::r_Point(r_Dimension dim) : points(dim, value_type{})
+r_Point::r_Point(r_Dimension dim)
+    : points(dim, value_type{})
 {
 }
 
@@ -90,7 +90,7 @@ r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3)
 }
 
 r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4)
-  : points{p1, p2, p3, p4}, streamIndex{4}
+    : points{p1, p2, p3, p4}, streamIndex{4}
 {
 }
 
@@ -99,7 +99,7 @@ r_Point::r_Point(r_Range p1, r_Range p2, r_Range p3, r_Range p4, r_Range p5)
 {
 }
 
-r_Point::r_Point(std::vector<r_Range> pointArg) 
+r_Point::r_Point(std::vector<r_Range> pointArg)
     : points{std::move(pointArg)}, streamIndex{points.size()}
 {
 }
@@ -172,8 +172,7 @@ bool r_Point::operator!=(const r_Point &pt) const
     return !operator==(pt);
 }
 
-bool
-r_Point::operator < (const r_Point &pt) const
+bool r_Point::operator<(const r_Point &pt) const
 {
     checkDimensionMatch(pt);
     bool returnValue = true;
@@ -181,8 +180,7 @@ r_Point::operator < (const r_Point &pt) const
         returnValue &= this->points[dim] < pt[dim];
     return returnValue;
 }
-bool
-r_Point::operator > (const r_Point &pt) const
+bool r_Point::operator>(const r_Point &pt) const
 {
     checkDimensionMatch(pt);
     bool returnValue = true;
@@ -191,8 +189,7 @@ r_Point::operator > (const r_Point &pt) const
     return returnValue;
 }
 
-bool
-r_Point::operator >= (const r_Point &pt) const
+bool r_Point::operator>=(const r_Point &pt) const
 {
     checkDimensionMatch(pt);
     bool returnValue = true;
@@ -201,8 +198,7 @@ r_Point::operator >= (const r_Point &pt) const
     return returnValue;
 }
 
-bool
-r_Point::operator <= (const r_Point &pt) const
+bool r_Point::operator<=(const r_Point &pt) const
 {
     checkDimensionMatch(pt);
     bool returnValue = true;
@@ -278,10 +274,11 @@ std::string
 r_Point::to_string(bool wkt) const
 {
     std::string ret;
-    for (auto p: points) {
-      if (!ret.empty())
-        ret += wkt ? " " : ",";
-      ret += std::to_string(p);
+    for (auto p: points)
+    {
+        if (!ret.empty())
+            ret += wkt ? " " : ",";
+        ret += std::to_string(p);
     }
     return !wkt ? "[" + ret + "]" : ret;
 }
@@ -290,7 +287,7 @@ void r_Point::checkDimensionMatch(const r_Point &pt) const
 {
     if (dimension() != pt.dimension())
     {
-        LERROR << "dimension of given point (" << dimension() 
+        LERROR << "dimension of given point (" << dimension()
                << ") does not match dimension of this point (" << dimension() << ").";
         throw r_Edim_mismatch(dimension(), pt.dimension());
     }
@@ -308,8 +305,7 @@ r_Point::dimension() const
     return static_cast<r_Dimension>(points.size());
 }
 
-int
-r_Point::compare_with(const r_Point &p) const
+int r_Point::compare_with(const r_Point &p) const
 {
     if (dimension() != p.dimension())
         return -2;

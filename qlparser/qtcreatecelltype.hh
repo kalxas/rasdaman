@@ -63,4 +63,4 @@ private:
     QtNode::QtOperationList *typeAttributes;
 };
 
-#endif // QTCREATECELLTYPE_HH
+#endif  // QTCREATECELLTYPE_HH

@@ -56,4 +56,4 @@ private:
     static const QtNodeType nodeType;
 };
 
-#endif // QTCELLTYPEATTRIBUTES_HH
+#endif  // QTCELLTYPEATTRIBUTES_HH

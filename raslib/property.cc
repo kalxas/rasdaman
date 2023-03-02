@@ -28,13 +28,13 @@ rasdaman GmbH.
 #include <logging.hh>
 
 r_Property::r_Property(const char *newTypeName, const r_Base_Type &newType)
-    :   r_Meta_Object(newTypeName),
-        myType(static_cast<r_Base_Type *>(newType.clone()))
+    : r_Meta_Object(newTypeName),
+      myType(static_cast<r_Base_Type *>(newType.clone()))
 {
 }
 
 r_Property::r_Property(const r_Property &oldObj)
-    :   r_Meta_Object(oldObj)
+    : r_Meta_Object(oldObj)
 {
     if (oldObj.myType)
     {
@@ -93,4 +93,3 @@ r_Property::type_of() const
     }
     return *myType;
 }
-

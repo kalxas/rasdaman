@@ -32,18 +32,18 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-#include "adminif.hh"           // for AdminIf
+#include "adminif.hh"  // for AdminIf
 #include "dbobject.hh"
-#include "eoid.hh"              // for EOId
-#include "logging.hh"           // for LTRACE, LERROR
-#include "objectbroker.hh"      // for ObjectBroker
+#include "eoid.hh"          // for EOId
+#include "logging.hh"       // for LTRACE, LERROR
+#include "objectbroker.hh"  // for ObjectBroker
 #include "raslib/error.hh"  // for r_Error, r_Error::r_Error_Transaction...
-#include <logging.hh>           // for Writer, CTRACE, CFATAL
+#include <logging.hh>       // for Writer, CTRACE, CFATAL
 
-#include <cstring>              // for strlen, memcpy
-#include <fstream>              // for operator<<, basic_ostream::operator<<
-#include <iosfwd>               // for ostream, ostringstream
-#include <string>               // for basic_string
+#include <cstring>  // for strlen, memcpy
+#include <fstream>  // for operator<<, basic_ostream::operator<<
+#include <iosfwd>   // for ostream, ostringstream
+#include <string>   // for basic_string
 
 using namespace std;
 
@@ -175,8 +175,7 @@ DBObject::DBObject(const OId &id)
 
 // setPersistent(true) makes the object persistent as soon as validate is called.
 // a r_Error::r_Error_TransactionReadOnly is thrown when the transaction is readonly.
-void
-DBObject::setPersistent(bool newPersistent)
+void DBObject::setPersistent(bool newPersistent)
 {
     if (newPersistent)
     {
@@ -215,7 +214,7 @@ DBObject::setPersistent(bool newPersistent)
                 _isPersistent = false;
                 _isModified = true;
             }
-            else    // read only transaction
+            else  // read only transaction
             {
                 LERROR << "DBObject::setPersistent() read only transaction";
                 throw r_Error(r_Error::r_Error_TransactionReadOnly);
@@ -239,9 +238,9 @@ bool DBObject::isPersistent() const
 // readonly.
 void DBObject::validate()
 {
-//    LTRACE << "Validating DB object " << myOId << ": modified "
-//           << _isModified << ", validation failed " << _validationFailed
-//           << ", read only ta " << AdminIf::isReadOnlyTA() << ", aborted " << !AdminIf::isAborted();
+    //    LTRACE << "Validating DB object " << myOId << ": modified "
+    //           << _isModified << ", validation failed " << _validationFailed
+    //           << ", read only ta " << AdminIf::isReadOnlyTA() << ", aborted " << !AdminIf::isAborted();
     if (_isModified && !_validationFailed && !AdminIf::isReadOnlyTA() && !AdminIf::isAborted())
     {
         try
@@ -251,7 +250,7 @@ void DBObject::validate()
                 if (_isPersistent)
                 {
                     LTRACE
-                            << "is persistent and modified and in database";
+                        << "is persistent and modified and in database";
 #ifdef RMANBENCHMARK
                     updateTimer.resume();
 #endif
@@ -373,8 +372,7 @@ BinaryRepresentation DBObject::getBinaryRepresentation() const
     throw r_Error(BINARYEXPORTNOTSUPPORTEDFOROBJECT);
 }
 
-void
-DBObject::setBinaryRepresentation(__attribute__((unused)) const BinaryRepresentation &br)
+void DBObject::setBinaryRepresentation(__attribute__((unused)) const BinaryRepresentation &br)
 {
     throw r_Error(BINARYIMPORTNOTSUPPORTEDFOROBJECT);
 }

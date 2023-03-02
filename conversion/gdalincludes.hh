@@ -72,4 +72,4 @@ DIAGNOSTIC_POP
 
 #endif
 
-#endif  /* GDALINCLUDES_H */
+#endif /* GDALINCLUDES_H */

@@ -57,10 +57,10 @@ public:
     static UserAdminRightsProto serializeToProto(const UserAdminRights &rights);
 
 private:
-    bool systemConfigRights{false};/*!< Rights to configure the system*/
-    bool accessControlRights{false};/*!< Rights to modify access control*/
-    bool serverAdminRights{false};/*!< Rights to administer servers*/
-    bool infoRights{false};/*!< Rights to list information about this rasdaman instance*/
+    bool systemConfigRights{false};  /*!< Rights to configure the system*/
+    bool accessControlRights{false}; /*!< Rights to modify access control*/
+    bool serverAdminRights{false};   /*!< Rights to administer servers*/
+    bool infoRights{false};          /*!< Rights to list information about this rasdaman instance*/
 };
 
 } /* namespace rasmgr */

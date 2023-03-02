@@ -46,7 +46,7 @@ public:
     User(std::string name, std::string password,
          const UserDatabaseRights &defaultDbRights,
          const UserAdminRights &adminRights);
-    
+
     /**
      * Initialize a new instance of the User class with username and password,
      * as well as a token.
@@ -84,7 +84,6 @@ public:
      * @return rasmgr::User
      */
     static User parseFromProto(const UserProto &user);
-
 
     /**
      * Serialize the data of this object to protobuf representation.

@@ -74,13 +74,13 @@ public:
      * @throws InexistentDbHostException
      */
     virtual std::shared_ptr<DatabaseHost> getAndLockDatabaseHost(const std::string &dbHostName);
-  
+
     /**
      * Get a reference to the database host that owns the database with name dbName.
      * @throws common::RuntimeException if such a database host is not found.
      */
     virtual std::shared_ptr<DatabaseHost> getDatabaseHost(const std::string &dbName);
-  
+
     /**
      * Retrieve a list containing the list of database hosts currently
      * registered with this rasmgr.

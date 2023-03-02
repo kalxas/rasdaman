@@ -23,10 +23,10 @@ rasdaman GmbH.
 
 #include "error.hh"
 
-#include <sys/stat.h> // for stat
-#include <fstream>    // ifstream
+#include <sys/stat.h>  // for stat
+#include <fstream>     // ifstream
 #include <string>
-#include <sstream>    // istringstream
+#include <sstream>  // istringstream
 #include <unordered_map>
 #include <mutex>
 #include <cassert>
@@ -50,13 +50,13 @@ r_Error::r_Error()
 r_Error::r_Error(kind theKindArg, unsigned int newErrorNo)
     : errorNo(newErrorNo), theKind(theKindArg)
 {
-  resetErrorText();
+    resetErrorText();
 }
 
 r_Error::r_Error(kind theKindArg, std::string errorParamArg)
-  : errorNo(0), theKind(theKindArg), errorDetails{std::move(errorParamArg)}
+    : errorNo(0), theKind(theKindArg), errorDetails{std::move(errorParamArg)}
 {
-  resetErrorText();
+    resetErrorText();
 }
 
 r_Error::r_Error(unsigned int errorno)
@@ -97,17 +97,17 @@ r_Error::get_kind() const
 unsigned long
 r_Error::get_errorno() const
 {
-  return errorNo;
+    return errorNo;
 }
 
 const std::string &r_Error::get_errorparam() const
 {
-  return errorDetails;
+    return errorDetails;
 }
 
 void r_Error::set_what(const char *w)
 {
-  errorText = w;
+    errorText = w;
 }
 
 std::string
@@ -121,8 +121,7 @@ void r_Error::initTextTable()
 {
 }
 
-void
-r_Error::setErrorTextOnKind()
+void r_Error::setErrorTextOnKind()
 {
     switch (theKind)
     {
@@ -193,7 +192,7 @@ r_Error::setErrorTextOnKind()
         errorText = "Client Unknown";
         break;
     case r_Error_FileNotFound:
-        errorText =  "Referenced file not found";
+        errorText = "Referenced file not found";
         break;
     case r_Error_ObjectUnknown:
         errorText = "Object Unknown";
@@ -274,7 +273,7 @@ r_Error::setErrorTextOnKind()
         errorText = "Not specified";
         break;
     }
-    
+
     updateWithErrorDetails();
 }
 
@@ -314,7 +313,7 @@ std::unordered_map<unsigned int, ErrorInfo> loadErrorTexts()
     {
         if (line.empty() || line[0] == ERRTXTFILE_COMMENT)
         {
-            continue; // skip empty lines and comments
+            continue;  // skip empty lines and comments
         }
         if (firstLine)
         {
@@ -358,8 +357,7 @@ std::unordered_map<unsigned int, ErrorInfo> loadErrorTexts()
     return errorTexts;
 }
 
-void
-r_Error::setErrorTextOnNumber()
+void r_Error::setErrorTextOnNumber()
 {
     static std::unordered_map<unsigned int, ErrorInfo> errorTexts;
     static std::mutex mutex;
@@ -385,12 +383,11 @@ r_Error::setErrorTextOnNumber()
     {
         errorText = "no explanation text available for error code " + std::to_string(errorNo);
     }
-    
+
     updateWithErrorDetails();
 }
 
-void
-r_Error::setTextParameter(const char *parameterName, long long value)
+void r_Error::setTextParameter(const char *parameterName, long long value)
 {
     // convert long value to string
     std::stringstream valueStream;
@@ -399,8 +396,7 @@ r_Error::setTextParameter(const char *parameterName, long long value)
     setTextParameter(parameterName, valueStr.c_str());
 }
 
-void
-r_Error::setTextParameter(const char *parameterName, const char *value)
+void r_Error::setTextParameter(const char *parameterName, const char *value)
 {
     if (errorText.empty())
     {
@@ -422,8 +418,7 @@ r_Error::setTextParameter(const char *parameterName, const char *value)
     }
 }
 
-void
-r_Error::resetErrorText()
+void r_Error::resetErrorText()
 {
     if (errorNo)
     {
@@ -437,32 +432,32 @@ r_Error::resetErrorText()
 
 void r_Error::updateWithErrorDetails()
 {
-  if (errorDetails.empty())
-  {
-      return; // no details, nothing to do
-  }
-  
-  if (errorText.empty())
-  {
-      errorText = errorDetails;
-  }
-  else
-  {
-      if (errorText.back() == '.' || errorText.back() == '!')
-      {
-          errorText[errorText.length() - 1] = ':';
-          errorText += ' ';
-      }
-      else if (errorText.back() == '?')
-      {
-          errorText += " Details: ";
-      }
-      else
-      {
-          errorText += ": ";
-      }
-      errorText += errorDetails;
-  }
+    if (errorDetails.empty())
+    {
+        return;  // no details, nothing to do
+    }
+
+    if (errorText.empty())
+    {
+        errorText = errorDetails;
+    }
+    else
+    {
+        if (errorText.back() == '.' || errorText.back() == '!')
+        {
+            errorText[errorText.length() - 1] = ':';
+            errorText += ' ';
+        }
+        else if (errorText.back() == '?')
+        {
+            errorText += " Details: ";
+        }
+        else
+        {
+            errorText += ": ";
+        }
+        errorText += errorDetails;
+    }
 }
 
 // ----------------------------------------------------------------------------------------------
@@ -477,21 +472,20 @@ r_EGeneral::r_EGeneral(const std::string &errorTextArg)
 r_Eindex_violation::r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex)
     : r_Error(INDEXVIOLATION), low(dlow), high(dhigh), index(dindex)
 {
-  resetErrorText();
+    resetErrorText();
 }
 
 r_Eindex_violation::r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex, const std::string &details)
-  : r_Error(INDEXVIOLATION, details), low(dlow), high(dhigh), index(dindex)
+    : r_Error(INDEXVIOLATION, details), low(dlow), high(dhigh), index(dindex)
 {
     resetErrorText();
 }
 
-void
-r_Eindex_violation::resetErrorText()
+void r_Eindex_violation::resetErrorText()
 {
     setErrorTextOnNumber();
-    setTextParameter("$low",     low);
-    setTextParameter("$high",   high);
+    setTextParameter("$low", low);
+    setTextParameter("$high", high);
     setTextParameter("$index", index);
 }
 
@@ -504,13 +498,12 @@ r_Edim_mismatch::r_Edim_mismatch(r_Dimension pdim1, r_Dimension pdim2)
 }
 
 r_Edim_mismatch::r_Edim_mismatch(r_Dimension pdim1, r_Dimension pdim2, const std::string &details)
-  : r_Error(DIMENSIONMISMATCH, details), dim1(pdim1), dim2(pdim2)
+    : r_Error(DIMENSIONMISMATCH, details), dim1(pdim1), dim2(pdim2)
 {
     resetErrorText();
 }
 
-void
-r_Edim_mismatch::resetErrorText()
+void r_Edim_mismatch::resetErrorText()
 {
     setErrorTextOnNumber();
     setTextParameter("$dim1", dim1);
@@ -537,14 +530,13 @@ r_Equery_execution_failed::r_Equery_execution_failed(
     resetErrorText();
 }
 
-void
-r_Equery_execution_failed::resetErrorText()
+void r_Equery_execution_failed::resetErrorText()
 {
     setErrorTextOnNumber();
-    setTextParameter("$errorNo",  errorNo);
-    setTextParameter("$lineNo",   lineNo);
+    setTextParameter("$errorNo", errorNo);
+    setTextParameter("$lineNo", lineNo);
     setTextParameter("$columnNo", columnNo);
-    setTextParameter("$token",    token.c_str());
+    setTextParameter("$token", token.c_str());
 }
 
 unsigned int
@@ -573,8 +565,7 @@ r_Elimits_mismatch::r_Elimits_mismatch(r_Range lim1, r_Range lim2)
     resetErrorText();
 }
 
-void
-r_Elimits_mismatch::resetErrorText()
+void r_Elimits_mismatch::resetErrorText()
 {
     setErrorTextOnNumber();
     setTextParameter("$dim1", i1);
@@ -596,8 +587,7 @@ r_Ebase_dbms::r_Ebase_dbms(long newDbmsErrNum, const char *newDbmsErrTxt)
     resetErrorText();
 }
 
-void
-r_Ebase_dbms::resetErrorText()
+void r_Ebase_dbms::resetErrorText()
 {
     errorText = "Base DBMS error " + std::to_string(dbmsErrNum) + ": " + dbmsErrTxt;
 }
@@ -620,7 +610,6 @@ r_Ecapability_refused::r_Ecapability_refused()
     : r_Error(r_Error_AccesDenied, CAPABILITY_REFUSED)
 {
 }
-
 
 r_Einvalid_interval_bounds::r_Einvalid_interval_bounds(r_Range l1, r_Range l2)
     : r_Error(INVALIDINTERVALBOUNDS), lim1{l1}, lim2{l2}

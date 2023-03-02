@@ -44,7 +44,7 @@ public:
     ~Timer() = default;
 
     std::int32_t getPeriod() const;
-    
+
     void setPeriod(std::int32_t periodArg);
 
     /**
@@ -58,7 +58,7 @@ public:
     * Reset the timer. The timer will start counting down from the initial period passed to the constructor.
     */
     void reset();
-    
+
 private:
     struct timeval start;
     /*!< Timeval representing the time the Timer started */
@@ -66,9 +66,9 @@ private:
     /*!< Timeval representing the time when the Timer will expire*/
     struct timeval current;
     /*!< Timeval used to get the current time when checking for expiration*/
-    struct timeval timeout;/*!< Timeval representing the period the Timer measures*/
+    struct timeval timeout; /*!< Timeval representing the period the Timer measures*/
 
     std::int32_t period{};
 };
-}
+}  // namespace common
 #endif /* COMMON_TIME_TIMER_HH_ */

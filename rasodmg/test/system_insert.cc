@@ -44,18 +44,17 @@ rasdaman GmbH.
 #include "rasodmg/stattiling.hh"
 #include "rasodmg/storagelayout.hh"
 
-int main(int argc, const char** argv)
+int main(int argc, const char **argv)
 {
     return SystemInsert::doStuff(argc, argv);
 }
 
-int
-SystemInsert::doStuff(int argc, const char** argv)
+int SystemInsert::doStuff(int argc, const char **argv)
 {
     RMInit::logOut.rdbuf(cout.rdbuf());
     RMInit::dbgOut.rdbuf(cout.rdbuf());
     RMDebug::level = 10;
-    r_Base_Type* conversionType = 0;
+    r_Base_Type *conversionType = 0;
     int optionValueIndex = -1;
     int retval = 0;
 
@@ -112,7 +111,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                     {
                                         collection = db.lookup_object(collName);
                                     }
-                                    catch (r_Error& obj)
+                                    catch (r_Error &obj)
                                     {
                                         RMInit::logOut << "Error (" << obj.get_errorno() << ") accessing collection " << collName << ": " << obj.what() << endl;
                                         retval = COLLECTIONINACCESSIBLE;
@@ -120,9 +119,9 @@ SystemInsert::doStuff(int argc, const char** argv)
                                     //create mddObject
                                     if (retval == 0)
                                     {
-                                        r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
+                                        r_Storage_Layout *stl = new r_Storage_Layout(theTiling->clone());
                                         //stl->set_storage_format(storageFormat, storageFormatParams);
-                                        mddObject = new(&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
+                                        mddObject = new (&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
                                         retval = initGMarray(mddObject, filePointer, inputFormat, mddDomain, inputFormatParams);
                                         if (retval == 0)
                                         {
@@ -140,7 +139,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                     }
                                     db.close();
                                 }
-                                catch (r_Error& obj)
+                                catch (r_Error &obj)
                                 {
                                     cout << "Exception (" << obj.get_errorno() << ") at administrative action: " << obj.what() << endl;
                                     retval = EXCEPTIONADMIN;
@@ -148,7 +147,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                     db.close();
                                 }
                             }
-                            else     //no collname
+                            else  //no collname
                             {
                                 if (collOIdDef)
                                 {
@@ -161,7 +160,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                         {
                                             collection = db.lookup_object(collOId);
                                         }
-                                        catch (r_Error& obj)
+                                        catch (r_Error &obj)
                                         {
                                             RMInit::logOut << "Error (" << obj.get_errorno() << ") accessing collection " << collOId << ": " << obj.what() << endl;
                                             retval = COLLECTIONINACCESSIBLE;
@@ -169,9 +168,9 @@ SystemInsert::doStuff(int argc, const char** argv)
                                         //create mddObject
                                         if (retval == 0)
                                         {
-                                            r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
+                                            r_Storage_Layout *stl = new r_Storage_Layout(theTiling->clone());
                                             //stl->set_storage_format(dataFormat, dataFormatParams);
-                                            mddObject = new(&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
+                                            mddObject = new (&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
                                             retval = initGMarray(mddObject, filePointer, inputFormat, mddDomain, inputFormatParams);
                                             if (retval == 0)
                                             {
@@ -189,7 +188,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                         }
                                         db.close();
                                     }
-                                    catch (r_Error& obj)
+                                    catch (r_Error &obj)
                                     {
                                         cout << "Exception (" << obj.get_errorno() << ") at administrative action: " << obj.what() << endl;
                                         retval = EXCEPTIONADMIN;
@@ -197,14 +196,14 @@ SystemInsert::doStuff(int argc, const char** argv)
                                         db.close();
                                     }
                                 }
-                                else     //no collname, no collOId, create mdd
+                                else  //no collname, no collOId, create mdd
                                 {
                                     try
                                     {
                                         openTransaction();
-                                        r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
+                                        r_Storage_Layout *stl = new r_Storage_Layout(theTiling->clone());
                                         //stl->set_storage_format(storageFormat, storageFormatParams);
-                                        mddObject = new(&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
+                                        mddObject = new (&db, mddTypeName) r_GMarray(mddDomain, 0, stl);
                                         retval = initGMarray(mddObject, filePointer, inputFormat, mddDomain, inputFormatParams);
                                         if (retval == 0)
                                         {
@@ -217,7 +216,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                         }
                                         db.close();
                                     }
-                                    catch (r_Error& obj)
+                                    catch (r_Error &obj)
                                     {
                                         cout << "Exception (" << obj.get_errorno() << ") at administrative action: " << obj.what() << endl;
                                         retval = EXCEPTIONADMIN;
@@ -238,7 +237,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                     }
                 }
             }
-            else     //create coll or insert existing mdd into existing coll
+            else  //create coll or insert existing mdd into existing coll
             {
                 if (mddOIdDef)
                 {
@@ -254,7 +253,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                             {
                                 collection = db.lookup_object(collOId);
                             }
-                            catch (r_Error& obj)
+                            catch (r_Error &obj)
                             {
                                 RMInit::logOut << "Error (" << obj.get_errorno() << ") accessing collection " << collOId << ": " << obj.what() << endl;
                                 retval = COLLECTIONINACCESSIBLE;
@@ -266,7 +265,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                 {
                                     mddObject = db.lookup_object(mddOId);
                                 }
-                                catch (r_Error& obj)
+                                catch (r_Error &obj)
                                 {
                                     RMInit::logOut << "Error (" << obj.get_errorno() << ") accessing mdd " << mddOId << ": " << obj.what() << endl;
                                     retval = MDDINACCESSIBLE;
@@ -287,7 +286,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                             }
                             db.close();
                         }
-                        catch (r_Error& obj)
+                        catch (r_Error &obj)
                         {
                             cout << "Exception (" << obj.get_errorno() << ") at administrative action: " << obj.what() << endl;
                             retval = EXCEPTIONADMIN;
@@ -308,7 +307,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                 {
                                     collection = db.lookup_object(collName);
                                 }
-                                catch (r_Error& obj)
+                                catch (r_Error &obj)
                                 {
                                     RMInit::logOut << "Error (" << obj.get_errorno() << ") accessing collection " << collName << ": " << obj.what() << endl;
                                     retval = COLLECTIONINACCESSIBLE;
@@ -320,7 +319,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                     {
                                         mddObject = db.lookup_object(mddOId);
                                     }
-                                    catch (r_Error& obj)
+                                    catch (r_Error &obj)
                                     {
                                         RMInit::logOut << "Error (" << obj.get_errorno() << ") accessing mdd " << mddOId << ": " << obj.what() << endl;
                                         retval = MDDINACCESSIBLE;
@@ -341,7 +340,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                 }
                                 db.close();
                             }
-                            catch (r_Error& obj)
+                            catch (r_Error &obj)
                             {
                                 cout << "Exception (" << obj.get_errorno() << ") at administrative action: " << obj.what() << endl;
                                 retval = EXCEPTIONADMIN;
@@ -349,13 +348,13 @@ SystemInsert::doStuff(int argc, const char** argv)
                                 db.close();
                             }
                         }
-                        else     //no coll name, no coll oid, error
+                        else  //no coll name, no coll oid, error
                         {
                             retval = NOCOLLNAMENOCOLLOID;
                         }
                     }
                 }
-                else     //do not create mdd, do not insert mdd into coll
+                else  //do not create mdd, do not insert mdd into coll
                 {
                     if (setTypeDef)
                     {
@@ -366,7 +365,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                             openTransaction();
                             try
                             {
-                                collection = new(&db, setTypeName) r_Set<r_Ref<r_GMarray>>;
+                                collection = new (&db, setTypeName) r_Set<r_Ref<r_GMarray>>;
                                 if (collNameDef)
                                 {
                                     //object.cc insert in db will throw r_error without name
@@ -374,7 +373,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                                 }
                                 ta.commit();
                             }
-                            catch (r_Error& obj)
+                            catch (r_Error &obj)
                             {
                                 cout << "Exception (" << obj.get_errorno() << ") at creating collection: " << obj.what() << endl;
                                 retval = EXCEPTIONCREATECOLL;
@@ -383,7 +382,7 @@ SystemInsert::doStuff(int argc, const char** argv)
                             //create mddObject
                             db.close();
                         }
-                        catch (r_Error& obj)
+                        catch (r_Error &obj)
                         {
                             cout << "Exception (" << obj.get_errorno() << ") at administrative action: " << obj.what() << endl;
                             retval = EXCEPTIONADMIN;
@@ -407,10 +406,10 @@ SystemInsert::doStuff(int argc, const char** argv)
     return retval;
 }
 
-void
-SystemInsert::printUsage()
+void SystemInsert::printUsage()
 {
-    cout << "Insert program for extended systemtest" << endl << endl;
+    cout << "Insert program for extended systemtest" << endl
+         << endl;
     SystemBasic::printOptions();
     cout << "Actions: Create and insert MDD object" << endl;
     cout << "           required information: MDD type" << endl;

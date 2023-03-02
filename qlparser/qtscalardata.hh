@@ -127,25 +127,3 @@ protected:
 #include "qlparser/qtscalardata.icc"
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

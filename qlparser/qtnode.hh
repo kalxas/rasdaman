@@ -34,13 +34,12 @@ rasdaman GmbH.
 #include "qlparser/qtdata.hh"
 
 // define used in lots of qlparser files to indent output
-#define SPACE_STR(numSpace) std::string((size_t)numSpace,' ')
+#define SPACE_STR(numSpace) std::string((size_t)numSpace, ' ')
 
-class QtOperation; // forward declarations of subclasses of QtNode
+class QtOperation;  // forward declarations of subclasses of QtNode
 class Type;
 class QtTypeElement;
 class QtBinaryOperation;
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -51,7 +50,6 @@ class QtBinaryOperation;
  parent node in the tree. The parent of root is null.
 
 */
-
 
 class QtNode
 {
@@ -107,7 +105,7 @@ public:
         QT_NOT,
         QT_IS_NULL,
         QT_SQRT,
-// added by CStancuMara
+        // added by CStancuMara
         QT_EXECUTE,
         QT_ONC_STREAM,
         QT_ITERATOR,
@@ -123,14 +121,24 @@ public:
         QT_PROJECT,
         QT_CLIPPING,
 
-//**************
-        QT_ABS, QT_EXP, QT_LOG, QT_LN, QT_SIN, QT_COS,
-        QT_TAN, QT_SINH, QT_COSH, QT_TANH, QT_ARCSIN,
-        QT_ARCCOS, QT_ARCTAN,
+        //**************
+        QT_ABS,
+        QT_EXP,
+        QT_LOG,
+        QT_LN,
+        QT_SIN,
+        QT_COS,
+        QT_TAN,
+        QT_SINH,
+        QT_COSH,
+        QT_TANH,
+        QT_ARCSIN,
+        QT_ARCCOS,
+        QT_ARCTAN,
         QT_REALPART,
         QT_IMAGINARPART,
         QT_CAST,
-//**************
+        //**************
 
         QT_CSE_ROOT,
         QT_DOMAIN_OPERATION,
@@ -188,8 +196,6 @@ public:
         QT_LAST_NODE_TYPE
     };
 
-
-
     enum QtAreaType
     {
         QT_AREA_MDD,
@@ -205,7 +211,7 @@ public:
 
     /// list of QtOperation pointers
     typedef std::vector<QtOperation *> QtOperationList;
-    typedef std::vector<QtOperationList * > QtOperationNestedList;
+    typedef std::vector<QtOperationList *> QtOperationNestedList;
 
     /// default constructor
     QtNode();
@@ -279,15 +285,15 @@ public:
     ///
 
     ///
-    inline virtual void         setInput(QtOperation *inputOld, QtOperation *inputNew);
+    inline virtual void setInput(QtOperation *inputOld, QtOperation *inputNew);
     ///
-    inline QtNode              *getParent() const;
+    inline QtNode *getParent() const;
     ///
-    inline void                 setParent(QtNode *node);
+    inline void setParent(QtNode *node);
     ///
-    inline const ParseInfo     &getParseInfo();
+    inline const ParseInfo &getParseInfo();
     ///
-    inline void                 setParseInfo(const ParseInfo &info);
+    inline void setParseInfo(const ParseInfo &info);
 
     ///
     //@}
@@ -325,7 +331,6 @@ public:
     /// the inheritance relations list
     static const QtNodeType QtInheritance[][2];
 
-
 protected:
     /// attribute for parser info
     ParseInfo parseInfo;
@@ -359,7 +364,6 @@ private:
         enum QtNodeType base, deriv;
     };
 
-
     ///operator overload for QtNodePair struct
     friend bool operator<(const QtNodePair a, const QtNodePair b);
 
@@ -385,9 +389,6 @@ private:
     static long timerCounter;
 #endif
 };
-
-
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -424,27 +425,27 @@ public:
     ~QtTypeElement();
 
     /// assignment: cleanup + copy
-    const QtTypeElement &operator= (const QtTypeElement &);
+    const QtTypeElement &operator=(const QtTypeElement &);
 
     //@Man: Read/Write methods
     //@{
     ///
     ///
-    void  setDataType(const QtDataType newDataType);
+    void setDataType(const QtDataType newDataType);
     ///
-    void  setType(const Type *newType);
+    void setType(const Type *newType);
     ///
-    inline void  setName(const char *newName);
+    inline void setName(const char *newName);
     ///
-    inline  QtDataType getDataType() const;
+    inline QtDataType getDataType() const;
     ///
-    inline const Type      *getType() const;
+    inline const Type *getType() const;
     ///
-    inline const char      *getName() const;
+    inline const char *getName() const;
     ///
-    inline       bool        isBaseType() const;
+    inline bool isBaseType() const;
     ///
-    inline       bool        isInteger() const;
+    inline bool isInteger() const;
     ///
     //@}
     ///
@@ -457,13 +458,11 @@ private:
     QtDataType dataType;
 
     ///
-    const Type      *type;
+    const Type *type;
 
     ///
-    char      *name;
+    char *name;
 };
-
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -500,7 +499,8 @@ struct QtDataDeleter
 {
 public:
     QtDataDeleter() = default;
-    QtDataDeleter(QtData *objArg): obj{objArg} {}
+    QtDataDeleter(QtData *objArg)
+        : obj{objArg} {}
     ~QtDataDeleter()
     {
         if (obj)
@@ -516,7 +516,8 @@ struct QtDataListDeleter
 {
 public:
     QtDataListDeleter() = default;
-    QtDataListDeleter(QtNode::QtDataList *objArg): obj{objArg} {}
+    QtDataListDeleter(QtNode::QtDataList *objArg)
+        : obj{objArg} {}
     ~QtDataListDeleter()
     {
         if (obj)
@@ -535,13 +536,3 @@ public:
 #include "qlparser/qtnode.icc"
 
 #endif
-
-
-
-
-
-
-
-
-
-

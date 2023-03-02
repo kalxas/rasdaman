@@ -70,58 +70,51 @@ const char *CmlException::what() const noexcept
     return problem.c_str();
 }
 
-
 //############################################################
 
-const char *CommandLineParameter::defaultTitle     = "default: ";
-const char *CommandLineParameter::descSep          = " ";
-const char *CommandLineParameter::descTab          = "\t";
-const char *CommandLineParameter::descIndent       = "       ";
-const char *CommandLineParameter::descLineSep      = "\n";
-const char  CommandLineParameter::descOpen         = '<';
-const char  CommandLineParameter::descClose        = '>';
-const char *CommandLineParameter::descLeftDefault  = "(";
+const char *CommandLineParameter::defaultTitle = "default: ";
+const char *CommandLineParameter::descSep = " ";
+const char *CommandLineParameter::descTab = "\t";
+const char *CommandLineParameter::descIndent = "       ";
+const char *CommandLineParameter::descLineSep = "\n";
+const char CommandLineParameter::descOpen = '<';
+const char CommandLineParameter::descClose = '>';
+const char *CommandLineParameter::descLeftDefault = "(";
 const char *CommandLineParameter::descRightDefault = ")";
-
-
 
 CommandLineParameter::CommandLineParameter(char newShortName, const char *newLongName, const char *newDefaultValue)
     : longName(NULL), defaultValue(NULL), descriptionText(NULL), paramDescription(NULL)
 {
-
-    if ((!isalnum(newShortName) || (newShortName == CommandLineParser::noShortName))
-            && (!newLongName || !strcmp(newLongName, CommandLineParser::noLongName)))
+    if ((!isalnum(newShortName) || (newShortName == CommandLineParser::noShortName)) && (!newLongName || !strcmp(newLongName, CommandLineParser::noLongName)))
     {
         throw CmlException(string("") + "Invalid option: shortName='" + newShortName + "' longName='" + (newLongName ? newLongName : "NULL") + "'");
     }
 
-    shortName    = newShortName;
-    longName     = dupString(newLongName);
-    present      = false;
-    wasLongName  = false;
+    shortName = newShortName;
+    longName = dupString(newLongName);
+    present = false;
+    wasLongName = false;
     defaultValue = dupString(newDefaultValue);
 
     shNameString[0] = newShortName;
     shNameString[1] = 0;
 
     paramDescription = NULL;
-    descriptionText  = NULL;
+    descriptionText = NULL;
 }
 
 CommandLineParameter::CommandLineParameter(char newShortName, const char *newLongName, long newDefaultValue)
     : longName(NULL), defaultValue(NULL), descriptionText(NULL), paramDescription(NULL)
 {
-
-    if ((!isalnum(newShortName) || (newShortName == CommandLineParser::noShortName))
-            && (!newLongName || !strcmp(newLongName, CommandLineParser::noLongName)))
+    if ((!isalnum(newShortName) || (newShortName == CommandLineParser::noShortName)) && (!newLongName || !strcmp(newLongName, CommandLineParser::noLongName)))
     {
         throw CmlException(string("") + "Invalid option: shortName='" + newShortName + "' longName='" + (newLongName ? newLongName : "NULL") + "'");
     }
 
-    shortName    = newShortName;
-    longName     = dupString(newLongName);
-    present      = false;
-    wasLongName  = false;
+    shortName = newShortName;
+    longName = dupString(newLongName);
+    present = false;
+    wasLongName = false;
 
     // convert default to ASCII, for uniform handling
     stringstream s;
@@ -132,7 +125,7 @@ CommandLineParameter::CommandLineParameter(char newShortName, const char *newLon
     shNameString[1] = 0;
 
     paramDescription = NULL;
-    descriptionText  = NULL;
+    descriptionText = NULL;
 }
 
 const char *CommandLineParameter::calledName()
@@ -159,7 +152,6 @@ void CommandLineParameter::reset()
     present = false;
     wasLongName = false;
 }
-
 
 CommandLineParameter::~CommandLineParameter()
 {
@@ -227,7 +219,7 @@ void CommandLineParameter::setDescription(const char *desc)
                 }
             }
 
-            if (i >= len - 1) // I didn't find descClose
+            if (i >= len - 1)  // I didn't find descClose
             {
                 descriptionText = paramDescription;
                 paramDescription = NULL;
@@ -297,7 +289,7 @@ ostream &CommandLineParameter::printHelp(ostream &os)
     //    os << "  ";
 
     if ((isalnum(shortName) && (shortName != CommandLineParser::noShortName)) &&
-            (longName && strcmp(longName, CommandLineParser::noLongName)))
+        (longName && strcmp(longName, CommandLineParser::noLongName)))
     {
         os << ", ";
     }
@@ -500,7 +492,7 @@ bool StringParameter::setPresent(const char *s)
 
 bool StringParameter::isPresent()
 {
-    return (! value.empty());
+    return (!value.empty());
 }
 
 void StringParameter::reset()
@@ -518,7 +510,6 @@ void StringParameter::reset()
     CommandLineParameter::reset();
 }
 
-
 bool StringParameter::needsValue()
 {
     return true;
@@ -533,7 +524,7 @@ bool StringParameter::takeValue(const char *s)
 
 void StringParameter::popValue()
 {
-    if (! value.empty())
+    if (!value.empty())
     {
         value.pop_front();
     }
@@ -544,7 +535,7 @@ const char *StringParameter::getValueAsString()
     return (!value.empty() ? value.front() : defaultValue);
 }
 
-long   StringParameter::getValueAsLong()
+long StringParameter::getValueAsLong()
 {
     const char *r = (!value.empty() ? value.front() : defaultValue);
 
@@ -565,7 +556,7 @@ long   StringParameter::getValueAsLong()
     return result;
 }
 
-int   StringParameter::getValueAsInt()
+int StringParameter::getValueAsInt()
 {
     auto longRes = getValueAsLong();
     if (longRes <= std::numeric_limits<int>::max() && longRes >= std::numeric_limits<int>::lowest())
@@ -615,7 +606,6 @@ ostream &StringParameter::printStatus(ostream &os)
 }
 
 //##########################################################
-
 
 DeprecatedParameter::DeprecatedParameter(char nShortName, const char *nLongName, bool flag)
     : CommandLineParameter(nShortName, nLongName, (const char *)NULL), isFlag{flag}
@@ -680,7 +670,7 @@ const char *DeprecatedParameter::getValueAsString()
     return (!value.empty() ? value.front() : defaultValue);
 }
 
-long   DeprecatedParameter::getValueAsLong()
+long DeprecatedParameter::getValueAsLong()
 {
     const char *r = (!value.empty() ? value.front() : defaultValue);
 
@@ -701,7 +691,7 @@ long   DeprecatedParameter::getValueAsLong()
     return result;
 }
 
-int   DeprecatedParameter::getValueAsInt()
+int DeprecatedParameter::getValueAsInt()
 {
     auto longRes = getValueAsLong();
     if (longRes <= std::numeric_limits<int>::max() && longRes >= std::numeric_limits<int>::lowest())
@@ -736,7 +726,6 @@ ostream &DeprecatedParameter::printStatus(ostream &os)
     os << "option '" << calledName() << "' is deprecated, will be ignored\n";
     return os;
 }
-
 
 //##########################################################
 const char CommandLineParser::noShortName = '-';
@@ -774,7 +763,6 @@ CommandLineParser::~CommandLineParser()
         delete *iter;
     }
 }
-
 
 CommandLineParameter &CommandLineParser::addFlagParameter(char shortName, const char *longName, const char *description)
 {
@@ -879,18 +867,17 @@ double CommandLineParser::getValueAsDouble(const char *longName)
     return cml.getValueAsDouble();
 }
 
-
 void CommandLineParser::processCommandLine(int argc, char **argv)
 {
     for (int i = 1; i < argc; i++)
     {
         char *nextToken = argv[i];
 
-//  bool sw1 = (nextToken[0]=='-') ? true:false;        // token starts with "-"
-//  bool sw2 = (sw1 && nextToken[1]=='-') ? true:false; // token starts with "--"
+        //  bool sw1 = (nextToken[0]=='-') ? true:false;        // token starts with "-"
+        //  bool sw2 = (sw1 && nextToken[1]=='-') ? true:false; // token starts with "--"
 
-        bool sw1 = (!strncmp(nextToken, ShortSign, strlen(ShortSign))) ? true : false; // token starts with ShortSign
-        bool sw2 = (!strncmp(nextToken, LongSign, strlen(LongSign))) ? true : false; // token starts with LongSign
+        bool sw1 = (!strncmp(nextToken, ShortSign, strlen(ShortSign))) ? true : false;  // token starts with ShortSign
+        bool sw2 = (!strncmp(nextToken, LongSign, strlen(LongSign))) ? true : false;    // token starts with LongSign
 
         //check only for ShortSign/LongSign
         if (sw1 && !strcmp(nextToken, ShortSign))
@@ -899,7 +886,7 @@ void CommandLineParser::processCommandLine(int argc, char **argv)
         }
         if (sw2 && !strcmp(nextToken, LongSign))
         {
-            throw CmlException(string("") + "Syntax error: '" + LongSign  + "' with no parameter in command line");
+            throw CmlException(string("") + "Syntax error: '" + LongSign + "' with no parameter in command line");
         }
 
         if (nextTokenIsValue)
@@ -924,7 +911,6 @@ void CommandLineParser::processCommandLine(int argc, char **argv)
         throw CmlException(string("") + "Syntax error: missing value for parameter '" + lastParameter->calledName() + "' in command line");
     }
 }
-
 
 CommandLineParameter &CommandLineParser::getParameter(char shortName)
 {
@@ -954,7 +940,6 @@ CommandLineParameter &CommandLineParser::getParameter(const char *longName)
     throw CmlException(string("") + "Syntax error: unknown parameter '" + longName + "' in command line");
 }
 
-
 void CommandLineParser::setValue(const char *value)
 {
     if (lastParameter == NULL)
@@ -967,7 +952,7 @@ void CommandLineParser::setValue(const char *value)
 
 void CommandLineParser::longNameParameter(const char *nextToken)
 {
-    const char *longName = nextToken + strlen(LongSign); // sari peste LongSign (former "--")
+    const char *longName = nextToken + strlen(LongSign);  // sari peste LongSign (former "--")
 
     CommandLineParameter &cml = getParameter(longName);
     cml.setPresent(longName);
@@ -982,7 +967,7 @@ void CommandLineParser::shortNameParameter(const char *nextToken)
 {
     int tokenLength = strlen(nextToken);
 
-    for (int i = strlen(ShortSign); i < tokenLength; i++) //former i=1 for '-'
+    for (int i = strlen(ShortSign); i < tokenLength; i++)  //former i=1 for '-'
     {
         char shortName = nextToken[i];
         CommandLineParameter &cml = getParameter(shortName);
@@ -1003,7 +988,6 @@ void CommandLineParser::shortNameParameter(const char *nextToken)
             break;
         }
     }
-
 }
 
 void CommandLineParser::printHelp()
@@ -1013,7 +997,7 @@ void CommandLineParser::printHelp()
     for (; iter != iterEnd; ++iter)
     {
         CommandLineParameter *ptr = *iter;
-        if (!dynamic_cast<DeprecatedParameter*>(ptr))
+        if (!dynamic_cast<DeprecatedParameter *>(ptr))
         {
             // only print non-deprecated parameters
             ptr->printHelp(std::cout);
@@ -1035,7 +1019,6 @@ void CommandLineParser::printStatus()
     }
 
     std::cout << std::endl;
-
 }
 
 bool CommandLineParser::testProcessCommandLine(const char *testCml)
@@ -1047,7 +1030,7 @@ bool CommandLineParser::testProcessCommandLine(const char *testCml)
     const char *spaceSep = " \t\v\f\n\r";
     const char *prgName = "program";
     std::vector<std::string> argList;
-    char  **argv = NULL;
+    char **argv = NULL;
     unsigned int argc = 0, i = 0, n = 0;
     static unsigned int counter = 1;
 
@@ -1074,7 +1057,7 @@ bool CommandLineParser::testProcessCommandLine(const char *testCml)
                 std::cout << "arg " << argList.size() + 1 << "='" << test.substr(posStart, posEnd - posStart) << "'" << std::endl;
                 argList.push_back(test.substr(posStart, posEnd - posStart));
             }
-            else //last element
+            else  //last element
             {
                 std::cout << "arg " << argList.size() + 1 << "='" << test.substr(posStart, test.size() - posStart) << "'" << std::endl;
                 argList.push_back(test.substr(posStart, test.size() - posStart));
@@ -1090,9 +1073,9 @@ bool CommandLineParser::testProcessCommandLine(const char *testCml)
     //build argv in C style
     n = argList.size();
     argc = n + 1;
-    argv = new char *[ argc ];
+    argv = new char *[argc];
     argv[0] = dupString(prgName);
-    for (i = 0; i <  n; i++)
+    for (i = 0; i < n; i++)
     {
         argv[i + 1] = dupString(argList[i].c_str());
     }
@@ -1114,7 +1097,7 @@ bool CommandLineParser::testProcessCommandLine(const char *testCml)
         std::cout << "Error: " << e.what() << std::endl;
         for (i = 0; i < argc; i++)
         {
-            delete [] argv[i];
+            delete[] argv[i];
         }
         delete[] argv;
 
@@ -1124,11 +1107,10 @@ bool CommandLineParser::testProcessCommandLine(const char *testCml)
 
     for (i = 0; i < argc; i++)
     {
-        delete [] argv[i];
+        delete[] argv[i];
     }
     delete[] argv;
 
     printStatus();
     return true;
 }
-

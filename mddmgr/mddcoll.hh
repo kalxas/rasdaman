@@ -41,9 +41,9 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 
 #include <stdlib.h>
-#include <functional>              // for less
-#include <iosfwd>                  // for cout, ostream
-#include <map>                     // for map
+#include <functional>  // for less
+#include <iosfwd>      // for cout, ostream
+#include <map>         // for map
 
 class CollectionType;
 class DatabaseIf;
@@ -295,4 +295,3 @@ protected:
 };
 
 #endif
-

@@ -36,70 +36,59 @@
 #include <logging.hh>
 
 #include <ctype.h>   //  for isalpha()
-#include <string.h> //  for strncmp()
-
+#include <string.h>  //  for strncmp()
 
 r_Type::r_Type(const char *newTypeName)
     : r_Meta_Object(newTypeName)
 {
 }
 
-bool
-r_Type::isStructType() const
+bool r_Type::isStructType() const
 {
     return false;
 }
 
-bool
-r_Type::isComplexType() const
+bool r_Type::isComplexType() const
 {
     return false;
 }
 
-bool
-r_Type::isBaseType() const
+bool r_Type::isBaseType() const
 {
     return false;
 }
 
-bool
-r_Type::isCollectionType() const
+bool r_Type::isCollectionType() const
 {
     return false;
 }
 
-bool
-r_Type::isMarrayType() const
+bool r_Type::isMarrayType() const
 {
     return false;
 }
 
-bool
-r_Type::isPrimitiveType() const
+bool r_Type::isPrimitiveType() const
 {
     return false;
 }
 
-bool
-r_Type::isSintervalType() const
+bool r_Type::isSintervalType() const
 {
     return false;
 }
 
-bool
-r_Type::isMintervalType() const
+bool r_Type::isMintervalType() const
 {
     return false;
 }
 
-bool
-r_Type::isPointType() const
+bool r_Type::isPointType() const
 {
     return false;
 }
 
-bool
-r_Type::isOidType() const
+bool r_Type::isOidType() const
 {
     return false;
 }
@@ -118,8 +107,8 @@ r_Type::get_any_type(const std::string &type_string)
 r_Type *
 r_Type::get_any_type(const char *type_string)
 {
-    char   *pos         = const_cast<char *>(type_string);
-    char   *identifier  = NULL;
+    char *pos = const_cast<char *>(type_string);
+    char *identifier = NULL;
     DLTOKEN token = DLUNKNOWN;
 
     // one token look ahead
@@ -145,7 +134,7 @@ r_Type::getNextToken(char *&pos, char *&identifier)
 
     while (*pos == ' ')
     {
-        pos ++;
+        pos++;
     }
 
     if (!strncmp(pos, "marray", 6))
@@ -309,7 +298,7 @@ r_Type::getNextToken(char *&pos, char *&identifier)
 
     while (*pos == ' ')
     {
-        pos ++;
+        pos++;
     }
 
     return token;
@@ -318,7 +307,7 @@ r_Type::getNextToken(char *&pos, char *&identifier)
 r_Collection_Type *
 r_Type::getCollectionType(char *&pos)
 {
-    char   *identifier = NULL;
+    char *identifier = NULL;
     r_Collection_Type *returnValue = NULL;
     r_Type *elementType = NULL;
     DLTOKEN token = DLUNKNOWN;
@@ -357,7 +346,7 @@ r_Type *
 r_Type::getType(char *&pos)
 {
     DLTOKEN token = DLUNKNOWN;
-    char   *identifier = 0;
+    char *identifier = 0;
     r_Type *returnValue = 0;
 
     // one token look ahead
@@ -400,9 +389,9 @@ r_Type::getType(char *&pos)
 r_Marray_Type *
 r_Type::getMarrayType(char *&pos)
 {
-    char   *identifier = NULL;
+    char *identifier = NULL;
     r_Marray_Type *returnValue = NULL;
-    r_Base_Type  *basetype = NULL;
+    r_Base_Type *basetype = NULL;
 
     // get 'marray'
     getNextToken(pos, identifier);
@@ -427,7 +416,7 @@ r_Base_Type *
 r_Type::getBaseType(char *&pos, int offset)
 {
     DLTOKEN token = DLUNKNOWN;
-    char   *identifier = NULL;
+    char *identifier = NULL;
     r_Base_Type *returnValue = NULL;
 
     // one token look ahead
@@ -450,7 +439,7 @@ r_Type::getBaseType(char *&pos, int offset)
 r_Primitive_Type *
 r_Type::getPrimitiveType(char *&pos)
 {
-    char             *dummy = NULL;
+    char *dummy = NULL;
     r_Primitive_Type *returnValue = NULL;
 
     switch (getNextToken(pos, dummy))
@@ -508,10 +497,10 @@ r_Structure_Type *
 r_Type::getStructureType(char *&pos, int offset)
 {
     r_Structure_Type *returnValue = NULL;
-    char             *identifier = NULL;
-    DLTOKEN           token = DLUNKNOWN;
-    r_Attribute      *attributes = NULL;
-    int               noAttributes = 0;
+    char *identifier = NULL;
+    DLTOKEN token = DLUNKNOWN;
+    r_Attribute *attributes = NULL;
+    int noAttributes = 0;
 
     // get 'struct'
     getNextToken(pos, identifier);
@@ -573,7 +562,7 @@ r_Type::getStructureType(char *&pos, int offset)
             LERROR << "r_Type::getStructureType(" << pos << ", " << offset << ") expected DLRCP or DLCOMMA";
             if (attributes)
             {
-                delete [] attributes;
+                delete[] attributes;
                 attributes = NULL;
             }
             throw r_Error(INTERNALDLPARSEERROR);
@@ -593,7 +582,7 @@ r_Type::getStructureType(char *&pos, int offset)
 r_Sinterval_Type *
 r_Type::getSintervalType(char *&pos)
 {
-    char             *dummy = NULL;
+    char *dummy = NULL;
     r_Sinterval_Type *returnValue = NULL;
 
     getNextToken(pos, dummy);
@@ -606,7 +595,7 @@ r_Type::getSintervalType(char *&pos)
 r_Minterval_Type *
 r_Type::getMintervalType(char *&pos)
 {
-    char             *dummy = NULL;
+    char *dummy = NULL;
     r_Minterval_Type *returnValue = NULL;
 
     getNextToken(pos, dummy);
@@ -619,7 +608,7 @@ r_Type::getMintervalType(char *&pos)
 r_Point_Type *
 r_Type::getPointType(char *&pos)
 {
-    char             *dummy = NULL;
+    char *dummy = NULL;
     r_Point_Type *returnValue = NULL;
 
     getNextToken(pos, dummy);
@@ -632,7 +621,7 @@ r_Type::getPointType(char *&pos)
 r_Oid_Type *
 r_Type::getOidType(char *&pos)
 {
-    char             *dummy = NULL;
+    char *dummy = NULL;
     r_Oid_Type *returnValue = NULL;
 
     getNextToken(pos, dummy);
@@ -645,7 +634,7 @@ r_Type::getOidType(char *&pos)
 r_String_Type *
 r_Type::getStringType(char *&pos)
 {
-    char                *dummy = NULL;
+    char *dummy = NULL;
     r_String_Type *returnValue = NULL;
 
     getNextToken(pos, dummy);

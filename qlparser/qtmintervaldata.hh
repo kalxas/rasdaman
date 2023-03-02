@@ -59,9 +59,9 @@ public:
     ///
 
     ///
-    inline const r_Minterval  &getMintervalData() const;
+    inline const r_Minterval &getMintervalData() const;
     ///
-    inline void                setMintervalData(const r_Minterval &interval);
+    inline void setMintervalData(const r_Minterval &interval);
     //
     // inline void                setMintervalData( const r_Point& point );
     ///
@@ -90,7 +90,7 @@ public:
 
 private:
     /// prevents from using the default constructor
-    QtMintervalData() {};
+    QtMintervalData(){};
 
     /// attribute storing the minterval
     r_Minterval mintervalData;
@@ -102,7 +102,3 @@ private:
 #include "qlparser/qtmintervaldata.icc"
 
 #endif
-
-
-
-

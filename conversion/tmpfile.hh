@@ -34,7 +34,6 @@ rasdaman GmbH.
 class r_TmpFile
 {
 public:
-
     /// constructor creates a temporary file
     r_TmpFile();
     /// destructor removes the temporary file
@@ -49,7 +48,6 @@ public:
     char *readData(long &dataSize);
 
 private:
-
     void initTmpFile();
     void removeAuxXmlFile() const;
 

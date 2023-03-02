@@ -31,7 +31,7 @@ namespace rasmgr
  * @brief The DuplicateDbSessionException class defines a type of object to be thrown as exception.
  *  It reports errors that arise because a user tried to add the same client session twice to the same database.
  */
-class DuplicateDbSessionException: public common::RuntimeException
+class DuplicateDbSessionException : public common::RuntimeException
 {
 public:
     /**
@@ -39,18 +39,18 @@ public:
      * @param dbName Name of the database that was being modified.
      * @param sessionUID String uniquely identifying the client session.
      */
-    DuplicateDbSessionException(const std::string& dbName, std::uint32_t sessionUID);
-    
+    DuplicateDbSessionException(const std::string &dbName, std::uint32_t sessionUID);
+
     /**
      * @brief DuplicateDbSessionException
      * @param dbName Name of the database that was being modified.
      * @param clientId client id
      * @param sessionId client session id
      */
-    DuplicateDbSessionException(const std::string& dbName, std::uint32_t clientId, std::uint32_t sessionId);
+    DuplicateDbSessionException(const std::string &dbName, std::uint32_t clientId, std::uint32_t sessionId);
 
     virtual ~DuplicateDbSessionException() noexcept;
 };
-}
+}  // namespace rasmgr
 
-#endif // RASMGR_X_SRC_EXCEPTIONS_DUPLICATEDBSESSIONEXCEPTION_HH
+#endif  // RASMGR_X_SRC_EXCEPTIONS_DUPLICATEDBSESSIONEXCEPTION_HH

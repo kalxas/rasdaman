@@ -48,7 +48,7 @@ public:
 
     explicit InlineMinterval(r_Dimension dim);
 
-    InlineMinterval(r_Dimension dim, 
+    InlineMinterval(r_Dimension dim,
                     const r_Range *lowerbound, const r_Range *upperbound,
                     const char *lowerfixed, const char *upperfixed);
     /*@Doc:

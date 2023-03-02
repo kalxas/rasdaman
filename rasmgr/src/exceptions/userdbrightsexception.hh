@@ -31,7 +31,7 @@ namespace rasmgr
  * @brief The UserDbRightsException class defines a type of object to be thrown as exception.
  *  It reports errors that arise because a user tried to connect to a database on which he does not have rights.
  */
-class UserDbRightsException: public common::RuntimeException
+class UserDbRightsException : public common::RuntimeException
 {
 public:
     /**
@@ -39,10 +39,10 @@ public:
      * @param userName The name of the user that tried to access the database to which he does not have rights.
      * @param databaseName The name of the database.
      */
-    UserDbRightsException(const std::string& userName, const std::string& databaseName);
+    UserDbRightsException(const std::string &userName, const std::string &databaseName);
 
     virtual ~UserDbRightsException() noexcept;
 };
-}
+}  // namespace rasmgr
 
-#endif // RASMGR_X_SRC_EXCEPTIONS_USERDBRIGHTSEXCEPTION_HH
+#endif  // RASMGR_X_SRC_EXCEPTIONS_USERDBRIGHTSEXCEPTION_HH

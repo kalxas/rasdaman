@@ -22,7 +22,7 @@ rasdaman GmbH.
 */
 
 #include "dbobjectiterator.hh"
-#include "dbref.hh"    // for DBRef
+#include "dbref.hh"  // for DBRef
 
 template <class T>
 DBObjectIterator<T>::DBObjectIterator(const DBObjectIterator<T> &oidlist)

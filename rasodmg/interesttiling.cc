@@ -50,8 +50,8 @@ rasdaman GmbH.
 class Classified_Block
 {
 public:
-    int intersection_count;                         // Intersection count
-    r_Minterval block;                              // The actual block
+    int intersection_count;  // Intersection count
+    r_Minterval block;       // The actual block
     // Default constructor
     Classified_Block(int count = 0);
     // Constructor with the actual block and the counter
@@ -67,12 +67,12 @@ public:
 std::ostream &operator<<(std::ostream &os, const Classified_Block block);
 
 Classified_Block::Classified_Block(int count)
-    :   intersection_count(count)
+    : intersection_count(count)
 {
 }
 Classified_Block::Classified_Block(const r_Minterval &b, int count)
-    :   intersection_count(count),
-        block(b)
+    : intersection_count(count),
+      block(b)
 {
 }
 bool Classified_Block::operator==(const Classified_Block &other) const
@@ -92,19 +92,18 @@ std::ostream &operator<<(std::ostream &os, const Classified_Block block)
 // -----------------------------------------------------------------------------
 
 const char *
-r_Interest_Tiling::description = "dimensions, areas of interest, tile size (in bytes) and tile size limit [NOLIMIT|REGROUP|SUBTILING|REGROUPSUBTILING] (ex: \"2;[0:9,0:9];[100:109,0:9];100;REGROUPSUBTILING\")";
+    r_Interest_Tiling::description = "dimensions, areas of interest, tile size (in bytes) and tile size limit [NOLIMIT|REGROUP|SUBTILING|REGROUPSUBTILING] (ex: \"2;[0:9,0:9];[100:109,0:9];100;REGROUPSUBTILING\")";
 
-const char *r_Interest_Tiling::tilesizelimit_name_nolimit       = "NOLIMIT";
-const char *r_Interest_Tiling::tilesizelimit_name_regroup       = "REGROUP";
-const char *r_Interest_Tiling::tilesizelimit_name_subtiling     = "SUBTILING";
-const char *r_Interest_Tiling::tilesizelimit_name_regroupandsubtiling   = "REGROUPSUBTILING";
+const char *r_Interest_Tiling::tilesizelimit_name_nolimit = "NOLIMIT";
+const char *r_Interest_Tiling::tilesizelimit_name_regroup = "REGROUP";
+const char *r_Interest_Tiling::tilesizelimit_name_subtiling = "SUBTILING";
+const char *r_Interest_Tiling::tilesizelimit_name_regroupandsubtiling = "REGROUPSUBTILING";
 const char *r_Interest_Tiling::all_tilesizelimit_names[r_Interest_Tiling::NUMBER] =
-{
-    tilesizelimit_name_nolimit,
-    tilesizelimit_name_regroup,
-    tilesizelimit_name_subtiling,
-    tilesizelimit_name_regroupandsubtiling
-};
+    {
+        tilesizelimit_name_nolimit,
+        tilesizelimit_name_regroup,
+        tilesizelimit_name_subtiling,
+        tilesizelimit_name_regroupandsubtiling};
 
 r_Interest_Tiling::Tilesize_Limit
 r_Interest_Tiling::get_tilesize_limit_from_name(const char *name)
@@ -134,7 +133,7 @@ r_Interest_Tiling::get_name_from_tilesize_limit(Tilesize_Limit tsl)
 }
 
 r_Interest_Tiling::r_Interest_Tiling(const char *encoded)
-    :   r_Dimension_Tiling(0, 0)
+    : r_Dimension_Tiling(0, 0)
 {
     check_nonempty_tiling(encoded);
 
@@ -143,18 +142,18 @@ r_Interest_Tiling::r_Interest_Tiling(const char *encoded)
     const char *pTemp = pStart;
     const char *pRes = advance_to_next_char(pTemp, TCOLON);
 
-//deal with dimension
+    //deal with dimension
     auto pToConvertPtr = copy_buffer(pTemp, static_cast<r_Bytes>(pRes - pTemp));
     dimension = parse_unsigned(pToConvertPtr.get());
 
-//skip COLON && free buffer
+    //skip COLON && free buffer
     check_premature_stream_end(pRes, pEnd);
     pRes++;
     pTemp = pRes;
 
-//parse interest areas
+    //parse interest areas
     pRes = advance_to_next_char(pTemp, TCOLON);
-    
+
     while (pRes)
     {
         //is interest areas?
@@ -169,7 +168,7 @@ r_Interest_Tiling::r_Interest_Tiling(const char *encoded)
         }
         catch (r_Error &err)
         {
-            LERROR << "Error decoding interest area from \"" << pToConvertPtr.get() 
+            LERROR << "Error decoding interest area from \"" << pToConvertPtr.get()
                    << "\", error " << err.get_errorno() << " : " << err.what();
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
@@ -187,11 +186,11 @@ r_Interest_Tiling::r_Interest_Tiling(const char *encoded)
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-//deal with tile size
+    //deal with tile size
     pToConvertPtr = copy_buffer(pTemp, static_cast<r_Bytes>(pRes - pTemp));
     tile_size = parse_unsigned(pToConvertPtr.get());
 
-//skip COLON
+    //skip COLON
     check_premature_stream_end(pRes, pEnd);
     pRes++;
     pTemp = pRes;
@@ -204,16 +203,16 @@ r_Interest_Tiling::r_Interest_Tiling(const char *encoded)
 }
 
 r_Interest_Tiling::r_Interest_Tiling(r_Dimension dim, const std::vector<r_Minterval> &interest_areas, r_Bytes ts, Tilesize_Limit strat)
-    :   r_Dimension_Tiling(dim, ts),
-        ts_strat(strat),
-        iareas(interest_areas)
+    : r_Dimension_Tiling(dim, ts),
+      ts_strat(strat),
+      iareas(interest_areas)
 {
     for (auto it = iareas.begin(); it != iareas.end(); it++)
     {
         if (it->dimension() != dimension)
         {
-            LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << dim << ", " 
-                   << interest_areas << ", " << ts << ", " << static_cast<int>(strat) 
+            LERROR << "r_Interest_Tiling::r_Interest_Tiling(" << dim << ", "
+                   << interest_areas << ", " << ts << ", " << static_cast<int>(strat)
                    << ") the interest area domain " << *it << " does not match the dimension of this tiling scheme (" << dimension << ")";
             throw r_Edim_mismatch(dimension, it->dimension());
         }
@@ -261,26 +260,26 @@ r_Interest_Tiling::make_partition(const r_Minterval &domain) const
     for (r_Dimension i = 0; i < dim; i++)
     {
         auto it = iareas.begin();
-        intervals[0] = domain[i].low();               // Input lower domain limit
-        intervals[total + 1] = domain[i].high();      // Input higher domain limit
+        intervals[0] = domain[i].low();           // Input lower domain limit
+        intervals[total + 1] = domain[i].high();  // Input higher domain limit
 
-        for (unsigned int j = 1; j < total + 1; j += 2, ++it)          // For all possible intervals
+        for (unsigned int j = 1; j < total + 1; j += 2, ++it)  // For all possible intervals
         {
             if ((*it)[i].low() - 1 <= domain[i].low())  // Input low iarea limit
                 intervals[j] = domain[i].low();
             else
                 intervals[j] = (*it)[i].low() - 1;
 
-            intervals[j + 1] = (*it)[i].high();         // Input higher iarea limit
+            intervals[j + 1] = (*it)[i].high();  // Input higher iarea limit
         }
 
         // Sort the table
         qsort(static_cast<void *>(intervals.get()), total + 2, sizeof(r_Range), r_Range_comp);
 
         // Create partition using the limits table
-        for (unsigned int k = 0; k < total + 2; k++)    // all limits must be checked
+        for (unsigned int k = 0; k < total + 2; k++)  // all limits must be checked
         {
-            if (k == total + 1)                         // if on the last limit...
+            if (k == total + 1)  // if on the last limit...
                 part[i] << intervals[k];
             else if (intervals[k] != intervals[k + 1])  //   if it is unique
                 part[i] << intervals[k];
@@ -342,7 +341,7 @@ r_Interest_Tiling::group(std::vector<r_Minterval> &blocks, r_Bytes typelen, Bloc
 
                 case BLOCKS_B:
 
-                    for (auto ia_it = blocks.begin(); ia_it != blocks.end(); ia_it++) // For all iareas
+                    for (auto ia_it = blocks.begin(); ia_it != blocks.end(); ia_it++)  // For all iareas
                     {
                         // Find the one this block intersects
                         if (current_block.intersects_with(*ia_it))
@@ -355,7 +354,7 @@ r_Interest_Tiling::group(std::vector<r_Minterval> &blocks, r_Bytes typelen, Bloc
                         break;
                     group_blocks = false;
 
-                case BLOCKS_C: // Falls in (this is, also applies to B);
+                case BLOCKS_C:  // Falls in (this is, also applies to B);
 
                     // Only on this two strategies, tilesize should be looked at
                     if (ts_strat == REGROUP || ts_strat == REGROUP_AND_SUBTILING)
@@ -369,7 +368,7 @@ r_Interest_Tiling::group(std::vector<r_Minterval> &blocks, r_Bytes typelen, Bloc
                         group_blocks = true;
                     }
                     break;
-                    
+
                 default:
                     break;
                 }
@@ -402,16 +401,16 @@ r_Interest_Tiling::group(std::vector<r_Minterval> &blocks, r_Bytes typelen, Bloc
 std::vector<r_Minterval>
 r_Interest_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
 {
-    auto num_dims = domain.dimension();                   // Dimensionality of dom
+    auto num_dims = domain.dimension();  // Dimensionality of dom
     if (domain.dimension() != dimension)
     {
-        LERROR << "r_Interest_Tiling::compute_tiles(" << domain << ", " << typelen 
+        LERROR << "r_Interest_Tiling::compute_tiles(" << domain << ", " << typelen
                << ") dimension (" << dimension << ") does not match dimension of object to tile (" << num_dims << ")";
         throw r_Edim_mismatch(dimension, num_dims);
     }
     if (typelen > tile_size)
     {
-        LERROR << "r_Interest_Tiling::compute_tiles(" << domain << ", " << typelen 
+        LERROR << "r_Interest_Tiling::compute_tiles(" << domain << ", " << typelen
                << ") tile size (" << tile_size << ") is smaller than type length (" << typelen << ")";
         throw r_Error(TILESIZETOOSMALL);
     }
@@ -462,7 +461,7 @@ r_Interest_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) con
     auto Blocks_B = group(In_Unique, typelen, BLOCKS_B);
     auto Blocks_C = group(Out, typelen, BLOCKS_C);
     std::vector<r_Minterval> *blocks_vec[3] = {&Blocks_A, &Blocks_B, &Blocks_C};
-    
+
     // For all the lists (Blocs_A, Blocks_B and Blocks_C)
     for (int j = 0; j < 3; j++)
     {
@@ -478,15 +477,15 @@ r_Interest_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) con
                     r_Minterval specs(num_dims);
                     for (r_Dimension i = 0; i < num_dims; i++)
                         specs << r_Sinterval(0l, (*it)[i].high() - (*it)[i].low());
-    
+
                     // Class for performing sub-tiling
                     r_Aligned_Tiling subtiling(specs, get_tile_size());
-    
+
                     auto subtiles = subtiling.compute_tiles(*it, typelen);
                     for (const auto &subtile: subtiles)
                         result.push_back(subtile);
                 }
-                else // No subtiling needed
+                else  // No subtiling needed
                 {
                     // Insert block as it is
                     result.push_back(*it);

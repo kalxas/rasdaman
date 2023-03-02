@@ -26,9 +26,9 @@ rasdaman GmbH.
 #ifndef _USHORTTYPE_HH_
 #define _USHORTTYPE_HH_
 
-#include <iosfwd>              // for ostream
-#include "uintegraltype.hh"    // for UIntegralType
-#include "raslib/odmgtypes.hh" // for r_ULong
+#include <iosfwd>               // for ostream
+#include "uintegraltype.hh"     // for UIntegralType
+#include "raslib/odmgtypes.hh"  // for r_ULong
 
 class OId;
 
@@ -64,7 +64,6 @@ public:
     char *makeFromCLong(char *cell, const r_Long *value) const override;
 
     static const char *Name;
-
 };
 
 #endif

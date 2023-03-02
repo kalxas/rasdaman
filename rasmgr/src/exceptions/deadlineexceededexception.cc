@@ -27,10 +27,10 @@ namespace rasmgr
 
 DeadlineExceededException::DeadlineExceededException(
     const std::string &serviceType, const std::string &id, uint32_t timeout)
-  : common::ResourceBusyException("Deadline exceeded, did not get response from " +
-                                  serviceType + " with id " + id + " after waiting for " +
-                                  std::to_string(timeout) + " ms.")
-{  
+    : common::ResourceBusyException("Deadline exceeded, did not get response from " +
+                                    serviceType + " with id " + id + " after waiting for " +
+                                    std::to_string(timeout) + " ms.")
+{
 }
 
-}
+}  // namespace rasmgr

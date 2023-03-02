@@ -44,7 +44,7 @@ rasdaman GmbH.
 #include "clientcomm/clientcomm.hh"
 
 #include <cstring>
-#include <cctype>     // isdigit()
+#include <cctype>  // isdigit()
 #include <sstream>
 #include <cassert>
 #include <algorithm>
@@ -75,7 +75,6 @@ r_OQL_Query::r_OQL_Query(const r_OQL_Query &q)
     }
 }
 
-
 r_OQL_Query::~r_OQL_Query()
 {
     delete[] queryString;
@@ -85,7 +84,6 @@ r_OQL_Query::~r_OQL_Query()
     delete mddConstants;
     mddConstants = 0;
 }
-
 
 const r_OQL_Query &
 r_OQL_Query::operator=(const r_OQL_Query &q)
@@ -153,7 +151,6 @@ r_OQL_Query::operator<<(r_Short v)
     return *this;
 }
 
-
 r_OQL_Query &
 r_OQL_Query::operator<<(r_UShort v)
 {
@@ -161,7 +158,6 @@ r_OQL_Query::operator<<(r_UShort v)
     replaceNextArgument(str.c_str());
     return *this;
 }
-
 
 r_OQL_Query &
 r_OQL_Query::operator<<(r_Long v)
@@ -171,7 +167,6 @@ r_OQL_Query::operator<<(r_Long v)
     return *this;
 }
 
-
 r_OQL_Query &
 r_OQL_Query::operator<<(r_ULong v)
 {
@@ -179,7 +174,6 @@ r_OQL_Query::operator<<(r_ULong v)
     replaceNextArgument(str.c_str());
     return *this;
 }
-
 
 r_OQL_Query &
 r_OQL_Query::operator<<(r_Point pt)
@@ -191,7 +185,6 @@ r_OQL_Query::operator<<(r_Point pt)
     return *this;
 }
 
-
 r_OQL_Query &
 r_OQL_Query::operator<<(r_Sinterval in)
 {
@@ -202,7 +195,6 @@ r_OQL_Query::operator<<(r_Sinterval in)
     return *this;
 }
 
-
 r_OQL_Query &
 r_OQL_Query::operator<<(r_Minterval in)
 {
@@ -212,7 +204,6 @@ r_OQL_Query::operator<<(r_Minterval in)
     replaceNextArgument(str.c_str());
     return *this;
 }
-
 
 r_OQL_Query &
 r_OQL_Query::operator<<(r_GMarray &in)
@@ -235,15 +226,13 @@ r_OQL_Query::operator<<(r_GMarray &in)
     return *this;
 }
 
-
-bool
-r_OQL_Query::startsWith(const char *s, const char *prefix) const
+bool r_OQL_Query::startsWith(const char *s, const char *prefix) const
 {
     if (!s)
         return false;
 
     assert(prefix);
-    
+
     while (s[0] != '\0' && prefix[0] != '\0')
     {
         if (isspace(s[0]))
@@ -275,14 +264,14 @@ const char *r_OQL_Query::skipComments(const char *s) const
     while (size > 0 && foundComment)
     {
         foundComment = false;
-        
+
         // skip whitespace
         while (size > 0 && isspace(*s))
         {
             ++s;
             --size;
         }
-        
+
         // if it's a comment start
         if (size > 2 && s[0] == '-' && s[1] == '-')
         {
@@ -300,21 +289,19 @@ const char *r_OQL_Query::skipComments(const char *s) const
     return s;
 }
 
-int
-r_OQL_Query::is_update_query() const
+int r_OQL_Query::is_update_query() const
 {
     return !is_retrieval_query() && !is_insert_query();
 }
 
-int
-r_OQL_Query::is_retrieval_query() const
+int r_OQL_Query::is_retrieval_query() const
 {
     int returnValue = 0;
 
     if (parameterizedQueryString)
     {
         const char *q = skipComments(parameterizedQueryString);
-        
+
         if (startsWith(q, "select"))
         {
             // it's retrieval if it does not contain an into keyword
@@ -328,7 +315,7 @@ r_OQL_Query::is_retrieval_query() const
                     tolower((unsigned char)q[4]) == 'o' &&
                     isspace((unsigned char)q[5]))
                 {
-                    return false; // found an " into "
+                    return false;  // found an " into "
                 }
                 else if (q[0] == '-' && q[1] == '-')
                 {
@@ -353,20 +340,17 @@ r_OQL_Query::is_retrieval_query() const
     return returnValue;
 }
 
-
-int
-r_OQL_Query::is_insert_query() const
+int r_OQL_Query::is_insert_query() const
 {
     const char *q = skipComments(parameterizedQueryString);
     return startsWith(q, "insert");
 }
 
-void
-r_OQL_Query::reset_query()
+void r_OQL_Query::reset_query()
 {
     if (queryString)
         delete[] queryString;
-    
+
     queryString = new char[strlen(parameterizedQueryString) + 1];
     strcpy(queryString, parameterizedQueryString);
 
@@ -377,9 +361,7 @@ r_OQL_Query::reset_query()
     }
 }
 
-
-void
-r_OQL_Query::replaceNextArgument(const char *valueString)
+void r_OQL_Query::replaceNextArgument(const char *valueString)
 {
     char *argumentBegin = NULL;
     char *argumentEnd = NULL;
@@ -394,13 +376,13 @@ r_OQL_Query::replaceNextArgument(const char *valueString)
 
     //is digit or invalid argument format
     if (!isdigit(*argumentEnd))
-        throw  r_Error(QUERYPARAMETERINVALID);
+        throw r_Error(QUERYPARAMETERINVALID);
 
     while (isdigit(*argumentEnd) && *argumentEnd != ' ' && *argumentEnd != '\0')
         argumentEnd++;
 
     auto argumentLength = argumentEnd - argumentBegin;
-    argumentVal    = new char[ argumentLength + 1];
+    argumentVal = new char[argumentLength + 1];
     strncpy(argumentVal, argumentBegin, static_cast<size_t>(argumentLength));
     argumentVal[argumentLength] = '\0';
 
@@ -439,7 +421,7 @@ r_OQL_Query::replaceNextArgument(const char *valueString)
         //is digit or invalid argument format
         if (!isdigit(*argumentEnd))
         {
-            delete [] argumentVal;
+            delete[] argumentVal;
             throw r_Error(QUERYPARAMETERINVALID);
         }
 
@@ -466,8 +448,6 @@ void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, r_Transaction *
     database->getComm()->executeQuery(query, result);
     query.reset_query();
 }
-
-
 
 void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref<r_GMarray>> &result, r_Transaction *transaction)
 {
@@ -519,7 +499,6 @@ void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy, r_Tr
     query.reset_query();
 }
 
-
 // update and delete and insert (< v9.1)
 void r_oql_execute(r_OQL_Query &query, r_Transaction *transaction)
 {
@@ -543,7 +522,7 @@ r_OQL_Query::get_query() const
     return static_cast<const char *>(queryString);
 }
 
-const r_Set< r_GMarray * > *
+const r_Set<r_GMarray *> *
 r_OQL_Query::get_constants() const
 {
     return mddConstants;

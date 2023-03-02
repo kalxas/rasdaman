@@ -123,7 +123,6 @@ public:
     ///
     //@}
 
-
     /// operator for validity test
     int operator!() const;
 
@@ -177,9 +176,6 @@ private:
     r_OId oid;
 };
 
-
-
-
 //@ManMemo: Module: <b>rasodmg</b>
 
 /**
@@ -197,7 +193,7 @@ private:
 /**
   * \ingroup Rasodmgs
   */
-template<class T>
+template <class T>
 class r_Ref
 {
 public:
@@ -325,7 +321,7 @@ private:
     void load_object() const;
 
     /// main memory pointer
-    mutable T   *memptr;
+    mutable T *memptr;
 
     /// object identifier
     r_OId oid;
@@ -336,7 +332,8 @@ extern template class r_Ref<r_GMarray>;
 class r_Object;
 extern template class r_Ref<r_Object>;
 
-template <typename T> class r_Set;
+template <typename T>
+class r_Set;
 extern template class r_Ref<r_Set<r_Ref<r_GMarray>>>;
 
 class r_Point;

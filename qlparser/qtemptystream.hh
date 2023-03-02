@@ -59,4 +59,4 @@ private:
 
 #include "qlparser/qtemptystream.icc"
 
-#endif // _QTEMPTYSTREAM_
+#endif  // _QTEMPTYSTREAM_

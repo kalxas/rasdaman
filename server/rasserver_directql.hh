@@ -44,18 +44,18 @@ void closeDatabase();
 void closeTransaction(bool doCommit);
 
 void doStuff();
-r_Marray_Type* getTypeFromDatabase(const char* mddTypeName);
-void freeResult(ExecuteQueryRes* result);
+r_Marray_Type *getTypeFromDatabase(const char *mddTypeName);
+void freeResult(ExecuteQueryRes *result);
 
-void printScalar(char* buffer, QtData* data, unsigned int resultIndex);
-void printResult(Tile* tile, int resultIndex);
-void printOutput(unsigned short status, ExecuteQueryRes* result);
-void printError(unsigned short status, ExecuteQueryRes* result);
-void printError(unsigned short status, ExecuteUpdateRes* result);
+void printScalar(char *buffer, QtData *data, unsigned int resultIndex);
+void printResult(Tile *tile, int resultIndex);
+void printOutput(unsigned short status, ExecuteQueryRes *result);
+void printError(unsigned short status, ExecuteQueryRes *result);
+void printError(unsigned short status, ExecuteUpdateRes *result);
 
 std::string getDefaultDb();
 
-} // directql
-} // rasserver
+}  // namespace directql
+}  // namespace rasserver
 
-#endif // RASSERVER_DIRECTQL_HH
+#endif  // RASSERVER_DIRECTQL_HH

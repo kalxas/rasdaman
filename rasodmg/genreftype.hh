@@ -20,12 +20,19 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
 #ifndef GENREFTYPE_HH
 #define GENREFTYPE_HH
 
 /// possible non-r_Object values maintained by the transaction
-enum GenRefType { MINTERVAL, SINTERVAL, POINT, OID, SCALAR, STRING };
+enum GenRefType
+{
+    MINTERVAL,
+    SINTERVAL,
+    POINT,
+    OID,
+    SCALAR,
+    STRING
+};
 
 /// element type of non r_Object list maintained by the transaction
 struct GenRefElement

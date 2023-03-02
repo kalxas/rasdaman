@@ -45,7 +45,7 @@ char globalConnectId[256] = "/tmp/rasdata/RASBASE";
 char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
 class MDDColl;
-MDDColl *mddConstants = 0;              // used in QtMDD
+MDDColl *mddConstants = 0;  // used in QtMDD
 int noTimeOut = 0;
 
 char testData[] = {'t', 'e', 's', 't'};
@@ -54,11 +54,9 @@ INITIALIZE_EASYLOGGINGPP
 
 class TestBlobFS
 {
-
 public:
-
     TestBlobFS()
-      : config("", "", "", "")
+        : config("", "", "", "")
     {
     }
 
@@ -75,7 +73,7 @@ public:
             BlobFS::getInstance().insertTransaction->getFinalBlobPath(-1);
             TEST_FAIL();
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             EXPECT_EQ(err.get_errorno(), BLOBFILENOTFOUND);
         }
@@ -85,7 +83,7 @@ public:
             BlobFS::getInstance().insertTransaction->getFinalBlobPath(0);
             TEST_FAIL();
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             EXPECT_EQ(err.get_errorno(), BLOBFILENOTFOUND);
         }
@@ -106,7 +104,7 @@ public:
         BlobFS::getInstance().insert(blobData);
         commit();
 
-        const char* expectedFilePath = "/tmp/rasdata/TILES/16/262144/4294967296";
+        const char *expectedFilePath = "/tmp/rasdata/TILES/16/262144/4294967296";
         struct stat status;
         EXPECT_TRUE(stat(expectedFilePath, &status) == 0);
         EXPECT_TRUE(unlink(expectedFilePath) == 0);
@@ -120,7 +118,7 @@ public:
             BlobFS::getInstance().insert(blobData);
             TEST_FAIL();
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             EXPECT_EQ(err.get_errorno(), BLOBFILENOTFOUND);
         }
@@ -134,7 +132,7 @@ public:
             BlobFS::getInstance().insert(blobData);
             TEST_FAIL();
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             EXPECT_EQ(err.get_errorno(), FAILEDWRITINGTODISK);
         }
@@ -154,7 +152,7 @@ public:
         EXPECT_EQ(testDataSize, retreivedBlobData.size);
         EXPECT_TRUE(memcmp(testData, retreivedBlobData.data, testDataSize) == 0);
         free(retreivedBlobData.data);
-        const char* expectedFilePath = "/tmp/rasdata/TILES/16/262144/4294967296";
+        const char *expectedFilePath = "/tmp/rasdata/TILES/16/262144/4294967296";
         EXPECT_TRUE(unlink(expectedFilePath) == 0);
     }
 
@@ -166,7 +164,7 @@ public:
             BlobFS::getInstance().select(blobData);
             TEST_FAIL();
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             EXPECT_EQ(err.get_errorno(), BLOBFILENOTFOUND);
         }
@@ -180,7 +178,7 @@ public:
             BlobFS::getInstance().select(blobData);
             TEST_FAIL();
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             EXPECT_EQ(err.get_errorno(), BLOBFILENOTFOUND);
         }
@@ -189,15 +187,15 @@ public:
     void testUpdate()
     {
         long long blobId = 4294967296;
-        
+
         BlobData blobData(blobId, 4, testData);
         BlobFS::getInstance().insert(blobData);
         commit();
 
-        const char* expectedFilePath = "/tmp/rasdata/TILES/16/262144/4294967296";
+        const char *expectedFilePath = "/tmp/rasdata/TILES/16/262144/4294967296";
         struct stat status;
         EXPECT_TRUE(stat(expectedFilePath, &status) == 0);
-        
+
         char newData[] = {'t', 'e', 's', 't', '2'};
         r_Bytes newDataSize = 5;
         BlobData newBlobData(blobId, newDataSize, newData);
@@ -227,7 +225,7 @@ public:
             struct stat status;
             EXPECT_TRUE(BlobFile::fileExists(expectedFilePath));
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             TEST_FAIL();
         }
@@ -236,12 +234,12 @@ public:
     void testInvalidDataUpdate()
     {
         long long blobId = 4294967296;
-        
+
         BlobData blobData(blobId, 4, testData);
         BlobFS::getInstance().insert(blobData);
         commit();
 
-        const char* expectedFilePath = "/tmp/rasdata/TILES/16/262144/4294967296";
+        const char *expectedFilePath = "/tmp/rasdata/TILES/16/262144/4294967296";
         try
         {
             BlobData newBlobData(blobId, 5, NULL);
@@ -249,7 +247,7 @@ public:
             commit();
             TEST_FAIL();
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             EXPECT_EQ(err.get_errorno(), FAILEDWRITINGTODISK);
         }
@@ -276,9 +274,9 @@ public:
             BlobData blobData(1092893937192);
             BlobFS::getInstance().remove(blobData);
             commit();
-//            TEST_FAIL();
+            //            TEST_FAIL();
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             EXPECT_EQ(err.get_errorno(), BLOBFILENOTFOUND);
         }
@@ -293,7 +291,7 @@ public:
             commit();
             TEST_FAIL();
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             EXPECT_EQ(err.get_errorno(), BLOBFILENOTFOUND);
         }
@@ -325,7 +323,7 @@ public:
             const string exp3("/tmp/rasdata/TRANSACTIONS/remove.");
             EXPECT_EQ(ret3.substr(0, exp3.length()), exp3);
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             TEST_FAIL();
         }
@@ -417,7 +415,7 @@ public:
         close(fd);
 
         BlobFS::getInstance().finalizeUncompletedTransactions();
-        EXPECT_TRUE(BlobFile::fileExists(expectedFilePath)); // commit is finalized now
+        EXPECT_TRUE(BlobFile::fileExists(expectedFilePath));  // commit is finalized now
         EXPECT_FALSE(BlobFile::fileExists(tmpFilePath));
         EXPECT_FALSE(BlobFile::fileExists(lockFilePath));
 
@@ -462,12 +460,12 @@ public:
     void prepareRun()
     {
         system("rm -rf /tmp/rasdata");
-        char* rasdataEnvVar = const_cast<char*>("RASDATA=/tmp/rasdata");
+        char *rasdataEnvVar = const_cast<char *>("RASDATA=/tmp/rasdata");
         putenv(rasdataEnvVar);
         mkdir("/tmp/rasdata", 0770);
         unlink(globalConnectId);
         db.createDB("", "", "");
-        AdminIf* myAdmin = AdminIf::instance();
+        AdminIf *myAdmin = AdminIf::instance();
         db.open(globalConnectId);
         ta.begin(&db);
 
@@ -501,7 +499,7 @@ private:
     TransactionIf ta;
 };
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 #ifndef BASEDB_SQLITE
     cerr << "testsuite runs only on SQLite / Filestorage rasdaman." << endl;
@@ -533,7 +531,7 @@ int main(int argc, char** argv)
     RUN_TEST(test.testNonExistingTileRemove());
     RUN_TEST(test.testInvalidOidRemove());
 
-//    RUN_TEST(test.testGetPathPerformance());
+    //    RUN_TEST(test.testGetPathPerformance());
 
     RUN_TEST(test.testFinalizeUncompletedTransactions_InsertTransactionInProgress());
     RUN_TEST(test.testFinalizeUncompletedTransactions_InsertTransactionCrash());

@@ -23,9 +23,10 @@ rasdaman GmbH.
 
 #include "resourcebusyexception.hh"
 
-namespace common {
+namespace common
+{
 ResourceBusyException::ResourceBusyException(const std::string &message)
     : RuntimeException(message) {}
 
 ResourceBusyException::~ResourceBusyException() noexcept = default;
-}
+}  // namespace common

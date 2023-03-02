@@ -39,17 +39,17 @@ public:
 
     void configClientLogging(bool quiet = false);
 
-    void configServerLogging(const std::string& outputLogFilePath, bool quiet = false);
+    void configServerLogging(const std::string &outputLogFilePath, bool quiet = false);
 
     el::Configurations &getConfig();
 
 private:
-    void initConfig(const std::string& outputLogFilePath, bool quiet);
+    void initConfig(const std::string &outputLogFilePath, bool quiet);
 
     std::string configFilePath;
-    
+
     el::Configurations conf;
 };
-}
+}  // namespace common
 
-#endif // COMMON_SRC_LOGGING_LOGGINGUTILS_HH
+#endif  // COMMON_SRC_LOGGING_LOGGINGUTILS_HH

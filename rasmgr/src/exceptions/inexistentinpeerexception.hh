@@ -32,14 +32,14 @@ namespace rasmgr
  *  It reports errors that arise because a user tried to operate on a InPeer that does not exist.
  */
 
-class InexistentInPeerException: public common::MissingResourceException
+class InexistentInPeerException : public common::MissingResourceException
 {
 public:
-    InexistentInPeerException(const std::string& hostName);
+    InexistentInPeerException(const std::string &hostName);
 
     virtual ~InexistentInPeerException() noexcept;
 };
 
-}
+}  // namespace rasmgr
 
-#endif // INEXISTENTOUTPEEREXCEPTION_HH
+#endif  // INEXISTENTOUTPEEREXCEPTION_HH

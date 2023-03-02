@@ -41,12 +41,12 @@ rasdaman GmbH.
 /**
   * \ingroup Rasodmgs
   */
-template<class T>
+template <class T>
 class r_Marray : public r_GMarray
 {
 public:
     /// function type for initialization function
-    typedef T(*r_InitFunction)(const r_Point &);
+    typedef T (*r_InitFunction)(const r_Point &);
 
     /// default constructor (no memory is allocated!)
     r_Marray();
@@ -94,7 +94,7 @@ public:
     virtual ~r_Marray();
 
     /// assignment: cleanup + copy
-    const r_Marray &operator= (const r_Marray &);
+    const r_Marray &operator=(const r_Marray &);
 
     /// subscript operator for projection in the 1st dimension
     r_Marray<T> operator[](long) const;

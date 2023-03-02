@@ -49,7 +49,6 @@ class r_Stat_Tiling;
 class r_Access
 {
 public:
-
     /// Class constructor
     explicit r_Access(const r_Minterval &pattern, r_ULong accesses = 1);
     /**
@@ -86,7 +85,6 @@ public:
     bool operator!=(const r_Access &other) const;
 
 private:
-
     /// The user can't use the default constructor
     r_Access() = default;
 
@@ -102,7 +100,6 @@ private:
     Prints the status of a Access object to a stream
 */
 extern std::ostream &operator<<(std::ostream &os, const r_Access &access);
-
 
 //@ManMemo: Module: {\bf rasodmg}
 
@@ -127,8 +124,7 @@ class r_Stat_Tiling : public r_Dimension_Tiling
 {
     // ******************* PUBLIC SECTION *******************
 
-public: // constants
-
+public:  // constants
     /// Default threshold for two borders being considered the same
     const static r_Area DEF_BORDER_THR;
 
@@ -188,7 +184,6 @@ public: // constants
     static const char *description;
 
 protected:  // methods
-
     /// Filters and access pattern table (list)
     /// throws exception if dimensions of access patterns are not the same
     void filter(std::vector<r_Access> &patterns) const;

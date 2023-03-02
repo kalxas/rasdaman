@@ -35,28 +35,23 @@ rasdaman GmbH.
 #include "relcatalogif/mddbasetype.hh"
 #include <logging.hh>
 
-QLMarrayOp::QLMarrayOp(QtOperation     *newCellExpression,
+QLMarrayOp::QLMarrayOp(QtOperation *newCellExpression,
                        std::vector<QtData *> *newDataList,
-                       std::string           &newIteratorName,
-                       const BaseType   *newResType,
-                       unsigned int     newResOff) :
-    MarrayOp(newResType, newResOff),
-    cellExpression(newCellExpression),
-    dataList(newDataList),
-    iteratorName(newIteratorName)
+                       std::string &newIteratorName,
+                       const BaseType *newResType,
+                       unsigned int newResOff)
+    : MarrayOp(newResType, newResOff),
+      cellExpression(newCellExpression),
+      dataList(newDataList),
+      iteratorName(newIteratorName)
 {
 }
-
-
 
 QLMarrayOp::~QLMarrayOp()
 {
 }
 
-
-
-void
-QLMarrayOp::operator()(char *result, const r_Point &p)
+void QLMarrayOp::operator()(char *result, const r_Point &p)
 {
     // update point data of input list
     if (dataList)
@@ -86,23 +81,20 @@ QLMarrayOp::operator()(char *result, const r_Point &p)
     }
 }
 
-
-
-
-QLCondenseOp::QLCondenseOp(QtOperation     *newCellExpression,
-                           QtOperation     *newCondExpression,
+QLCondenseOp::QLCondenseOp(QtOperation *newCellExpression,
+                           QtOperation *newCondExpression,
                            std::vector<QtData *> *newDataList,
-                           std::string           &newIteratorName,
-                           const BaseType        *newResType,
-                           unsigned int     newResOff,
-                           BinaryOp        *newAccuOp,
-                           char            *newInitVal)
+                           std::string &newIteratorName,
+                           const BaseType *newResType,
+                           unsigned int newResOff,
+                           BinaryOp *newAccuOp,
+                           char *newInitVal)
 
-    :  GenCondenseOp(newResType, newResOff, newAccuOp, newInitVal),
-       cellExpression(newCellExpression),
-       condExpression(newCondExpression),
-       dataList(newDataList),
-       iteratorName(newIteratorName)
+    : GenCondenseOp(newResType, newResOff, newAccuOp, newInitVal),
+      cellExpression(newCellExpression),
+      condExpression(newCondExpression),
+      dataList(newDataList),
+      iteratorName(newIteratorName)
 {
     //
     // add point with its iterator name to the data list
@@ -118,8 +110,6 @@ QLCondenseOp::QLCondenseOp(QtOperation     *newCellExpression,
     dataList->push_back(pointData);
 }
 
-
-
 QLCondenseOp::~QLCondenseOp()
 {
     // remove point data object from inputList again
@@ -127,10 +117,7 @@ QLCondenseOp::~QLCondenseOp()
     dataList->pop_back();
 }
 
-
-
-void
-QLCondenseOp::operator()(const r_Point &p)
+void QLCondenseOp::operator()(const r_Point &p)
 {
     unsigned int currentCellValid = 1;
 
@@ -178,14 +165,14 @@ QLCondenseOp::operator()(const r_Point &p)
 }
 
 QLInducedCondenseOp::QLInducedCondenseOp(QtOperation *newCellExpression,
-        QtOperation *newCondExpression, std::vector<QtData *> *newDataList,
-        Ops::OpType op, const BaseType *newResBaseType, const BaseType *cellBaseType, std::string iteratorName)
+                                         QtOperation *newCondExpression, std::vector<QtData *> *newDataList,
+                                         Ops::OpType op, const BaseType *newResBaseType, const BaseType *cellBaseType, std::string iteratorName)
     : cellExpression(newCellExpression), condExpression(newCondExpression),
       dataList(newDataList), resBaseType(newResBaseType)
-{    
+{
     myInitialOp = Ops::getBinaryOp(op, resBaseType, cellBaseType, cellBaseType, 0, 0, 0, true);
     myOp = Ops::getBinaryOp(op, resBaseType, resBaseType, cellBaseType, 0, 0, 0, true);
-    
+
     // add point with its iterator name to the data list
 
     // create QtPointData object
@@ -197,8 +184,7 @@ QLInducedCondenseOp::QLInducedCondenseOp(QtOperation *newCellExpression,
     accumulatedValue = NULL;
 }
 
-void
-QLInducedCondenseOp::operator()(const r_Point &p)
+void QLInducedCondenseOp::operator()(const r_Point &p)
 {
     // update point data of input list
     if (dataList)
@@ -229,8 +215,7 @@ QLInducedCondenseOp::operator()(const r_Point &p)
             //else, accumulated value becomes the condense op applied to accumulatedValue and currentValue
             //for the first condense application, use myInitialOp, and afterwards myOp
             auto *result = QtBinaryInduce::computeBinaryMDDOp(
-                        accumulatedValue, resultData, resBaseType, myInitialOp ? myInitialOp : myOp
-                        );
+                accumulatedValue, resultData, resBaseType, myInitialOp ? myInitialOp : myOp);
             // delete myInitialOp so that myOp is used in the next condense application
             delete myInitialOp;
             myInitialOp = NULL;
@@ -248,7 +233,6 @@ QLInducedCondenseOp::getAccumulatedValue()
 {
     return accumulatedValue;
 }
-
 
 QtMDD *
 QLInducedCondenseOp::execGenCondenseInducedOp(QLInducedCondenseOp *myOp, const r_Minterval &areaOp)
@@ -293,6 +277,8 @@ QLInducedCondenseOp::~QLInducedCondenseOp()
     // remove point data object from inputList again
     dataList->back()->deleteRef();
     dataList->pop_back();
-    delete myInitialOp; myInitialOp = NULL;
-    delete myOp; myOp = NULL;
+    delete myInitialOp;
+    myInitialOp = NULL;
+    delete myOp;
+    myOp = NULL;
 }

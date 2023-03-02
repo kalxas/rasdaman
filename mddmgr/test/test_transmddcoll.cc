@@ -32,10 +32,10 @@ rasdaman GmbH.
 
 #include <stdlib.h>
 #include <iostream>
-#include <vector.h>                  // STL
+#include <vector.h>  // STL
 #include "tilemgr/transtile.hh"
 #include "tilemgr/transmddobj.hh"
-#include "ulongtype.hh"              // from catalogif
+#include "ulongtype.hh"  // from catalogif
 #include "raslib/minterval.hh"
 #include "tilemgr/transmddcoll.hh"
 #include "tilemgr/mddcolliter.hh"
@@ -43,10 +43,9 @@ rasdaman GmbH.
 
 // Needed by Adminif. Adminif has to be instantiated because
 // of cell base types.
-extern char* myExecArgv0 = "";
+extern char *myExecArgv0 = "";
 #include "raslib/rminit.hh"
 RMINITGLOBALS('C')
-
 
 /*************************************************************
  * Function name.: int main( int argc, char** argv)
@@ -61,8 +60,7 @@ RMINITGLOBALS('C')
  *    transaction is started.
  ************************************************************/
 
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     myExecArgv0 = argv[0];
 
@@ -73,37 +71,36 @@ main(int argc, char** argv)
     // In order to work with cell base types, AdminIf has to be
     // instantiated.
     // cout << " Adminif::instance " << endl;
-    AdminIf* myAdmin = AdminIf::instance();
+    AdminIf *myAdmin = AdminIf::instance();
 
     ULongType anyType;
 
     char anyCell[4];
     int i;
-    MDDColl* tCollMDDObjs = new TransMDDColl();
+    MDDColl *tCollMDDObjs = new TransMDDColl();
 
     cout << " Allocating new TransMDDColl ..." << endl;
     tCollMDDObjs = new TransMDDColl();
     cout << " new TransMDDColl allocated..." << endl;
 
     cout << "Creating transient tiles for the MDD objects ... " << endl;
-    vector<TransTile*>* tilesVectsArr[numObjs];
+    vector<TransTile *> *tilesVectsArr[numObjs];
 
     // initialize array of vectors of tiles
     for (i = 0; i < numObjs; i++)
     {
-        tilesVectsArr[i] = new vector<TransTile*>(numTilesObj);
-        for (int j = 0; j < numTilesObj ; j++)
+        tilesVectsArr[i] = new vector<TransTile *>(numTilesObj);
+        for (int j = 0; j < numTilesObj; j++)
         {
             r_Minterval dom(2);
             domSinterval.set_interval(r_Range(j * 10), r_Range((j + 1) * 10 - 1));
-            dom <<  domSinterval << domSinterval;
+            dom << domSinterval << domSinterval;
             (*tilesVectsArr[i])[j] = new TransTile(dom, &anyType, anyCell);
         }
     }
 
-
     cout << "Creating transient MDD objects ... " << endl;
-    TransMDDObj* MDDObjsArr[numObjs];
+    TransMDDObj *MDDObjsArr[numObjs];
 
     for (i = 0; i < numObjs; i++)
     {
@@ -121,13 +118,13 @@ main(int argc, char** argv)
         MDDObjsArr[i] = new TransMDDObj(dom, "ULong");
         for (int j = 0; j < numTilesObj; j++)
         {
-            vector<TransTile*>* pTilesVec = tilesVectsArr[i];
+            vector<TransTile *> *pTilesVec = tilesVectsArr[i];
             MDDObjsArr[i]->insertTile((*pTilesVec)[j]);
         }
     }
 
     cout << "Printing contents of created objects ... " << endl;
-    for (i = 0; i <  numObjs; i++)
+    for (i = 0; i < numObjs; i++)
     {
         cout << "- " << i << ". Transient MDD Object contents: " << endl;
         MDDObjsArr[i]->printStatus();
@@ -135,7 +132,7 @@ main(int argc, char** argv)
     }
 
     cout << "Creating a transient collection of objects ... " << endl;
-    for (i = 0; i <  numObjs; i++)
+    for (i = 0; i < numObjs; i++)
     {
         // cout << "- " << i << ". Transient MDD Object contents: " <<endl;
         tCollMDDObjs->insert(MDDObjsArr[i]);
@@ -145,10 +142,10 @@ main(int argc, char** argv)
     tCollMDDObjs->printStatus();
 
     cout << "Testing TransMDDCollIter ... : " << endl;
-    MDDCollIter* transIter = tCollMDDObjs->createIterator();
-    MDDObj* currObj;
+    MDDCollIter *transIter = tCollMDDObjs->createIterator();
+    MDDObj *currObj;
 
-    for (i = 0; transIter->notDone() ; transIter->advance(), i++)
+    for (i = 0; transIter->notDone(); transIter->advance(), i++)
     {
         cout << "- " << i << ". Trans. MDD Object returned by Iterator contents: " << endl;
         currObj = transIter->getElement();
@@ -173,7 +170,6 @@ main(int argc, char** argv)
     }
     */
 
-
     // delete dynamically allocated vectors of tiles (not the tiles themselves,
     // which should have been freed by releaseAll of TransMDDColl)
     for (i = 0; i < numObjs; i++)
@@ -182,5 +178,4 @@ main(int argc, char** argv)
     }
 
     delete myAdmin;
-
 }

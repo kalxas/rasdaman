@@ -117,13 +117,13 @@ public:
     void setConnectString(const std::string &connectString);
 
 private:
-    std::string hostName; /*!< Name of this database host */
+    std::string hostName;      /*!< Name of this database host */
     std::string connectString; /*!< String used to connect to this database host*/
 
-    int sessionCount; /*!< Counter used to track the number of active sessions*/
-    int serverCount;/*!< Counter used to track the number of server groups using this host*/
-    std::list<std::shared_ptr<Database>> databaseList;/*!< List of databases located on this host */
-    mutable boost::shared_mutex databaseListMutex;/*!< Mutex used for syncrhonizing access to this object*/
+    int sessionCount;                                  /*!< Counter used to track the number of active sessions*/
+    int serverCount;                                   /*!< Counter used to track the number of server groups using this host*/
+    std::list<std::shared_ptr<Database>> databaseList; /*!< List of databases located on this host */
+    mutable boost::shared_mutex databaseListMutex;     /*!< Mutex used for syncrhonizing access to this object*/
 
     /**
      * Check if this host contains the database identified by the given name.
@@ -131,6 +131,6 @@ private:
     bool containsDatabase(const std::string &dbName);
 };
 
-}
+}  // namespace rasmgr
 
-#endif // DATABASEHOST_HH
+#endif  // DATABASEHOST_HH

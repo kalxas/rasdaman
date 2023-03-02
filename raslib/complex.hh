@@ -39,13 +39,12 @@ class r_Complex_Type;
  Class r_Complex represents a complex type value.
 
 */
-class r_Complex: public r_Primitive
+class r_Complex : public r_Primitive
 {
 public:
-
     explicit
-    /// constructs a scalar type value
-    r_Complex(const char *newBuffer, const r_Complex_Type *newType);
+        /// constructs a scalar type value
+        r_Complex(const char *newBuffer, const r_Complex_Type *newType);
 
     /// copy constructor
     r_Complex(const r_Complex &obj);

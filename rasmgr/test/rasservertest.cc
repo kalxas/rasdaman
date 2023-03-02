@@ -48,75 +48,73 @@ using grpc::Status;
 //SynchronousService doesn't appear to exist. Did they mean AsynchronousService?
 //using grpc::SynchronousService;
 
-using ::testing::AtLeast;                     // #1
 using ::testing::_;
+using ::testing::AtLeast;  // #1
 using ::testing::Return;
 
-class MockRasServerService: public ::rasnet::service::RasServerService::Service
+class MockRasServerService : public ::rasnet::service::RasServerService::Service
 {
-    grpc::Status AllocateClient(grpc::ServerContext* context, const rasnet::service::AllocateClientReq* request, rasnet::service::Void* response) override
+    grpc::Status AllocateClient(grpc::ServerContext *context, const rasnet::service::AllocateClientReq *request, rasnet::service::Void *response) override
     {
         return Status::OK;
     }
 
-    grpc::Status DeallocateClient(grpc::ServerContext* context, const rasnet::service::DeallocateClientReq* request, rasnet::service::Void* response) override
+    grpc::Status DeallocateClient(grpc::ServerContext *context, const rasnet::service::DeallocateClientReq *request, rasnet::service::Void *response) override
     {
         return Status::OK;
     }
 
-    grpc::Status Close(grpc::ServerContext* context, const rasnet::service::CloseServerReq* request, rasnet::service::Void* response) override
+    grpc::Status Close(grpc::ServerContext *context, const rasnet::service::CloseServerReq *request, rasnet::service::Void *response) override
     {
         return Status::OK;
     }
 
-    grpc::Status GetClientStatus(grpc::ServerContext* context, const rasnet::service::ClientStatusReq* request, rasnet::service::ClientStatusRepl* response) override
+    grpc::Status GetClientStatus(grpc::ServerContext *context, const rasnet::service::ClientStatusReq *request, rasnet::service::ClientStatusRepl *response) override
     {
         response->set_status(rasnet::service::ClientStatusRepl_Status_ALIVE);
 
         return Status::OK;
     }
 
-    grpc::Status GetServerStatus(grpc::ServerContext* context, const rasnet::service::ServerStatusReq* request, rasnet::service::ServerStatusRepl* response) override
+    grpc::Status GetServerStatus(grpc::ServerContext *context, const rasnet::service::ServerStatusReq *request, rasnet::service::ServerStatusRepl *response) override
     {
         response->set_hasclients(true);
         return Status::OK;
     }
-}
-;
+};
 
-class FailingMockRasServerService: public rasnet::service::RasServerService::Service
+class FailingMockRasServerService : public rasnet::service::RasServerService::Service
 {
 public:
-    grpc::Status AllocateClient(grpc::ServerContext* context, const rasnet::service::AllocateClientReq* request, rasnet::service::Void* response) override
+    grpc::Status AllocateClient(grpc::ServerContext *context, const rasnet::service::AllocateClientReq *request, rasnet::service::Void *response) override
     {
         return Status::CANCELLED;
     }
 
-    grpc::Status DeallocateClient(grpc::ServerContext* context, const rasnet::service::DeallocateClientReq* request, rasnet::service::Void* response) override
+    grpc::Status DeallocateClient(grpc::ServerContext *context, const rasnet::service::DeallocateClientReq *request, rasnet::service::Void *response) override
     {
         return Status::CANCELLED;
     }
 
-    grpc::Status Close(grpc::ServerContext* context, const rasnet::service::CloseServerReq* request, rasnet::service::Void* response) override
+    grpc::Status Close(grpc::ServerContext *context, const rasnet::service::CloseServerReq *request, rasnet::service::Void *response) override
     {
         return Status::OK;
     }
 
-    grpc::Status GetClientStatus(grpc::ServerContext* context, const rasnet::service::ClientStatusReq* request, rasnet::service::ClientStatusRepl* response) override
+    grpc::Status GetClientStatus(grpc::ServerContext *context, const rasnet::service::ClientStatusReq *request, rasnet::service::ClientStatusRepl *response) override
     {
         response->set_status(rasnet::service::ClientStatusRepl_Status_DEAD);
-        
+
         return Status::CANCELLED;
     }
 
-    grpc::Status GetServerStatus(grpc::ServerContext* context, const rasnet::service::ServerStatusReq* request, rasnet::service::ServerStatusRepl* response) override
+    grpc::Status GetServerStatus(grpc::ServerContext *context, const rasnet::service::ServerStatusReq *request, rasnet::service::ServerStatusRepl *response) override
     {
         return Status::CANCELLED;
     }
-}
-;
+};
 
-class RasServerTest: public ::testing::Test
+class RasServerTest : public ::testing::Test
 {
 protected:
     RasServerTest()
@@ -134,7 +132,7 @@ protected:
 
         std::string serverBaseAddress = "0.0.0.0";
 
-        goodServerBuilder.AddListeningPort(common::GrpcUtils::constructAddressString(serverBaseAddress, this->goodPort), 
+        goodServerBuilder.AddListeningPort(common::GrpcUtils::constructAddressString(serverBaseAddress, this->goodPort),
                                            grpc::InsecureServerCredentials());
         //was originally goodServerBuilder.RegisterService((SynchronousService*)service.get());
         //SynchronousService no longer exists?
@@ -147,7 +145,6 @@ protected:
         failingServerBuilder.RegisterService(failService.get());
         failingService = failingServerBuilder.BuildAndStart();
 
-
         dbHost.reset(new rasmgr::DatabaseHost("hostName", "connectString"));
 
         ServerConfig goodServerConfig(hostName, goodPort, dbHost);
@@ -157,12 +154,11 @@ protected:
         failingServer.reset(new rasmgr::Server(failingServerConfig));
     }
 
-
     std::string hostName;
     std::uint32_t goodPort;
     std::uint32_t badPort;
 
-    std::unique_ptr<grpc::Server>  goodService;
+    std::unique_ptr<grpc::Server> goodService;
     std::unique_ptr<grpc::Server> failingService;
     std::shared_ptr<rasmgr::DatabaseHost> dbHost;
 
@@ -176,8 +172,8 @@ protected:
 //    ASSERT_FALSE(failingServer->isAlive());
 //}
 
-}
-}
+}  // namespace test
+}  // namespace rasmgr
 
 //TEST_F(RasServerTest, DISABLED_isClientAlive)
 //{
@@ -284,7 +280,6 @@ protected:
 
 //}
 
-
 //TEST_F(RasServerTest, DISABLED_isFree)
 //{
 //    ASSERT_NO_THROW(server->registerServer(server->getServerId()));
@@ -308,7 +303,6 @@ protected:
 
 //    ASSERT_TRUE(server->isFree());
 //}
-
 
 //TEST_F(RasServerTest, DISABLED_isAvailable)
 //{

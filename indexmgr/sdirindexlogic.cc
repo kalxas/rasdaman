@@ -31,12 +31,11 @@ rasdaman GmbH.
 */
 
 #include "sdirindexlogic.hh"
-#include "indexds.hh"              // for IndexDS
-#include "keyobject.hh"            // for KeyObject, operator<<
-#include "raslib/mddtypes.hh"      // for r_Area
+#include "indexds.hh"          // for IndexDS
+#include "keyobject.hh"        // for KeyObject, operator<<
+#include "raslib/mddtypes.hh"  // for r_Area
 
-#include <logging.hh>              // for Writer, CTRACE
-
+#include <logging.hh>  // for Writer, CTRACE
 
 bool SDirIndexLogic::insertObject(IndexDS *ixDS, const KeyObject &newKeyObject,
                                   __attribute__((unused))
@@ -325,4 +324,3 @@ bool SDirIndexLogic::removeObject(IndexDS *ixDS, const KeyObject &objToRemove,
     LTRACE << "removeObject(" << objToRemove << ")";
     return ixDS->removeObject(objToRemove);
 }
-

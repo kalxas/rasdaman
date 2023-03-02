@@ -66,7 +66,6 @@ public:
     char *makeFromCULong(char *cell, const r_ULong *value) const override;
 
     static const char *Name;
-
 };
 
 #endif

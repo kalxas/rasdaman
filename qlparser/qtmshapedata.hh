@@ -48,11 +48,9 @@ rasdaman GmbH.
   The class encapsulates a MShape of type \Ref{r_MShape}.
 */
 
-
 class QtMShapeData : public QtData
 {
 public:
-
     // constructor getting the vertices
     QtMShapeData(const std::vector<r_Point> &pts);
     /// constructor getting a QtMShape
@@ -116,13 +114,14 @@ public:
     r_Minterval convexHull() const;
 
     /// computes the hyperplaneEquations if they are not yet, and returns them otherwise
-    std::vector<std::pair< r_PointDouble, double>> computeHyperplaneEquation();
+    std::vector<std::pair<r_PointDouble, double>> computeHyperplaneEquation();
 
     /// computes the first coordinate projection on the vector of r_Points, and recasts to r_Dimension, returning a vector of r_Dimension.
-    std::vector< r_Dimension > computeFirstProjection();
+    std::vector<r_Dimension> computeFirstProjection();
+
 private:
     /// attribute storing the polytope vertex coordinates
-    std::vector<r_Point>  polytopePoints;
+    std::vector<r_Point> polytopePoints;
 
     /// barycentre of the polytope vertices.
     r_PointDouble *midPoint;
@@ -131,12 +130,12 @@ private:
     std::vector<QtMShapeData *> polytopeEdges;
 
     /// polytope Vertex data; converted to double points to maintain precision.
-    std::vector<r_PointDouble>   polytopePointsDouble;
+    std::vector<r_PointDouble> polytopePointsDouble;
 
     /// vectors representing the space in which the mshape lives.
     /// the first #dimensionality vectors form an orthonormal basis of the affine
     /// subspace while the latter ones form an orthonormal basis of the complement
-    std::vector<r_PointDouble>  directionVectors;
+    std::vector<r_PointDouble> directionVectors;
 
     /// dimension of the affine subspace
     /// also represents the loop starting point of the basis of the orthogonal complement

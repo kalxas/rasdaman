@@ -25,9 +25,9 @@ rasdaman GmbH.
 #ifndef _LONGTYPE_HH_
 #define _LONGTYPE_HH_
 
-#include <iosfwd>         // for ostream
-#include "integraltype.hh"  // for IntegralType
-#include "raslib/odmgtypes.hh"     // for r_Long
+#include <iosfwd>               // for ostream
+#include "integraltype.hh"      // for IntegralType
+#include "raslib/odmgtypes.hh"  // for r_Long
 
 class OId;
 
@@ -63,7 +63,6 @@ public:
     char *makeFromCULong(char *cell, const r_ULong *value) const override;
 
     static const char *Name;
-
 };
 
 #endif

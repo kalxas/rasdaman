@@ -30,17 +30,18 @@
 namespace rasmgr
 {
 
-ControlService::ControlService(std::shared_ptr<ControlCommandExecutor> commandExecutor):
-    commandExecutor(commandExecutor)
-{}
+ControlService::ControlService(std::shared_ptr<ControlCommandExecutor> commandExecutor)
+    : commandExecutor(commandExecutor)
+{
+}
 
 ControlService::~ControlService()
-{}
-
+{
+}
 
 grpc::Status rasmgr::ControlService::ExecuteCommand(__attribute__((unused)) grpc::ServerContext *context,
-        const rasnet::service::RasCtrlRequest *request,
-        rasnet::service::RasCtrlResponse *response)
+                                                    const rasnet::service::RasCtrlRequest *request,
+                                                    rasnet::service::RasCtrlResponse *response)
 {
     auto status = grpc::Status::OK;
     const auto &cmd = request->command();
@@ -77,5 +78,5 @@ grpc::Status rasmgr::ControlService::ExecuteCommand(__attribute__((unused)) grpc
 
     return status;
 }
-}
+}  // namespace rasmgr
 /* namespace rasmgr */

@@ -37,11 +37,9 @@ rasdaman GmbH.
 #include "raslib/mddtypes.hh"
 #include "raslib/error.hh"
 
-
 class r_Convertor;
 class r_Minterval;
 class r_Type;
-
 
 //@ManMemo: Module {\bf conversion}
 
@@ -59,10 +57,10 @@ public:
     /// check for support
     static bool is_supported(r_Data_Format fmt);
     /// creating from r_Type
-    static r_Convertor* create(r_Data_Format fmt, const char* src, const r_Minterval& interv,
-                               const r_Type* tp);
+    static r_Convertor *create(r_Data_Format fmt, const char *src, const r_Minterval &interv,
+                               const r_Type *tp);
     /// creating from internal type
-    static r_Convertor* create(r_Data_Format fmt, const char* src, const r_Minterval& interv,
+    static r_Convertor *create(r_Data_Format fmt, const char *src, const r_Minterval &interv,
                                int type);
 };
 

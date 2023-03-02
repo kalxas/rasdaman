@@ -27,13 +27,12 @@ rasdaman GmbH.
 #include "raslib/primitivetype.hh"
 #include "config.h"
 
-
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "rasodmg/template_inst.hh"
 #endif
 
-char* TypeIDToName(int tpid)
+char *TypeIDToName(int tpid)
 {
     switch (tpid)
     {
@@ -65,24 +64,23 @@ char* TypeIDToName(int tpid)
         return "double";
         break;
     default:
-        return"?";
+        return "?";
         break;
     }
 }
 
-
-int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
+int TestHDF(r_Minterval &domain, r_Type *tp, const char *params = NULL)
 {
-    r_Primitive_Type* prim;
-    char* src, *dest;
+    r_Primitive_Type *prim;
+    char *src, *dest;
     r_Minterval destInterv;
-    r_Conv_HDF* hdf;
-    r_Type* destType;
+    r_Conv_HDF *hdf;
+    r_Type *destType;
     r_Conv_Desc desc;
     int i, j, k;
     int rank, array_size, datasize;
-    int* dimsizes, *dimsteps, *dimidx;
-    char** srcPtrs;
+    int *dimsizes, *dimsteps, *dimidx;
+    char **srcPtrs;
     int ptid, retid;
 
     if (tp->isStructType())
@@ -90,7 +88,7 @@ int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
         cerr << "No structured types allowed!" << endl;
         return -1;
     }
-    prim = (r_Primitive_Type*)tp;
+    prim = (r_Primitive_Type *)tp;
     ptid = prim->type_id();
     cout << "Source domain = " << domain << ", type = " << TypeIDToName(ptid) << endl;
 
@@ -122,7 +120,7 @@ int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
     dimsizes = new int[rank];
     dimsteps = new int[rank];
     dimidx = new int[rank];
-    srcPtrs = new char* [rank];
+    srcPtrs = new char *[rank];
     for (i = 0; i < rank; i++)
     {
         dimsizes[i] = domain[i].high() - domain[i].low() + 1;
@@ -153,21 +151,21 @@ int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
         case r_Primitive_Type::BOOL:
         case r_Primitive_Type::CHAR:
         case r_Primitive_Type::OCTET:
-            *((char*)srcPtrs[0]) = (char)k;
+            *((char *)srcPtrs[0]) = (char)k;
             break;
         case r_Primitive_Type::SHORT:
         case r_Primitive_Type::USHORT:
-            *((short*)srcPtrs[0]) = (short)k;
+            *((short *)srcPtrs[0]) = (short)k;
             break;
         case r_Primitive_Type::LONG:
         case r_Primitive_Type::ULONG:
-            *((long*)srcPtrs[0]) = (long)k;
+            *((long *)srcPtrs[0]) = (long)k;
             break;
         case r_Primitive_Type::FLOAT:
-            *((float*)srcPtrs[0]) = (float)k;
+            *((float *)srcPtrs[0]) = (float)k;
             break;
         case r_Primitive_Type::DOUBLE:
-            *((double*)srcPtrs[0]) = (double)k;
+            *((double *)srcPtrs[0]) = (double)k;
             break;
         default:
             break;
@@ -183,8 +181,7 @@ int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
             }
             dimidx[i] = 0;
             i++;
-        }
-        while (i < rank);
+        } while (i < rank);
         if (i < rank)
         {
             srcPtrs[i] += dimsteps[i];
@@ -198,12 +195,12 @@ int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
                 }
                 for (j = i; j > 0; j--)
                 {
-                    srcPtrs[j - 1] = srcPtrs[j];;
+                    srcPtrs[j - 1] = srcPtrs[j];
+                    ;
                 }
             }
         }
-    }
-    while (i < rank);
+    } while (i < rank);
 
     hdf = new r_Conv_HDF(src, domain, tp);
 
@@ -216,7 +213,7 @@ int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
         destInterv = desc.destInterv;
         destType = desc.destType;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cerr << "Exception! " << err.what() << endl;
     }
@@ -235,7 +232,7 @@ int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
 
             cout << "retrieved type = ";
             desc.destType->print_status();
-            retid = ((r_Primitive_Type*)(desc.destType))->type_id();
+            retid = ((r_Primitive_Type *)(desc.destType))->type_id();
             cout << ", (" << ((retid == ptid) ? "OK" : "Differs") << ')' << endl;
             cout << "retrieved domain " << desc.destInterv << ' ';
             i = 0;
@@ -279,7 +276,7 @@ int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
 
             free(desc.dest);  // HDF^-1 ( HDF (X) )
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             cerr << "Exception! " << err.what() << endl;
         }
@@ -289,15 +286,15 @@ int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
 
     if (dest != NULL)
     {
-        free(dest);    // HDF (X)
+        free(dest);  // HDF (X)
     }
 
-    delete [] src;    // X
+    delete[] src;  // X
 
-    delete [] dimsizes;
-    delete [] dimsteps;
-    delete [] dimidx;
-    delete [] srcPtrs;
+    delete[] dimsizes;
+    delete[] dimsteps;
+    delete[] dimidx;
+    delete[] srcPtrs;
 
     // Delete the base type passed from the caller too
     delete tp;
@@ -305,14 +302,10 @@ int TestHDF(r_Minterval& domain, r_Type* tp, const char* params = NULL)
     return 0;
 }
 
-
-
-
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     r_Minterval interv;
-    r_Type* tp;
+    r_Type *tp;
 
     // 3D data set over char
     interv = r_Minterval(3);

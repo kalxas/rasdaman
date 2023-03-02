@@ -39,25 +39,19 @@ rasdaman GmbH.
 #include <iostream>
 #include <iomanip>
 
-
-
-template<class T>
+template <class T>
 r_Marray<T>::r_Marray()
     : r_GMarray()
 {
 }
 
-
-
-template<class T>
+template <class T>
 r_Marray<T>::r_Marray(const r_Minterval &initDomain, r_Storage_Layout *stl)
     : r_GMarray(initDomain, sizeof(T), stl)
 {
 }
 
-
-
-template<class T>
+template <class T>
 r_Marray<T>::r_Marray(const r_Minterval &initDomain, const T &value, r_Storage_Layout *stl)
     : r_GMarray(initDomain, sizeof(T), stl)
 {
@@ -69,15 +63,13 @@ r_Marray<T>::r_Marray(const r_Minterval &initDomain, const T &value, r_Storage_L
     }
 }
 
-
-
-template<class T>
+template <class T>
 r_Marray<T>::r_Marray(const r_Minterval &initDomain, r_InitFunction function, r_Storage_Layout *stl)
     : r_GMarray(initDomain, sizeof(T), stl)
 {
     r_Dimension d;
-    int         done = 0;
-    r_Point     pt(domain.dimension());
+    int done = 0;
+    r_Point pt(domain.dimension());
 
     // memory pointer of type T
     T *dataPtr = (T *)data;
@@ -110,40 +102,30 @@ r_Marray<T>::r_Marray(const r_Minterval &initDomain, r_InitFunction function, r_
     }
 }
 
-
-
-template<class T>
+template <class T>
 r_Marray<T>::r_Marray(const r_Marray<T> &obj)
     : r_GMarray(obj)
 {
 }
 
-
-
-template<class T>
+template <class T>
 r_Marray<T>::r_Marray(r_GMarray &obj)
     : r_GMarray(obj)
 {
 }
 
-
-
-template<class T>
+template <class T>
 r_Marray<T>::~r_Marray()
 {
 }
 
-
-
-template<class T>
+template <class T>
 const r_Marray<T> &r_Marray<T>::operator=(const r_Marray<T> &marray)
 {
-    return (r_Marray<T> &) r_GMarray::operator=(marray);
+    return (r_Marray<T> &)r_GMarray::operator=(marray);
 }
 
-
-
-template<class T>
+template <class T>
 r_Marray<T>
 r_Marray<T>::operator[](long cordnt) const
 
@@ -151,13 +133,13 @@ r_Marray<T>::operator[](long cordnt) const
     // check if self does not just represent a cell
     if (domain.dimension() == 0)
     {
-        throw (r_Eindex_violation(cordnt, 0, 0));
+        throw(r_Eindex_violation(cordnt, 0, 0));
     }
 
     // check if the index is valid
     if (cordnt < domain[0].low() || cordnt > domain[0].high())
     {
-        throw (r_Eindex_violation(cordnt, domain[0].low(), domain[0].high()));
+        throw(r_Eindex_violation(cordnt, domain[0].low(), domain[0].high()));
     }
 
     // build a new spatial domain
@@ -174,35 +156,33 @@ r_Marray<T>::operator[](long cordnt) const
 
     // and fill it with data
     unsigned long newCellCount = newDomain.cell_count();
-    unsigned long byteCount    = (newDomain.dimension() ? newDomain.cell_count() : 1) * type_length;
-    T            *dataPtr      = (T *)data; // typed pointer to the data
+    unsigned long byteCount = (newDomain.dimension() ? newDomain.cell_count() : 1) * type_length;
+    T *dataPtr = (T *)data;  // typed pointer to the data
 
     memcpy(newMDD.data, &(dataPtr[(cordnt - static_cast<long>(domain[0].low())) * static_cast<long>(newCellCount)]),
-            static_cast<unsigned int>(byteCount));
+           static_cast<unsigned int>(byteCount));
 
     return newMDD;
 }
 
-
-
-template<class T>
+template <class T>
 r_Marray<T>
 r_Marray<T>::operator[](const r_Minterval &mint) const
 
 {
     unsigned long offset;
-    r_Point  pt;
-    int      pt_valid;
+    r_Point pt;
+    int pt_valid;
 
     // first test dimensionality
     if (domain.dimension() != mint.dimension())
     {
-        throw (r_Edim_mismatch(domain.dimension(), mint.dimension()));
+        throw(r_Edim_mismatch(domain.dimension(), mint.dimension()));
     }
 
     // build a new Marray with undefined cells
     r_Marray<T> newMDD(mint);
-    T          *typedDataPtr = (T *)newMDD.data;
+    T *typedDataPtr = (T *)newMDD.data;
 
     // iterate through the domain and fill the values where available
     for (offset = 0; offset < mint.cell_count(); offset++)
@@ -231,9 +211,7 @@ r_Marray<T>::operator[](const r_Minterval &mint) const
     return newMDD;
 }
 
-
-
-template<class T>
+template <class T>
 const T &
 r_Marray<T>::operator[](const r_Point &point) const
 
@@ -241,49 +219,44 @@ r_Marray<T>::operator[](const r_Point &point) const
     // first test dimensionality
     if (point.dimension() != domain.dimension())
     {
-        throw (r_Edim_mismatch(point.dimension(), domain.dimension()));
+        throw(r_Edim_mismatch(point.dimension(), domain.dimension()));
     }
 
     T *typedDataPtr = (T *)data;
 
     try
     {
-        return typedDataPtr[ domain.cell_offset(point) ];
+        return typedDataPtr[domain.cell_offset(point)];
     }
-    catch (...)   // exception can be r_Eindex_violation
+    catch (...)  // exception can be r_Eindex_violation
     {
-        throw;      // rethrow it
+        throw;  // rethrow it
     }
 }
 
-
-
-template<class T>
-T &
-r_Marray<T>::operator[](const r_Point &point)
+template <class T>
+T &r_Marray<T>::operator[](const r_Point &point)
 
 {
     // first test dimensionality
     if (point.dimension() != domain.dimension())
     {
-        throw (r_Edim_mismatch(point.dimension(), domain.dimension()));
+        throw(r_Edim_mismatch(point.dimension(), domain.dimension()));
     }
 
     T *typedDataPtr = (T *)data;
 
     try
     {
-        return typedDataPtr[ domain.cell_offset(point) ];
+        return typedDataPtr[domain.cell_offset(point)];
     }
-    catch (...)   // exception can be r_Eindex_violation
+    catch (...)  // exception can be r_Eindex_violation
     {
-        throw;      // rethrow it
+        throw;  // rethrow it
     }
 }
 
-
-
-template<class T>
+template <class T>
 r_Marray<T>::operator T()
 
 {
@@ -296,14 +269,8 @@ r_Marray<T>::operator T()
     return *((T *)data);
 }
 
-
-
-template<class T>
-void
-r_Marray<T>::print_status(std::ostream &s)
+template <class T>
+void r_Marray<T>::print_status(std::ostream &s)
 {
     r_GMarray::print_status(s);
 }
-
-
-

@@ -61,9 +61,9 @@ public:
     ///
 
     ///
-    inline const r_Point  &getPointData() const;
+    inline const r_Point &getPointData() const;
     ///
-    inline void            setPointData(const r_Point &point);
+    inline void setPointData(const r_Point &point);
 
     /// returns a null-terminated string describing the type structure
     virtual char *getTypeStructure() const;
@@ -94,8 +94,3 @@ private:
 #include "qlparser/qtpointdata.icc"
 
 #endif
-
-
-
-
-

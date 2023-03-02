@@ -76,18 +76,18 @@ bool initialize();
  * Invoked on SIGUSR1 signal, this handler prints the stack trace and then kills
  * the server process with SIGKILL. This is used in crash testing of rasserver.
  */
-void testHandler(int sig, siginfo_t* info, void* ucontext);
-void shutdownHandler(int sig, siginfo_t* info, void* ucontext);
-void crashHandler(int sig, siginfo_t* info, void* ucontext);
+void testHandler(int sig, siginfo_t *info, void *ucontext);
+void shutdownHandler(int sig, siginfo_t *info, void *ucontext);
+void crashHandler(int sig, siginfo_t *info, void *ucontext);
 
-void testHandler(int /*sig*/, siginfo_t* /*info*/, void* /*ucontext*/)
+void testHandler(int /*sig*/, siginfo_t * /*info*/, void * /*ucontext*/)
 {
-    LINFO << "test handler caught signal SIGUSR1, stacktrace: \n" 
+    LINFO << "test handler caught signal SIGUSR1, stacktrace: \n"
           << common::SignalHandler::getStackTrace();
     LINFO << "killing rasserver with SIGKILL.";
     raise(SIGKILL);
 }
-void shutdownHandler(int /*sig*/, siginfo_t* info, void* /*ucontext*/)
+void shutdownHandler(int /*sig*/, siginfo_t *info, void * /*ucontext*/)
 {
     static bool alreadyExecuting{false};
     if (!alreadyExecuting)
@@ -99,19 +99,22 @@ void shutdownHandler(int /*sig*/, siginfo_t* info, void* /*ucontext*/)
         exit(EXIT_SUCCESS);
     }
 }
-void crashHandler(int sig, siginfo_t* info, void* /*ucontext*/)
+void crashHandler(int sig, siginfo_t *info, void * /*ucontext*/)
 {
     static bool alreadyExecuting{false};
     if (!alreadyExecuting)
     {
         alreadyExecuting = true;
         NNLERROR << "Interrupted by signal " << common::SignalHandler::toString(info);
-        BLERROR << "... stacktrace:\n" << common::SignalHandler::getStackTrace() << "\n";
+        BLERROR << "... stacktrace:\n"
+                << common::SignalHandler::getStackTrace() << "\n";
         BLFLUSH;
         NNLERROR << "Shutting down... ";
         BLERROR << "rasserver terminated.\n";
         BLFLUSH;
-    } else {
+    }
+    else
+    {
         // if a signal comes while the handler has already been invoked,
         // wait here for max 3 seconds, so that the handler above has some time
         // (hopefully) finish
@@ -133,7 +136,7 @@ void installSignalHandlers()
 //                                   main                                     //
 // -------------------------------------------------------------------------- //
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     if (configuration.parseCommandLine(argc, argv) == false)
     {
@@ -168,7 +171,7 @@ int main(int argc, char** argv)
     //
     // run server
     //
-    
+
     int returnCode = RC_OK;
     try
     {
@@ -176,14 +179,14 @@ int main(int argc, char** argv)
         {
             LDEBUG << "starting daemon server...";
             rasserver::RasnetServer rasnetServer(
-                        static_cast<std::uint32_t>(configuration.getListenPort()),
-                        configuration.getRasmgrHost(),
-                        static_cast<std::uint32_t>(configuration.getRasmgrPort()), 
-                        configuration.getNewServerId());
+                static_cast<std::uint32_t>(configuration.getListenPort()),
+                configuration.getRasmgrHost(),
+                static_cast<std::uint32_t>(configuration.getRasmgrPort()),
+                configuration.getNewServerId());
             rasnetServer.startRasnetServer();
             LDEBUG << "daemon server started.";
         }
-        else // client mode: directql or rasdl
+        else  // client mode: directql or rasdl
         {
             LDEBUG << "run direct server...";
             common::LogConfiguration logConf(CONFDIR, CLIENT_LOG_CONF);
@@ -202,17 +205,17 @@ int main(int argc, char** argv)
             }
         }
     }
-    catch (common::Exception& errorObj)
+    catch (common::Exception &errorObj)
     {
         LERROR << "rasdaman server error: " << errorObj.what();
         returnCode = RC_ERROR;
     }
-    catch (r_Error& errorObj)
+    catch (r_Error &errorObj)
     {
         LERROR << "rasdaman server error " << errorObj.get_errorno() << ": " << errorObj.what();
         returnCode = RC_ERROR;
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << "rasdaman server exception: " << ex.what();
         returnCode = RC_ERROR;
@@ -249,7 +252,7 @@ bool initialize()
     }
     strcpy(globalConnectId, connectString.c_str());
     const char *basedbString = globalConnectId[0] == '/' ? "sqlite" : "postgres";
-    BLINFO << ", connecting to " << basedbString << " with '" << globalConnectId <<  "'\n";
+    BLINFO << ", connecting to " << basedbString << " with '" << globalConnectId << "'\n";
 
     strcpy(globalDbUser, configuration.getUser());
     strcpy(globalDbPasswd, configuration.getPasswd());
@@ -275,9 +278,9 @@ bool initialize()
     {
         StorageLayout::DefaultTileConfiguration = r_Minterval(configuration.getDefaultTileConfig());
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
-        LERROR << "Failed converting " << configuration.getDefaultTileConfig() 
+        LERROR << "Failed converting " << configuration.getDefaultTileConfig()
                << " to r_Minterval, error " << err.get_errorno() << " : " << err.what();
         return false;
     }

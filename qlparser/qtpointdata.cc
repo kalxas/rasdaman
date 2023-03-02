@@ -26,17 +26,14 @@ using namespace std;
 #include "qlparser/qtpointdata.hh"
 #include <cstring>
 
-
 QtPointData::QtPointData(const r_Point &point)
     : QtData(), pointData(point)
 {
 }
 
-
 QtPointData::~QtPointData()
 {
 }
-
 
 QtDataType
 QtPointData::getDataType() const
@@ -44,9 +41,7 @@ QtPointData::getDataType() const
     return QT_POINT;
 }
 
-
-bool
-QtPointData::equal(const QtData *obj) const
+bool QtPointData::equal(const QtData *obj) const
 {
     int returnValue = false;  // not equal by initialization
 
@@ -61,15 +56,14 @@ QtPointData::equal(const QtData *obj) const
     return returnValue;
 }
 
-
 std::string
 QtPointData::getSpelling() const
 {
     std::string result;
 
     // buffer
-    r_Dimension bufferLen = pointData.dimension() * 50; // on the save side for one integers per dimension plus colon and brackets
-    char       *buffer    = new char[ bufferLen ];
+    r_Dimension bufferLen = pointData.dimension() * 50;  // on the save side for one integers per dimension plus colon and brackets
+    char *buffer = new char[bufferLen];
     // replaced deprecated ostrstream -- PB 2005-jan-14
     // ostrstream bufferStream( buffer, bufferLen );
     ostringstream bufferStream(buffer);
@@ -83,15 +77,12 @@ QtPointData::getSpelling() const
     return result;
 }
 
-
 char *QtPointData::getTypeStructure() const
 {
     return strdup("point");
 }
 
-
-void
-QtPointData::printStatus(std::ostream &stream) const
+void QtPointData::printStatus(std::ostream &stream) const
 {
     stream << "point, value: " << std::flush;
     stream << pointData << std::flush;

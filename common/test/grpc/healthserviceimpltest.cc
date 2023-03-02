@@ -27,7 +27,7 @@ namespace common
 {
 namespace test
 {
-static HealthCheckResponse::ServingStatus getStatusHelper(HealthServiceImpl& impl, std::string service)
+static HealthCheckResponse::ServingStatus getStatusHelper(HealthServiceImpl &impl, std::string service)
 {
     HealthCheckResponse response;
     HealthCheckRequest request;
@@ -54,7 +54,6 @@ TEST(HealthServiceImplTest, setStatus)
     impl.setStatus(serviceId, HealthCheckResponse::UNKNOWN);
     ASSERT_EQ(HealthCheckResponse::UNKNOWN, getStatusHelper(impl, serviceId));
 }
-
 
 TEST(HealthServiceImplTest, clearStatus)
 {
@@ -83,7 +82,6 @@ TEST(HealthServiceImplTest, clearAll)
     impl.clearAll();
     ASSERT_EQ(HealthCheckResponse::UNKNOWN, getStatusHelper(impl, firstServiceId));
     ASSERT_EQ(HealthCheckResponse::UNKNOWN, getStatusHelper(impl, secondServiceId));
-
 }
-}
-}
+}  // namespace test
+}  // namespace common

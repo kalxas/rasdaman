@@ -104,12 +104,10 @@ private:
     /// if this data should change you must construct a new iterator, therefore no public access.
     r_ULong length{};
     r_Dimension dim{};
-    
+
 public:
     bool done{false};
 };
-
-
 
 /*@Doc:
   r_miter_direct_data encapsulates data for each dimension.
@@ -122,7 +120,6 @@ class r_miter_direct_data
     friend class r_MiterDirect;
 
 public:
-
     r_miter_direct_data() = default;
     ~r_miter_direct_data() = default;
 
@@ -134,7 +131,6 @@ public:
     r_Range high{};
 
 private:
-
     /// Data concerning the domain of the source object. Is fixed
     /// in the constructor.
     r_Range step{};

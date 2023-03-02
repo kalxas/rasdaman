@@ -125,7 +125,6 @@ char *EditLine::rl_gets(const char *prompt)
 #else
     return strdup(" ");
 #endif
-
 }
 
-}
+}  // namespace rascontrol

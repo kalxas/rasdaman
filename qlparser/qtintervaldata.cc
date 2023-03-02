@@ -33,18 +33,13 @@ QtIntervalData::QtIntervalData(const r_Sinterval &interval)
 {
 }
 
-
-
 QtDataType
 QtIntervalData::getDataType() const
 {
     return QT_INTERVAL;
 }
 
-
-
-bool
-QtIntervalData::equal(const QtData *obj) const
+bool QtIntervalData::equal(const QtData *obj) const
 {
     int returnValue = false;  // not equal by initialization
 
@@ -56,16 +51,14 @@ QtIntervalData::equal(const QtData *obj) const
     return returnValue;
 }
 
-
-
 std::string
 QtIntervalData::getSpelling() const
 {
     std::string result;
 
     // buffer
-    int        bufferLen = 256; // on the save side for two integers plus colon
-    char      *buffer    = new char[ bufferLen ];
+    int bufferLen = 256;  // on the save side for two integers plus colon
+    char *buffer = new char[bufferLen];
     // replaced deprecated ostrstream -- PB 2005-jan-14
     // ostrstream bufferStream( buffer, bufferLen );
     ostringstream bufferStream(buffer);
@@ -80,37 +73,13 @@ QtIntervalData::getSpelling() const
     return result;
 }
 
-
-
 char *QtIntervalData::getTypeStructure() const
 {
     return strdup("interval");
 }
 
-
-
-void
-QtIntervalData::printStatus(std::ostream &stream) const
+void QtIntervalData::printStatus(std::ostream &stream) const
 {
     stream << "interval, value: " << intervalData << std::flush;
     QtData::printStatus(stream);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

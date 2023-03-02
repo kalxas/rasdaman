@@ -27,8 +27,7 @@ public:
     /**
      * Initialize using configuration obtained from cmd-line parameters/
      */
-    RasManager(Configuration &config
-               );
+    RasManager(Configuration &config);
 
     virtual ~RasManager() = default;
 
@@ -48,14 +47,15 @@ public:
     void saveConfiguration();
 
     void setIsConfigurationDirty(bool isDirty);
+
 private:
     std::shared_ptr<ConfigurationManager> configManager;
     std::unique_ptr<grpc::Server> server;
 
     sig_atomic_t running; /*!<True if the rasmgr is running, false otherwise */
-    std::uint32_t port; /*!< Port on which this rasmgr instance will be running */
+    std::uint32_t port;   /*!< Port on which this rasmgr instance will be running */
 };
 
-}
+}  // namespace rasmgr
 
-#endif // RASMGR_X_SRC_RASMANAGER_HH
+#endif  // RASMGR_X_SRC_RASMANAGER_HH

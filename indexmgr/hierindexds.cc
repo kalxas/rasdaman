@@ -23,6 +23,8 @@ rasdaman GmbH.
 
 #include "hierindexds.hh"
 
-HierIndexDS::HierIndexDS() : IndexDS() {}
+HierIndexDS::HierIndexDS()
+    : IndexDS() {}
 
-HierIndexDS::HierIndexDS(const OId &id) : IndexDS(id) {}
+HierIndexDS::HierIndexDS(const OId &id)
+    : IndexDS(id) {}

@@ -51,9 +51,7 @@ rasdaman GmbH.
 #include "rasodmg/oqlquery.hh"
 #include "clientcomm/clientcomm.hh"
 
-
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     SystemBasic::usageHeader = "system_update version 0.9.4\n\t\tProgram for writing data into RasDaMan\n";
     SystemBasic::usageFooter = "Required information:\n\t\t MDD type\n\t\tCollection name\n\t\tMDD domain\n\t\tFile name with data\n";
@@ -62,12 +60,12 @@ int main(int argc, char** argv)
     {
         retval = SystemUpdate::doStuff(argc, argv);
     }
-    catch (const r_Error& e)
+    catch (const r_Error &e)
     {
         cout << "Caught Exception at top level: " << e.get_errorno() << " " << e.what() << endl;
         retval = -1;
     }
-    catch (const std::exception& e2)
+    catch (const std::exception &e2)
     {
         cout << "Caught Exception at top level: " << e2.what() << endl;
         retval = -1;
@@ -80,8 +78,7 @@ int main(int argc, char** argv)
     return retval;
 }
 
-int
-SystemUpdate::doStuff(int argc, char** argv)
+int SystemUpdate::doStuff(int argc, char **argv)
 {
 #ifndef RMANDEBUG
     installSignalHandlers();
@@ -104,7 +101,7 @@ SystemUpdate::doStuff(int argc, char** argv)
                     {
                         if (collName)
                         {
-                            r_MiterArea* iter = NULL;
+                            r_MiterArea *iter = NULL;
                             r_Minterval tempDom;
                             r_Minterval tileDom;
                             if (tiledUpdate)
@@ -173,8 +170,7 @@ SystemUpdate::doStuff(int argc, char** argv)
                                 {
                                     retval = doUpdate(updstream.str().c_str(), selstream.str().c_str());
                                 }
-                            }
-                            while (tiledUpdate && (retval == 0));
+                            } while (tiledUpdate && (retval == 0));
                             delete iter;
                             iter = NULL;
                         }
@@ -204,14 +200,13 @@ SystemUpdate::doStuff(int argc, char** argv)
 }
 
 //SystemUpdate::doUpdate(const char* queryString, const char* queryStringS, const char* mddTypeName, const r_Marray_Type mddType, const r_Minterval& mddDomain, const char* inputFormatParams, )
-int
-SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
+int SystemUpdate::doUpdate(const char *queryString, const char *queryStringS)
 {
     int retval = 0;
-    char* typeStructure = NULL;
+    char *typeStructure = NULL;
     r_Ref<r_GMarray> selectedMDD;
     r_Set<r_Ref_Any> result;
-    r_Marray_Type* mddType = NULL;
+    r_Marray_Type *mddType = NULL;
     try
     {
         openTransaction(false);
@@ -219,7 +214,7 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
         ta.abort();
         db.close();
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         if (err.get_kind() == r_Error::r_Error_DatabaseClassUndefined)
         {
@@ -235,10 +230,10 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
     }
     try
     {
-        r_Type* tempType = r_Type::get_any_type(typeStructure);
+        r_Type *tempType = r_Type::get_any_type(typeStructure);
         if (tempType->isMarrayType())
         {
-            mddType = (r_Marray_Type*)tempType;
+            mddType = (r_Marray_Type *)tempType;
             tempType = NULL;
         }
         else
@@ -249,25 +244,25 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
             retval = MDDTYPEINVALID;
         }
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         RMInit::logOut << "Error during type retrieval from type structure (" << typeStructure << "): " << err.get_errorno() << " " << err.what() << endl;
         retval = MDDTYPEINVALID;
     }
-    delete [] typeStructure;
+    delete[] typeStructure;
     typeStructure = NULL;
     if (retval == 0)
     {
         size_t baseTypeLength = mddType->base_type().size();
-        r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
-        r_Ref<r_GMarray> fileMDD = new(mddTypeName)r_GMarray(mddDomain, baseTypeLength, stl);
+        r_Storage_Layout *stl = new r_Storage_Layout(theTiling->clone());
+        r_Ref<r_GMarray> fileMDD = new (mddTypeName) r_GMarray(mddDomain, baseTypeLength, stl);
         fileMDD->set_type_schema(mddType);
         stl = new r_Storage_Layout(theTiling->clone());
-        r_Ref<r_GMarray> targetMDD = new(mddTypeName)r_GMarray(overlayDomain, baseTypeLength, stl);
+        r_Ref<r_GMarray> targetMDD = new (mddTypeName) r_GMarray(overlayDomain, baseTypeLength, stl);
         targetMDD->set_type_schema(mddType);
         if (fileName)
         {
-            FILE* filePointer = checkFile(fileName, retval);
+            FILE *filePointer = checkFile(fileName, retval);
             if (retval != 0)
             {
                 fileMDD.destroy();
@@ -291,16 +286,18 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                 {
                     //do transparent update
                     r_OQL_Query query(queryStringS);
-                    RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
-                            RMInit::dbgOut << "Waiting 100 sec before execute\n" << std::endl; \
-                            sleep(100); \
-                            RMInit::dbgOut << "Continue now\n" << std::endl;);
+                    RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL",
+                            RMInit::dbgOut << "Waiting 100 sec before execute\n"
+                                           << std::endl;
+                            sleep(100);
+                            RMInit::dbgOut << "Continue now\n"
+                                           << std::endl;);
                     bool dataFound = true;
                     try
                     {
                         r_oql_execute(query, result, &ta);
                     }
-                    catch (r_Error& err)
+                    catch (r_Error &err)
                     {
                         dataFound = false;
                         if (err.get_kind() != r_Error::r_Error_TransferFailed)
@@ -308,10 +305,12 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                             throw;
                         }
                     }
-                    RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
-                            RMInit::dbgOut << "Waiting 100 sec after execute\n" << std::endl; \
-                            sleep(100); \
-                            RMInit::dbgOut << "Continue now\n" << std::endl;);
+                    RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL",
+                            RMInit::dbgOut << "Waiting 100 sec after execute\n"
+                                           << std::endl;
+                            sleep(100);
+                            RMInit::dbgOut << "Continue now\n"
+                                           << std::endl;);
                     if (dataFound)
                     {
                         r_Iterator<r_Ref_Any> iter = result.create_iterator();
@@ -332,7 +331,7 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                         {
                             retval = overlayGMarrays(targetMDD, fileMDD, selectedMDD);
                         }
-                        else     //just copy selected over target
+                        else  //just copy selected over target
                         {
                             retval = overlayGMarrays(targetMDD, selectedMDD, targetMDD);
                         }
@@ -352,20 +351,24 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                     {
                         r_OQL_Query query(queryString);
                         query << *targetMDD;
-                        RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
-                                RMInit::dbgOut << "Waiting 100 sec before execute\n" << std::endl; \
-                                sleep(100); \
-                                RMInit::dbgOut << "Continue now\n" << std::endl;);
+                        RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL",
+                                RMInit::dbgOut << "Waiting 100 sec before execute\n"
+                                               << std::endl;
+                                sleep(100);
+                                RMInit::dbgOut << "Continue now\n"
+                                               << std::endl;);
                         r_oql_execute(query, &ta);
-                        RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
-                                RMInit::dbgOut << "Waiting 100 sec after execute\n" << std::endl; \
-                                sleep(100); \
-                                RMInit::dbgOut << "Continue now\n" << std::endl;);
+                        RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL",
+                                RMInit::dbgOut << "Waiting 100 sec after execute\n"
+                                               << std::endl;
+                                sleep(100);
+                                RMInit::dbgOut << "Continue now\n"
+                                               << std::endl;);
                     }
                     else
                     {
-                        std::list<std::pair<double, char*>>::iterator iter = scaleLevels->begin();
-                        std::list<std::pair<double, char*>>::iterator end = scaleLevels->end();
+                        std::list<std::pair<double, char *>>::iterator iter = scaleLevels->begin();
+                        std::list<std::pair<double, char *>>::iterator end = scaleLevels->end();
                         r_Minterval scaledDomain;
                         r_Minterval clipDomain;
                         unsigned int length = 0;
@@ -383,15 +386,19 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                             {
                                 r_OQL_Query query(queryString);
                                 query << *targetMDD;
-                                RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
-                                        RMInit::dbgOut << "Waiting 100 sec before execute\n" << std::endl; \
-                                        sleep(100); \
-                                        RMInit::dbgOut << "Continue now\n" << std::endl;);
+                                RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL",
+                                        RMInit::dbgOut << "Waiting 100 sec before execute\n"
+                                                       << std::endl;
+                                        sleep(100);
+                                        RMInit::dbgOut << "Continue now\n"
+                                                       << std::endl;);
                                 r_oql_execute(query, &ta);
-                                RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
-                                        RMInit::dbgOut << "Waiting 100 sec after execute\n" << std::endl; \
-                                        sleep(100); \
-                                        RMInit::dbgOut << "Continue now\n" << std::endl;);
+                                RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL",
+                                        RMInit::dbgOut << "Waiting 100 sec after execute\n"
+                                                       << std::endl;
+                                        sleep(100);
+                                        RMInit::dbgOut << "Continue now\n"
+                                                       << std::endl;);
                             }
                             else
                             {
@@ -405,10 +412,12 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                             iter++;
                         }
                     }
-                    RMDBGIF(20, RMDebug::module_tools, "WAITCOMMIT", \
-                            RMInit::dbgOut << "Waiting 100 sec before commit\n" << std::endl; \
-                            sleep(100); \
-                            RMInit::dbgOut << "Continue now\n" << std::endl;);
+                    RMDBGIF(20, RMDebug::module_tools, "WAITCOMMIT",
+                            RMInit::dbgOut << "Waiting 100 sec before commit\n"
+                                           << std::endl;
+                            sleep(100);
+                            RMInit::dbgOut << "Continue now\n"
+                                           << std::endl;);
                 }
                 if (retval == 0)
                 {
@@ -419,7 +428,7 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
                     ta.abort();
                 }
             }
-            catch (r_Error& err)
+            catch (r_Error &err)
             {
                 RMInit::logOut << "Error during administrative action: " << err.get_errorno() << " " << err.what() << endl;
                 retval = EXCEPTIONADMIN;
@@ -437,4 +446,3 @@ SystemUpdate::doUpdate(const char* queryString, const char* queryStringS)
     mddType = NULL;
     return retval;
 }
-

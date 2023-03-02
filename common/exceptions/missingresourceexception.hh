@@ -40,10 +40,10 @@ public:
      * @brief MissingResourceException  Constructs the exception object with whatArg as explanatory string that can be accessed through what().
      * @param whatArg explanatory string
      */
-    MissingResourceException(const std::string& whatArg);
+    MissingResourceException(const std::string &whatArg);
 
     virtual ~MissingResourceException() noexcept;
 };
-}
+}  // namespace common
 
-#endif // COMMON_SRC_EXCEPTIONS_MISSINGRESOURCEEXCEPTION_HH
+#endif  // COMMON_SRC_EXCEPTIONS_MISSINGRESOURCEEXCEPTION_HH

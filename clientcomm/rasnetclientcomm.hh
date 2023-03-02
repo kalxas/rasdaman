@@ -100,37 +100,36 @@ public:
     int getTimeoutInterval() override;
 
 private:
-    
     // -------------------------------------------------------------------------
     // rasmgr service
     std::shared_ptr<rasnet::service::RasmgrClientService::Stub> rasmgrService; /*! Service stub used to communicate with the RasServer process */
-    bool initializedRasMgrService{false}; /*! Flag used to indicate if the service was initialized */
+    bool initializedRasMgrService{false};                                      /*! Flag used to indicate if the service was initialized */
     std::mutex rasMgrServiceMtx;
     std::shared_ptr<common::HealthService::Stub> rasmgrHealthService;
     //
     std::shared_ptr<rasnet::service::RasmgrClientService::Stub> getRasMgrService(bool throwIfConnectionFailed = true);
     void initRasserverService();
     void closeRasserverService();
-    
+
     // -------------------------------------------------------------------------
     // rasserver service
     std::shared_ptr<rasnet::service::ClientRassrvrService::Stub> rasserverService; /*! Service stub used to communicate with the RasServer process */
-    bool initializedRasServerService{false}; /*! Flag used to indicate if the service was initialized */
+    bool initializedRasServerService{false};                                       /*! Flag used to indicate if the service was initialized */
     std::mutex rasServerServiceMtx;
     std::shared_ptr<common::HealthService::Stub> rasserverHealthService;
     //
     std::shared_ptr<rasnet::service::ClientRassrvrService::Stub> getRasServerService(bool throwIfConnectionFailed = true);
     void initRasmgrService();
     void closeRasmgrService();
-    
+
     // -------------------------------------------------------------------------
     // START: KEEP ALIVE THREADS
     int64_t keepAliveTimeout{};
 
     // rasmgr
     std::unique_ptr<std::thread> rasMgrKeepAliveManagementThread;
-    std::mutex rasmgrKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
-    bool isRasmgrKeepAliveRunning{false}; /*! Flag used to stop the worker thread */
+    std::mutex rasmgrKeepAliveMutex;                           /*! Mutex used to safely stop the worker thread */
+    bool isRasmgrKeepAliveRunning{false};                      /*! Flag used to stop the worker thread */
     std::condition_variable isRasmgrKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
     //
     void startRasMgrKeepAlive();
@@ -139,8 +138,8 @@ private:
 
     // rasserver
     std::unique_ptr<std::thread> rasServerKeepAliveManagementThread;
-    std::mutex rasserverKeepAliveMutex;/*! Mutex used to safely stop the worker thread */
-    bool isRasserverKeepAliveRunning{false}; /*! Flag used to stop the worker thread */
+    std::mutex rasserverKeepAliveMutex;                           /*! Mutex used to safely stop the worker thread */
+    bool isRasserverKeepAliveRunning{false};                      /*! Flag used to stop the worker thread */
     std::condition_variable isRasserverKeepAliveRunningCondition; /*! Condition variable used to stop the worker thread */
     //
     void startRasServerKeepAlive();
@@ -148,7 +147,6 @@ private:
     void clientRasServerKeepAliveRunner();
     // END: KEEP ALIVE
 
-    
     // -------------------------------------------------------------------------
     // various identifiers
     /// The ID allocated by the rasmgr upon a successful connect request
@@ -159,11 +157,11 @@ private:
     /// the UUID uniquely identifies the client on the remote server.
     std::uint32_t remoteClientId;
     std::uint32_t sessionId;
-    
+
     // -------------------------------------------------------------------------
     // authentication
     char capability[100];
-    
+
     // -------------------------------------------------------------------------
     // connection details
     /// full rasmgr address in format hostname:port
@@ -187,7 +185,7 @@ private:
     size_t timeoutMs{};
     /// parameter object for configuration
     r_Parse_Params clientParams;
-    
+
     // -------------------------------------------------------------------------
     // error handlers
     static void handleError(const std::string &error);
@@ -201,17 +199,17 @@ private:
     int executeEndTransfer();
     r_Ref_Any executeGetCollByNameOrOId(const char *collName, const r_OId &oid);
     r_Ref_Any executeGetCollOIdsByNameOrOId(const char *collName, const r_OId &oid);
-    int  executeStartInsertTransMDD(r_GMarray *mdd);
+    int executeStartInsertTransMDD(r_GMarray *mdd);
     int executeInitUpdate();
-    GetMDDRes  *executeGetNextMDD();
+    GetMDDRes *executeGetNextMDD();
     GetTileRes *executeGetNextTile();
-    int  executeExecuteQuery(const char *query, r_Set<r_Ref_Any> &result);
+    int executeExecuteQuery(const char *query, r_Set<r_Ref_Any> &result);
     GetElementRes *executeGetNextElement();
     int executeExecuteUpdateQuery(const char *query);
-    int  executeExecuteUpdateQuery(const char *query, r_Set<r_Ref_Any> &result);
+    int executeExecuteUpdateQuery(const char *query, r_Set<r_Ref_Any> &result);
     int executeSetFormat(bool lTransferFormat, r_Data_Format format, const char *formatParams);
 
-    void getMDDCollection(r_Set <r_Ref_Any> &mddColl, unsigned int isQuery);
+    void getMDDCollection(r_Set<r_Ref_Any> &mddColl, unsigned int isQuery);
     unsigned short getMDDCore(r_Ref<r_GMarray> &mdd, GetMDDRes *thisResult, unsigned int isQuery);
     void sendMDDConstants(const r_OQL_Query &query);
     void getElementCollection(r_Set<r_Ref_Any> &resultColl);
@@ -226,4 +224,4 @@ private:
     void checkForRwTransaction();
 };
 
-#endif // RASNETCLIENTCOMM_HH
+#endif  // RASNETCLIENTCOMM_HH

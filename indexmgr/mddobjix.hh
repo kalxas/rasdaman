@@ -89,7 +89,7 @@ public:
     */
 
     ~MDDObjIx();
-    
+
     void printStatus(unsigned int level, std::ostream &stream) const;
 
     void insertTile(std::shared_ptr<Tile> newTile);
@@ -109,19 +109,18 @@ public:
         This will only have effect on persistent indexes.
         Transient indexes keep their tiles in TransDirIx which deletes its tiles in the destructor.
     */
-    
+
     DBObjectId getDBMDDObjIxId() const;
 
     r_Minterval getCurrentDomain() const;
 
     r_Dimension getDimension() const;
-    
+
     bool isPersistent() const;
 
 protected:
-    
     std::shared_ptr<Tile> containPointQuery(const r_Point &searchPoint) const;
-    
+
     void setNewLastAccess(const r_Minterval &newLastAccess, const std::vector<std::shared_ptr<Tile>> *newLastTiles);
 
     void setNewLastAccess(const std::shared_ptr<Tile> newLastTile, bool te = true);
@@ -144,7 +143,7 @@ protected:
         Subclasses which use the cache must call this function before removing a
         tile from the index, or else the tile may remain in main memory.
     */
-    
+
     void initializeLogicStructure();
     /**
         <tt>actualDBIx</tt> and <tt>cellBaseType</tt> must be already correctly set.
@@ -204,23 +203,23 @@ protected:
     /*@Doc:
         The real index structure
     */
-    
+
     /// function pointer to the static function which inserts objects
     using IxLogic_insertObject = bool (*)(IndexDS *, const KeyObject &, const StorageLayout &);
     IxLogic_insertObject do_insertObj;
-    
+
     /// function pointer to the static function which removes objects
     using IxLogic_removeObject = bool (*)(IndexDS *, const KeyObject &, const StorageLayout &);
     IxLogic_removeObject do_removeObj;
-    
+
     /// function pointer to the static function which gets objects from the index
     using IxLogic_intersect = void (*)(const IndexDS *, const r_Minterval &, KeyObjectVector &, const StorageLayout &);
     IxLogic_intersect do_intersect;
-    
+
     /// function pointer to the static function which gets object at point
     using IxLogic_containPointQuery = void (*)(const IndexDS *, const r_Point &, KeyObject &, const StorageLayout &);
     IxLogic_containPointQuery do_pointQuery;
-    
+
     /// function pointer to the static function which gets all objects
     using IxLogic_getObjects = void (*)(const IndexDS *, KeyObjectVector &, const StorageLayout &);
     IxLogic_getObjects do_getObjs;
@@ -237,7 +236,7 @@ protected:
         Nifty object which holds information on how to store data in the database.
         It tells you which index to use, hos large a index might become and so on.
     */
-    
+
 #ifdef RMANBENCHMARK
 
     void initializeTimerPointers();

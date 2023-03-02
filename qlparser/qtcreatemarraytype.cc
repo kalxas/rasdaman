@@ -26,7 +26,6 @@ QtData *QtCreateMarrayType::evaluate()
     QtData *returnValue = NULL;
     // at this point we know that all values are valid (they are checked in checkType)
 
-
     if (this->typeAttributes != NULL)
     {
         QtCreateCellType createCellType(this->cellTypeName, this->typeAttributes);
@@ -44,7 +43,6 @@ QtData *QtCreateMarrayType::evaluate()
     delete mddType;
     return returnValue;
 }
-
 
 void QtCreateMarrayType::checkType()
 {

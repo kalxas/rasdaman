@@ -72,8 +72,6 @@ private:
     std::string iteratorName;
 };
 
-
 #include "qlparser/qtmarrayop.icc"
 
 #endif
-

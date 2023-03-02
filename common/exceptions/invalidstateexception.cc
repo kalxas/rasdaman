@@ -25,11 +25,13 @@
 namespace common
 {
 
-InvalidStateException::InvalidStateException(const std::string& whatArg)
+InvalidStateException::InvalidStateException(const std::string &whatArg)
     : LogicException(whatArg)
-{}
+{
+}
 
 InvalidStateException::~InvalidStateException() noexcept
-{}
+{
+}
 
 } /* namespace common */

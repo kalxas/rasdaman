@@ -33,21 +33,21 @@ namespace rasmgr
 {
 namespace test
 {
-using rasmgr::ServerGroupFactory;
-using rasmgr::ServerManagerConfig;
-using rasmgr::ServerManager;
-using rasmgr::ServerGroupConfigProto;
+using rasmgr::Server;
 using rasmgr::ServerGroup;
+using rasmgr::ServerGroupConfigProto;
+using rasmgr::ServerGroupFactory;
+using rasmgr::ServerManager;
+using rasmgr::ServerManagerConfig;
+using rasmgr::ServerMgrProto;
 using rasmgr::StartServerGroup;
 using rasmgr::StopServerGroup;
-using rasmgr::Server;
-using rasmgr::ServerMgrProto;
 
-using ::testing::AtLeast;                     // #1
 using ::testing::_;
+using ::testing::AtLeast;  // #1
 using ::testing::Return;
 
-class ServerManagerTest: public ::testing::Test
+class ServerManagerTest : public ::testing::Test
 {
 protected:
     ServerManagerTest()
@@ -62,7 +62,7 @@ protected:
 
 TEST_F(ServerManagerTest, preconditions)
 {
-    ServerManager* serverManager = nullptr;
+    ServerManager *serverManager = nullptr;
 
     ASSERT_NO_THROW(serverManager = new ServerManager(this->config, this->serverGroupFactory));
 
@@ -79,12 +79,12 @@ TEST_F(ServerManagerTest, defineServerGroup)
     groupConfig.set_starting_server_lifetime(1);
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, getGroupName()).Times(3).WillRepeatedly(Return(groupConfig.name()));
 
     std::shared_ptr<ServerGroup> serverGroup2(new ServerGroupMock());
 
-    ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup)).WillOnce(Return(serverGroup2));
 
     ServerManager serverManager(this->config, this->serverGroupFactory);
@@ -125,17 +125,17 @@ TEST_F(ServerManagerTest, changeServerGroup)
     ASSERT_ANY_THROW(serverManager.changeServerGroup(name, newGroupConfig));
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, getGroupName())
-    .WillOnce(Return(name))
-    .WillOnce(Return(name))
-    .WillOnce(Return(newName));
+        .WillOnce(Return(name))
+        .WillOnce(Return(name))
+        .WillOnce(Return(newName));
     EXPECT_CALL(serverGroupMockRef, isStopped())
-    .WillOnce(Return(false))
-    .WillOnce(Return(true));
+        .WillOnce(Return(false))
+        .WillOnce(Return(true));
     EXPECT_CALL(serverGroupMockRef, changeGroupConfig(_));
 
-    ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
 
     //There are no server groups defined, this will work
@@ -167,15 +167,15 @@ TEST_F(ServerManagerTest, removeServerGroup)
     ASSERT_ANY_THROW(serverManager.removeServerGroup(name));
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, getGroupName())
-    .WillOnce(Return(name))
-    .WillOnce(Return(name));
+        .WillOnce(Return(name))
+        .WillOnce(Return(name));
     EXPECT_CALL(serverGroupMockRef, isStopped())
-    .WillOnce(Return(false))
-    .WillOnce(Return(true));
+        .WillOnce(Return(false))
+        .WillOnce(Return(true));
 
-    ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
 
     //There are no server groups defined, this will work
@@ -197,10 +197,10 @@ TEST_F(ServerManagerTest, registerServer)
     ServerGroupConfigProto groupConfig;
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, tryRegisterServer(serverId)).WillOnce(Return(false)).WillOnce(Return(true));
 
-    ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
 
     ServerManager serverManager(this->config, this->serverGroupFactory);
@@ -232,10 +232,10 @@ TEST_F(ServerManagerTest, tryGetFreeServer)
     ServerGroupConfigProto groupConfig;
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, tryGetAvailableServer(_, _)).WillOnce(Return(false)).WillOnce(Return(true));
 
-    ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
 
     //There are no server groups defined, this will work
@@ -264,14 +264,14 @@ TEST_F(ServerManagerTest, startServerGroupAll)
     startGroup.set_all(true);
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, start()).Times(2);
 
-    ServerGroupFactoryMock& serverGroupFactoryRef = 
-            *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef =
+        *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_))
-            .WillOnce(Return(serverGroup));
-    
+        .WillOnce(Return(serverGroup));
+
     ServerGroupConfigProto groupConfig;
     ASSERT_NO_THROW(serverManager.defineServerGroup(groupConfig));
 
@@ -294,11 +294,11 @@ TEST_F(ServerManagerTest, startServerGroupHost)
     ASSERT_ANY_THROW(serverManager.startServerGroup(startGroup));
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, start()).Times(2);
     EXPECT_CALL(serverGroupMockRef, getConfig()).WillRepeatedly(Return(groupConfig));
 
-    ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
 
     serverManager.defineServerGroup(groupConfig);
@@ -322,13 +322,13 @@ TEST_F(ServerManagerTest, startServerGroupByName)
     ASSERT_ANY_THROW(serverManager.startServerGroup(startGroup));
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, start());
     EXPECT_CALL(serverGroupMockRef, getGroupName())
-    .WillOnce(Return(""))
-    .WillRepeatedly(Return(groupName));
+        .WillOnce(Return(""))
+        .WillRepeatedly(Return(groupName));
 
-    ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
 
     serverManager.defineServerGroup(groupConfig);
@@ -350,11 +350,11 @@ TEST_F(ServerManagerTest, stopServerGroupAll)
     ServerGroupConfigProto groupConfig;
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, isStopped()).WillOnce(Return(false)).WillOnce(Return(true));
     EXPECT_CALL(serverGroupMockRef, stop(FORCE));
 
-    ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
 
     ASSERT_NO_THROW(serverManager.defineServerGroup(groupConfig));
@@ -379,12 +379,12 @@ TEST_F(ServerManagerTest, stopServerGroupHost)
     ASSERT_ANY_THROW(serverManager.stopServerGroup(stopGroup));
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, isStopped()).WillOnce(Return(false)).WillOnce(Return(true));
     EXPECT_CALL(serverGroupMockRef, stop(FORCE));
     EXPECT_CALL(serverGroupMockRef, getConfig()).WillRepeatedly(Return(groupConfig));
 
-    ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
 
     serverManager.defineServerGroup(groupConfig);
@@ -409,13 +409,13 @@ TEST_F(ServerManagerTest, stopServerGroupByName)
     ASSERT_ANY_THROW(serverManager.stopServerGroup(stopGroup));
 
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, stop(FORCE)).Times(1);
     EXPECT_CALL(serverGroupMockRef, getGroupName())
-    .WillOnce(Return(""))
-    .WillOnce(Return(groupName));
+        .WillOnce(Return(""))
+        .WillOnce(Return(groupName));
 
-    ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
 
     serverManager.defineServerGroup(groupConfig);
@@ -431,16 +431,16 @@ TEST_F(ServerManagerTest, serializeToProto)
 
     ServerManager serverManager(this->config, this->serverGroupFactory);
 
-    proto =  serverManager.serializeToProto();
+    proto = serverManager.serializeToProto();
 
     ASSERT_EQ(0, proto.server_groups_size());
 
     rasmgr::ServerGroupProto serverGroupProto;
     std::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
-    ServerGroupMock& serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
+    ServerGroupMock &serverGroupMockRef = *std::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, serializeToProto()).WillOnce(Return(serverGroupProto));
 
-    ServerGroupFactoryMock& serverGroupFactoryRef  = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
+    ServerGroupFactoryMock &serverGroupFactoryRef = *std::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
 
     ServerGroupConfigProto groupConfig;
@@ -452,12 +452,11 @@ TEST_F(ServerManagerTest, serializeToProto)
     //There are no server groups defined, this will work
     ASSERT_NO_THROW(serverManager.defineServerGroup(groupConfig));
 
-    proto =  serverManager.serializeToProto();
+    proto = serverManager.serializeToProto();
 
     ASSERT_EQ(1, proto.server_groups_size());
     ASSERT_EQ(serverGroupProto.DebugString(), proto.server_groups(0).DebugString());
-
 }
 
-}
-}
+}  // namespace test
+}  // namespace rasmgr

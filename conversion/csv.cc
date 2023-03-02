@@ -73,30 +73,30 @@ void r_Conv_CSV::initCSV(void)
         params = new r_Parse_Params();
 }
 
-r_Conv_CSV::r_Conv_CSV(const char* src, const r_Minterval& interv, const r_Type* tp)
+r_Conv_CSV::r_Conv_CSV(const char *src, const r_Minterval &interv, const r_Type *tp)
     : r_Convertor(src, interv, tp, true)
 {
     initCSV();
 }
 
-r_Conv_CSV::r_Conv_CSV(const char* src, const r_Minterval& interv, int tp)
+r_Conv_CSV::r_Conv_CSV(const char *src, const r_Minterval &interv, int tp)
     : r_Convertor(src, interv, tp)
 {
     initCSV();
 }
 
-r_Conv_Desc& r_Conv_CSV::convertTo(const char* options, const r_Range* nullVal)
+r_Conv_Desc &r_Conv_CSV::convertTo(const char *options, const r_Range *nullVal)
 {
     if (options)
         processEncodeOptions(string{options});
 
     updateNodataValue(nullVal);
-    
+
     validateType(desc.srcType);
 
     if (formatParams.isTranspose())
     {
-        transpose(const_cast<char*>(desc.src), desc.srcInterv, desc.srcType, 
+        transpose(const_cast<char *>(desc.src), desc.srcInterv, desc.srcType,
                   formatParams.getTranspose());
     }
 
@@ -105,7 +105,7 @@ r_Conv_Desc& r_Conv_CSV::convertTo(const char* options, const r_Range* nullVal)
     unsigned long rank = desc.srcInterv.dimension();
     // if rank is 0 then we want to allocate at least one value in the below vectors,
     // otherwise we get memory error for scalars with 0 dimension
-    auto rankSize = rank > 0 ? rank : rank+1;
+    auto rankSize = rank > 0 ? rank : rank + 1;
     vector<long> dimsizes(rankSize);
     // offsets describe how many data cells are between values of the same dimension slice
     vector<size_t> offsets(rankSize);
@@ -128,23 +128,23 @@ r_Conv_Desc& r_Conv_CSV::convertTo(const char* options, const r_Range* nullVal)
 
     if (rank == 0)
         outerDelimiters = false;
-    
+
     // fill in resultStream
     if (outerDelimiters)
         resultStream << dimensionStart;
-    
+
     printArray(resultStream, &dimsizes[0], &offsets[0], int(rank), desc.src,
-               *static_cast<const r_Base_Type*>(desc.srcType));
-    
+               *static_cast<const r_Base_Type *>(desc.srcType));
+
     if (outerDelimiters)
         resultStream << dimensionEnd;
-    
+
     // transfer to descriptor dest fields
     std::string result = resultStream.str();
     auto resultSize = result.length();
 
     desc.destInterv = r_Minterval({r_Sinterval(0l, r_Range(resultSize) - 1)});
-    if ((desc.dest = static_cast<char*>(mymalloc(resultSize))) == NULL)
+    if ((desc.dest = static_cast<char *>(mymalloc(resultSize))) == NULL)
     {
         LERROR << "r_Conv_CSV::convertTo(): out of memory error";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -155,8 +155,8 @@ r_Conv_Desc& r_Conv_CSV::convertTo(const char* options, const r_Range* nullVal)
     return desc;
 }
 
-void r_Conv_CSV::printArray(std::stringstream& f, long* dims, size_t* offsets, int dim,
-                            const char* data, const r_Base_Type& type)
+void r_Conv_CSV::printArray(std::stringstream &f, long *dims, size_t *offsets, int dim,
+                            const char *data, const r_Base_Type &type)
 {
     size_t typeSize = type.size();
 
@@ -178,7 +178,7 @@ void r_Conv_CSV::printArray(std::stringstream& f, long* dims, size_t* offsets, i
                 printArray(f, dims + 1, offsets + 1, dim - 1, data, type);
                 f << dimensionEnd;
             }
-            
+
             if (i < dims[0] - 1)
             {
                 f << (dim == 1 ? valueSeparator : dimensionSeparator);
@@ -204,7 +204,7 @@ void r_Conv_CSV::printArray(std::stringstream& f, long* dims, size_t* offsets, i
  * Please note that the implementation of the tupleList GML elements in Petascope is dependent
  * on this format so on change update RasUtil as well.
  */
-const char* r_Conv_CSV::printValue(std::stringstream& f, const r_Base_Type& type, const char* val, size_t band)
+const char *r_Conv_CSV::printValue(std::stringstream &f, const r_Base_Type &type, const char *val, size_t band)
 {
     if (type.isStructType())
     {
@@ -225,13 +225,13 @@ const char* r_Conv_CSV::printValue(std::stringstream& f, const r_Base_Type& type
     }
 }
 
-const char* r_Conv_CSV::printStructValue(std::stringstream& f, const char* val)
+const char *r_Conv_CSV::printStructValue(std::stringstream &f, const char *val)
 {
     f << structValueStart;
     bool addDelimiter = false;
     size_t band = 0;
-    const r_Structure_Type* st = static_cast<const r_Structure_Type*>(desc.srcType);
-    for (const auto& att : st->getAttributes())
+    const r_Structure_Type *st = static_cast<const r_Structure_Type *>(desc.srcType);
+    for (const auto &att: st->getAttributes())
     {
         if (addDelimiter)
             f << componentSeparator;
@@ -239,16 +239,16 @@ const char* r_Conv_CSV::printStructValue(std::stringstream& f, const char* val)
             addDelimiter = true;
 
         val = printValue(f, att.type_of(), val, band);
-        
+
         ++band;
     }
     f << structValueEnd;
     return val;
 }
 
-const char* r_Conv_CSV::printComplexValue(std::stringstream& f, const r_Base_Type& type, const char* val, size_t band)
+const char *r_Conv_CSV::printComplexValue(std::stringstream &f, const r_Base_Type &type, const char *val, size_t band)
 {
-    const r_Complex_Type* ptr = static_cast<const r_Complex_Type*>(&type);
+    const r_Complex_Type *ptr = static_cast<const r_Complex_Type *>(&type);
     {
         ptr->print_value(val, f);
     }
@@ -256,10 +256,10 @@ const char* r_Conv_CSV::printComplexValue(std::stringstream& f, const r_Base_Typ
     return val;
 }
 
-const char* r_Conv_CSV::printPrimitiveValue(std::stringstream& f, const r_Base_Type& type,
-                                            const char* val, size_t band)
+const char *r_Conv_CSV::printPrimitiveValue(std::stringstream &f, const r_Base_Type &type,
+                                            const char *val, size_t band)
 {
-    const r_Primitive_Type* ptr = static_cast<const r_Primitive_Type*>(&type);
+    const r_Primitive_Type *ptr = static_cast<const r_Primitive_Type *>(&type);
     {
         switch (componentTypes[band])
         {
@@ -301,18 +301,18 @@ const char* r_Conv_CSV::printPrimitiveValue(std::stringstream& f, const r_Base_T
     return val;
 }
 
-void r_Conv_CSV::processEncodeOptions(const string& options)
+void r_Conv_CSV::processEncodeOptions(const string &options)
 {
     if (options.empty())
         return;
-    
+
     using namespace FormatParamKeys::Encode::CSV;
-    
+
     string order_option{ORDER_OUTER_INNER};
-    
+
     if (formatParams.parse(options))
     {
-        for (const auto& configParam : formatParams.getFormatParameters())
+        for (const auto &configParam: formatParams.getFormatParameters())
         {
             const auto &key = configParam.first;
             const auto &val = configParam.second;
@@ -352,16 +352,16 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
     }
     else
     {
-        char* tmp_order_option = NULL;
+        char *tmp_order_option = NULL;
         params->add(ORDER, &tmp_order_option, r_Parse_Params::param_type_string);
         params->process(options.c_str());
         if (tmp_order_option)
         {
             order_option = string(tmp_order_option);
-            delete [] tmp_order_option;
+            delete[] tmp_order_option;
         }
     }
-    
+
     if (order_option == ORDER_OUTER_INNER)
         order = r_Conv_CSV::OUTER_INNER;
     else if (order_option == ORDER_INNER_OUTER)
@@ -375,7 +375,7 @@ void r_Conv_CSV::processEncodeOptions(const string& options)
     }
 }
 
-bool r_Conv_CSV::processBoolOption(const std::string& optionKey, const std::string& optionValue) const
+bool r_Conv_CSV::processBoolOption(const std::string &optionKey, const std::string &optionValue) const
 {
     auto boolOption = common::StringUtil::toLowerCase(optionValue);
     if (boolOption == BOOL_FALSE)
@@ -391,7 +391,7 @@ bool r_Conv_CSV::processBoolOption(const std::string& optionKey, const std::stri
     }
 }
 
-r_Conv_Desc& r_Conv_CSV::convertFrom(const char* options)
+r_Conv_Desc &r_Conv_CSV::convertFrom(const char *options)
 {
     if (options)
     {
@@ -400,26 +400,24 @@ r_Conv_Desc& r_Conv_CSV::convertFrom(const char* options)
     else
     {
         std::stringstream s;
-        s << "mandatory decode format options '" <<
-             FormatParamKeys::Decode::CSV::BASETYPE << "' and '" <<
-             FormatParamKeys::Decode::CSV::DATA_DOMAIN << "' were not specified";
+        s << "mandatory decode format options '" << FormatParamKeys::Decode::CSV::BASETYPE << "' and '" << FormatParamKeys::Decode::CSV::DATA_DOMAIN << "' were not specified";
         throw r_Error(r_Error::r_Error_Conversion, s.str());
     }
 
     desc.destInterv = r_Minterval(domain.c_str());
     desc.destType = r_Type::get_any_type(basetype.c_str());
     desc.dest = NULL;
-    
+
     validateType(desc.destType);
 
     unsigned int totalSize = 0;
-    unsigned int typeSize = ((r_Base_Type*)desc.destType)->size();
+    unsigned int typeSize = ((r_Base_Type *)desc.destType)->size();
     unsigned int numElem = desc.destInterv.cell_count();
-    const r_Base_Type* type = static_cast<const r_Base_Type*>(desc.destType);
+    const r_Base_Type *type = static_cast<const r_Base_Type *>(desc.destType);
 
     totalSize = numElem * typeSize;
 
-    if ((desc.dest = static_cast<char*>(mymalloc(totalSize))) == NULL)
+    if ((desc.dest = static_cast<char *>(mymalloc(totalSize))) == NULL)
     {
         LERROR << "out of memory error";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -430,25 +428,22 @@ r_Conv_Desc& r_Conv_CSV::convertFrom(const char* options)
     // if selected, transposes rasdaman data after converting from csv
     if (formatParams.isTranspose())
     {
-        transpose(desc.dest, desc.destInterv, (const r_Type*) desc.destType, formatParams.getTranspose());
+        transpose(desc.dest, desc.destInterv, (const r_Type *)desc.destType, formatParams.getTranspose());
     }
 
     return desc;
 }
 
-r_Conv_Desc& r_Conv_CSV::convertFrom(__attribute__((unused)) r_Format_Params options)
+r_Conv_Desc &r_Conv_CSV::convertFrom(__attribute__((unused)) r_Format_Params options)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-void r_Conv_CSV::parseData(const r_Base_Type& type, unsigned int numElem)
+void r_Conv_CSV::parseData(const r_Base_Type &type, unsigned int numElem)
 {
     if (type.isPrimitiveType())
     {
-        MAKE_SWITCH_TYPEID(type.type_id(), T, CODE(
-            parsePrimitive<T>(desc.dest, desc.src, numElem,
-                              desc.srcInterv.cell_count());
-        ), CODE(throw r_Error(r_Error::r_Error_Conversion);))
+        MAKE_SWITCH_TYPEID(type.type_id(), T, CODE(parsePrimitive<T>(desc.dest, desc.src, numElem, desc.srcInterv.cell_count());), CODE(throw r_Error(r_Error::r_Error_Conversion);))
     }
     else if (type.isStructType())
     {
@@ -464,28 +459,28 @@ void r_Conv_CSV::parseData(const r_Base_Type& type, unsigned int numElem)
 // Reason for this wrapping around:
 // boost::lexical_cast doesn't work well for char/octet, so these
 // have to be handled specially through an int
-template<class T>
-T cast_from_string(const char* src, size_t len)
+template <class T>
+T cast_from_string(const char *src, size_t len)
 {
     return boost::lexical_cast<T>(src, len);
 }
-template<>
-std::int8_t cast_from_string(const char* src, size_t len)
+template <>
+std::int8_t cast_from_string(const char *src, size_t len)
 {
     return static_cast<std::int8_t>(cast_from_string<int>(src, len));
 }
-template<>
-std::uint8_t cast_from_string(const char* src, size_t len)
+template <>
+std::uint8_t cast_from_string(const char *src, size_t len)
 {
     return static_cast<std::uint8_t>(cast_from_string<int>(src, len));
 }
 
-template<class T>
-void parsePrimitive(char* dest, const char* src, unsigned int numElem, size_t srcSize)
+template <class T>
+void parsePrimitive(char *dest, const char *src, unsigned int numElem, size_t srcSize)
 {
     size_t srcIndex = 0;
     unsigned int countVal = 0;
-    T* destT = reinterpret_cast<T*>(dest);
+    T *destT = reinterpret_cast<T *>(dest);
 
     while (countVal < numElem)
     {
@@ -499,7 +494,7 @@ void parsePrimitive(char* dest, const char* src, unsigned int numElem, size_t sr
             {
                 *destT = cast_from_string<T>(&src[srcIndexBegin], valueLen);
             }
-            catch (boost::bad_lexical_cast&)
+            catch (boost::bad_lexical_cast &)
             {
                 LWARNING << "Failed decoding value, will be ignored: '"
                          << string(&src[srcIndexBegin], valueLen) << "'";
@@ -520,8 +515,8 @@ void parsePrimitive(char* dest, const char* src, unsigned int numElem, size_t sr
 void r_Conv_CSV::parseStruct(unsigned int numElem)
 {
     size_t srcSize = desc.srcInterv.cell_count();
-    const char* src = desc.src;
-    char* dest = desc.dest;
+    const char *src = desc.src;
+    char *dest = desc.dest;
 
     size_t srcIndex = 0, srcIndexBegin = 0, valueLen = 0;
     unsigned int countVal = 0;
@@ -537,10 +532,7 @@ void r_Conv_CSV::parseStruct(unsigned int numElem)
             {
                 try
                 {
-                    MAKE_SWITCH_TYPEID(componentTypes[j], T, CODE(
-                       *reinterpret_cast<T*>(dest) =
-                          cast_from_string<T>(&src[srcIndexBegin], valueLen);
-                    ), CODE(throw r_Error(r_Error::r_Error_Conversion);))
+                    MAKE_SWITCH_TYPEID(componentTypes[j], T, CODE(*reinterpret_cast<T *>(dest) = cast_from_string<T>(&src[srcIndexBegin], valueLen);), CODE(throw r_Error(r_Error::r_Error_Conversion);))
                 }
                 catch (boost::bad_lexical_cast &ex)
                 {
@@ -562,15 +554,15 @@ void r_Conv_CSV::parseStruct(unsigned int numElem)
     }
 }
 
-void r_Conv_CSV::processDecodeOptions(const string& options)
+void r_Conv_CSV::processDecodeOptions(const string &options)
 {
     // process the arguments domain and basetype
     const auto &dataDomainKey = FormatParamKeys::Decode::CSV::DATA_DOMAIN;
     const auto &baseTypeKey = FormatParamKeys::Decode::CSV::BASETYPE;
-    
+
     if (formatParams.parse(options))
     {
-        for (const auto& configParam : formatParams.getFormatParameters())
+        for (const auto &configParam: formatParams.getFormatParameters())
         {
             if (configParam.first == baseTypeKey)
                 basetype = configParam.second;
@@ -580,8 +572,8 @@ void r_Conv_CSV::processDecodeOptions(const string& options)
     }
     else
     {
-        char* domainStr = NULL;
-        char* basetypeStr = NULL;
+        char *domainStr = NULL;
+        char *basetypeStr = NULL;
         params->add(dataDomainKey, &domainStr, r_Parse_Params::param_type_string);
         params->add(baseTypeKey, &basetypeStr, r_Parse_Params::param_type_string);
         params->process(options.c_str(), ';', true);
@@ -615,14 +607,14 @@ bool isValidCharacter(char c)
     return c != '{' && c != '}' && c != ',' && c != '"' && c != '\'' &&
            c != '(' && c != ')' && c != '[' && c != ']' && !isspace(c) && isprint(c);
 }
-size_t skipToValueBegin(const char* src, size_t srcSize, size_t srcIndex)
+size_t skipToValueBegin(const char *src, size_t srcSize, size_t srcIndex)
 {
     // skip invalid characters
     while (!isValidCharacter(src[srcIndex]) && srcIndex < srcSize)
         ++srcIndex;
     return srcIndex;
 }
-size_t skipToValueEnd(const char* src, size_t srcSize, size_t srcIndex)
+size_t skipToValueEnd(const char *src, size_t srcSize, size_t srcIndex)
 {
     // skip valid characters
     while (isValidCharacter(src[srcIndex]) && srcIndex < srcSize)
@@ -632,41 +624,40 @@ size_t skipToValueEnd(const char* src, size_t srcSize, size_t srcIndex)
 
 void r_Conv_CSV::validateType(const r_Type *type)
 {
-  if (type->isStructType())
-  {
-      const auto* st = static_cast<const r_Structure_Type*>(type);
-      for (const auto& att : st->getAttributes())
-      {
-          if (!att.type_of().isPrimitiveType())
-          {
-              LERROR << "unsupported attribute type " << (att.type_of()).type_id();
-              throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
-          }
-          componentTypes.push_back(att.type_of().type_id());
-          componentSizes.push_back(att.type_of().size());
-          LDEBUG << "component of type " << componentTypes.back() << ", size " << componentSizes.back();
-      }
-  }
-  else
-  {
-      const auto* st = static_cast<const r_Base_Type*>(type);
-      componentTypes.push_back(st->type_id());
-      componentSizes.push_back(st->size());
-  }
+    if (type->isStructType())
+    {
+        const auto *st = static_cast<const r_Structure_Type *>(type);
+        for (const auto &att: st->getAttributes())
+        {
+            if (!att.type_of().isPrimitiveType())
+            {
+                LERROR << "unsupported attribute type " << (att.type_of()).type_id();
+                throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
+            }
+            componentTypes.push_back(att.type_of().type_id());
+            componentSizes.push_back(att.type_of().size());
+            LDEBUG << "component of type " << componentTypes.back() << ", size " << componentSizes.back();
+        }
+    }
+    else
+    {
+        const auto *st = static_cast<const r_Base_Type *>(type);
+        componentTypes.push_back(st->type_id());
+        componentSizes.push_back(st->size());
+    }
 }
 
-const char* r_Conv_CSV::get_name(void) const
+const char *r_Conv_CSV::get_name(void) const
 {
     return format_name_csv;
 }
-
 
 r_Data_Format r_Conv_CSV::get_data_format(void) const
 {
     return r_CSV;
 }
 
-r_Convertor* r_Conv_CSV::clone(void) const
+r_Convertor *r_Conv_CSV::clone(void) const
 {
     return new r_Conv_CSV(desc.src, desc.srcInterv, desc.baseType);
 }

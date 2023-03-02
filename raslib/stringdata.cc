@@ -23,12 +23,12 @@ rasdaman GmbH.
 
 #include "raslib/stringdata.hh"
 
-r_String::r_String(const char *v) : value{v}
+r_String::r_String(const char *v)
+    : value{v}
 {
 }
-        
-void
-r_String::print_status(std::ostream &s) const
+
+void r_String::print_status(std::ostream &s) const
 {
     s << value;
 }

@@ -39,11 +39,10 @@ rasdaman GmbH.
 // array type.
 //#define TEST_CONV_USE_RTYPES
 
-
-void ConvertToTIFFCore(r_Conv_TIFF* tiff, const char* save, const char* params)
+void ConvertToTIFFCore(r_Conv_TIFF *tiff, const char *save, const char *params)
 {
     r_Conv_Desc desc;
-    FILE* tfile;
+    FILE *tfile;
     long size;
 
     try
@@ -60,7 +59,7 @@ void ConvertToTIFFCore(r_Conv_TIFF* tiff, const char* save, const char* params)
         }
         else
         {
-            fwrite((void*)(desc.dest), (size_t)1, (size_t)size, tfile);
+            fwrite((void *)(desc.dest), (size_t)1, (size_t)size, tfile);
             fclose(tfile);
         }
         cout << "test_convertor: r_Conv_TIFF::convertTo successful. "
@@ -71,16 +70,15 @@ void ConvertToTIFFCore(r_Conv_TIFF* tiff, const char* save, const char* params)
         free(desc.dest);
         delete desc.destType;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << "An error occurred: " << err.what() << endl;
     }
 }
 
-
-void ConvertToTIFF(char* data, r_Minterval& iv, r_Type* type, const char* save, const char* params)
+void ConvertToTIFF(char *data, r_Minterval &iv, r_Type *type, const char *save, const char *params)
 {
-    r_Conv_TIFF* tiff;
+    r_Conv_TIFF *tiff;
 
     cout << "test_convertor (r_Type): ";
     if (type)
@@ -99,10 +97,9 @@ void ConvertToTIFF(char* data, r_Minterval& iv, r_Type* type, const char* save, 
     delete tiff;
 }
 
-
-void ConvertToTIFF(char* data, r_Minterval& iv, int type, const char* save, const char* params)
+void ConvertToTIFF(char *data, r_Minterval &iv, int type, const char *save, const char *params)
 {
-    r_Conv_TIFF* tiff;
+    r_Conv_TIFF *tiff;
 
     cout << "test_convertor (int):" << endl;
 
@@ -111,14 +108,13 @@ void ConvertToTIFF(char* data, r_Minterval& iv, int type, const char* save, cons
     delete tiff;
 }
 
-
-void ConvertFromTIFF(char* name, const char* params, const char* save_as = NULL)
+void ConvertFromTIFF(char *name, const char *params, const char *save_as = NULL)
 {
-    FILE* fp;
+    FILE *fp;
     long size;
     r_Conv_Desc desc;
-    r_Conv_TIFF* tiff;
-    char* data;
+    r_Conv_TIFF *tiff;
+    char *data;
     r_Minterval iv;
 
     fp = fopen(name, "r");
@@ -126,7 +122,7 @@ void ConvertFromTIFF(char* name, const char* params, const char* save_as = NULL)
     size = ftell(fp);
     data = new char[size];
     fseek(fp, 0, SEEK_SET);
-    fread((void*)data, (size_t)1, (size_t)size, fp);
+    fread((void *)data, (size_t)1, (size_t)size, fp);
     fclose(fp);
 
     // Set interval
@@ -143,7 +139,7 @@ void ConvertFromTIFF(char* name, const char* params, const char* save_as = NULL)
     desc.destType->print_status(cout);
     cout << endl;
 
-    delete [] data;
+    delete[] data;
 
     // save file again as TIFF to check convertFrom validity?
     if (save_as != NULL)
@@ -160,37 +156,33 @@ void ConvertFromTIFF(char* name, const char* params, const char* save_as = NULL)
     delete tiff;
 }
 
-
-
 // Flag bits for main()
-#define CONVERTOR_WRITE_BACK    1
-
+#define CONVERTOR_WRITE_BACK 1
 
 // Calling convention: test_convertor [-x # -y # -c <compression> -v -h]
 // Where -x: width, -y: height, -c: compression, -v: write again as TIFF after reading
 // -h: Help on usage
 // width, height default to 200, 100
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    r_GMarray dummyArray; // need this for linking on Linux, don't know why
-    char* data, *lineBase, *line;
+    r_GMarray dummyArray;  // need this for linking on Linux, don't know why
+    char *data, *lineBase, *line;
     int width = 200, height = 100;
     unsigned int flags = 0;
     int i, j;
     char params[256];
-    const char* paramptr = NULL;
+    const char *paramptr = NULL;
 #ifdef TEST_CONV_USE_RTYPES
-    r_Type* type;
+    r_Type *type;
 #endif
     struct nametable
     {
-        char* write, *verify;
+        char *write, *verify;
     } tiffnames[] =
-    {
-        {"grey.tif", "grey2.tif"},
-        {"bool.tif", "bool2.tif"},
-        {"rgb.tif",  "rgb2.tif"}
-    };
+        {
+            {"grey.tif", "grey2.tif"},
+            {"bool.tif", "bool2.tif"},
+            {"rgb.tif", "rgb2.tif"}};
 
     i = 1;
     while (i < argc)
@@ -290,7 +282,7 @@ int main(int argc, char* argv[])
         for (i = 0; i < width; i++, line += 3 * height)
         {
             line[0] = ((i + j) & 0xff);
-            line [1] = ((0xff - (i + j)) & 0xff);
+            line[1] = ((0xff - (i + j)) & 0xff);
             line[2] = (((i + j) >> 1) & 0xff);
         }
     }
@@ -303,7 +295,7 @@ int main(int argc, char* argv[])
     ConvertToTIFF(data, iv, (int)(ctype_rgb), tiffnames[2].write, paramptr);
 #endif
 
-    delete [] data;
+    delete[] data;
 
     // Try the other way around: convert from TIFF
     ConvertFromTIFF("rgb.tif", paramptr,

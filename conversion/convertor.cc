@@ -44,12 +44,11 @@ rasdaman GmbH.
 
 #include <logging.hh>
 
-
 /*
  *  r_Convertor class
  */
 
-void r_Convertor::initShare(const char* src, const r_Minterval& interv)
+void r_Convertor::initShare(const char *src, const r_Minterval &interv)
 {
     desc.src = src;
     desc.srcInterv = interv;
@@ -59,7 +58,6 @@ void r_Convertor::initShare(const char* src, const r_Minterval& interv)
     params = NULL;
     destroySrc = false;
 }
-
 
 r_Convertor::r_Convertor(void)
 {
@@ -71,8 +69,7 @@ r_Convertor::r_Convertor(void)
     params = NULL;
 }
 
-
-r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, const r_Type* tp, bool fullTypes)
+r_Convertor::r_Convertor(const char *src, const r_Minterval &interv, const r_Type *tp, bool fullTypes)
 {
     initShare(src, interv);
 
@@ -108,14 +105,12 @@ r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, const r_Typ
     }
 }
 
-
-r_Convertor::r_Convertor(const char* src, const r_Minterval& interv, int type)
+r_Convertor::r_Convertor(const char *src, const r_Minterval &interv, int type)
 {
     initShare(src, interv);
 
     desc.baseType = type;
 }
-
 
 r_Convertor::~r_Convertor(void)
 {
@@ -149,12 +144,10 @@ void r_Convertor::releaseDest()
     desc.destType = NULL;
 }
 
-
-void r_Convertor::set_format(const std::string& formatArg)
+void r_Convertor::set_format(const std::string &formatArg)
 {
     format = formatArg;
 }
-
 
 std::string r_Convertor::type_to_string(int ctype)
 {
@@ -196,27 +189,26 @@ std::string r_Convertor::type_to_string(int ctype)
     case ctype_struct:
         return "struct {char, char, char, char}";
     default:
-      {
+    {
         std::stringstream s;
         s << "unsupported base type " << ctype;
         throw r_Error(r_Error::r_Error_Conversion, s.str());
-      }
+    }
     }
 }
 
-r_Type* r_Convertor::get_external_type(int ctype)
+r_Type *r_Convertor::get_external_type(int ctype)
 {
     return r_Type::get_any_type(type_to_string(ctype).c_str());
 }
 
-
 template <class baseType>
 void r_Convertor::applyColorScheme()
 {
-    baseType* data = (baseType*)const_cast<char*>(desc.src);
+    baseType *data = (baseType *)const_cast<char *>(desc.src);
     baseType min = data[0], max = data[0];
     int i, size = desc.srcInterv.cell_count();
-    unsigned char* t, *img = new unsigned char[size * 3];
+    unsigned char *t, *img = new unsigned char[size * 3];
     for (i = 1; i < size; ++i)
     {
         if (min > data[i])
@@ -251,11 +243,11 @@ void r_Convertor::applyColorScheme()
         }
     }
     destroySrc = true;
-    desc.src = (char*)img;
+    desc.src = (char *)img;
 }
 
 convert_type_e
-r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes)
+r_Convertor::get_internal_type(const r_Type *tp, bool fullTypes)
 {
     convert_type_e retval = ctype_void;
 
@@ -269,9 +261,9 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes)
     {
         // make life easy and always interpret as RGB
         // add case for structs -- DM 2011-nov-10
-//        retval = ctype_rgb;
+        //        retval = ctype_rgb;
         int bands = 0;
-        for (const auto& att : static_cast<const r_Structure_Type*>(tp)->getAttributes())
+        for (const auto &att: static_cast<const r_Structure_Type *>(tp)->getAttributes())
         {
             ++bands;
             if (att.type_of().type_id() != r_Type::CHAR || bands > 3)
@@ -375,18 +367,18 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes)
             default:
                 break;
             }
-        }//endif fullTypes
+        }  //endif fullTypes
         if (retval == ctype_void)
         {
             LWARNING << "Warning: in conversion: this type overrides base type: " << tp->type_id() << "; using char.";
             retval = ctype_char;
         }
-    }//endif structuretype
+    }  //endif structuretype
 
     return retval;
 }
 
-void r_Convertor::updateNodataValue(const r_Range* nullValue)
+void r_Convertor::updateNodataValue(const r_Range *nullValue)
 {
     if (formatParams.getNodata().empty() && nullValue != NULL)
     {
@@ -394,7 +386,7 @@ void r_Convertor::updateNodataValue(const r_Range* nullValue)
     }
 }
 
-std::ostream& operator<<(std::ostream& os, convert_type_e& cte)
+std::ostream &operator<<(std::ostream &os, convert_type_e &cte)
 {
     switch (cte)
     {
@@ -426,7 +418,7 @@ std::ostream& operator<<(std::ostream& os, convert_type_e& cte)
         os << "int64";  // currently unsupported
         break;
     case ctype_uint64:
-        os << "uint64"; // currently unsupported
+        os << "uint64";  // currently unsupported
         break;
     case ctype_float32:
         os << "float32";
@@ -453,7 +445,7 @@ std::ostream& operator<<(std::ostream& os, convert_type_e& cte)
         os << "struct";
         break;
     default:
-        os  << "convert_type_e unknown type: " << cte << std::endl;
+        os << "convert_type_e unknown type: " << cte << std::endl;
         break;
     }
 
@@ -474,7 +466,7 @@ void r_Convert_Memory::initMemory(void)
     memFS = new memFSContext;
     if (memFS != NULL)
     {
-        handle = static_cast<void*>(memFS);
+        handle = static_cast<void *>(memFS);
         if (memfs_initfs(handle) >= 0)
         {
             status = 0;
@@ -487,20 +479,17 @@ void r_Convert_Memory::initMemory(void)
     }
 }
 
-
-r_Convert_Memory::r_Convert_Memory(const char* src, const r_Minterval& interv, const r_Type* tp, int fullTypes)
+r_Convert_Memory::r_Convert_Memory(const char *src, const r_Minterval &interv, const r_Type *tp, int fullTypes)
     : r_Convertor(src, interv, tp, fullTypes)
 {
     initMemory();
 }
 
-
-r_Convert_Memory::r_Convert_Memory(const char* src, const r_Minterval& interv, int type)
+r_Convert_Memory::r_Convert_Memory(const char *src, const r_Minterval &interv, int type)
     : r_Convertor(src, interv, type)
 {
     initMemory();
 }
-
 
 r_Convert_Memory::~r_Convert_Memory(void)
 {

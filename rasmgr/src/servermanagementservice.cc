@@ -34,7 +34,8 @@ namespace rasmgr
 ServerManagementService::ServerManagementService(std::shared_ptr<ServerManager> sm,
                                                  std::shared_ptr<ClientManager> cm)
     : serverManager{sm}, clientManager{cm}
-{}
+{
+}
 
 grpc::Status ServerManagementService::RegisterServer(
     grpc::ServerContext *, const rasnet::service::RegisterServerReq *request, rasnet::service::Void *)

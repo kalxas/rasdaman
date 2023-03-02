@@ -38,27 +38,25 @@ rasdaman GmbH.
 #include <string>
 using namespace std;
 
-
 const QtNode::QtNodeType QtConcat::nodeType = QT_CONCAT;
 
 QtConcat::QtConcat(QtOperationList *opList, unsigned int dim)
-    :  QtNaryOperation(opList),
-       dimension(dim)
+    : QtNaryOperation(opList),
+      dimension(dim)
 {
 }
 
-bool
-QtConcat::equalMeaning(QtNode *node)
+bool QtConcat::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     if (nodeType == node->getNodeType())
     {
         QtConcat *condNode;
-        condNode = static_cast<QtConcat *>(node); // by force
+        condNode = static_cast<QtConcat *>(node);  // by force
 
         // check domain and cell expression
-        result  = QtNaryOperation::equalMeaning(condNode);
+        result = QtNaryOperation::equalMeaning(condNode);
 
         // check dimension
         result &= (this->dimension == condNode->getDimension());
@@ -67,14 +65,12 @@ QtConcat::equalMeaning(QtNode *node)
     return (result);
 }
 
-
-
 string
 QtConcat::getSpelling()
 {
     char tempStr[20];
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
-    string result  = string(tempStr);
+    string result = string(tempStr);
     result.append("(");
     result.append(QtNaryOperation::getSpelling());
     result.append(",");
@@ -87,8 +83,7 @@ QtConcat::getSpelling()
     return result;
 }
 
-void
-QtConcat::simplify()
+void QtConcat::simplify()
 {
     LTRACE << "simplify() warning: QtConcat itself is not simplified yet";
 
@@ -107,7 +102,6 @@ QtConcat::simplify()
     delete resultList;
     resultList = NULL;
 }
-
 
 QtData *
 QtConcat::evaluate(QtDataList *inputList)
@@ -142,7 +136,7 @@ QtConcat::evaluate(QtDataList *inputList)
         const BaseType *baseType = resultMDDType->getBaseType();
 
         // compute the result domain
-        vector<r_Point> tVector(operandList->size()); // save the translating vectors for all arrays except the first
+        vector<r_Point> tVector(operandList->size());  // save the translating vectors for all arrays except the first
         r_Minterval destinationDomain;
         unsigned int i = 0;
         for (auto iter = operandList->begin(); iter != operandList->end(); iter++, i++)
@@ -163,7 +157,7 @@ QtConcat::evaluate(QtDataList *inputList)
                 // compute target position of the array in the result
                 r_Point newPosB = destinationDomain.get_origin();
                 newPosB[dimension] += destinationDomain.get_extent()[dimension];
-                // translating vector as a difference between intial lower left 
+                // translating vector as a difference between intial lower left
                 // corner and target position in the new array
                 const auto &opDom = qtMDDObj->getLoadDomain();
                 tVector[i] = newPosB - opDom.get_origin();
@@ -190,17 +184,17 @@ QtConcat::evaluate(QtDataList *inputList)
         {
             QtMDD *qtMDDObj = static_cast<QtMDD *>(*iter);
             MDDObj *mddOp = qtMDDObj->getMDDObject();
-            
+
             processOperand(i, qtMDDObj, resultMDD, baseType, tVector);
-            
+
             auto *tempValues = mddOp->getNullValues();
             if (tempValues != NULL)
             {
-                for (const auto &p : tempValues->getNullvalues())
+                for (const auto &p: tempValues->getNullvalues())
                     nullvalues.push_back(p);
             }
         }
-        
+
         if (!nullvalues.empty())
         {
             auto nullvaluesTmp = nullvalues;
@@ -223,40 +217,37 @@ QtConcat::evaluate(QtDataList *inputList)
 void QtConcat::processOperand(unsigned int i, QtMDD *qtMDDObj, MDDObj *resultMDD,
                               const BaseType *baseType, const vector<r_Point> &tVector)
 {
-  MDDObj *mddOp = qtMDDObj->getMDDObject();
-  const auto &mddOpDomain = qtMDDObj->getLoadDomain();
-  
-  // get intersecting tiles
-  auto opTiles = std::unique_ptr<std::vector<shared_ptr<Tile>>>(mddOp->intersect(mddOpDomain));
-  
-  // iterate over source tiles
-  for (const auto &opTile: *opTiles)
-  {
-      // get relevant area of source tile
-      r_Minterval srcTileDomain = mddOpDomain.create_intersection(opTile->getDomain());
-      // compute translated tile domain
-      r_Minterval dstTileDomain = i == 0 ? srcTileDomain
-                                         : srcTileDomain.create_translation(tVector[i]);
-      // create a new transient tile, copy the transient data, and insert it into the mdd object
-      Tile *newTransTile = new Tile(dstTileDomain, baseType);
-      auto myOp = std::unique_ptr<UnaryOp>(Ops::getUnaryOp(
-          Ops::OP_IDENTITY, baseType, mddOp->getCellType(), 0, 0));
-      newTransTile->execUnaryOp(myOp.get(), dstTileDomain, opTile.get(), srcTileDomain);
-      resultMDD->insertTile(newTransTile);
-  }
+    MDDObj *mddOp = qtMDDObj->getMDDObject();
+    const auto &mddOpDomain = qtMDDObj->getLoadDomain();
+
+    // get intersecting tiles
+    auto opTiles = std::unique_ptr<std::vector<shared_ptr<Tile>>>(mddOp->intersect(mddOpDomain));
+
+    // iterate over source tiles
+    for (const auto &opTile: *opTiles)
+    {
+        // get relevant area of source tile
+        r_Minterval srcTileDomain = mddOpDomain.create_intersection(opTile->getDomain());
+        // compute translated tile domain
+        r_Minterval dstTileDomain = i == 0 ? srcTileDomain
+                                           : srcTileDomain.create_translation(tVector[i]);
+        // create a new transient tile, copy the transient data, and insert it into the mdd object
+        Tile *newTransTile = new Tile(dstTileDomain, baseType);
+        auto myOp = std::unique_ptr<UnaryOp>(Ops::getUnaryOp(
+            Ops::OP_IDENTITY, baseType, mddOp->getCellType(), 0, 0));
+        newTransTile->execUnaryOp(myOp.get(), dstTileDomain, opTile.get(), srcTileDomain);
+        resultMDD->insertTile(newTransTile);
+    }
 }
 
-
-void
-QtConcat::printTree(int tab, ostream &s, QtChildType mode)
+void QtConcat::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtConcat Object " << static_cast<int>(getNodeType()) << endl;
 
     QtNaryOperation::printTree(tab, s, mode);
 }
 
-void
-QtConcat::printAlgebraicExpression(ostream &s)
+void QtConcat::printAlgebraicExpression(ostream &s)
 {
     s << "concat(";
     if (operationList)
@@ -333,10 +324,8 @@ QtConcat::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-
 QtNode::QtAreaType
 QtConcat::getAreaType()
 {
     return QT_AREA_MDD;
 }
-

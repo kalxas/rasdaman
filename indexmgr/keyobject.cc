@@ -21,14 +21,12 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
 #include "keyobject.hh"
-#include "tilemgr/tile.hh"        // for Tile
-#include "relblobif/tileid.hh"    // for DBTileId
+#include "tilemgr/tile.hh"      // for Tile
+#include "relblobif/tileid.hh"  // for DBTileId
 #include "raslib/error.hh"
 
-#include <ostream>                // for operator<<, ostream, basic_ostream
-
+#include <ostream>  // for operator<<, ostream, basic_ostream
 
 std::ostream &operator<<(std::ostream &in, const KeyObject &d)
 {

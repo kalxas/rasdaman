@@ -68,9 +68,9 @@ public:
     //@Man: Methods for symbol manipulation
     //@{
     /// Puts value at position symbol in the table. Returns true if it succeeded, otherwise false.
-    bool    putSymbol(const std::string &symbol, T value);
+    bool putSymbol(const std::string &symbol, T value);
     /// Get value at position symbol from the table. If symbol doesn't exist, it returns NULL.
-    T       getSymbol(const std::string &symbol);
+    T getSymbol(const std::string &symbol);
     /// Returns true if symbol is in table.
     bool lookupSymbol(const std::string &symbol);
     //@}
@@ -78,23 +78,23 @@ public:
     //@Man: Methods for scope manipulation
     //@{
     /// Enter new scope.
-    void  initScope();
+    void initScope();
     /// Exit current scope.
-    void  exitScope();
+    void exitScope();
     /// Output current scope to RMInit::logOut.
-    void   outScope();
+    void outScope();
     /// Init scope by clearing inner symbols.
     void clearScope();
     /// Clear all symbols in all scopes.
-    void       wipe();
+    void wipe();
     //@}
 
 private:
     /// Store symbol in map.
-    void storeSymbol(const std::string &symbol, T value);   // put only in the hash_map
+    void storeSymbol(const std::string &symbol, T value);  // put only in the hash_map
 
     /// Stores local variables.
-    std::map<std::string, T>   STVars;
+    std::map<std::string, T> STVars;
 
     /// Stores scopes.
     std::vector<std::map<std::string, T>> STScopes;

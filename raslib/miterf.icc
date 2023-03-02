@@ -34,8 +34,7 @@ rasdaman GmbH.
 // r_FixedPointNumber
 //
 
-inline
-bool r_FixedPointNumber::stepForwardFlag(const r_FixedPointNumber &f)
+inline bool r_FixedPointNumber::stepForwardFlag(const r_FixedPointNumber &f)
 {
     intPart += f.intPart;
     fracPart += f.fracPart;
@@ -47,8 +46,7 @@ bool r_FixedPointNumber::stepForwardFlag(const r_FixedPointNumber &f)
     }
     return false;
 }
-inline
-r_Range r_FixedPointNumber::getIntPart()
+inline r_Range r_FixedPointNumber::getIntPart()
 {
     return intPart;
 }
@@ -57,16 +55,14 @@ r_Range r_FixedPointNumber::getIntPart()
 // r_MiterFloat
 //
 
-
-inline
-char *r_MiterFloat::nextCell()
+inline char *r_MiterFloat::nextCell()
 {
     if (done)
         return currentCell;
 
     iter_desc *id = iterDesc + dim - 1;
-    currentCell   = iterDesc[dim - 1].cell;
-    
+    currentCell = iterDesc[dim - 1].cell;
+
     r_Dimension i = dim;
     while (i > 0)
     {
@@ -84,7 +80,7 @@ char *r_MiterFloat::nextCell()
         {
             // we are finished with this dimension
             id->pos = id->min;
-            id->countSteps = id-> maxSteps;
+            id->countSteps = id->maxSteps;
             --id;
             --i;
         }
@@ -105,8 +101,7 @@ char *r_MiterFloat::nextCell()
     return currentCell;
 }
 
-inline
-bool r_MiterFloat::isDone()
+inline bool r_MiterFloat::isDone()
 {
     return done;
 }

@@ -20,7 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-
 #ifndef RASMGR_X_SRC_CLIENTSERVERREQUEST_HH
 #define RASMGR_X_SRC_CLIENTSERVERREQUEST_HH
 
@@ -42,10 +41,10 @@ public:
     const std::string &getDatabaseName() const;
 
 private:
-    std::string userName;/*!< The name of the user requesting a new server*/
-    std::string password;/*!< The password hash of the user requesting a new server*/
-    std::string databaseName;/*!< The name of the database that the user is trying to access*/
+    std::string userName;     /*!< The name of the user requesting a new server*/
+    std::string password;     /*!< The password hash of the user requesting a new server*/
+    std::string databaseName; /*!< The name of the database that the user is trying to access*/
 };
-}
+}  // namespace rasmgr
 
-#endif // RASMGR_X_SRC_CLIENTSERVERREQUEST_HH
+#endif  // RASMGR_X_SRC_CLIENTSERVERREQUEST_HH

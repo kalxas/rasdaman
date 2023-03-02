@@ -102,14 +102,14 @@ public:
     MDDObj *extractCurtain(const MDDObj *op,
                            const r_Minterval &areaOp,
                            const vector<r_Dimension> &maskDims,
-                           const std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval>> &mask);
+                           const std::pair<std::unique_ptr<char[]>, std::shared_ptr<r_Minterval>> &mask);
 
     //if the bool operand is true, then the integration uses the counting measure, otherwise it defaults to lebesgue
     MDDObj *extractCorridor(const MDDObj *op,
                             const r_Minterval &areaOp,
                             QtMShapeData *lineStringData,
                             const std::vector<r_Dimension> &maskDims,
-                            const std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval>> &mask,
+                            const std::pair<std::unique_ptr<char[]>, std::shared_ptr<r_Minterval>> &mask,
                             QtGeometryData::QtGeometryFlag geomFlagArg = QtGeometryData::QtGeometryFlag::NONE);
 
     /// either the extractBresenhamLine or the extractSubspace function based on the dimensionality of the dataset and the multidimensional shape
@@ -128,12 +128,11 @@ public:
     virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
 
 protected:
-
     BaseType *getTypeWithCoordinates(const BaseType *valuesType, const r_Dimension dim) const;
 
     /// computes the result mask domain for the mshapeList
     std::shared_ptr<r_Minterval> buildResultDom(const r_Minterval &areaOp,
-            vector<QtPositiveGenusClipping> &clipVector);
+                                                vector<QtPositiveGenusClipping> &clipVector);
 
     /// takes the result of buildResultDom and builds the result mask from the stored mshapeList (polygons w/ interiors)
     /// one can pass other resultDom's to this method, if needed, but the intersection needs to be nonempty (unknown prior to the method called)
@@ -143,12 +142,12 @@ protected:
                                             QtGeometryData::QtGeometryType geomType);
 
     /// uses the internal mshapeList only to build a result mask and a specified domain
-    std::pair< std::unique_ptr<char[]>, std::shared_ptr<r_Minterval>> buildAbstractMask(
-                std::vector<QtPositiveGenusClipping> &clipVector,
-                QtGeometryData::QtGeometryType geomType);
+    std::pair<std::unique_ptr<char[]>, std::shared_ptr<r_Minterval>> buildAbstractMask(
+        std::vector<QtPositiveGenusClipping> &clipVector,
+        QtGeometryData::QtGeometryType geomType);
 
     std::vector<r_Minterval> computeMaskEmbedding(
-        const std::vector< std::vector<r_Point>> &pointListArg,
+        const std::vector<std::vector<r_Point>> &pointListArg,
         const r_Minterval &convexHullArg,
         r_Range outputLength,
         std::vector<r_Dimension> maskDims);
@@ -165,8 +164,8 @@ protected:
     void checkMaskDim(r_Dimension maskDim,
                       const vector<r_Dimension> &maskDims);
 
-    vector< QtPositiveGenusClipping > buildMultipoly(const vector< vector <QtMShapeData *>> &polygonData,
-            QtGeometryData::QtGeometryType geomType);
+    vector<QtPositiveGenusClipping> buildMultipoly(const vector<vector<QtMShapeData *>> &polygonData,
+                                                   QtGeometryData::QtGeometryType geomType);
 
 private:
     bool withCoordinates{false};

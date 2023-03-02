@@ -57,7 +57,7 @@ public:
     /// Construct object that uses system defaults.
     DBStorageLayout();
     //@}
-    
+
     //@Man: Destruction
     //@{
     ~DBStorageLayout() noexcept(false) override;
@@ -99,7 +99,7 @@ public:
     void setTileConfiguration(const r_Minterval &tc);
     void setDataFormat(r_Data_Format df);
     //@}
-    
+
     void printStatus(unsigned int level, std::ostream &stream) const override;
 
 protected:
@@ -136,7 +136,7 @@ private:
     r_Tiling_Scheme tilingScheme;
     /// Tile size in bytes.
     r_Bytes tileSize;
-    
+
     /** 
      * Default configuration of the tiles.
      * 
@@ -156,7 +156,7 @@ private:
     r_Bytes pctMin;
     r_Bytes pctMax;
     //@}
-    
+
     bool _supportsTileSize{false};
     bool _supportsPCTMin{false};
     bool _supportsPCTMax{false};

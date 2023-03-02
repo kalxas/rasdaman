@@ -45,6 +45,6 @@ public:
 private:
     std::string hostName; /*! Name of the host on which the rasmgr is running.*/
 };
-}
+}  // namespace rasmgr
 
-#endif // INPEER_HH
+#endif  // INPEER_HH

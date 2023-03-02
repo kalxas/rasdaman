@@ -34,32 +34,31 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "config.h"
-#include "hierindex.hh"                 // for DBHierIndex
-#include "reladminif/dbobject.hh"       // for DBObjectId, DBObject
+#include "hierindex.hh"            // for DBHierIndex
+#include "reladminif/dbobject.hh"  // for DBObjectId, DBObject
 #include "reladminif/dbref.hh"
-#include "reladminif/lists.h"           // for KeyObjectVector
-#include "reladminif/objectbroker.hh"   // for ObjectBroker
-#include "reladminif/oidif.hh"          // for OId, operator<<, OId::OIdCounter
+#include "reladminif/lists.h"          // for KeyObjectVector
+#include "reladminif/objectbroker.hh"  // for ObjectBroker
+#include "reladminif/oidif.hh"         // for OId, operator<<, OId::OIdCounter
 #include "relblobif/blobtile.hh"
-#include "indexmgr/hierindexds.hh"      // for HierIndexDS
-#include "indexmgr/indexds.hh"          // for IndexDS
-#include "indexmgr/keyobject.hh"        // for KeyObject, operator<<
-#include "storagemgr/sstoragelayout.hh" // for StorageLayout, StorageLayout:...
-#include "relindexif/indexid.hh"        // for DBHierIndexId
+#include "indexmgr/hierindexds.hh"          // for HierIndexDS
+#include "indexmgr/indexds.hh"              // for IndexDS
+#include "indexmgr/keyobject.hh"            // for KeyObject, operator<<
+#include "storagemgr/sstoragelayout.hh"     // for StorageLayout, StorageLayout:...
+#include "relindexif/indexid.hh"            // for DBHierIndexId
 #include "relcatalogif/inlineminterval.hh"  // for InlineMinterval
-#include "raslib/error.hh"              // for r_Error
-#include "raslib/mddtypes.hh"           // for r_Bytes, r_Range, r_Dimension
-#include "raslib/minterval.hh"          // for operator<<, r_Minterval
+#include "raslib/error.hh"                  // for r_Error
+#include "raslib/mddtypes.hh"               // for r_Bytes, r_Range, r_Dimension
+#include "raslib/minterval.hh"              // for operator<<, r_Minterval
 #include "raslib/endian.hh"
-#include <logging.hh>                   // for Writer, CTRACE, LTRACE, CDEBUG
+#include <logging.hh>  // for Writer, CTRACE, LTRACE, CDEBUG
 
 #include <cassert>
-#include <algorithm>                    // for max
-#include <cstring>                      // for memcpy, memset, memcmp, strcmp
-#include <memory>                       // for allocator_traits<>::value_type
-#include <ostream>                      // for operator<<, ostream, basic_os...
-#include <vector>                       // for vector
-
+#include <algorithm>  // for max
+#include <cstring>    // for memcpy, memset, memcmp, strcmp
+#include <memory>     // for allocator_traits<>::value_type
+#include <ostream>    // for operator<<, ostream, basic_os...
+#include <vector>     // for vector
 
 // old format, contains 13 in first byte
 const int DBHierIndex::BLOB_FORMAT_V1 = 8;
@@ -74,13 +73,12 @@ const int DBHierIndex::BLOB_FORMAT_V3 = 10;
 const int DBHierIndex::BLOB_FORMAT_V3_HEADER_SIZE = 8;
 const long long DBHierIndex::BLOB_FORMAT_V3_HEADER_MAGIC = 1010;
 
-
 DBHierIndex::DBHierIndex(const OId &id)
     : HierIndexDS(id), myDomain(0u)
 {
     if (id.getType() == OId::MDDHIERIXOID)
         readFromDb();
-    
+
     maxSize = DBHierIndex::getOptimalSize(getDimension());
     myKeyObjects.reserve(maxSize);
 }
@@ -165,7 +163,7 @@ void DBHierIndex::insertObject(const KeyObject &theKey, unsigned int pos)
         extendCoveredDomain(theKey.getDomain());
     }
     myKeyObjects.insert(myKeyObjects.begin() + pos, theKey);
-    LTRACE << "after inserting object now have " 
+    LTRACE << "after inserting object now have "
            << myKeyObjects.size() << " objects in key object vector.";
     setModified();
 }
@@ -212,7 +210,7 @@ r_Bytes DBHierIndex::getTotalStorageSize() const
         sz = sz +
              (static_cast<DBObject *>(
                   ObjectBroker::getObjectByOId(i->getObject().getOId())))
-             ->getTotalStorageSize();
+                 ->getTotalStorageSize();
     }
     return sz;
 }
@@ -220,7 +218,7 @@ r_Bytes DBHierIndex::getTotalStorageSize() const
 bool DBHierIndex::isValid() const
 {
     LTRACE << "check if hierarchical index " << myOId << " is valid...";
-    
+
     bool valid = true;
     // may not be unsigned int (r_Area) because of error check
     long long area = 0;
@@ -273,7 +271,7 @@ bool DBHierIndex::isValid() const
             {
                 // ok
                 area = area - static_cast<long long>(
-                            (*i).getDomain().create_intersection(myDomain).cell_count());
+                                  (*i).getDomain().create_intersection(myDomain).cell_count());
             }
             else
             {
@@ -296,7 +294,8 @@ void DBHierIndex::printStatus(unsigned int level, std::ostream &stream) const
 {
     DBObjectId t;
     auto *indent = new char[level * 2 + 1];
-    for (unsigned int j = 0; j < level * 2; j++) indent[j] = ' ';
+    for (unsigned int j = 0; j < level * 2; j++)
+        indent[j] = ' ';
     indent[level * 2] = '\0';
 
     stream << indent << "DBHierIndex ";
@@ -349,7 +348,7 @@ unsigned int DBHierIndex::getOptimalSize(r_Dimension dim)
 {
     if (StorageLayout::DefaultIndexSize != 0)
         return StorageLayout::DefaultIndexSize;
-    
+
     // BLOCKSIZE
     unsigned int blocksize = 0;
     unsigned int useablespace = 0;
@@ -358,7 +357,7 @@ unsigned int DBHierIndex::getOptimalSize(r_Dimension dim)
     static constexpr unsigned int onedim = sizeof(r_Range) * 2 + sizeof(char) * 2;
     unsigned int onedom = dim * onedim;
     unsigned int oneentry = onedom + sizeof(OId::OIdCounter) + sizeof(char);
-    
+
 #ifdef BASEDB_ORACLE
     blocksize = 2048;
     // BLOCKSIZE - (BLOCK OVERHEAD + ROW OVERHEAD + 1 * largerow + number(15,0) + short)
@@ -372,8 +371,8 @@ unsigned int DBHierIndex::getOptimalSize(r_Dimension dim)
     // from the manual
     useablespace = 3990;
 #elseif BASEDB_PGSQL
-    blocksize = 8192;   // default only!!!;
-    useablespace = 7000;    // no indication for any less space available, but to be sure we go a little lower -- PB 2005-jan-10
+    blocksize = 8192;     // default only!!!;
+    useablespace = 7000;  // no indication for any less space available, but to be sure we go a little lower -- PB 2005-jan-10
 #elseif BASEDB_SQLITE
     // blocksize = 4096;
     useablespace = 3990;
@@ -384,7 +383,7 @@ unsigned int DBHierIndex::getOptimalSize(r_Dimension dim)
 
     // remove mydomain size and header
     useablespace = useablespace - onedom - BLOB_FORMAT_V3_HEADER_SIZE;
-    
+
     // minimum size is 8-lucky guess(good for 1,2,3,4 dimensions)
     return std::max(8u, useablespace / oneentry);
 }
@@ -676,17 +675,17 @@ BinaryRepresentation DBHierIndex::getBinaryRepresentation() const
     // write the buffers in the complete buffer
     // this indirection is neccessary because of memory alignement of longs...
     memcpy(completebuffer, lowerboundsbuf, boundssize);
-    delete [] lowerboundsbuf;
+    delete[] lowerboundsbuf;
     memcpy(&completebuffer[boundssize], upperboundsbuf, boundssize);
-    delete [] upperboundsbuf;
+    delete[] upperboundsbuf;
     memcpy(&completebuffer[boundssize * 2], lowerfixedbuf, fixessize);
-    delete [] lowerfixedbuf;
+    delete[] lowerfixedbuf;
     memcpy(&completebuffer[boundssize * 2 + fixessize], upperfixedbuf, fixessize);
-    delete [] upperfixedbuf;
+    delete[] upperfixedbuf;
     memcpy(&completebuffer[boundssize * 2 + fixessize * 2], entryidsbuf, idssize);
-    delete [] entryidsbuf;
+    delete[] entryidsbuf;
     memcpy(&completebuffer[boundssize * 2 + fixessize * 2 + idssize], entrytypesbuf, typessize);
-    delete [] entrytypesbuf;
+    delete[] entrytypesbuf;
 
     /*
         5 bytes tag
@@ -696,7 +695,7 @@ BinaryRepresentation DBHierIndex::getBinaryRepresentation() const
     */
     // version + endianness + oid + size + dimension + parentoid + subtype
     brp.binaryLength = 7 + sizeof(OId::OIdCounter) + sizeof(int) + sizeof(short) +
-                           sizeof(OId::OIdCounter) + sizeof(char) + completesize;
+                       sizeof(OId::OIdCounter) + sizeof(char) + completesize;
     brp.binaryData = new char[brp.binaryLength];
     memcpy(brp.binaryData, BinaryRepresentation::fileTag, 5);
     memset(&brp.binaryData[5], 1, 1);
@@ -727,7 +726,7 @@ BinaryRepresentation DBHierIndex::getBinaryRepresentation() const
     memcpy(&brp.binaryData[7 + sizeof(OId::OIdCounter) + sizeof(int) + sizeof(short) + sizeof(OId::OIdCounter)], &tempc, sizeof(char));
     memcpy(&brp.binaryData[7 + sizeof(OId::OIdCounter) + sizeof(int) + sizeof(short) + sizeof(OId::OIdCounter) + sizeof(char)], completebuffer, completesize);
 
-    delete [] completebuffer;
+    delete[] completebuffer;
 
     return brp;
 }
@@ -765,10 +764,10 @@ void DBHierIndex::setBinaryRepresentation(const BinaryRepresentation &brp)
     if (strcmp(temp, brp.binaryName) != 0)
     {
         LERROR << "binary representation " << brp.binaryName << " - expected name " << temp;
-        delete [] temp;
+        delete[] temp;
         throw r_Error();
     }
-    delete [] temp;
+    delete[] temp;
     temp = NULL;
     memcpy(&tempi, &brp.binaryData[7 + sizeof(OId::OIdCounter)], sizeof(int));
     size1 = tempi;
@@ -797,7 +796,6 @@ void DBHierIndex::setBinaryRepresentation(const BinaryRepresentation &brp)
     LTRACE << "size " << size1 << " dimension " << dimension1 << " fixes "
            << fixessize << " ids " << idssize << " types " << typessize;
 
-
     auto *completebuffer = new char[completesize];
     auto *upperboundsbuf = new r_Range[boundssize];
     auto *lowerboundsbuf = new r_Range[boundssize];
@@ -807,7 +805,7 @@ void DBHierIndex::setBinaryRepresentation(const BinaryRepresentation &brp)
     auto *entrytypesbuf = new char[typessize];
     memcpy(completebuffer,
            &brp.binaryData[7 + sizeof(OId::OIdCounter) + sizeof(int) +
-                               sizeof(short) + sizeof(OId::OIdCounter) + sizeof(char)],
+                           sizeof(short) + sizeof(OId::OIdCounter) + sizeof(char)],
            completesize);
 
     // all dynamic data is in completebuffer
@@ -846,28 +844,27 @@ void DBHierIndex::setBinaryRepresentation(const BinaryRepresentation &brp)
                                   &(upperfixedbuf[(i + 1) * dimension1]));
     }
 
-    delete [] upperboundsbuf;
-    delete [] lowerboundsbuf;
-    delete [] upperfixedbuf;
-    delete [] lowerfixedbuf;
-    delete [] entryidsbuf;
-    delete [] entrytypesbuf;
+    delete[] upperboundsbuf;
+    delete[] lowerboundsbuf;
+    delete[] upperfixedbuf;
+    delete[] lowerfixedbuf;
+    delete[] entryidsbuf;
+    delete[] entrytypesbuf;
     _isInDatabase = true;
     _isPersistent = true;
     _isModified = true;
     currentDbRows = 1;
 }
 
-
-std::unique_ptr<char[]> 
+std::unique_ptr<char[]>
 DBHierIndex::writeToBlobBuffer(int &completeSizeOut, long long &parentid)
 {
     // (0) --- prepare variables
     auto dimension = myDomain.dimension();
     auto numEntries = getSize();
     parentid = parent.getType() == OId::INVALID
-             ? 0
-             : static_cast<long long>(parent);
+                   ? 0
+                   : static_cast<long long>(parent);
 
     // (1) -- prepare buffer
     static const auto header = BLOB_FORMAT_V3_HEADER_MAGIC;
@@ -875,7 +872,7 @@ DBHierIndex::writeToBlobBuffer(int &completeSizeOut, long long &parentid)
     static const auto idSize = sizeof(OId::OIdCounter);
     static const auto boundSize = sizeof(r_Range);
     static const auto blobFormat = BLOB_FORMAT_V3;
-    
+
     // number of bytes for ids of entries
     r_Bytes idsSize = idSize * numEntries;
     // number of bytes for bounds for "size" entries and mydomain
@@ -888,13 +885,13 @@ DBHierIndex::writeToBlobBuffer(int &completeSizeOut, long long &parentid)
     auto completeSize =
         headerSize + boundsSize * 2 + fixesSize * 2 + idsSize + typesSize;
     completeSizeOut = static_cast<int>(completeSize);
-    
+
     LTRACE << "inserting index blob, format=" << blobFormat
            << " complete=" << completeSize << " bounds=" << boundsSize
            << " fixes=" << fixesSize << " ids=" << idsSize
            << " types=" << typesSize << ", entries=" << numEntries
            << " dimension=" << dimension;
-    
+
     /*
       Node buffer format, N = number of entries:
       
@@ -907,28 +904,28 @@ DBHierIndex::writeToBlobBuffer(int &completeSizeOut, long long &parentid)
       N * oid types
       
      */
-    
+
     std::unique_ptr<char[]> completeBufPtr;
     completeBufPtr.reset(new char[completeSize]);
     char *completeBuf = completeBufPtr.get();
-    *reinterpret_cast<long long*>(completeBuf) = header;
+    *reinterpret_cast<long long *>(completeBuf) = header;
     completeBuf += headerSize;
-    
-    auto *lowerBoundsBuf = reinterpret_cast<r_Range*>(
-                           &completeBuf[0]);
-    auto *upperBoundsBuf = reinterpret_cast<r_Range*>(
-                           &completeBuf[boundsSize]);
-    char *lowerFixedBuf  = &completeBuf[boundsSize * 2];
-    char *upperFixedBuf  = &completeBuf[boundsSize * 2 + fixesSize];
-    auto *entryIdsBuf    = reinterpret_cast<OId::OIdCounter*>(
-                           &completeBuf[boundsSize * 2 + fixesSize * 2]);
-    char *entryTypesBuf  = &completeBuf[boundsSize * 2 + fixesSize * 2 + idsSize];    
-    
+
+    auto *lowerBoundsBuf = reinterpret_cast<r_Range *>(
+        &completeBuf[0]);
+    auto *upperBoundsBuf = reinterpret_cast<r_Range *>(
+        &completeBuf[boundsSize]);
+    char *lowerFixedBuf = &completeBuf[boundsSize * 2];
+    char *upperFixedBuf = &completeBuf[boundsSize * 2 + fixesSize];
+    auto *entryIdsBuf = reinterpret_cast<OId::OIdCounter *>(
+        &completeBuf[boundsSize * 2 + fixesSize * 2]);
+    char *entryTypesBuf = &completeBuf[boundsSize * 2 + fixesSize * 2 + idsSize];
+
     // populate the buffers with data
     *reinterpret_cast<long long *>(completeBuf) = header;
     myDomain.insertInDb(&(lowerBoundsBuf[0]), &(upperBoundsBuf[0]),
-                        &(lowerFixedBuf[0]),  &(upperFixedBuf[0]));
-    
+                        &(lowerFixedBuf[0]), &(upperFixedBuf[0]));
+
     auto it = myKeyObjects.begin();
     InlineMinterval indom;
     for (size_t i = 0; i < numEntries; ++i, ++it)
@@ -936,17 +933,17 @@ DBHierIndex::writeToBlobBuffer(int &completeSizeOut, long long &parentid)
         indom = (*it).getDomain();
         indom.insertInDb(&(lowerBoundsBuf[(i + 1) * dimension]),
                          &(upperBoundsBuf[(i + 1) * dimension]),
-                          &(lowerFixedBuf[(i + 1) * dimension]),
-                          &(upperFixedBuf[(i + 1) * dimension]));
-        entryIdsBuf[i]   = (*it).getObject().getOId().getCounter();
+                         &(lowerFixedBuf[(i + 1) * dimension]),
+                         &(upperFixedBuf[(i + 1) * dimension]));
+        entryIdsBuf[i] = (*it).getObject().getOId().getCounter();
         entryTypesBuf[i] = static_cast<char>((*it).getObject().getOId().getType());
     }
-    
+
     return completeBufPtr;
 }
 
-void DBHierIndex::readFromBlobBuffer(r_Bytes numEntries, r_Dimension dimension, 
-                                     long long parentOid, const char *blobBuffer, 
+void DBHierIndex::readFromBlobBuffer(r_Bytes numEntries, r_Dimension dimension,
+                                     long long parentOid, const char *blobBuffer,
                                      r_Bytes blobSize)
 {
     parent = parentOid ? OId(parentOid) : OId(0, OId::INVALID);
@@ -972,7 +969,7 @@ void DBHierIndex::readFromBlobBuffer(r_Bytes numEntries, r_Dimension dimension,
         headerSize = BLOB_FORMAT_V2_HEADER_SIZE;
         auto header = *reinterpret_cast<const long long *>(&blobBuffer[0]);
         blobFormat = header == BLOB_FORMAT_V2_HEADER_MAGIC ? BLOB_FORMAT_V2
-                     : BLOB_FORMAT_V3;
+                                                           : BLOB_FORMAT_V3;
     }
     r_Bytes idsSize = idSize * numEntries;
     r_Bytes boundsSize = boundSize * (numEntries + 1) * dimension;
@@ -993,11 +990,11 @@ void DBHierIndex::readFromBlobBuffer(r_Bytes numEntries, r_Dimension dimension,
 
     if (completeSize != blobSize)  // this because I don't trust computations
     {
-        LTRACE << "BLOB (" << myOId.getCounter() << ") read: completeSize=" 
+        LTRACE << "BLOB (" << myOId.getCounter() << ") read: completeSize="
                << completeSize << ", but blobSize=" << blobSize;
         throw r_Error(r_Error::r_Error_LimitsMismatch);
     }
-    
+
     /*
       Node buffer format, N = number of entries:
       
@@ -1016,17 +1013,17 @@ void DBHierIndex::readFromBlobBuffer(r_Bytes numEntries, r_Dimension dimension,
 
     const char *lowerBoundsBuf = &completeBuf[0];
     const char *upperBoundsBuf = &completeBuf[boundsSize];
-    const char *lowerFixedBuf  = &completeBuf[boundsSize * 2];
-    const char *upperFixedBuf  = &completeBuf[boundsSize * 2 + fixesSize];
-    const char *entryIdsBuf    = &completeBuf[boundsSize * 2 + fixesSize * 2];
-    const char *entryTypesBuf  = &completeBuf[boundsSize * 2 + fixesSize * 2 + idsSize];
+    const char *lowerFixedBuf = &completeBuf[boundsSize * 2];
+    const char *upperFixedBuf = &completeBuf[boundsSize * 2 + fixesSize];
+    const char *entryIdsBuf = &completeBuf[boundsSize * 2 + fixesSize * 2];
+    const char *entryTypesBuf = &completeBuf[boundsSize * 2 + fixesSize * 2 + idsSize];
 
     // (4) --- copy data into buffers
 
-#define GET_BOUND(buf) \
-    (blobFormat <= BLOB_FORMAT_V2) \
-    ? static_cast<r_Range>(*reinterpret_cast<int*>(buf)) \
-    : *reinterpret_cast<r_Range*>(buf)
+#define GET_BOUND(buf)                                        \
+    (blobFormat <= BLOB_FORMAT_V2)                            \
+        ? static_cast<r_Range>(*reinterpret_cast<int *>(buf)) \
+        : *reinterpret_cast<r_Range *>(buf)
 
     auto lowerBounds = std::unique_ptr<r_Range[]>(new r_Range[newBoundsSize]);
     auto upperBounds = std::unique_ptr<r_Range[]>(new r_Range[newBoundsSize]);
@@ -1044,7 +1041,7 @@ void DBHierIndex::readFromBlobBuffer(r_Bytes numEntries, r_Dimension dimension,
 
     // rebuild the attributes from the buffers
     myDomain = InlineMinterval(dimension,
-                               &lowerBounds[0], &upperBounds[0], 
+                               &lowerBounds[0], &upperBounds[0],
                                lowerFixedBuf, upperFixedBuf);
     KeyObject theKey = KeyObject(DBObjectId(), myDomain);
     for (r_Bytes i = 0; i < numEntries; ++i)
@@ -1052,14 +1049,14 @@ void DBHierIndex::readFromBlobBuffer(r_Bytes numEntries, r_Dimension dimension,
         lowerFixedBuf += dimension;
         upperFixedBuf += dimension;
         theKey.setDomain(InlineMinterval(dimension,
-                                         &lowerBounds[(i + 1) * dimension], 
+                                         &lowerBounds[(i + 1) * dimension],
                                          &upperBounds[(i + 1) * dimension],
                                          lowerFixedBuf, upperFixedBuf));
 
         memcpy(buf, entryIdsBuf, idSize);
         auto entryId = (blobFormat == BLOB_FORMAT_V1)
-                       ? static_cast<OId::OIdCounter>(*reinterpret_cast<unsigned int *>(buf))
-                       : *reinterpret_cast<OId::OIdCounter *>(buf);
+                           ? static_cast<OId::OIdCounter>(*reinterpret_cast<unsigned int *>(buf))
+                           : *reinterpret_cast<OId::OIdCounter *>(buf);
         entryIdsBuf += idSize;
         auto entryType = static_cast<OId::OIdType>(entryTypesBuf[i]);
 

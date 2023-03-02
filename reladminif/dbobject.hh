@@ -25,7 +25,7 @@ rasdaman GmbH.
 #include "binaryrepresentation.hh"  // for BinaryRepresentation
 #include "oidif.hh"                 // for OId, OId::OIdType
 #include "raslib/error.hh"
-#include "raslib/mddtypes.hh"   // for r_Bytes
+#include "raslib/mddtypes.hh"  // for r_Bytes
 
 #include <iosfwd>
 
@@ -281,11 +281,9 @@ protected:
     */
 
 private:
-
     void sharedObjectInit(void);
     /*@Doc:
     Initialization code shared by all constructors.
     does not do anything.
     */
 };
-

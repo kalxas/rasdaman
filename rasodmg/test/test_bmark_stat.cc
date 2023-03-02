@@ -61,7 +61,6 @@ rasdaman GmbH.
 #endif
 #endif
 
-
 #include <iostream>
 
 #include <stdio.h>
@@ -81,29 +80,29 @@ rasdaman GmbH.
 #include "rasodmg/storagelayout.hh"
 #include "RGBCube.hh"
 
-#define S_32K               (32  * 1024L)
-#define S_64K               (64  * 1024L)
-#define S_128K              (128 * 1024L)
-#define S_256K              (256 * 1024L)
+#define S_32K (32 * 1024L)
+#define S_64K (64 * 1024L)
+#define S_128K (128 * 1024L)
+#define S_256K (256 * 1024L)
 
-#define TOTAL_CUBES         8
-#define SIZE_X              120L
-#define SIZE_Y              159L
-#define SIZE_Z              119L
+#define TOTAL_CUBES 8
+#define SIZE_X 120L
+#define SIZE_Y 159L
+#define SIZE_Z 119L
 
-char* filename;
-char* server_name;
-char* dbase_name;
-char* colect_name;
-int   cube_i;
+char *filename;
+char *server_name;
+char *dbase_name;
+char *colect_name;
+int cube_i;
 
-vector<r_Access>  stat_info;
-unsigned int     border_threshold;
-double           interesting_threshold;
-unsigned long    tile_size;
-r_Minterval*     domain;
+vector<r_Access> stat_info;
+unsigned int border_threshold;
+double interesting_threshold;
+unsigned long tile_size;
+r_Minterval *domain;
 
-void parse(int argc, char* argv[])
+void parse(int argc, char *argv[])
 {
     if (argc != 6)
     {
@@ -119,10 +118,10 @@ void parse(int argc, char* argv[])
     }
 
     server_name = argv[1];
-    dbase_name  = argv[2];
+    dbase_name = argv[2];
     colect_name = argv[3];
-    filename    = argv[4];
-    cube_i      = atoi(argv[5]);
+    filename = argv[4];
+    cube_i = atoi(argv[5]);
 
     if ((cube_i < 0) || (cube_i > 7))
     {
@@ -179,34 +178,33 @@ void read_data()
     is.close();
 
     cout << endl;
-    cout << "Geting the accesses... done." << endl << endl;
+    cout << "Geting the accesses... done." << endl
+         << endl;
 
     cout << "Border threshold      = " << border_threshold << endl;
     cout << "Interesting threshold = " << interesting_threshold << endl;
     cout << "Tile size             = " << tile_size << endl;
     cout << "Domain                = " << *domain << endl;
-    cout << "Number of accesses    = " << count << endl << endl;
+    cout << "Number of accesses    = " << count << endl
+         << endl;
 }
-
 
 void insert_datacube()
 {
-
-    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>>  cube_set;
-    r_Minterval                                   domain;
+    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>> cube_set;
+    r_Minterval domain;
 
     domain = r_Minterval(3);
-    domain << r_Sinterval((r_Range) 0L, (r_Range) SIZE_X)
-           << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Y)
-           << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Z);
-
+    domain << r_Sinterval((r_Range)0L, (r_Range)SIZE_X)
+           << r_Sinterval((r_Range)0L, (r_Range)SIZE_Y)
+           << r_Sinterval((r_Range)0L, (r_Range)SIZE_Z);
 
     // For alligned tiling (Regular tiling)
 
     r_Minterval block_config(3);
-    block_config << r_Sinterval((r_Range) 0L, (r_Range) SIZE_X)
-                 << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Y)
-                 << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Z);
+    block_config << r_Sinterval((r_Range)0L, (r_Range)SIZE_X)
+                 << r_Sinterval((r_Range)0L, (r_Range)SIZE_Y)
+                 << r_Sinterval((r_Range)0L, (r_Range)SIZE_Z);
 
     unsigned long ts;
     switch (cube_i)
@@ -229,14 +227,13 @@ void insert_datacube()
     }
 
     r_Aligned_Tiling til_reg(block_config, ts);
-    r_Stat_Tiling til_stat((r_Dimension) 3, stat_info, tile_size, border_threshold, interesting_threshold);
-
+    r_Stat_Tiling til_stat((r_Dimension)3, stat_info, tile_size, border_threshold, interesting_threshold);
 
     // Domain storage layout
 
     // This is a hack due to problems with the pointers
-    r_Storage_Layout* dsl[2];
-    r_Storage_Layout* use;
+    r_Storage_Layout *dsl[2];
+    r_Storage_Layout *use;
 
     dsl[0] = new r_Storage_Layout(&til_reg);
     dsl[1] = new r_Storage_Layout(&til_stat);
@@ -282,7 +279,7 @@ void insert_datacube()
             cout << "Creating the set... " << flush;
 
             cube_set =
-                new(&db, "RGB_3D_Set") r_Set<r_Ref<r_Marray<RGBPixel>>>;
+                new (&db, "RGB_3D_Set") r_Set<r_Ref<r_Marray<RGBPixel>>>;
 
             db.set_object_name(*cube_set, colect_name);
         }
@@ -291,7 +288,7 @@ void insert_datacube()
         cout << "Creating the datacube... " << flush;
 
         cube =
-            new(&db, "RGB_3D_Cube") r_Marray<RGBPixel>(domain, use);
+            new (&db, "RGB_3D_Cube") r_Marray<RGBPixel>(domain, use);
 
         cube_set->insert_element(cube);
 
@@ -306,9 +303,10 @@ void insert_datacube()
 
         db.close();
 
-        cout << " Ok" << endl << flush;
+        cout << " Ok" << endl
+             << flush;
     }
-    catch (r_Error& e)
+    catch (r_Error &e)
     {
         cout << e.what() << endl;
         exit(0);
@@ -320,8 +318,7 @@ void insert_datacube()
     }
 }
 
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     parse(argc, argv);
     read_data();
@@ -329,14 +326,3 @@ int main(int argc, char* argv[])
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-

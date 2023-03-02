@@ -87,16 +87,16 @@ public:
     void mark_modified();
 
     /// new operator for transient objects
-    void *operator new (size_t size);
+    void *operator new(size_t size);
 
     /// new operator for persistent objects
-    void *operator new (size_t size, r_Database *database, const char *type_name = 0);
+    void *operator new(size_t size, r_Database *database, const char *type_name = 0);
 
     /// new operator for transient objects carrying type information
-    void *operator new (size_t size, const char *type_name);
+    void *operator new(size_t size, const char *type_name);
 
     /// delete operator
-    void operator delete (void *obj_ptr);
+    void operator delete(void *obj_ptr);
 
     /// set object type by name
     void set_type_by_name(const char *name);
@@ -132,7 +132,15 @@ public:
     ///
 
     /// object life status
-    enum ObjectStatus { no_status, deleted, created, modified, read, transient };
+    enum ObjectStatus
+    {
+        no_status,
+        deleted,
+        created,
+        modified,
+        read,
+        transient
+    };
     /**
       created   - The object was created in the current transaction and has to be stored in the database.
       deleted   - The object was deleted. It is still in main memory and in the database. It is going to
@@ -144,7 +152,12 @@ public:
     */
 
     /// object types
-    enum ObjectType { no_object, persistent_object, transient_object };
+    enum ObjectType
+    {
+        no_object,
+        persistent_object,
+        transient_object
+    };
 
     ///
     /// inserts an object into the database
@@ -185,7 +198,7 @@ public:
 
     ///
     /// new operator for activating an object (status = read)
-    void *operator new (size_t size, r_Database *database, ObjectStatus status, const r_OId &oid);
+    void *operator new(size_t size, r_Database *database, ObjectStatus status, const r_OId &oid);
 
     ///
     //@}
@@ -193,7 +206,6 @@ public:
     r_Transaction *get_transaction() const;
 
 protected:
-
     /// resets to the global r_Transaction::actual_transaction if necessary
     void update_transaction();
 

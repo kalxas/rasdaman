@@ -28,7 +28,6 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include "qlparser/qtmdd.hh"
 
-
 #include <tuple>
 #include <list>
 #include <iterator>
@@ -36,16 +35,14 @@ rasdaman GmbH.
 #include <string>
 #include <ostream>
 
-
 /// MDDobj of a slice, also contains its minterval
-using sliceMDD       = QtData;
+using sliceMDD = QtData;
 /// rank of slice
-using sliceRank      = double;
+using sliceRank = double;
 /// tuple containing slice and relevant attributes
-using sliceTuple     = std::tuple<sliceMDD*, sliceRank>;
+using sliceTuple = std::tuple<sliceMDD *, sliceRank>;
 /// a list of all slices in a specific order
-using listOfSlices   = std::list<sliceTuple>;
-
+using listOfSlices = std::list<sliceTuple>;
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -60,7 +57,6 @@ Named axes are supported.
 class QtSort : public QtOperation
 {
 public:
-
     /// construct SORT with numbered axis
     QtSort(QtOperation *MDDtoSortInput, r_Dimension axis, bool order, QtOperation *ranksInput);
     /// construct SORT with named axis
@@ -131,7 +127,6 @@ public:
     //@}
 
 protected:
-
     /// first operation operand - the array to be sorted (generalExp)
     QtOperation *MDDtoSort;
 
@@ -139,15 +134,14 @@ protected:
     QtOperation *ranks = NULL;
 
 private:
-
     //@Man: Read/Write methods:
     //@{
     ///
 
     /// access the sliceMDD of a slice (setter & getter)
-    sliceMDD* accessSliceMDD(sliceTuple &sT);
+    sliceMDD *accessSliceMDD(sliceTuple &sT);
     /// access the sliceRank of a slice (setter & getter)
-    sliceRank& accessSliceRank(sliceTuple &sT);
+    sliceRank &accessSliceRank(sliceTuple &sT);
 
     ///
     //@}
@@ -156,7 +150,7 @@ private:
     void appendSlice(sliceMDD *sliceInput, sliceRank rank);
 
     /// slice the mdd at an minterval
-    QtData* slice(QtData *myMdd, r_Minterval myMinterval);
+    QtData *slice(QtData *myMdd, r_Minterval myMinterval);
     /**
         The minterval of the result slice, is myMinterval.
         This code shall remain identical with the sectioning part of the QtDomainOperation class evaluate().
@@ -165,12 +159,12 @@ private:
 
     /// used by QtSort::concatenate()
     void processOperand(unsigned int i, QtMDD *qtMDDObj, MDDObj *resultMDD,
-                    const BaseType *baseType, const std::vector<r_Point> &tVector);
+                        const BaseType *baseType, const std::vector<r_Point> &tVector);
     /// concatenate all slices
     QtData *concatenate(unsigned int dimension);
 
     /// function to get slice ranks from the array that carries them and save them into the slicesList.
-    void extractRanks(QtData* ranksOperand);
+    void extractRanks(QtData *ranksOperand);
 
     /// get the axis number from a given axis name
     void getAxisFromName();
@@ -188,7 +182,7 @@ private:
     r_Dimension sortAxis;
 
     /// This flag determines whether the axis is a name or number. true if name, false if number.
-    bool namedAxisFlag  = false;
+    bool namedAxisFlag = false;
 
     /// user-provided axis name
     std::string axisName;
@@ -220,8 +214,8 @@ private:
     static const QtNodeType nodeType;
 
     /// prevent access to default constructor
-    QtSort(): QtOperation() {};
-
+    QtSort()
+        : QtOperation(){};
 };
 
 #include "qlparser/qtsort.icc"

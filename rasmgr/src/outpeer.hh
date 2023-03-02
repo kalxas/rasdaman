@@ -78,14 +78,14 @@ public:
 
 private:
     std::set<std::string> openSessions; /*!< Set of open sessions */
-    std::string hostName; /*!< Name of the host on which the rasmgr is running.*/
-    std::uint32_t port; /*!< Port on which the rasmgr is running on the given host */
+    std::string hostName;               /*!< Name of the host on which the rasmgr is running.*/
+    std::uint32_t port;                 /*!< Port on which the rasmgr is running on the given host */
 
     std::shared_ptr<::rasnet::service::RasmgrRasmgrService::Stub> rasmgrService;
     std::shared_ptr<::common::HealthService::Stub> healthService;
 
     std::string createSessionId(const RemoteClientSession &clientSession);
 };
-}
+}  // namespace rasmgr
 
-#endif // OUTPEER_HH
+#endif  // OUTPEER_HH

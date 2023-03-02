@@ -42,8 +42,8 @@ using common::GrpcUtils;
 
 ClientManagementService::ClientManagementService(std::shared_ptr<ClientManager> cm)
     : clientManager(cm)
-{}
-
+{
+}
 
 grpc::Status ClientManagementService::Connect(
     grpc::ServerContext *, const rasnet::service::ConnectReq *request, rasnet::service::ConnectRepl *response)
@@ -81,7 +81,7 @@ grpc::Status ClientManagementService::Connect(
     catch (std::exception &ex)
     {
         LERROR << "Failed connecting client: " << ex.what();
-        status  = GrpcUtils::convertExceptionToStatus(ex);
+        status = GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {

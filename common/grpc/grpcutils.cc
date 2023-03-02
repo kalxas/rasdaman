@@ -35,17 +35,19 @@
 namespace common
 {
 
-using std::string;
 using grpc::Status;
-using std::chrono::system_clock;
+using std::string;
 using std::chrono::milliseconds;
+using std::chrono::system_clock;
 
 std::string GrpcUtils::constructAddressString(const std::string &host,
-                                              std::uint32_t port) {
+                                              std::uint32_t port)
+{
     return host + ":" + std::to_string(port);
 }
 
-grpc::Status GrpcUtils::convertExceptionToStatus(std::exception &exception) {
+grpc::Status GrpcUtils::convertExceptionToStatus(std::exception &exception)
+{
     ErrorMessage errorMessage;
 
     //The type is STL
@@ -56,7 +58,8 @@ grpc::Status GrpcUtils::convertExceptionToStatus(std::exception &exception) {
     return status;
 }
 
-grpc::Status GrpcUtils::convertExceptionToStatus(common::Exception &exception) {
+grpc::Status GrpcUtils::convertExceptionToStatus(common::Exception &exception)
+{
     ErrorMessage errorMessage;
     //The type is STL
     errorMessage.set_type(ErrorMessage::RERROR);
@@ -66,7 +69,8 @@ grpc::Status GrpcUtils::convertExceptionToStatus(common::Exception &exception) {
     return status;
 }
 
-grpc::Status GrpcUtils::convertExceptionToStatus(const std::string &errorMessage) {
+grpc::Status GrpcUtils::convertExceptionToStatus(const std::string &errorMessage)
+{
     ErrorMessage message;
 
     //The type is UNKNOWN
@@ -77,158 +81,177 @@ grpc::Status GrpcUtils::convertExceptionToStatus(const std::string &errorMessage
     return status;
 }
 
-void GrpcUtils::convertStatusToExceptionAndThrow(const grpc::Status &status) {
-  if (status.error_code() == grpc::StatusCode::UNKNOWN) {
-    //We might be able to handle this
-    ErrorMessage message;
-    if (message.ParseFromString(status.error_message())) {
-      switch (message.type()) {
-        case ErrorMessage::STL:
-          throw Exception(message.error_text());
-        case ErrorMessage::RERROR:
-          throw Exception(message.error_text());
-        case ErrorMessage::UNKNOWN:
-          throw Exception(message.error_text());
-        default:
-          //Throw a generic exception.
-          throw Exception(message.error_text());
-      }
-    } else {
-      //Throw a generic exception.
-      throw Exception(status.error_message());
+void GrpcUtils::convertStatusToExceptionAndThrow(const grpc::Status &status)
+{
+    if (status.error_code() == grpc::StatusCode::UNKNOWN)
+    {
+        //We might be able to handle this
+        ErrorMessage message;
+        if (message.ParseFromString(status.error_message()))
+        {
+            switch (message.type())
+            {
+            case ErrorMessage::STL:
+                throw Exception(message.error_text());
+            case ErrorMessage::RERROR:
+                throw Exception(message.error_text());
+            case ErrorMessage::UNKNOWN:
+                throw Exception(message.error_text());
+            default:
+                //Throw a generic exception.
+                throw Exception(message.error_text());
+            }
+        }
+        else
+        {
+            //Throw a generic exception.
+            throw Exception(status.error_message());
+        }
     }
-  }
     //Throw an exception only if the status is invalid
-  else if (!status.ok()) {
-    throw RuntimeException(status.error_message());
-  }
+    else if (!status.ok())
+    {
+        throw RuntimeException(status.error_message());
+    }
 }
 
 string GrpcUtils::convertStatusToString(const grpc::Status &status)
 {
 #define HANDLE_CASE(c) \
     case grpc::StatusCode::c: code = #c; break;
-  
-  std::string code;
-  switch (status.error_code())
-  {
-    HANDLE_CASE(OK)
-    HANDLE_CASE(CANCELLED)
-    HANDLE_CASE(UNKNOWN)
-    HANDLE_CASE(INVALID_ARGUMENT)
-    HANDLE_CASE(DEADLINE_EXCEEDED)
-    HANDLE_CASE(NOT_FOUND)
-    HANDLE_CASE(ALREADY_EXISTS)
-    HANDLE_CASE(PERMISSION_DENIED)
-    HANDLE_CASE(UNAUTHENTICATED)
-    HANDLE_CASE(RESOURCE_EXHAUSTED)
-    HANDLE_CASE(FAILED_PRECONDITION)
-    HANDLE_CASE(ABORTED)
-    HANDLE_CASE(OUT_OF_RANGE)
-    HANDLE_CASE(UNIMPLEMENTED)
-    HANDLE_CASE(INTERNAL)
-    HANDLE_CASE(UNAVAILABLE)
-    HANDLE_CASE(DATA_LOSS)
+
+    std::string code;
+    switch (status.error_code())
+    {
+        HANDLE_CASE(OK)
+        HANDLE_CASE(CANCELLED)
+        HANDLE_CASE(UNKNOWN)
+        HANDLE_CASE(INVALID_ARGUMENT)
+        HANDLE_CASE(DEADLINE_EXCEEDED)
+        HANDLE_CASE(NOT_FOUND)
+        HANDLE_CASE(ALREADY_EXISTS)
+        HANDLE_CASE(PERMISSION_DENIED)
+        HANDLE_CASE(UNAUTHENTICATED)
+        HANDLE_CASE(RESOURCE_EXHAUSTED)
+        HANDLE_CASE(FAILED_PRECONDITION)
+        HANDLE_CASE(ABORTED)
+        HANDLE_CASE(OUT_OF_RANGE)
+        HANDLE_CASE(UNIMPLEMENTED)
+        HANDLE_CASE(INTERNAL)
+        HANDLE_CASE(UNAVAILABLE)
+        HANDLE_CASE(DATA_LOSS)
     default:
-      code = std::to_string(int(status.error_code()));
-      break;
-  }
-  std::string msg = status.error_message();
-  std::string details = status.error_details();
-  
-  std::string ret;
-  ret.reserve(code.size() + 2 + msg.size() + details.size() + (details.size() > 0 ? 2 : 0));
-  ret += code;
-  ret += ", ";
-  ret += msg;
-  if (!details.empty()) {
+        code = std::to_string(int(status.error_code()));
+        break;
+    }
+    std::string msg = status.error_message();
+    std::string details = status.error_details();
+
+    std::string ret;
+    ret.reserve(code.size() + 2 + msg.size() + details.size() + (details.size() > 0 ? 2 : 0));
+    ret += code;
     ret += ", ";
-    ret += details;
-  }
-  
-  return ret;
+    ret += msg;
+    if (!details.empty())
+    {
+        ret += ", ";
+        ret += details;
+    }
+
+    return ret;
 }
 
 bool GrpcUtils::isServerAlive(const std::shared_ptr<HealthService::Stub> &healthService,
-                              uint32_t timeoutMilliseconds) {
-  HealthCheckRequest request;
-  HealthCheckResponse response;
+                              uint32_t timeoutMilliseconds)
+{
+    HealthCheckRequest request;
+    HealthCheckResponse response;
 
-  system_clock::time_point
-      deadline = system_clock::now() + milliseconds(timeoutMilliseconds);
+    system_clock::time_point
+        deadline = system_clock::now() + milliseconds(timeoutMilliseconds);
 
-  grpc::ClientContext context;
-  context.set_deadline(deadline);
+    grpc::ClientContext context;
+    context.set_deadline(deadline);
 
-  grpc::Status status = healthService->Check(&context, request, &response);
+    grpc::Status status = healthService->Check(&context, request, &response);
 
-  return status.ok() && response.status() == HealthCheckResponse::SERVING;
+    return status.ok() && response.status() == HealthCheckResponse::SERVING;
 }
 
-bool GrpcUtils::isPortBusy(const std::string &host, std::uint32_t port) {
-  return NetworkResolverFactory::getNetworkResolver(host, port)->isPortBusy();
+bool GrpcUtils::isPortBusy(const std::string &host, std::uint32_t port)
+{
+    return NetworkResolverFactory::getNetworkResolver(host, port)->isPortBusy();
 }
 
-grpc::ChannelArguments GrpcUtils::getDefaultChannelArguments() {
-  grpc::ChannelArguments args;
-  args.SetMaxReceiveMessageSize(-1); // unlimited
-  args.SetMaxSendMessageSize(-1); // unlimited
-  args.SetInt(GRPC_ARG_MAX_METADATA_SIZE, 10 * 1024 * 1024); // 10 MB
-  return args;
+grpc::ChannelArguments GrpcUtils::getDefaultChannelArguments()
+{
+    grpc::ChannelArguments args;
+    args.SetMaxReceiveMessageSize(-1);                          // unlimited
+    args.SetMaxSendMessageSize(-1);                             // unlimited
+    args.SetInt(GRPC_ARG_MAX_METADATA_SIZE, 10 * 1024 * 1024);  // 10 MB
+    return args;
 }
 
 void gpr_replacement_log(gpr_log_func_args *args);
-void gpr_replacement_log(gpr_log_func_args *args) {
-  string prefix = "GRPC: ";
-  string separator = " ";
+void gpr_replacement_log(gpr_log_func_args *args)
+{
+    string prefix = "GRPC: ";
+    string separator = " ";
 
-  switch (args->severity) {
-    case GPR_LOG_SEVERITY_DEBUG: {
-      LDEBUG << prefix
-             << args->file << separator
-             << args->line << separator
-             << args->message;
+    switch (args->severity)
+    {
+    case GPR_LOG_SEVERITY_DEBUG:
+    {
+        LDEBUG << prefix
+               << args->file << separator
+               << args->line << separator
+               << args->message;
     }
-      break;
-    case GPR_LOG_SEVERITY_INFO: {
-      LINFO << prefix
-            << args->file << separator
-            << args->line << separator
-            << args->message;
+    break;
+    case GPR_LOG_SEVERITY_INFO:
+    {
+        LINFO << prefix
+              << args->file << separator
+              << args->line << separator
+              << args->message;
     }
-      break;
-    case GPR_LOG_SEVERITY_ERROR: {
-      LERROR << prefix
-             << args->file << separator
-             << args->line << separator
-             << args->message;
+    break;
+    case GPR_LOG_SEVERITY_ERROR:
+    {
+        LERROR << prefix
+               << args->file << separator
+               << args->line << separator
+               << args->message;
     }
-      break;
-    default: {
-      LERROR << prefix
-             << args->file << separator
-             << args->line << separator
-             << args->message;
+    break;
+    default:
+    {
+        LERROR << prefix
+               << args->file << separator
+               << args->line << separator
+               << args->message;
     }
-  }
+    }
 }
 
-void GrpcUtils::redirectGRPCLogToEasyLogging() {
-  gpr_set_log_function(gpr_replacement_log);
+void GrpcUtils::redirectGRPCLogToEasyLogging()
+{
+    gpr_set_log_function(gpr_replacement_log);
 }
 
-void GrpcUtils::setDeadline(grpc::ClientContext &context, size_t deadlineInMs) {
-  static const size_t noDeadline = 0;
-  if (deadlineInMs != noDeadline)
-  {
-      auto deadline = system_clock::now() + milliseconds(deadlineInMs);
-      context.set_deadline(deadline);
-  }
+void GrpcUtils::setDeadline(grpc::ClientContext &context, size_t deadlineInMs)
+{
+    static const size_t noDeadline = 0;
+    if (deadlineInMs != noDeadline)
+    {
+        auto deadline = system_clock::now() + milliseconds(deadlineInMs);
+        context.set_deadline(deadline);
+    }
 }
 
-bool GrpcUtils::errorIsDeadlineExceeded(const Exception &ex) {
-  return ex.what() == "DeadlineExceeded";
+bool GrpcUtils::errorIsDeadlineExceeded(const Exception &ex)
+{
+    return ex.what() == "DeadlineExceeded";
 }
 
-}
-
+}  // namespace common

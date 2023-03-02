@@ -3,9 +3,11 @@
 
 #include <string>
 
-namespace common {
+namespace common
+{
 
-enum class PrintTiles {
+enum class PrintTiles
+{
     NONE,
     EMBEDDED,
     JSON,
@@ -15,6 +17,6 @@ enum class PrintTiles {
 std::string printTilesToString(PrintTiles arg);
 PrintTiles stringToPrintTiles(const std::string &arg);
 
-} // namespace common
+}  // namespace common
 
 #endif

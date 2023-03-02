@@ -28,8 +28,6 @@ rasdaman GmbH.
 
 #include "catalogmgr/ops.hh"
 
-
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -55,7 +53,6 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -86,7 +83,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -116,7 +112,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -143,7 +138,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -169,7 +163,6 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -200,7 +193,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -229,7 +221,6 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -286,7 +277,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
 class QtBit : public QtBinaryInduce
 {
 public:
@@ -321,6 +311,7 @@ public:
     virtual void printTree(int tab, std::ostream &s = std::cout, QtChildType mode = QT_ALL_NODES);
     virtual void printAlgebraicExpression(std::ostream &s = std::cout);
     inline virtual QtNodeType getNodeType() const;
+
 private:
     static const QtNodeType nodeType;
 };
@@ -328,4 +319,3 @@ private:
 #include "qlparser/qtbinaryinduce2.icc"
 
 #endif
-

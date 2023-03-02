@@ -46,14 +46,13 @@ used (see also AdminIf).
 class DatabaseIf
 {
 public:
-
     DatabaseIf() = default;
 
     ~DatabaseIf();
     /*@Doc:
     executes baseDBMSClose() if it is still connected.
     */
-   
+
     /// opens database with name \c dbName.
     void open(const char *dbName);
     /*@Doc:
@@ -177,7 +176,7 @@ private:
     /*@Doc:
     Valid only if opened.
     */
-    
+
     bool opened{false};
     /*@Doc:
     TRUE only if database is open.
@@ -193,6 +192,4 @@ private:
     only one database is supported.  any database name given is compared to this string.
     access to the db is only granted if the name of the database is the same as this string.
     */
-
 };
-

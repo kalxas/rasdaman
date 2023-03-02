@@ -62,21 +62,16 @@ RC_OK=0       # everything went fine
 RC_ERROR=1    # something went wrong
 RC_HELP=2
 
-RASMGR_PORT=7001
-
 # binaries
 rasmgr_bin="@bindir@rasmgr"
-rasserver_bin="@bindir@rasserver"
 rascontrol_bin="@bindir@rascontrol"
 
 petascope_props="@sysconfdir@petascope.properties"
-secore_props="@sysconfdir@secore.properties"
 
 log_path="@logdir@"
 war_path="@pkgdatadir@war"
 
 # base DBMS used by petascope
-PETASCOPEDB=@petascopedb@
 ENABLE_JAVA=@ENABLE_JAVA@
 
 # rasmgr port
@@ -203,9 +198,10 @@ start_embedded()
                         printf "initializing... "
                         # wait until a string appears in the petascope.log;
                         # main solution is from https://superuser.com/a/900134,
-                        # plus we added the timeout of 60 seconds in case of error,
+                        # plus we added the timeout of 100 seconds in case of error,
                         # this way it is not necessary to also grep for error strings
-                        ( tail -F -n0 --quiet "$log_file" 2> /dev/null & ) | timeout 60 grep -q "Started ApplicationMain"
+                        sleep 10 # wait first for petascope to start writing to the petascope.log file
+                        ( tail -F -n0 --quiet "$log_file" 2> /dev/null & ) | timeout 100 grep -q "Started ApplicationMain"
                         if [ $? -eq 124 ]; then
                             # the grep timed out
                             printf "warning: initialization may have failed, check %s... " "$log_file"

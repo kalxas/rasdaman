@@ -34,7 +34,6 @@
 * - mafmt does not passed correctly
 */
 
-
 #include "version.h"
 #include "config.h"
 #ifndef RMANVERSION
@@ -97,85 +96,85 @@ typedef enum
 } OUTPUT_TYPE;
 
 // rasdaman MDD type for byte strings (default type used for file format reading)
-#define MDD_STRINGTYPE  "GreyString"
+#define MDD_STRINGTYPE "GreyString"
 
 #ifdef EXIT_FAILURE
 #undef EXIT_FAILURE
 #endif
 /// program exit codes
-#define EXIT_SUCCESS    0
-#define EXIT_USAGE      2
-#define EXIT_FAILURE    -1
+#define EXIT_SUCCESS 0
+#define EXIT_USAGE 2
+#define EXIT_FAILURE -1
 
 // parameter names, defaults, and help texts
 
 #define PARAM_HELP_FLAG 'h'
-#define PARAM_HELP  "help"
-#define HELP_HELP   "show command line switches"
+#define PARAM_HELP "help"
+#define HELP_HELP "show command line switches"
 
 #define PARAM_SERV_FLAG 's'
-#define PARAM_SERV  "server"
-#define HELP_SERV   "<host-name> rasdaman server"
+#define PARAM_SERV "server"
+#define HELP_SERV "<host-name> rasdaman server"
 
 #define PARAM_PORT_FLAG 'p'
-#define PARAM_PORT  "port"
-#define HELP_PORT   "<p> rasmgr port number"
+#define PARAM_PORT "port"
+#define HELP_PORT "<p> rasmgr port number"
 
-#define PARAM_DB_FLAG   'd'
-#define PARAM_DB    "database"
-#define HELP_DB     "<db-name> name of database"
+#define PARAM_DB_FLAG 'd'
+#define PARAM_DB "database"
+#define HELP_DB "<db-name> name of database"
 
-#define PARAM_USER  "user"
-#define HELP_USER   "<user-name> name of user"
+#define PARAM_USER "user"
+#define HELP_USER "<user-name> name of user"
 
-#define PARAM_PASSWD    "passwd"
+#define PARAM_PASSWD "passwd"
 #define HELP_PASSWD "<user-passwd> password of user"
 
 #define PARAM_FILE_FLAG 'f'
-#define PARAM_FILE  "file"
-#define HELP_FILE   "<f> file name for upload through $i parameters within queries; each $i needs its own file parameter, in proper sequence. Requires --mdddomain and --mddtype"
+#define PARAM_FILE "file"
+#define HELP_FILE "<f> file name for upload through $i parameters within queries; each $i needs its own file parameter, in proper sequence. Requires --mdddomain and --mddtype"
 
-#define PARAM_DOMAIN    "mdddomain"
+#define PARAM_DOMAIN "mdddomain"
 #define HELP_DOMAIN "<mdd-domain> domain of marray, format: \'[x0:x1,y0:y1]\' (required only if --file specified and file is in data format r_Array)"
 
-#define PARAM_MDDTYPE   "mddtype"
+#define PARAM_MDDTYPE "mddtype"
 // this is for display only; internally MDD_STRINGTYPE is used
 #define DEFAULT_MDDTYPE "byte string"
-#define HELP_MDDTYPE    "<mdd-type> type of marray (required only if --file specified and file is in data format r_Array)"
+#define HELP_MDDTYPE "<mdd-type> type of marray (required only if --file specified and file is in data format r_Array)"
 
 #define PARAM_QUERY_FLAG 'q'
 #define PARAM_QUERY "query"
-#define HELP_QUERY  "<q> query string to be sent to the rasdaman server for execution"
+#define HELP_QUERY "<q> query string to be sent to the rasdaman server for execution"
 
 #define PARAM_QUERYFILE "queryfile"
-#define HELP_QUERYFILE  "<file> file containing the query string to be sent to the rasdaman server for execution"
+#define HELP_QUERYFILE "<file> file containing the query string to be sent to the rasdaman server for execution"
 
-#define PARAM_OUT   "out"
-#define HELP_OUT    "<t> use display method t for cell values of result MDDs where t is one of none, file, formatted, string, hex. Implies --content"
+#define PARAM_OUT "out"
+#define HELP_OUT "<t> use display method t for cell values of result MDDs where t is one of none, file, formatted, string, hex. Implies --content"
 #define DEFAULT_OUT OUT_NONE
-#define PARAM_OUT_FILE  "file"
+#define PARAM_OUT_FILE "file"
 #define PARAM_OUT_STRING "string"
-#define PARAM_OUT_HEX   "hex"
+#define PARAM_OUT_HEX "hex"
 #define PARAM_OUT_FORMATTED "formatted"
-#define PARAM_OUT_NONE  "none"
+#define PARAM_OUT_NONE "none"
 #define DEFAULT_OUT_STR PARAM_OUT_NONE
 
-#define PARAM_CONTENT   "content"
-#define HELP_CONTENT    "display result, if any (see also --out and --type for output formatting)"
+#define PARAM_CONTENT "content"
+#define HELP_CONTENT "display result, if any (see also --out and --type for output formatting)"
 
-#define PARAM_TYPE  "type"
-#define HELP_TYPE   "display type information for results"
+#define PARAM_TYPE "type"
+#define HELP_TYPE "display type information for results"
 
 #define PARAM_OUTFILE_FLAG 'o'
-#define PARAM_OUTFILE   "outfile"
-#define HELP_OUTFILE    "<of> file name template for storing result images (ignored for scalar results). Use '%d' to indicate auto numbering position, like with printf(1). For well-known file types, a proper suffix is appended to the resulting file name. Implies --out file."
+#define PARAM_OUTFILE "outfile"
+#define HELP_OUTFILE "<of> file name template for storing result images (ignored for scalar results). Use '%d' to indicate auto numbering position, like with printf(1). For well-known file types, a proper suffix is appended to the resulting file name. Implies --out file."
 #define DEFAULT_OUTFILE "rasql_%d"
 
 #define PARAM_QUIET "quiet"
-#define HELP_QUIET  "print no ornament messages, only results and errors"
+#define HELP_QUIET "print no ornament messages, only results and errors"
 
 #define PARAM_DEBUG "debug"
-#define HELP_DEBUG  "generate diagnostic output"
+#define HELP_DEBUG "generate diagnostic output"
 
 #include <logging.hh>
 
@@ -191,7 +190,7 @@ bool taIsOpen = false;
 // suppress regular messages in log? (cmd line parameter '--quiet')
 bool quietLog = false;
 
-int  optionValueIndex = 0;
+int optionValueIndex = 0;
 
 const char *serverName = DEFAULT_HOSTNAME;
 r_ULong serverPort = DEFAULT_PORT;
@@ -225,83 +224,67 @@ r_Set<r_Ref_Any> result_set;
 
 //function prototypes:
 
-void
-parseParams(int argc, char **argv);
+void parseParams(int argc, char **argv);
 
-bool
-openDatabase();
+bool openDatabase();
 
-bool
-closeDatabase();
+bool closeDatabase();
 
-bool
-openTransaction(bool readwrite);
+bool openTransaction(bool readwrite);
 
-bool
-closeTransaction(bool doCommit);
+bool closeTransaction(bool doCommit);
 
-void
-cleanConnection();
+void cleanConnection();
 
-void
-printScalar(const r_Scalar &scalar);
+void printScalar(const r_Scalar &scalar);
 
-void
-writeScalarToFile(const r_Scalar &scalar, unsigned int fileNum);
+void writeScalarToFile(const r_Scalar &scalar, unsigned int fileNum);
 
-void
-writeScalarToFileStream(const r_Scalar &scalar, std::ofstream &file);
+void writeScalarToFileStream(const r_Scalar &scalar, std::ofstream &file);
 
-void
-writeStructToFileStream(const r_Structure *const structValue, std::ofstream &file);
+void writeStructToFileStream(const r_Structure *const structValue, std::ofstream &file);
 
-void
-printResult();
+void printResult();
 
-void
-writeStringToFile(const std::string &str, unsigned int fileNum);
+void writeStringToFile(const std::string &str, unsigned int fileNum);
 
 r_Marray_Type *
 getTypeFromDatabase(const char *mddTypeName2);
 
-void
-doStuff(int argc, char **argv);
+void doStuff(int argc, char **argv);
 
-void
-shutdownHandler(int sig, siginfo_t *info, void *ucontext);
+void shutdownHandler(int sig, siginfo_t *info, void *ucontext);
 
-void
-crashHandler(int sig, siginfo_t *info, void *ucontext);
+void crashHandler(int sig, siginfo_t *info, void *ucontext);
 
-void
-parseParams(int argc, char **argv)
+void parseParams(int argc, char **argv)
 {
     const auto nsn = CommandLineParser::noShortName;
-    
-    CommandLineParser    &cmlInter      = CommandLineParser::getInstance();
 
-    CommandLineParameter &clp_help      = cmlInter.addFlagParameter(PARAM_HELP_FLAG, PARAM_HELP, HELP_HELP);
+    CommandLineParser &cmlInter = CommandLineParser::getInstance();
 
-    CommandLineParameter &clp_query     = cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
+    CommandLineParameter &clp_help = cmlInter.addFlagParameter(PARAM_HELP_FLAG, PARAM_HELP, HELP_HELP);
+
+    CommandLineParameter &clp_query = cmlInter.addStringParameter(PARAM_QUERY_FLAG, PARAM_QUERY, HELP_QUERY);
     CommandLineParameter &clp_queryfile = cmlInter.addStringParameter(nsn, PARAM_QUERYFILE, HELP_QUERYFILE);
-    CommandLineParameter &clp_file      = cmlInter.addStringParameter(PARAM_FILE_FLAG, PARAM_FILE, HELP_FILE);
+    CommandLineParameter &clp_file = cmlInter.addStringParameter(PARAM_FILE_FLAG, PARAM_FILE, HELP_FILE);
 
-    CommandLineParameter &clp_content   = cmlInter.addFlagParameter(nsn, PARAM_CONTENT, HELP_CONTENT);
-    CommandLineParameter &clp_out       = cmlInter.addStringParameter(nsn, PARAM_OUT, HELP_OUT, DEFAULT_OUT_STR);
-    CommandLineParameter &clp_outfile   = cmlInter.addStringParameter(nsn, PARAM_OUTFILE, HELP_OUTFILE, DEFAULT_OUTFILE);
+    CommandLineParameter &clp_content = cmlInter.addFlagParameter(nsn, PARAM_CONTENT, HELP_CONTENT);
+    CommandLineParameter &clp_out = cmlInter.addStringParameter(nsn, PARAM_OUT, HELP_OUT, DEFAULT_OUT_STR);
+    CommandLineParameter &clp_outfile = cmlInter.addStringParameter(nsn, PARAM_OUTFILE, HELP_OUTFILE, DEFAULT_OUTFILE);
     CommandLineParameter &clp_mddDomain = cmlInter.addStringParameter(nsn, PARAM_DOMAIN, HELP_DOMAIN);
-    CommandLineParameter &clp_mddType   = cmlInter.addStringParameter(nsn, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE);
-    CommandLineParameter &clp_type      = cmlInter.addFlagParameter(nsn, PARAM_TYPE, HELP_TYPE);
+    CommandLineParameter &clp_mddType = cmlInter.addStringParameter(nsn, PARAM_MDDTYPE, HELP_MDDTYPE, DEFAULT_MDDTYPE);
+    CommandLineParameter &clp_type = cmlInter.addFlagParameter(nsn, PARAM_TYPE, HELP_TYPE);
 
-    CommandLineParameter &clp_server    = cmlInter.addStringParameter(PARAM_SERV_FLAG, PARAM_SERV, HELP_SERV, DEFAULT_HOSTNAME);
-    CommandLineParameter &clp_port      = cmlInter.addStringParameter(PARAM_PORT_FLAG, PARAM_PORT, HELP_PORT, STRINGIFY(DEFAULT_PORT));
-    CommandLineParameter &clp_database  = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, DEFAULT_DBNAME);
-    CommandLineParameter &clp_user      = cmlInter.addStringParameter(nsn, PARAM_USER, HELP_USER, DEFAULT_USER);
-    CommandLineParameter &clp_passwd    = cmlInter.addStringParameter(nsn, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
-    CommandLineParameter &clp_quiet     = cmlInter.addFlagParameter(nsn, PARAM_QUIET, HELP_QUIET);
+    CommandLineParameter &clp_server = cmlInter.addStringParameter(PARAM_SERV_FLAG, PARAM_SERV, HELP_SERV, DEFAULT_HOSTNAME);
+    CommandLineParameter &clp_port = cmlInter.addStringParameter(PARAM_PORT_FLAG, PARAM_PORT, HELP_PORT, STRINGIFY(DEFAULT_PORT));
+    CommandLineParameter &clp_database = cmlInter.addStringParameter(PARAM_DB_FLAG, PARAM_DB, HELP_DB, DEFAULT_DBNAME);
+    CommandLineParameter &clp_user = cmlInter.addStringParameter(nsn, PARAM_USER, HELP_USER, DEFAULT_USER);
+    CommandLineParameter &clp_passwd = cmlInter.addStringParameter(nsn, PARAM_PASSWD, HELP_PASSWD, DEFAULT_PASSWD);
+    CommandLineParameter &clp_quiet = cmlInter.addFlagParameter(nsn, PARAM_QUIET, HELP_QUIET);
 
 #ifdef DEBUG
-    CommandLineParameter &clp_debug     = cmlInter.addFlagParameter(nsn, PARAM_DEBUG, HELP_DEBUG);
+    CommandLineParameter &clp_debug = cmlInter.addFlagParameter(nsn, PARAM_DEBUG, HELP_DEBUG);
 #endif
 
     try
@@ -314,7 +297,7 @@ parseParams(int argc, char **argv)
             cout << "usage: " << argv[0] << " [--query querystring|-q querystring] [options]" << endl;
             cout << "options:" << endl;
             cmlInter.printHelp();
-            exit(EXIT_USAGE);        //  FIXME: exit no good style!!
+            exit(EXIT_USAGE);  //  FIXME: exit no good style!!
         }
 
         // check mandatory parameters ====================================================
@@ -415,13 +398,13 @@ parseParams(int argc, char **argv)
                 mddDomain = r_Minterval(clp_mddDomain.getValueAsString());
                 mddDomainDef = true;
             }
-            catch (r_Error &e)              // Minterval constructor had syntax problems
+            catch (r_Error &e)  // Minterval constructor had syntax problems
             {
                 cerr << "invalid domain '" << clp_mddDomain.getValueAsString() << ": " << e.what();
                 throw RasqlError(NOVALIDDOMAIN);
             }
         }
-        
+
         // evaluate optional parameter MDD type name --------------------------------------
         if (clp_mddType.isPresent())
         {
@@ -436,20 +419,17 @@ parseParams(int argc, char **argv)
         // evaluate optional parameter MDD type name --------------------------------------
         //SET_OUTPUT(cmlInter.isPresent(PARAM_DEBUG));
 #endif
-
     }
     catch (CmlException &err)
     {
         cerr << err.what() << endl;
         throw RasqlError(ERRORPARSINGCOMMANDLINE);
     }
-} // parseParams()
+}  // parseParams()
 
-
-bool
-openDatabase()
+bool openDatabase()
 {
-    if (! dbIsOpen)
+    if (!dbIsOpen)
     {
         NNLINFO << "Opening database " << baseName << " at " << serverName << ":" << serverPort << "... ";
         db.set_servername(serverName, static_cast<int>(serverPort));
@@ -459,10 +439,9 @@ openDatabase()
         dbIsOpen = true;
     }
     return dbIsOpen;
-} // openDatabase()
+}  // openDatabase()
 
-bool
-closeDatabase()
+bool closeDatabase()
 {
     if (dbIsOpen)
     {
@@ -472,12 +451,11 @@ closeDatabase()
         dbIsOpen = false;
     }
     return !dbIsOpen;
-} // closeDatabase()
+}  // closeDatabase()
 
-bool
-openTransaction(bool readwrite)
+bool openTransaction(bool readwrite)
 {
-    if (! taIsOpen)
+    if (!taIsOpen)
     {
         LDEBUG << "Opening " << (readwrite ? "rw" : "ro") << " transaction... ";
         if (readwrite)
@@ -493,10 +471,9 @@ openTransaction(bool readwrite)
         taIsOpen = true;
     }
     return taIsOpen;
-} // openTransaction()
+}  // openTransaction()
 
-bool
-closeTransaction(bool doCommit)
+bool closeTransaction(bool doCommit)
 {
     if (taIsOpen)
     {
@@ -516,14 +493,13 @@ closeTransaction(bool doCommit)
         taIsOpen = false;
     }
     return !taIsOpen;
-} // closeTransaction()
+}  // closeTransaction()
 
-void
-cleanConnection()
+void cleanConnection()
 {
     try
     {
-        closeTransaction(false); // abort
+        closeTransaction(false);  // abort
     }
     catch (...)
     {
@@ -572,7 +548,7 @@ void printScalar(const r_Scalar &scalar)
         break;
 
     case r_Type::FLOAT:
-        NNLINFO << std::setprecision(std::numeric_limits<float>::digits10 + 1) 
+        NNLINFO << std::setprecision(std::numeric_limits<float>::digits10 + 1)
                 << static_cast<const r_Primitive &>(scalar).get_float();
         break;
 
@@ -583,13 +559,13 @@ void printScalar(const r_Scalar &scalar)
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        NNLINFO << "(" << static_cast<const r_Complex &>(scalar).get_re() << "," 
-                       << static_cast<const r_Complex &>(scalar).get_im() << ")";
+        NNLINFO << "(" << static_cast<const r_Complex &>(scalar).get_re() << ","
+                << static_cast<const r_Complex &>(scalar).get_im() << ")";
         break;
     case r_Type::CINT16:
     case r_Type::CINT32:
-	      NNLINFO << "(" << static_cast<const r_Complex &>(scalar).get_re_long() << ","
-                         << static_cast<const r_Complex &>(scalar).get_im_long() << ")";
+        NNLINFO << "(" << static_cast<const r_Complex &>(scalar).get_re_long() << ","
+                << static_cast<const r_Complex &>(scalar).get_im_long() << ")";
         break;
     case r_Type::STRUCTURETYPE:
     {
@@ -607,10 +583,10 @@ void printScalar(const r_Scalar &scalar)
     }
     break;
     default:
-        LWARNING << "scalar type '" << scalar.get_type()->type_id() <<  "' not supported!";
+        LWARNING << "scalar type '" << scalar.get_type()->type_id() << "' not supported!";
         break;
     }
-} // printScalar()
+}  // printScalar()
 
 /*
  * writes the given scalar to the output file with file number
@@ -621,7 +597,7 @@ void printScalar(const r_Scalar &scalar)
 void writeScalarToFile(const r_Scalar &scalar, unsigned int fileNum)
 {
     char defFileName[FILENAME_MAX];
-    (void) snprintf(defFileName, sizeof(defFileName) - 1, outFileMask, fileNum);
+    (void)snprintf(defFileName, sizeof(defFileName) - 1, outFileMask, fileNum);
     strcat(defFileName, ".txt");
 
     std::ofstream file(defFileName, std::ios::out);
@@ -656,7 +632,7 @@ void writeScalarToFile(const r_Scalar &scalar, unsigned int fileNum)
         }
 
         default:
-            LWARNING << "scalar type '" << scalar.get_type()->type_id() <<  "' not supported!";
+            LWARNING << "scalar type '" << scalar.get_type()->type_id() << "' not supported!";
             break;
         }
 
@@ -738,7 +714,7 @@ void writeScalarToFileStream(const r_Scalar &scalar, std::ofstream &file)
     }
 
     default:
-        LWARNING << "scalar type '" << scalar.get_type()->type_id() <<  "' not supported!";
+        LWARNING << "scalar type '" << scalar.get_type()->type_id() << "' not supported!";
         break;
     }
 }
@@ -766,27 +742,25 @@ void printScalar(const char *buf, r_Type::r_Type_Id typeId);
 void printScalar(const char *buf, r_Type::r_Type_Id typeId)
 {
 #define PRINT_FLT(T) cout << std::setprecision(std::numeric_limits<T>::digits10 + 1) \
-                          << *reinterpret_cast<const T*>(buf)
+                          << *reinterpret_cast<const T *>(buf)
     switch (typeId)
     {
-    case r_Type::BOOL:  cout << (*reinterpret_cast<const r_Boolean*>(buf) ? "t" : "f"); break;
-    case r_Type::CHAR:  cout << int(*reinterpret_cast<const r_Char*>(buf)); break;
-    case r_Type::OCTET: cout << int(*reinterpret_cast<const r_Octet*>(buf)); break;
-    case r_Type::SHORT: cout << *reinterpret_cast<const r_Short*>(buf); break;
-    case r_Type::USHORT:cout << *reinterpret_cast<const r_UShort*>(buf); break;
-    case r_Type::LONG:  cout << *reinterpret_cast<const r_Long*>(buf); break;
-    case r_Type::ULONG: cout << *reinterpret_cast<const r_ULong*>(buf); break;
-    case r_Type::FLOAT: cout << std::setprecision(std::numeric_limits<r_Float>::digits10 + 1)
-                             << *reinterpret_cast<const r_Float*>(buf); break;
-    case r_Type::DOUBLE:cout << std::setprecision(std::numeric_limits<r_Double>::digits10 + 1)
-                             << *reinterpret_cast<const r_Double*>(buf); break;
-    case r_Type::COMPLEXTYPE1:cout << *reinterpret_cast<const std::complex<r_Float>*>(buf); break;
-    case r_Type::COMPLEXTYPE2:cout << *reinterpret_cast<const std::complex<r_Double>*>(buf); break;
-    case r_Type::CINT16:      cout << *reinterpret_cast<const std::complex<r_Short>*>(buf); break;
-    case r_Type::CINT32:      cout << *reinterpret_cast<const std::complex<r_Long>*>(buf); break;
-    default:                  cout << "?"; break;
+    case r_Type::BOOL: cout << (*reinterpret_cast<const r_Boolean *>(buf) ? "t" : "f"); break;
+    case r_Type::CHAR: cout << int(*reinterpret_cast<const r_Char *>(buf)); break;
+    case r_Type::OCTET: cout << int(*reinterpret_cast<const r_Octet *>(buf)); break;
+    case r_Type::SHORT: cout << *reinterpret_cast<const r_Short *>(buf); break;
+    case r_Type::USHORT: cout << *reinterpret_cast<const r_UShort *>(buf); break;
+    case r_Type::LONG: cout << *reinterpret_cast<const r_Long *>(buf); break;
+    case r_Type::ULONG: cout << *reinterpret_cast<const r_ULong *>(buf); break;
+    case r_Type::FLOAT: PRINT_FLT(r_Float); break;
+    case r_Type::DOUBLE: PRINT_FLT(r_Double); break;
+    case r_Type::COMPLEXTYPE1: cout << *reinterpret_cast<const std::complex<r_Float> *>(buf); break;
+    case r_Type::COMPLEXTYPE2: cout << *reinterpret_cast<const std::complex<r_Double> *>(buf); break;
+    case r_Type::CINT16: cout << *reinterpret_cast<const std::complex<r_Short> *>(buf); break;
+    case r_Type::CINT32: cout << *reinterpret_cast<const std::complex<r_Long> *>(buf); break;
+    default: cout << "?"; break;
     }
-} // printScalar()
+}  // printScalar()
 
 // result_set should be parameter, but is global -- see def for reason
 void printResult(/* r_Set< r_Ref_Any > result_set */)
@@ -823,7 +797,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
 
     r_Iterator<r_Ref_Any> iter = result_set.create_iterator();
     // iter.not_done() seems to behave wrongly on empty set, therefore this additional check -- PB 2003-aug-16
-    for (unsigned int i = 1 ; i <= result_set.cardinality() && iter.not_done(); iter++, i++)
+    for (unsigned int i = 1; i <= result_set.cardinality() && iter.not_done(); iter++, i++)
     {
         switch (result_set.get_element_type_schema()->type_id())
         {
@@ -868,31 +842,35 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
                 auto lastDimSize = dom[dom.dimension() - 1].get_extent();
                 if (type->isStructType())
                 {
+                    std::vector<unsigned int> typeSizes;
+                    std::vector<r_Type::r_Type_Id> typeIds;
                     const auto *structType = static_cast<const r_Structure_Type *>(type);
                     const auto &atts = structType->getAttributes();
                     size_t bandNo = atts.size();
-                    std::vector<r_Bytes> typeSizes;
-                    std::vector<r_Type::r_Type_Id> typeIds;
                     for (const auto &att: atts)
                     {
-                        typeIds.push_back(att.type_of().type_id());
                         typeSizes.push_back(att.type_of().size());
+                        typeIds.push_back(att.type_of().type_id());
                     }
                     for (size_t j = 0; j < numCells; ++j)
                     {
-                        if (j > 0) {
-                            cout << ",";
+                        if (j > 0)
+                        {
                             if (j % lastDimSize == 0)
-                                cout << "\n" << flush;
+                                cout << "\n"
+                                     << flush;
+                            cout << ",";
                         }
                         cout << "{";
-                        for (size_t k = 0; k < bandNo; ++k)
+                        for (size_t k = 0; k < bandNo; ++k, data += typeSizes[k])
                         {
                             if (k > 0) cout << ",";
                             printScalar(data, typeIds[k]);
-                            data += typeSizes[k];
                         }
                         cout << "}";
+                        if (j % lastDimSize == 0)
+                            cout << "\n"
+                                 << flush;
                     }
                 }
                 else
@@ -900,10 +878,12 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
                     const auto typeId = type->type_id();
                     for (size_t j = 0; j < numCells; ++j, data += cellSize)
                     {
-                        if (j > 0) {
-                            cout << ",";
+                        if (j > 0)
+                        {
                             if (j % lastDimSize == 0)
-                                cout << "\n" << flush;
+                                cout << "\n"
+                                     << flush;
+                            cout << ",";
                         }
                         printScalar(data, typeId);
                     }
@@ -914,7 +894,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
             case OUT_FILE:
             {
                 char defFileName[FILENAME_MAX];
-                (void) snprintf(defFileName, sizeof(defFileName) - 1, outFileMask, i);
+                (void)snprintf(defFileName, sizeof(defFileName) - 1, outFileMask, i);
                 LDEBUG << "filename for #" << i << " is " << defFileName;
 
                 // special treatment only for DEFs
@@ -922,17 +902,17 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
                 const char *suffix = ".unknown";
                 switch (mafmt)
                 {
-                case r_TIFF:  suffix = ".tif"; break;
-                case r_JP2:   suffix = ".jp2"; break;
-                case r_JPEG:  suffix = ".jpg"; break;
-                case r_HDF:   suffix = ".hdf"; break;
-                case r_PNG:   suffix = ".png"; break;
-                case r_BMP:   suffix = ".bmp"; break;
-                case r_NETCDF:suffix = ".nc"; break;
-                case r_CSV:   suffix = ".csv"; break;
-                case r_JSON:  suffix = ".json"; break;
-                case r_DEM:   suffix = ".dem"; break;
-                default:      suffix = ".unknown"; break;
+                case r_TIFF: suffix = ".tif"; break;
+                case r_JP2: suffix = ".jp2"; break;
+                case r_JPEG: suffix = ".jpg"; break;
+                case r_HDF: suffix = ".hdf"; break;
+                case r_PNG: suffix = ".png"; break;
+                case r_BMP: suffix = ".bmp"; break;
+                case r_NETCDF: suffix = ".nc"; break;
+                case r_CSV: suffix = ".csv"; break;
+                case r_JSON: suffix = ".json"; break;
+                case r_DEM: suffix = ".dem"; break;
+                default: suffix = ".unknown"; break;
                 }
                 strcat(defFileName, suffix);
 
@@ -955,7 +935,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
             default:
                 LERROR << "Unknown output type, ignoring action: " << static_cast<int>(outputType) << endl;
                 break;
-            } // switch(outputType)
+            }  // switch(outputType)
             break;
 
         case r_Type::POINTTYPE:
@@ -989,8 +969,9 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
             NNLINFO << "  Result element " << i << ": ";
             BLINFO << *(r_Ref<r_OId>(*iter)) << "\n";
             break;
-        
-        case r_Type::STRINGTYPE: {
+
+        case r_Type::STRINGTYPE:
+        {
             const auto &value = r_Ref<r_String>(*iter)->get_value();
             NNLINFO << "  Result element " << i << ": " << value << "\n";
             if (outputType == OUT_FILE)
@@ -1008,9 +989,9 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
                 writeScalarToFile(*scalar, i);
             }
             BLINFO << "\n";
-        } // switch
-    }  // for(...)
-} // printResult()
+        }  // switch
+    }      // for(...)
+}  // printResult()
 
 /*
  * writes the given string to file
@@ -1021,7 +1002,7 @@ void printResult(/* r_Set< r_Ref_Any > result_set */)
 void writeStringToFile(const std::string &str, unsigned int fileNum)
 {
     char defFileName[FILENAME_MAX];
-    (void) snprintf(defFileName, sizeof(defFileName) - 1, outFileMask, fileNum);
+    (void)snprintf(defFileName, sizeof(defFileName) - 1, outFileMask, fileNum);
     strcat(defFileName, ".txt");
 
     std::ofstream file(defFileName, std::ios::out);
@@ -1061,7 +1042,7 @@ r_Marray_Type *getTypeFromDatabase(const char *mddTypeName2)
             LDEBUG << "Type is not a well known type: " << typeStructure.get();
             throw RasqlError(MDDTYPEINVALID);
         }
-        else    // unanticipated error
+        else  // unanticipated error
         {
             LDEBUG << "Error during type retrieval from database: " << err.get_errorno() << " " << err.what();
             throw;
@@ -1089,14 +1070,14 @@ r_Marray_Type *getTypeFromDatabase(const char *mddTypeName2)
     }
 
     return retval;
-} // getTypeFromDatabase()
+}  // getTypeFromDatabase()
 
 void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **argv)
 {
-    std::unique_ptr<char[]> fileContents;                       // contents of file satisfying "$1" parameter in query
-    std::unique_ptr<r_Set<r_GMarray *>> fileContentsChunked; // file contents partitioned into smaller chunks
-    r_Ref<r_GMarray> fileMDD;    // MDD to satisfy a "$1" parameter
-    std::unique_ptr<r_Marray_Type> mddType;      // this MDD's type
+    std::unique_ptr<char[]> fileContents;                     // contents of file satisfying "$1" parameter in query
+    std::unique_ptr<r_Set<r_GMarray *>> fileContentsChunked;  // file contents partitioned into smaller chunks
+    r_Ref<r_GMarray> fileMDD;                                 // MDD to satisfy a "$1" parameter
+    std::unique_ptr<r_Marray_Type> mddType;                   // this MDD's type
 
     r_OQL_Query query(queryString);
     LDEBUG << "query is: " << query.get_query();
@@ -1104,7 +1085,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
     if (fileName != NULL)
     {
         // if no type name was specified then assume byte string (for encoded files)
-        if (! mddTypeNameDef)
+        if (!mddTypeNameDef)
         {
             mddTypeName = MDD_STRINGTYPE;
         }
@@ -1120,7 +1101,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
         }
         else
         {
-            return; // no point to continue
+            return;  // no point to continue
         }
 
         NNLINFO << "reading file " << fileName << "... ";
@@ -1142,7 +1123,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
         LDEBUG << "file size is " << size << " bytes";
 
         // if no domain specified (this is the case with encoded files), then set to byte stream
-        if (! mddDomainDef)
+        if (!mddDomainDef)
         {
             mddDomain = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(size) - 1);
             LDEBUG << "domain set to " << mddDomain;
@@ -1180,7 +1161,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
             }
         }
         else if (size != static_cast<long>(mddDomain.cell_count()) *
-                 static_cast<long>(mddType->base_type().size()))
+                             static_cast<long>(mddType->base_type().size()))
         {
             throw RasqlError(FILESIZEMISMATCH);
         }
@@ -1211,7 +1192,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
         fileMDD = new (mddTypeName) r_GMarray(mddDomain, mddType->base_type().size(), 0, &ta, false);
         fileMDD->set_array_size(mddDomain.cell_count() * mddType->base_type().size());
         fileMDD->set_type_schema(mddType.get());
-//        mddType.release();
+        //        mddType.release();
         if (fileContents)
         {
             fileMDD->set_array(fileContents.get());
@@ -1253,7 +1234,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
     }
 
     auto isInsert = query.is_insert_query();
-    if (isInsert || query.is_update_query()) // insert/update
+    if (isInsert || query.is_update_query())  // insert/update
     {
         if (openTransaction(true))
         {
@@ -1276,7 +1257,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
             closeTransaction(true);
         }
     }
-    else // retrieval query
+    else  // retrieval query
     {
         if (openTransaction(false))
         {
@@ -1292,8 +1273,7 @@ void doStuff(__attribute__((unused)) int argc, __attribute__((unused)) char **ar
     }
 }
 
-void
-shutdownHandler(int sig, siginfo_t *, void *)
+void shutdownHandler(int sig, siginfo_t *, void *)
 {
     static bool alreadyExecuting{false};
     if (!alreadyExecuting)
@@ -1307,15 +1287,15 @@ shutdownHandler(int sig, siginfo_t *, void *)
     }
 }
 
-void
-crashHandler(int sig, siginfo_t *info, void *)
+void crashHandler(int sig, siginfo_t *info, void *)
 {
     static bool alreadyExecuting{false};
     if (!alreadyExecuting)
     {
         alreadyExecuting = true;
         NNLERROR << "\nInterrupted by signal " << common::SignalHandler::toString(info)
-                 << "... stacktrace:\n" << common::SignalHandler::getStackTrace()
+                 << "... stacktrace:\n"
+                 << common::SignalHandler::getStackTrace()
                  << "\nClosing server connection... ";
         // cleanConnection();
         BLERROR << "done, exiting.";
@@ -1401,7 +1381,6 @@ int main(int argc, char **argv)
 
     LINFO << argv[0] << " done.";
     return retval;
-} // main()
+}  // main()
 
 // end of rasql.cc
-

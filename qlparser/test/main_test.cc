@@ -27,14 +27,14 @@
 #include "loggingutils.hh"
 
 INITIALIZE_EASYLOGGINGPP
-        
+
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     common::LogConfiguration logConf;
     logConf.configClientLogging();
-    
+
     ::testing::InitGoogleTest(&argc, argv);
 
     int testResults = RUN_ALL_TESTS();

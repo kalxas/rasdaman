@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include "raslib/mddtypes.hh"   // for r_Dimension, r_Bytes
 #include "raslib/minterval.hh"  // for r_Minterval
 
-#include <iosfwd>                   // for cout, ostream
+#include <iosfwd>  // for cout, ostream
 
 /**
  *  @file transdirix.hh
@@ -69,9 +69,8 @@ public:
     */
 
     void printStatus(unsigned int level, std::ostream &stream) const override;
-   
-protected:
 
+protected:
     void insertObject(const KeyObject &newKeyObject, unsigned int pos) override;
     /*@Doc:
     Inserts a new tile in the index at position <tt>pos</tt>, which must be
@@ -147,6 +146,5 @@ private:
 
     KeyObjectVector tiles;
 };
-
 
 #endif

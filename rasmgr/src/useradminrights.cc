@@ -70,13 +70,10 @@ UserAdminRights UserAdminRights::parseFromProto(
     const UserAdminRightsProto &rights)
 {
     UserAdminRights adminRights;
-    adminRights.accessControlRights = rights.has_access_control_rights()
-                                      && rights.access_control_rights();
+    adminRights.accessControlRights = rights.has_access_control_rights() && rights.access_control_rights();
     adminRights.infoRights = rights.has_info_rights() && rights.info_rights();
-    adminRights.serverAdminRights = rights.has_server_admin_rights()
-                                    && rights.server_admin_rights();
-    adminRights.systemConfigRights = rights.has_system_config_rights()
-                                     && rights.system_config_rights();
+    adminRights.serverAdminRights = rights.has_server_admin_rights() && rights.server_admin_rights();
+    adminRights.systemConfigRights = rights.has_system_config_rights() && rights.system_config_rights();
     return adminRights;
 }
 
@@ -90,4 +87,4 @@ UserAdminRightsProto UserAdminRights::serializeToProto(const UserAdminRights &ri
     return protoRights;
 }
 
-}
+}  // namespace rasmgr

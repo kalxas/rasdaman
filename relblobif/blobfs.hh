@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <string>           // for string
+#include <string>  // for string
 #include <vector>
 
 #include "blobfile.hh"
@@ -35,6 +35,7 @@
 class BlobFS
 {
     friend class TestBlobFS;
+
 public:
     static BlobFS &getInstance();
 
@@ -60,7 +61,7 @@ public:
 
     /// return the file path for blob with the given blobId
     std::string getBlobFilePath(long long blobId) const;
-    
+
     const BlobFSConfig &getConfig() const;
 
 private:
@@ -88,9 +89,8 @@ private:
     std::unique_ptr<BlobFSTransaction> updateTransaction;
     std::unique_ptr<BlobFSTransaction> removeTransaction;
     std::unique_ptr<BlobFSTransaction> selectTransaction;
-    
-    static const std::string tilesSubdir;        // TILES
-    static const std::string transactionsSubdir; // TRANSACTIONS
-    static const std::string transactionLocksDir;// /tmp/rasdaman_transaction_locks
-};
 
+    static const std::string tilesSubdir;          // TILES
+    static const std::string transactionsSubdir;   // TRANSACTIONS
+    static const std::string transactionLocksDir;  // /tmp/rasdaman_transaction_locks
+};

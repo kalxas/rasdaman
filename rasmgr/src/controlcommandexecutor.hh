@@ -76,5 +76,5 @@ private:
     bool canRunCommand(const std::string &userName, const std::string &password, const std::string &command);
 };
 
-}
+}  // namespace rasmgr
 #endif /* RASMGR_X_SRC_CONTROLCOMMANDEXECUTOR_HH_ */

@@ -109,12 +109,12 @@ public:
      * Start the RasServer Process.
      */
     virtual void startProcess();
-    
+
     /**
      * Stop the RasServer process.
      */
     virtual void stop(KillLevel level);
-    
+
     /**
      * Register this server and transfer it to the FREE state. This is called
      * when the server is initalized. The serverId must be the same as the one
@@ -122,7 +122,7 @@ public:
      * @param serverId UUID used to identify the server
      */
     virtual void registerServer(const std::string &serverId);
-  
+
     /**
      * @return True if the server process was started but the server has not registered with RasMgr
      */
@@ -131,7 +131,7 @@ public:
      * @return True if the server does not have any clients assigned, false otherwise.
      */
     virtual bool isFree();
-  
+
     /**
      * @return True if the server has available capacity, false otherwise
      */
@@ -210,11 +210,11 @@ public:
      * @return the UUID of the server
      */
     virtual const std::string &getServerId() const;
-    
+
     virtual bool isRegistered();
     virtual bool isStarted();
     virtual void setStarted(bool value);
-  
+
     /**
      * @return the current client session if one exists as a pair of
      * (clientId, sessionId), or a pair of empty strings otherwise.
@@ -226,7 +226,6 @@ protected:
     Server() = default;
 
 private:
-
     /**
      * Send a signal sig to this server with PID processId; will log an error
      * in case it fails to send the signal.
@@ -243,18 +242,18 @@ private:
      */
     static const std::int32_t SERVER_CHECK_INTERVAL;
 
-    std::string hostName;/*! Hostname of the RasServer process */
-    std::int32_t port;/*! Port of the RasServer process */
-    std::shared_ptr<DatabaseHost> dbHost;/*! Database host to which this server has access */
+    std::string hostName;                 /*! Hostname of the RasServer process */
+    std::int32_t port;                    /*! Port of the RasServer process */
+    std::shared_ptr<DatabaseHost> dbHost; /*! Database host to which this server has access */
     std::string options;
 
-    pid_t processId; /*! Id of the server process*/
+    pid_t processId;      /*! Id of the server process*/
     std::string serverId; /*! UUID that uniquely identifies the server */
 
     boost::shared_mutex stateMutex;
-    bool registered;/*! Flag to indicate if the server is starting but has not yet registered */
+    bool registered;      /*! Flag to indicate if the server is starting but has not yet registered */
     bool clientConnected; /*! True if any client is connected */
-    bool started; /*! True after the process is started*/
+    bool started;         /*! True after the process is started*/
 
     std::uint32_t sessionNo;
 
@@ -281,7 +280,7 @@ private:
      * do this in order to set a timeout of SERVER_CALL_TIMEOUT ms for calls.
      */
     void configureClientContext(grpc::ClientContext &context);
-    
+
     /**
      * Allocate the client with the given ID and session ID to the server and respective database.
      * @param clientId UUID of the client
@@ -294,7 +293,6 @@ private:
                                const std::string &dbName,
                                const std::string &capabilities);
 
-
     std::string getCapability(const char *serverName, const char *databaseName,
                               const UserDatabaseRights &rights);
 
@@ -305,7 +303,7 @@ private:
                               const std::string &token);
 
     std::string convertDatabRights(const UserDatabaseRights &dbRights);
-    
+
     /**
      * Wait until the server is not alive anymore or a timeout is reached.
      * @return true if the server is still alive, false otherwise.
@@ -313,6 +311,6 @@ private:
     bool waitUntilServerExits();
 };
 
-}
+}  // namespace rasmgr
 
 #endif /* RASMGR_X_SRC_RASSERVER_HH_ */

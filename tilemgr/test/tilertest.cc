@@ -42,9 +42,7 @@ rasdaman GmbH.
 
 RMINITGLOBALS('C')
 
-
-int
-main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     vector<r_Minterval> sourceDomains;
     vector<r_Minterval> targetDomains;
@@ -53,10 +51,9 @@ main(int argc, char* argv[])
     vector<r_Minterval>::iterator targetDIt;
     vector<r_Minterval>::iterator retvalDIt;
 
-
-    vector<Tile*>::iterator sourceIt;
-    vector<Tile*>::iterator targetIt;
-    vector<Tile*>::iterator retvalIt;
+    vector<Tile *>::iterator sourceIt;
+    vector<Tile *>::iterator targetIt;
+    vector<Tile *>::iterator retvalIt;
 
     r_Minterval targetDom("[0:50,0:50]");
     r_Minterval targetInt1("[0:10,0:10]");
@@ -70,32 +67,32 @@ main(int argc, char* argv[])
     r_Minterval targetInt9("[40:50,11:11]");
     r_Minterval targetInt10("[35:35,0:10]");
     r_Minterval targetInt11("[30:34,10:10]");
-    OctetType* o = new OctetType();
+    OctetType *o = new OctetType();
 
-    char* cont1 = 0;
-    char* cont2 = 0;
-    char* cont3 = 0;
-    char* cont4 = 0;
-    char* cont5 = 0;
-    char* cont6 = 0;
-    char* cont7 = 0;
-    char* cont8 = 0;
-    char* cont9 = 0;
-    char* cont10 = 0;
-    char* cont11 = 0;
-    char* outc = 0;
-    cont1 = (char*)mymalloc(500);
-    cont2 = (char*)mymalloc(500);
-    cont3 = (char*)mymalloc(500);
-    cont4 = (char*)mymalloc(500);
-    cont5 = (char*)mymalloc(500);
-    cont6 = (char*)mymalloc(500);
-    cont7 = (char*)mymalloc(500);
-    cont8 = (char*)mymalloc(500);
-    cont9 = (char*)mymalloc(500);
-    cont10 = (char*)mymalloc(500);
-    cont11 = (char*)mymalloc(500);
-    outc = (char*)mymalloc(101 * 101);
+    char *cont1 = 0;
+    char *cont2 = 0;
+    char *cont3 = 0;
+    char *cont4 = 0;
+    char *cont5 = 0;
+    char *cont6 = 0;
+    char *cont7 = 0;
+    char *cont8 = 0;
+    char *cont9 = 0;
+    char *cont10 = 0;
+    char *cont11 = 0;
+    char *outc = 0;
+    cont1 = (char *)mymalloc(500);
+    cont2 = (char *)mymalloc(500);
+    cont3 = (char *)mymalloc(500);
+    cont4 = (char *)mymalloc(500);
+    cont5 = (char *)mymalloc(500);
+    cont6 = (char *)mymalloc(500);
+    cont7 = (char *)mymalloc(500);
+    cont8 = (char *)mymalloc(500);
+    cont9 = (char *)mymalloc(500);
+    cont10 = (char *)mymalloc(500);
+    cont11 = (char *)mymalloc(500);
+    outc = (char *)mymalloc(101 * 101);
     memset(cont1, 1, 500);
     memset(cont2, 2, 500);
     memset(cont3, 3, 500);
@@ -110,17 +107,17 @@ main(int argc, char* argv[])
     memset(outc, 0, 3500);
     TransTile output(targetDom, o, outc);
 
-    TransTile* ttile1 = new TransTile(targetInt1, (const BaseType*)o, cont1);
-    TransTile* ttile2 = new TransTile(targetInt2, (const BaseType*)o, cont2);
-    TransTile* ttile3 = new TransTile(targetInt3, (const BaseType*)o, cont3);
-    TransTile* ttile4 = new TransTile(targetInt4, (const BaseType*)o, cont4);
-    TransTile* ttile5 = new TransTile(targetInt5, (const BaseType*)o, cont5);
-    TransTile* ttile6 = new TransTile(targetInt6, (const BaseType*)o, cont6);
-    TransTile* ttile7 = new TransTile(targetInt7, (const BaseType*)o, cont7);
-    TransTile* ttile8 = new TransTile(targetInt8, (const BaseType*)o, cont8);
-    TransTile* ttile9 = new TransTile(targetInt9, (const BaseType*)o, cont9);
-    TransTile* ttile10 = new TransTile(targetInt10, (const BaseType*)o, cont10);
-    TransTile* ttile11 = new TransTile(targetInt11, (const BaseType*)o, cont11);
+    TransTile *ttile1 = new TransTile(targetInt1, (const BaseType *)o, cont1);
+    TransTile *ttile2 = new TransTile(targetInt2, (const BaseType *)o, cont2);
+    TransTile *ttile3 = new TransTile(targetInt3, (const BaseType *)o, cont3);
+    TransTile *ttile4 = new TransTile(targetInt4, (const BaseType *)o, cont4);
+    TransTile *ttile5 = new TransTile(targetInt5, (const BaseType *)o, cont5);
+    TransTile *ttile6 = new TransTile(targetInt6, (const BaseType *)o, cont6);
+    TransTile *ttile7 = new TransTile(targetInt7, (const BaseType *)o, cont7);
+    TransTile *ttile8 = new TransTile(targetInt8, (const BaseType *)o, cont8);
+    TransTile *ttile9 = new TransTile(targetInt9, (const BaseType *)o, cont9);
+    TransTile *ttile10 = new TransTile(targetInt10, (const BaseType *)o, cont10);
+    TransTile *ttile11 = new TransTile(targetInt11, (const BaseType *)o, cont11);
 
     r_Minterval sourceDom("[5:45,5:45]");
     r_Minterval sourceInt1("[5:10,5:10]");
@@ -131,20 +128,20 @@ main(int argc, char* argv[])
     r_Minterval sourceInt6("[39:41,9:11]");
     r_Minterval sourceInt7("[34:36,9:11]");
 
-    char* scont1 = 0;
-    char* scont2 = 0;
-    char* scont3 = 0;
-    char* scont4 = 0;
-    char* scont5 = 0;
-    char* scont6 = 0;
-    char* scont7 = 0;
-    scont1 = (char*)mymalloc(500);
-    scont2 = (char*)mymalloc(500);
-    scont3 = (char*)mymalloc(500);
-    scont4 = (char*)mymalloc(500);
-    scont5 = (char*)mymalloc(500);
-    scont6 = (char*)mymalloc(500);
-    scont7 = (char*)mymalloc(500);
+    char *scont1 = 0;
+    char *scont2 = 0;
+    char *scont3 = 0;
+    char *scont4 = 0;
+    char *scont5 = 0;
+    char *scont6 = 0;
+    char *scont7 = 0;
+    scont1 = (char *)mymalloc(500);
+    scont2 = (char *)mymalloc(500);
+    scont3 = (char *)mymalloc(500);
+    scont4 = (char *)mymalloc(500);
+    scont5 = (char *)mymalloc(500);
+    scont6 = (char *)mymalloc(500);
+    scont7 = (char *)mymalloc(500);
     memset(scont1, 21, 500);
     memset(scont2, 22, 500);
     memset(scont3, 23, 500);
@@ -152,15 +149,15 @@ main(int argc, char* argv[])
     memset(scont5, 25, 500);
     memset(scont6, 26, 500);
     memset(scont7, 27, 500);
-    TransTile* stile1 = new TransTile(sourceInt1, (const BaseType*)o, scont1);
-    TransTile* stile2 = new TransTile(sourceInt2, (const BaseType*)o, scont2);
-    TransTile* stile3 = new TransTile(sourceInt3, (const BaseType*)o, scont3);
-    TransTile* stile4 = new TransTile(sourceInt4, (const BaseType*)o, scont4);
-    TransTile* stile5 = new TransTile(sourceInt5, (const BaseType*)o, scont5);
-    TransTile* stile6 = new TransTile(sourceInt6, (const BaseType*)o, scont6);
-    TransTile* stile7 = new TransTile(sourceInt7, (const BaseType*)o, scont7);
+    TransTile *stile1 = new TransTile(sourceInt1, (const BaseType *)o, scont1);
+    TransTile *stile2 = new TransTile(sourceInt2, (const BaseType *)o, scont2);
+    TransTile *stile3 = new TransTile(sourceInt3, (const BaseType *)o, scont3);
+    TransTile *stile4 = new TransTile(sourceInt4, (const BaseType *)o, scont4);
+    TransTile *stile5 = new TransTile(sourceInt5, (const BaseType *)o, scont5);
+    TransTile *stile6 = new TransTile(sourceInt6, (const BaseType *)o, scont6);
+    TransTile *stile7 = new TransTile(sourceInt7, (const BaseType *)o, scont7);
 
-    vector<Tile*> sourceTiles;
+    vector<Tile *> sourceTiles;
     sourceTiles.push_back(stile1);
     sourceTiles.push_back(stile2);
     sourceTiles.push_back(stile3);
@@ -169,7 +166,7 @@ main(int argc, char* argv[])
     sourceTiles.push_back(stile6);
     sourceTiles.push_back(stile7);
 
-    vector<Tile*> targetTiles;
+    vector<Tile *> targetTiles;
     targetTiles.push_back(ttile1);
     targetTiles.push_back(ttile2);
     targetTiles.push_back(ttile3);
@@ -182,7 +179,7 @@ main(int argc, char* argv[])
     targetTiles.push_back(ttile10);
     targetTiles.push_back(ttile11);
 
-    vector<Tile*> retval;
+    vector<Tile *> retval;
 
     unsigned long targetTileArea = 0;
     unsigned long sourceTileArea = 0;
@@ -199,7 +196,8 @@ main(int argc, char* argv[])
     {
         cout << (*targetIt)->getDomain() << endl;
     }
-    cout << endl << "Source Tiles" << endl;
+    cout << endl
+         << "Source Tiles" << endl;
     for (sourceIt = sourceTiles.begin(); sourceIt != sourceTiles.end(); sourceIt++)
     {
         cout << (*sourceIt)->getDomain() << endl;
@@ -235,7 +233,7 @@ main(int argc, char* argv[])
             // Create a new persistent tile, copy the transient data,
             // and insert it into the target mdd object.
             cout << "No Intersection" << endl;
-            TransTile* newPersTile = new TransTile((*sourceIt)->getDomain(), o, (*sourceIt)->getDataFormat());
+            TransTile *newPersTile = new TransTile((*sourceIt)->getDomain(), o, (*sourceIt)->getDataFormat());
             newPersTile->execUnaryOp(Ops::OP_IDENTITY, (*sourceIt)->getDomain(), *sourceIt, (*sourceIt)->getDomain());
             //targetObj->insertTile( newPersTile );
             updatedArea = updatedArea + (*sourceIt)->getDomain().cell_count();
@@ -245,7 +243,8 @@ main(int argc, char* argv[])
     cout << "Source Domain    " << sourceDom << " has area " << sourceDom.cell_count() << endl;
     cout << "Source Tile Area " << sourceTileArea << endl;
     cout << "Target Tile Area " << targetTileArea << endl;
-    cout << "Updated Area     " << updatedArea << endl << endl;
+    cout << "Updated Area     " << updatedArea << endl
+         << endl;
     // insert the tile
 
     if (sourceTileArea <= updatedArea)
@@ -254,7 +253,8 @@ main(int argc, char* argv[])
     }
     else
     {
-        cout << "and there are still some cells to do" << endl << endl;
+        cout << "and there are still some cells to do" << endl
+             << endl;
 
         for (retvalIt = sourceTiles.begin(); retvalIt != sourceTiles.end(); retvalIt++)
         {
@@ -283,7 +283,7 @@ main(int argc, char* argv[])
         {
             cout << (*retvalDIt) << endl;
         }
-        vector<Tile*> t = tiler.generateTransTiles(sourceTiles);
+        vector<Tile *> t = tiler.generateTransTiles(sourceTiles);
         for (retvalIt = targetTiles.begin(); retvalIt != targetTiles.end(); retvalIt++)
         {
             output.execUnaryOp(Ops::OP_IDENTITY, (*retvalIt)->getDomain(), (*retvalIt), (*retvalIt)->getDomain());
@@ -297,4 +297,3 @@ main(int argc, char* argv[])
         RManDebug = 1;
     }
 }
-

@@ -55,7 +55,6 @@ void UserDatabaseRights::setWriteAccess(bool writeAccess)
 UserDatabaseRights UserDatabaseRights::parseFromProto(
     const UserDatabaseRightsProto &rights)
 {
-
     UserDatabaseRights userDbRights(false);
 
     userDbRights.readAccess = rights.has_read() && rights.read();

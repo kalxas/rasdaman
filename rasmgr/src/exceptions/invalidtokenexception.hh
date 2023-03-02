@@ -1,17 +1,16 @@
 #pragma once
 #include "common/exceptions/rasexceptions.hh"
 
-namespace rasmgr {
+namespace rasmgr
+{
 
-class InvalidTokenException: public common::RuntimeException {
- public:
-  InvalidTokenException();
-  InvalidTokenException(const std::string &details);
+class InvalidTokenException : public common::RuntimeException
+{
+public:
+    InvalidTokenException();
+    InvalidTokenException(const std::string &details);
 
-  virtual ~InvalidTokenException() noexcept;
-
+    virtual ~InvalidTokenException() noexcept;
 };
 
-}
-
-
+}  // namespace rasmgr

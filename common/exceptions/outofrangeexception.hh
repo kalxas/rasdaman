@@ -28,21 +28,22 @@ rasdaman GmbH.
 
 #include "exception.hh"
 
-namespace common {
+namespace common
+{
 
 /**
  * @brief The OutOfRangeException class defines the type of objects thrown as
  * exception.
  * It reports an out-of-range error.
  */
-class OutOfRangeException : public Exception {
- public:
-  OutOfRangeException();
-  OutOfRangeException(const std::string &message);
+class OutOfRangeException : public Exception
+{
+public:
+    OutOfRangeException();
+    OutOfRangeException(const std::string &message);
 
-  ~OutOfRangeException() override;
+    ~OutOfRangeException() override;
 };
-} // namespace common
+}  // namespace common
 
 #endif
-

@@ -33,14 +33,12 @@ using namespace std;
 
 const QtNode::QtNodeType QtJoinIterator::nodeType = QtNode::QT_JOIN_ITERATOR;
 
-
 QtJoinIterator::QtJoinIterator()
     : QtIterator(),
       outputStreamIsEmpty(false),
       actualTuple(NULL)
 {
 }
-
 
 QtJoinIterator::QtJoinIterator(QtNode *node)
     : QtIterator(node),
@@ -49,10 +47,9 @@ QtJoinIterator::QtJoinIterator(QtNode *node)
 {
 }
 
-
 QtJoinIterator::~QtJoinIterator()
 {
-    vector<QtData *>::iterator i; //default
+    vector<QtData *>::iterator i;  //default
 
     if (actualTuple)
     {
@@ -68,9 +65,7 @@ QtJoinIterator::~QtJoinIterator()
     }
 }
 
-
-void
-QtJoinIterator::printTree(int tab, ostream &s, QtChildType mode)
+void QtJoinIterator::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtJoinIterator Object: type " << flush;
     dataStreamType.printStatus(s);
@@ -80,19 +75,14 @@ QtJoinIterator::printTree(int tab, ostream &s, QtChildType mode)
     QtIterator::printTree(tab, s, mode);
 }
 
-
-
-void
-QtJoinIterator::printAlgebraicExpression(ostream &s)
+void QtJoinIterator::printAlgebraicExpression(ostream &s)
 {
     s << "join";
 
     QtIterator::printAlgebraicExpression(s);
 }
 
-
-void
-QtJoinIterator::open()
+void QtJoinIterator::open()
 {
     startTimer("QtJoinIterator");
 
@@ -150,7 +140,6 @@ QtJoinIterator::open()
     pauseTimer();
 }
 
-
 QtNode::QtDataList *
 QtJoinIterator::next()
 {
@@ -160,9 +149,9 @@ QtJoinIterator::next()
 
     if (inputs && actualTuple && !outputStreamIsEmpty)
     {
-        bool        nextTupleAvailable = true;
-        bool        nextTupleValid = false;
-        unsigned int         tuplePos;
+        bool nextTupleAvailable = true;
+        bool nextTupleValid = false;
+        unsigned int tuplePos;
         QtDataList *resultList = NULL;
         QtONCStreamList::iterator iter;
 
@@ -171,8 +160,8 @@ QtJoinIterator::next()
             // switch to the next tuple which means
 
             nextTupleAvailable = false;
-            tuplePos           = 0;
-            iter               = inputs->begin();
+            tuplePos = 0;
+            iter = inputs->begin();
 
             while (!nextTupleAvailable && iter != inputs->end())
             {
@@ -186,7 +175,7 @@ QtJoinIterator::next()
 
                 if (resultList == NULL)
                 {
-                    (*iter)->reset();              // reset the stream ...
+                    (*iter)->reset();  // reset the stream ...
                     //this causes the first element of the list to be deleted - not the others
                     resultList = (*iter)->next();  // ... and read the first element again
                     // this was commented out because it will cause problems when the stream is closed
@@ -264,10 +253,7 @@ QtJoinIterator::next()
     return returnValue;
 }
 
-
-
-void
-QtJoinIterator::close()
+void QtJoinIterator::close()
 {
     if (actualTuple)
     {
@@ -287,9 +273,7 @@ QtJoinIterator::close()
     stopTimer();
 }
 
-
-void
-QtJoinIterator::reset()
+void QtJoinIterator::reset()
 {
     // reset the input streams
     QtIterator::reset();
@@ -322,14 +306,11 @@ QtJoinIterator::reset()
             {
                 (*actualTuple)[tuplePos] = NULL;
             }
-
         }
 
         (*actualTuple)[0] = NULL;  // fist tuple element is catched when next() is called for the first time
     }
 }
-
-
 
 const QtTypeTuple &
 QtJoinIterator::checkType()

@@ -43,7 +43,6 @@ rasdaman GmbH.
 class r_Format_Params
 {
 public:
-
     r_Format_Params();
     ~r_Format_Params() = default;
 
@@ -57,7 +56,7 @@ public:
      * false otherwise. It throws an error if it is a JSON string and parsing
      * it failed.
      */
-    bool parse(const std::string& paramsStr);
+    bool parse(const std::string &paramsStr);
 
     /// get the JSON params
     Json::Value getParams() const;
@@ -71,34 +70,34 @@ public:
     std::vector<std::string> getFilePaths() const;
 
     /// set the paths to files to be decoded
-    void setFilePaths(const std::vector<std::string>& filePaths);
+    void setFilePaths(const std::vector<std::string> &filePaths);
 
     /// get the path to a file to be decoded
-    const std::string& getFilePath() const;
+    const std::string &getFilePath() const;
 
     /// (subset of) variable names to be decoded from the input file
-    std::vector<std::string>& getVariables();
-    const std::vector<std::string>& getVariables() const;
+    std::vector<std::string> &getVariables();
+    const std::vector<std::string> &getVariables() const;
 
     /// (subset of) band ids (0-indexed) to be decoded from the input file
-    std::vector<int>& getBandIds();
-    const std::vector<int>& getBandIds() const;
+    std::vector<int> &getBandIds();
+    const std::vector<int> &getBandIds() const;
 
     /// subset region to be decoded from the input file, instead of the whole file
-    const r_Minterval& getSubsetDomain() const;
+    const r_Minterval &getSubsetDomain() const;
 
     /// sets subset region to be decoded from the input file, instead of the whole file
-    void setSubsetDomain(const r_Minterval& domain);
+    void setSubsetDomain(const r_Minterval &domain);
 
     /// extra format parameters, e.g. compression type; convertor-dependent
     std::vector<std::pair<std::string, std::string>> getFormatParameters() const;
 
     /// extra format parameters, e.g. compression type; convertor-dependent
-    void addFormatParameter(const std::string& key, const std::string& val);
-    
+    void addFormatParameter(const std::string &key, const std::string &val);
+
     /// Configuration options (string key/value pairs); details for GDAL: https://trac.osgeo.org/gdal/wiki/ConfigOptions
     std::vector<std::pair<std::string, std::string>> getConfigOptions() const;
-    
+
     /// Open options (string key/value pairs); e.g. https://gdal.org/drivers/raster/gtiff.html#open-options
     std::vector<std::pair<std::string, std::string>> getOpenOptions() const;
 
@@ -122,7 +121,7 @@ public:
     /// extra metadata
     std::string getMetadata() const;
     /// extra metadata
-    void setMetadata(const std::string& metadata);
+    void setMetadata(const std::string &metadata);
 
     /// extra metadata represented as a vector of key/value pairs
     std::vector<std::pair<std::string, std::string>> getMetadataKeyValues() const;
@@ -130,7 +129,7 @@ public:
     /// coordinate reference system
     std::string getCrs() const;
     /// coordinate reference system
-    void setCrs(const std::string& crs);
+    void setCrs(const std::string &crs);
 
     /// min X geo bound
     double getXmin() const;
@@ -152,11 +151,11 @@ public:
     /// max Y geo bound
     void setYmax(double val);
 
-    const std::string& getFormat() const;
+    const std::string &getFormat() const;
 
-    void setFormat(const std::string& formatArg);
+    void setFormat(const std::string &formatArg);
+
 private:
-
     /**
      * @return true if the string starts with a '{'.
      */
@@ -167,7 +166,7 @@ private:
     void parseColorMap();
     void parseVariables();
     void parseFilepaths();
-    void parseStringKeyValuesList(const std::string& key, std::vector<std::pair<std::string, std::string>>& targetVector);
+    void parseStringKeyValuesList(const std::string &key, std::vector<std::pair<std::string, std::string>> &targetVector);
     void parseSubsetDomain();
     void parseNodata();
     void parseMetadata();
@@ -189,10 +188,10 @@ private:
 
     /// extra format parameters, e.g. compression type; convertor-dependent
     std::vector<std::pair<std::string, std::string>> formatParameters;
-    
+
     /// Configuration options (string key/value pairs); details for GDAL: https://trac.osgeo.org/gdal/wiki/ConfigOptions
     std::vector<std::pair<std::string, std::string>> configOptions;
-    
+
     /// Open options (string key/value pairs); e.g. https://gdal.org/drivers/raster/gtiff.html#open-options
     std::vector<std::pair<std::string, std::string>> openOptions;
 
@@ -227,7 +226,6 @@ private:
 
     /// particular format to convert to
     std::string format{};
-
 };
 
 #endif

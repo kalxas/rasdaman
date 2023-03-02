@@ -263,8 +263,6 @@ public:
     */
 
 private:
-
-
     mutable T *object{nullptr};
     /*@Doc:
     Pointer to the managed object or 0 if no binding exists.
@@ -312,4 +310,4 @@ extern template class DBRef<DBStorageLayout>;
 extern template class DBRef<StructType>;
 extern template class DBRef<SetType>;
 extern template class DBRef<MDDType>;
-extern template bool operator< (const DBRef<DBMDDObj>&, const DBRef<DBMDDObj>&);
+extern template bool operator<(const DBRef<DBMDDObj> &, const DBRef<DBMDDObj> &);

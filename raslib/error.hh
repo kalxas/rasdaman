@@ -27,7 +27,6 @@ rasdaman GmbH.
 #include <exception>
 #include <string>
 
-
 //@ManMemo: Module: {\bf raslib}
 /**
   * \ingroup raslib
@@ -55,75 +54,76 @@ rasdaman GmbH.
 class r_Error : public std::exception
 {
 public:
-
     /// error kinds
-    enum kind { r_EGeneral,
-                r_Error_General,
-                r_Error_DatabaseClassMismatch,
-                r_Error_DatabaseClassUndefined,
-                r_Error_DatabaseClosed,
-                r_Error_DatabaseOpen,
-                r_Error_DateInvalid,
-                r_Error_IteratorExhausted,
-                r_Error_NameNotUnique,
-                r_Error_QueryParameterCountInvalid,
-                r_Error_QueryParameterTypeInvalid,
-                r_Error_RefInvalid,
-                r_Error_RefNull,
-                r_Error_TimeInvalid,
-                r_Error_TimestampInvalid,
-                r_Error_TransactionOpen,
-                r_Error_TransactionNotOpen,
-                r_Error_TypeInvalid,
-                r_Error_FileNotFound,
-                r_Error_OIdInvalid,
-                r_Error_OIdNotUnique,
+    enum kind
+    {
+        r_EGeneral,
+        r_Error_General,
+        r_Error_DatabaseClassMismatch,
+        r_Error_DatabaseClassUndefined,
+        r_Error_DatabaseClosed,
+        r_Error_DatabaseOpen,
+        r_Error_DateInvalid,
+        r_Error_IteratorExhausted,
+        r_Error_NameNotUnique,
+        r_Error_QueryParameterCountInvalid,
+        r_Error_QueryParameterTypeInvalid,
+        r_Error_RefInvalid,
+        r_Error_RefNull,
+        r_Error_TimeInvalid,
+        r_Error_TimestampInvalid,
+        r_Error_TransactionOpen,
+        r_Error_TransactionNotOpen,
+        r_Error_TypeInvalid,
+        r_Error_FileNotFound,
+        r_Error_OIdInvalid,
+        r_Error_OIdNotUnique,
 
-                r_Error_DatabaseUnknown,
-                r_Error_TransferFailed,
-                r_Error_HostInvalid,
-                r_Error_ServerInvalid,
-                r_Error_RpcInterfaceIncompatible,
-                r_Error_ClientUnknown,
-                r_Error_ObjectUnknown,
-                r_Error_ObjectInvalid,
+        r_Error_DatabaseUnknown,
+        r_Error_TransferFailed,
+        r_Error_HostInvalid,
+        r_Error_ServerInvalid,
+        r_Error_RpcInterfaceIncompatible,
+        r_Error_ClientUnknown,
+        r_Error_ObjectUnknown,
+        r_Error_ObjectInvalid,
 
-                r_Error_QueryExecutionFailed,
-                r_Error_BaseDBMSFailed,
-                r_Error_CollectionElementTypeMismatch,
-                r_Error_CreatingOIdFailed,
-                r_Error_TransactionReadOnly,
+        r_Error_QueryExecutionFailed,
+        r_Error_BaseDBMSFailed,
+        r_Error_CollectionElementTypeMismatch,
+        r_Error_CreatingOIdFailed,
+        r_Error_TransactionReadOnly,
 
-                r_Error_LimitsMismatch,
-                r_Error_NameInvalid,
-                r_Error_FeatureNotSupported,
-                // used for subclasses which can be serialised
-                // as strings for client / server transfer
-                r_Error_SerialisableException,
+        r_Error_LimitsMismatch,
+        r_Error_NameInvalid,
+        r_Error_FeatureNotSupported,
+        // used for subclasses which can be serialised
+        // as strings for client / server transfer
+        r_Error_SerialisableException,
 
-                r_Error_AccesDenied,
-                r_Error_SystemOverloaded,
+        r_Error_AccesDenied,
+        r_Error_SystemOverloaded,
 
-                r_Error_MemoryAllocation,
+        r_Error_MemoryAllocation,
 
-                r_Error_InvalidOptimizationLevel,
-                r_Error_InvalidBoundsStringContents,
-                r_Error_RuntimeProjectionError,
-                r_Error_InvalidSourceCRS,
-                r_Error_InvalidTargetCRS,
-                r_Error_InvalidProjectionResultGridExtents,
-                r_Error_FileTileStructureInconsistent,
-                r_Error_RasFedMessageParsingFailed,
+        r_Error_InvalidOptimizationLevel,
+        r_Error_InvalidBoundsStringContents,
+        r_Error_RuntimeProjectionError,
+        r_Error_InvalidSourceCRS,
+        r_Error_InvalidTargetCRS,
+        r_Error_InvalidProjectionResultGridExtents,
+        r_Error_FileTileStructureInconsistent,
+        r_Error_RasFedMessageParsingFailed,
 
-                r_Error_UDFInstallationDirectoryNotDefined,
+        r_Error_UDFInstallationDirectoryNotDefined,
 
-                r_Error_TileCannotBeLocked,
+        r_Error_TileCannotBeLocked,
 
-                r_Error_Conversion,
-                r_Error_RasfedConnectionFailed,
-                r_Error_RasfedConnectionTimeout,
-                r_Error_RasfedUnknownPeerHostname
-              };
+        r_Error_Conversion,
+        r_Error_RasfedConnectionFailed,
+        r_Error_RasfedConnectionTimeout,
+        r_Error_RasfedUnknownPeerHostname
+    };
 
     r_Error();
 
@@ -144,13 +144,13 @@ public:
 
     ~r_Error() noexcept override = default;
 
-    const char         *what() const noexcept override;
-    virtual const std::string  &what_str() const noexcept;
-    kind                get_kind() const;
-    unsigned long       get_errorno() const;
-    const std::string  &get_errorparam() const;
+    const char *what() const noexcept override;
+    virtual const std::string &what_str() const noexcept;
+    kind get_kind() const;
+    unsigned long get_errorno() const;
+    const std::string &get_errorparam() const;
 
-    void set_what(const char* what);
+    void set_what(const char *what);
 
     /// used to transfer exceptions of kind r_Error_SerialisableException to the client.
     virtual std::string serialiseError() const;
@@ -206,9 +206,11 @@ public:
     /// constructor getting lower and upper bound, and the index
     r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex);
     r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex, const std::string &details);
+
 protected:
     /// reset error text
     void resetErrorText() override;
+
 private:
     /// lower bound
     r_Range low;
@@ -225,9 +227,11 @@ public:
     /// constructor getting two dimensionalities
     r_Edim_mismatch(r_Dimension pdim1, r_Dimension pdim2);
     r_Edim_mismatch(r_Dimension pdim1, r_Dimension pdim2, const std::string &details);
+
 protected:
     /// reset error text
     void resetErrorText() override;
+
 private:
     /// first dimensionality
     r_Dimension dim1;
@@ -261,17 +265,19 @@ public:
 
     unsigned int get_lineno() const;
     unsigned int get_columnno() const;
-    const char  *get_token() const;
+    const char *get_token() const;
+
 protected:
     /// reset error text
     void resetErrorText() override;
+
 private:
     /// line number in which the error is caused
     unsigned int lineNo;
     /// column number which caused the error or is near to the error position
     unsigned int columnNo;
     /// token which caused the error or is near to the error position
-    std::string  token;
+    std::string token;
 };
 
 /// The limits reported on the same array by two sources do not match (at least in one end).
@@ -280,9 +286,11 @@ class r_Elimits_mismatch : public r_Error
 public:
     /// constructor getting two limits on the same interval
     r_Elimits_mismatch(r_Range lim1, r_Range lim2);
+
 protected:
     /// reset error text
     void resetErrorText() override;
+
 private:
     /// first interval
     r_Range i1;
@@ -295,8 +303,10 @@ class r_Einvalid_interval_bounds : public r_Error
 {
 public:
     r_Einvalid_interval_bounds(r_Range lim1, r_Range lim2);
+
 protected:
     void resetErrorText() override;
+
 private:
     r_Range lim1;
     r_Range lim2;
@@ -314,9 +324,11 @@ class r_Ebase_dbms : public r_Error
 public:
     r_Ebase_dbms();
     r_Ebase_dbms(long newDbmsErrNum, const char *newErrTxt);
+
 protected:
     /// reset error text
     void resetErrorText() override;
+
 private:
     /// error number of the base DBMS.
     long dbmsErrNum;
@@ -336,7 +348,7 @@ public:
     r_Ecapability_refused();
 };
 
-class r_Ememory_allocation: public r_Error
+class r_Ememory_allocation : public r_Error
 {
 public:
     r_Ememory_allocation();
@@ -346,6 +358,7 @@ public:
 // constants for errors in bin/errtxts
 // ----------------------------------------------------------------------------------------------
 
+// clang-format off
 
 #define MEMMORYALLOCATIONERROR              66
 #define INTERNALDLPARSEERROR                100
@@ -652,7 +665,7 @@ public:
 #define CAPABILITY_REFUSED                  804//used
 
 //805 -808 - ALL UNUSED
-#define RASMANAGER_NOSUITABLESERVERSSTARTED     805
+#define RASMANAGER_NOSUITABLESERVERSSTARTED 805
 #define RASMANAGER_WRITEINPROGRESS          806
 #define RASMANAGER_DBUNKNOWN                807
 #define RASMANAGER_FORMATERROR              808
@@ -786,5 +799,7 @@ public:
 #ifndef SQLITE_NOTFOUND
 #define SQLITE_NOTFOUND 12
 #endif
+
+// clang-format on
 
 #endif

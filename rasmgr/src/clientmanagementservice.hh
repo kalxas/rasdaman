@@ -49,7 +49,6 @@ class ClientManager;
 class ClientManagementService : public rasnet::service::RasmgrClientService::Service
 {
 public:
-
     explicit ClientManagementService(std::shared_ptr<ClientManager> clientManager);
 
     ~ClientManagementService() override = default;
@@ -75,7 +74,7 @@ public:
                            rasnet::service::Void *response) override;
 
 private:
-    std::shared_ptr<ClientManager> clientManager;/*! Instance of the ClientManager class used for adding clients and client sessions */
+    std::shared_ptr<ClientManager> clientManager; /*! Instance of the ClientManager class used for adding clients and client sessions */
 };
 
 } /* namespace rasmgr */

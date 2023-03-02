@@ -71,7 +71,7 @@ log "rasdaman $VERSION build $BUILD on base DBMS $BASEDBMS"
 # - Can I find utilities?
 if [ "$BASEDBMS" = "$BASEDBMS_PGSQL" ]; then
     psql --help 1>/dev/null 2>&1 || \
-        error "Error: cannot find psql - PostgreSQL not installed or PATH variable does not contain PostgreSQL path?"
+        error "Cannot find psql - PostgreSQL not installed or PATH variable does not contain PostgreSQL bin path?"
 fi
 
 # --- action: create database directory & cluster if needed

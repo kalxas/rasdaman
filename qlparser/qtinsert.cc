@@ -43,8 +43,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-
-
 #include "config.h"
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/dirdecompose.hh"
@@ -181,7 +179,6 @@ QtInsert::evaluate()
         }
         catch (...)
         {
-
             LERROR << "Error: QtInsert::evaluate() - collection name not found";
             parseInfo.setErrorNo(COLLECTIONNAMEUNKNOWN);
             throw parseInfo;
@@ -189,7 +186,7 @@ QtInsert::evaluate()
         if (!almost->isPersistent())
         {
             LERROR << "QtInsert: User tries to insert into system table";
-            parseInfo.setErrorNo(COLLECTIONNAMEUNKNOWN);//needs new err code
+            parseInfo.setErrorNo(COLLECTIONNAMEUNKNOWN);  //needs new err code
             throw parseInfo;
         }
         else
@@ -295,9 +292,7 @@ QtInsert::evaluate()
             tempStorageLayout.setIndexType(ri);
             tempStorageLayout.setTilingScheme(scheme);
             // Base Information has been set
-            tempStorageLayout.setTileSize
-            ((mddConfig != NULL && mddConfig->getTileSize() > 0) ? static_cast<unsigned int>(mddConfig->getTileSize()) :
-             StorageLayout::DefaultTileSize);
+            tempStorageLayout.setTileSize((mddConfig != NULL && mddConfig->getTileSize() > 0) ? static_cast<unsigned int>(mddConfig->getTileSize()) : StorageLayout::DefaultTileSize);
             if (mddConfig != NULL)
             {
                 tempStorageLayout.setInterestThreshold(mddConfig->getInterestThreshold());
@@ -306,7 +301,7 @@ QtInsert::evaluate()
                 {
                     tempStorageLayout.setDirDecomp(mddConfig->getDirDecomp());
                 }
-                vector<r_Minterval>intervals = getIntervals(mddConfig);
+                vector<r_Minterval> intervals = getIntervals(mddConfig);
                 tempStorageLayout.setCellSize(cellSize);
                 if (mddConfig->getTilingType() == QtMDDConfig::r_DRLDECOMP_TLG)
                 {
@@ -326,7 +321,7 @@ QtInsert::evaluate()
                 switch (mddConfig->getTilingType())
                 {
                 case QtMDDConfig::r_AREAOFINTERESTNOLIMIT_TLG:
-                    AOI_tileSizeControl = r_Interest_Tiling::NO_LIMIT ;
+                    AOI_tileSizeControl = r_Interest_Tiling::NO_LIMIT;
                     break;
                 case QtMDDConfig::r_AREAOFINTERESTREGROUP_TLG:
                     AOI_tileSizeControl = r_Interest_Tiling::REGROUP;
@@ -337,7 +332,7 @@ QtInsert::evaluate()
                 case QtMDDConfig::r_AREAOFINTERESTREGROUPANDSUBTILING_TLG:
                     AOI_tileSizeControl = r_Interest_Tiling::REGROUP_AND_SUBTILING;
                     break;
-                default: //r_AREAOFINTEREST_TLG:
+                default:  //r_AREAOFINTEREST_TLG:
                     AOI_tileSizeControl = r_Interest_Tiling::SUB_TILING;
                     break;
                 }
@@ -347,11 +342,11 @@ QtInsert::evaluate()
             r_Minterval tileCfg = getTileConfig(mddConfig, cellSize, sourceDimension);
             std::vector<std::string> trueAxisNames;
             r_Minterval newDomain = sourceObj->getDefinitionDomain();
-            const auto *mddDomainType = dynamic_cast<const MDDDomainType*>(targetMDDType);
+            const auto *mddDomainType = dynamic_cast<const MDDDomainType *>(targetMDDType);
             if (mddDomainType != NULL)
             {
                 const auto *trueDomain = mddDomainType->getDomain();
-                trueAxisNames =  trueDomain->get_axis_names();
+                trueAxisNames = trueDomain->get_axis_names();
                 tileCfg.set_axis_names(trueAxisNames);
                 newDomain.set_axis_names(trueAxisNames);
             }
@@ -424,7 +419,9 @@ QtInsert::getChilds(QtChildType flag)
     if (source)
     {
         // allocate resultList
-        if (flag == QT_DIRECT_CHILDS) {};
+        if (flag == QT_DIRECT_CHILDS)
+        {
+        };
 
         resultList = new QtNodeList();
 
@@ -447,8 +444,7 @@ QtInsert::getChilds(QtChildType flag)
     return resultList;
 }
 
-void
-QtInsert::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtInsert::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtInsert Object" << getEvaluationTime() << std::endl;
 
@@ -472,8 +468,7 @@ QtInsert::printTree(int tab, std::ostream &s, QtChildType mode)
     }
 }
 
-void
-QtInsert::printAlgebraicExpression(std::ostream &s)
+void QtInsert::printAlgebraicExpression(std::ostream &s)
 {
     s << "insert<";
 
@@ -495,14 +490,11 @@ QtInsert::getSource()
     return source;
 }
 
-
-void
-QtInsert::checkType()
+void QtInsert::checkType()
 {
     // check operand branches
     if (source)
     {
-
         // get input type
         const QtTypeElement &inputType = source->checkType();
 
@@ -515,7 +507,6 @@ QtInsert::checkType()
     }
     else if (dataToInsert)
     {
-
         // get input type
         if (dataToInsert->getDataType() != QT_MDD)
         {
@@ -540,41 +531,41 @@ QtInsert::getDataFormat(QtMDDConfig *config)
     int dataType = config->getStorageType();
     switch (dataType)
     {
-    case QtMDDConfig::r_DEFAULT_STG :
+    case QtMDDConfig::r_DEFAULT_STG:
         return StorageLayout::DefaultDataFormat;
-    case QtMDDConfig::r_ARRAY_STG :
+    case QtMDDConfig::r_ARRAY_STG:
         return r_Array;
-    case QtMDDConfig::r_AUTO_STG :
+    case QtMDDConfig::r_AUTO_STG:
         return r_Auto_Compression;
-    case QtMDDConfig::r_BMP_STG :
+    case QtMDDConfig::r_BMP_STG:
         return r_BMP;
-    case QtMDDConfig::r_DEM_STG :
+    case QtMDDConfig::r_DEM_STG:
         return r_DEM;
-    case QtMDDConfig::r_HDF_STG :
+    case QtMDDConfig::r_HDF_STG:
         return r_HDF;
-    case QtMDDConfig::r_NETCDF_STG :
+    case QtMDDConfig::r_NETCDF_STG:
         return r_NETCDF;
-    case QtMDDConfig::r_GDAL_STG :
+    case QtMDDConfig::r_GDAL_STG:
         return r_GDAL;
     //        case QtMDDConfig::r_HDF5_STG://need review
     //            return r_HDF;
-    case QtMDDConfig::r_JPEG_STG :
+    case QtMDDConfig::r_JPEG_STG:
         return r_JPEG;
-    case QtMDDConfig::r_NITF_STG :
+    case QtMDDConfig::r_NITF_STG:
         return r_NITF;
-    case QtMDDConfig::r_PACKBITS_STG :
+    case QtMDDConfig::r_PACKBITS_STG:
         return r_Pack_Bits;
-    case QtMDDConfig::r_PNG_STG :
+    case QtMDDConfig::r_PNG_STG:
         return r_PNG;
-    case QtMDDConfig::r_PPM_STG :
+    case QtMDDConfig::r_PPM_STG:
         return r_PPM;
-    case QtMDDConfig::r_RLE_STG :
+    case QtMDDConfig::r_RLE_STG:
         return r_RLE;
-    case QtMDDConfig::r_RLESEP_STG :
+    case QtMDDConfig::r_RLESEP_STG:
         return r_Sep_RLE;
-    case QtMDDConfig::r_TIFF_STG :
+    case QtMDDConfig::r_TIFF_STG:
         return r_TIFF;
-    case QtMDDConfig::r_WLTCOIFLETINT_STG :
+    case QtMDDConfig::r_WLTCOIFLETINT_STG:
         if (config->getWltValue() == 6)
         {
             return r_Wavelet_Coiflet6;
@@ -595,10 +586,10 @@ QtInsert::getDataFormat(QtMDDConfig *config)
         {
             return r_Wavelet_Coiflet30;
         }
-        return StorageLayout::DefaultDataFormat; //may be null
-    case QtMDDConfig::r_WLTDAUBECHIES_STG :
+        return StorageLayout::DefaultDataFormat;  //may be null
+    case QtMDDConfig::r_WLTDAUBECHIES_STG:
         return r_Wavelet_Daubechies;
-    case QtMDDConfig::r_WLTDAUBECHIESINT_STG :
+    case QtMDDConfig::r_WLTDAUBECHIESINT_STG:
         if (config->getWltValue() == 6)
         {
             return r_Wavelet_Daub6;
@@ -631,10 +622,10 @@ QtInsert::getDataFormat(QtMDDConfig *config)
         {
             return r_Wavelet_Daub20;
         }
-        return StorageLayout::DefaultDataFormat; //may be default
-    case QtMDDConfig::r_WLTHAAR_STG :
+        return StorageLayout::DefaultDataFormat;  //may be default
+    case QtMDDConfig::r_WLTHAAR_STG:
         return r_Wavelet_Haar;
-    case QtMDDConfig::r_WLTLEASTINT_STG :
+    case QtMDDConfig::r_WLTLEASTINT_STG:
         if (config->getWltValue() == 8)
         {
             return r_Wavelet_Least8;
@@ -663,16 +654,15 @@ QtInsert::getDataFormat(QtMDDConfig *config)
         {
             return r_Wavelet_Least20;
         }
-    case QtMDDConfig::r_WLTQHAAR_STG :
+    case QtMDDConfig::r_WLTQHAAR_STG:
         return r_Wavelet_QHaar;
-    case QtMDDConfig::r_ZLIB_STG :
+    case QtMDDConfig::r_ZLIB_STG:
         return r_ZLib;
-    case QtMDDConfig::r_ZLIBSEP_STG :
+    case QtMDDConfig::r_ZLIBSEP_STG:
         return r_Sep_ZLib;
     default:
         return StorageLayout::DefaultDataFormat;
     }
-
 }
 
 r_Index_Type
@@ -686,23 +676,23 @@ QtInsert::getIndexType(QtMDDConfig *config)
 
     switch (indexType)
     {
-    case QtMDDConfig::r_A_INDEX :
+    case QtMDDConfig::r_A_INDEX:
         return r_Auto_Index;
-    case QtMDDConfig::r_DEFAULT_INDEX :
+    case QtMDDConfig::r_DEFAULT_INDEX:
         return StorageLayout::DefaultIndexType;
-    case QtMDDConfig::r_D_INDEX :
+    case QtMDDConfig::r_D_INDEX:
         return r_Directory_Index;
-    case QtMDDConfig::r_IT_INDEX :
+    case QtMDDConfig::r_IT_INDEX:
         return r_Index_Type_NUMBER;
-    case QtMDDConfig::r_RC_INDEX :
+    case QtMDDConfig::r_RC_INDEX:
         return r_Reg_Computed_Index;
-    case QtMDDConfig::r_RD_INDEX :
+    case QtMDDConfig::r_RD_INDEX:
         return r_Reg_Directory_Index;
-    case QtMDDConfig::r_RPT_INDEX :
+    case QtMDDConfig::r_RPT_INDEX:
         return r_RPlus_Tree_Index;
-    case QtMDDConfig::r_RRPT_INDEX :
+    case QtMDDConfig::r_RRPT_INDEX:
         return r_Reg_RPlus_Tree_Index;
-    case QtMDDConfig::r_TC_INDEX :
+    case QtMDDConfig::r_TC_INDEX:
         return r_Tile_Container_Index;
     default:
         return StorageLayout::DefaultIndexType;
@@ -719,9 +709,9 @@ QtInsert::getTilingScheme(QtMDDConfig *cfg)
     int tileType = cfg->getTilingType();
     switch (tileType)
     {
-    case QtMDDConfig::r_ALIGNED_TLG :
+    case QtMDDConfig::r_ALIGNED_TLG:
         return r_AlignedTiling;
-    case QtMDDConfig::r_AREAOFINTEREST_TLG :
+    case QtMDDConfig::r_AREAOFINTEREST_TLG:
         return r_InterestTiling;
     case QtMDDConfig::r_AREAOFINTERESTNOLIMIT_TLG:
         return r_InterestTiling;
@@ -731,15 +721,15 @@ QtInsert::getTilingScheme(QtMDDConfig *cfg)
         return r_InterestTiling;
     case QtMDDConfig::r_AREAOFINTERESTREGROUPANDSUBTILING_TLG:
         return r_InterestTiling;
-    case QtMDDConfig::r_REGULAR_TLG :
+    case QtMDDConfig::r_REGULAR_TLG:
         return r_RegularTiling;
-    case QtMDDConfig::r_DRLDECOMPSUBTILE_TLG :
+    case QtMDDConfig::r_DRLDECOMPSUBTILE_TLG:
         return r_DirectionalTiling;
-    case QtMDDConfig::r_DRLDECOMP_TLG :
+    case QtMDDConfig::r_DRLDECOMP_TLG:
         return r_DirectionalTiling;
-    case QtMDDConfig::r_STATISTICSPARAM_TLG :
+    case QtMDDConfig::r_STATISTICSPARAM_TLG:
         return r_StatisticalTiling;
-    case QtMDDConfig::r_STATISTICS_TLG :
+    case QtMDDConfig::r_STATISTICS_TLG:
         return r_StatisticalTiling;
 
     default:

@@ -72,7 +72,7 @@ public:
     replaces only the r_Minterval part of the object
     */
 
-    void updateMinterval(const r_Minterval& domain);
+    void updateMinterval(const r_Minterval &domain);
 
     r_Bytes getMemorySize() const override;
     /*@Doc:
@@ -86,7 +86,7 @@ protected:
      * @return the current dimension in RAS_DOMAINS.
      */
     r_Dimension getDimensionInDb() const;
-    
+
     /**
      * Set high and low based on the interval at dimension count.
      */

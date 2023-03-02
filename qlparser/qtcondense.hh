@@ -52,7 +52,7 @@ public:
     QtCondense(Ops::OpType newOpType, QtOperation *input);
 
     /// method for computing full condense operation (without early termination option)
-    QtData *computeFullCondense(QtDataList *inputList, r_Minterval &areaOp); // = r_Minterval() );
+    QtData *computeFullCondense(QtDataList *inputList, r_Minterval &areaOp);  // = r_Minterval() );
 
     /// test if the edge to the parent node is of type mdd or atomic
     virtual QtAreaType getAreaType();
@@ -90,9 +90,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
-
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -126,8 +123,6 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -163,8 +158,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -198,7 +191,6 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -234,7 +226,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -268,7 +259,6 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -304,7 +294,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -338,7 +327,6 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -374,8 +362,6 @@ private:
     const QtNodeType nodeType;
 };
 
-
 #include "qlparser/qtcondense.icc"
 
 #endif
-

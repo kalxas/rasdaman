@@ -25,10 +25,12 @@ rasdaman GmbH.
 #define _D_OQL_QUERY_
 
 #include "raslib/odmgtypes.hh"
-#include <cstddef> // for NULL
+#include <cstddef>  // for NULL
 
-template <class T> class r_Set;
-template <class T> class r_Ref;
+template <class T>
+class r_Set;
+template <class T>
+class r_Ref;
 class r_Ref_Any;
 class r_Point;
 class r_Sinterval;
@@ -120,7 +122,7 @@ public:
     //@Man: Methods for internal use:
     //@{
     /// resets the expandation of the query string
-    void               reset_query();
+    void reset_query();
     /// gets the expanded query string
     const char *get_query() const;
     /// get mdd constants
@@ -131,7 +133,6 @@ public:
     //@}
 
 private:
-
     /**
      * Return true if s starts with (lower-case, no whitespace) prefix.
      * All whitespace in s is ignored.
@@ -153,9 +154,6 @@ private:
     /// list for MDD constants
     r_Set<r_GMarray *> *mddConstants{NULL};
 };
-
-
-
 
 //@ManMemo: Module: {\bf rasodmg}
 /**
@@ -187,7 +185,6 @@ private:
   ```
 */
 void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, r_Transaction *transaction = NULL);
-
 
 //@ManMemo: Module: {\bf rasodmg}
 /**
@@ -222,7 +219,6 @@ void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref<r_GMarray>> &result, r_Transa
   transaction, the exception is of kind r_Error_TransactionNotOpen.
 */
 void r_oql_execute(r_OQL_Query &query, r_Set<r_Ref_Any> &result, int dummy, r_Transaction *transaction = NULL);
-
 
 //@ManMemo: Module: {\bf rasodmg}
 /**

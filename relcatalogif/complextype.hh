@@ -53,8 +53,10 @@ class OId;
 class GenericComplexType : public AtomicType
 {
 public:
-    GenericComplexType(const char *name, unsigned int newSize): AtomicType(name, newSize) {}
-    GenericComplexType(const OId &id): AtomicType(id) {}
+    GenericComplexType(const char *name, unsigned int newSize)
+        : AtomicType(name, newSize) {}
+    GenericComplexType(const OId &id)
+        : AtomicType(id) {}
     ~GenericComplexType() override = default;
     virtual unsigned int getReOffset() const = 0;
     virtual unsigned int getImOffset() const = 0;

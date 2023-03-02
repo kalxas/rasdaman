@@ -6,8 +6,8 @@ namespace rasserver
 const std::uint64_t ClientQueryStreamedResult::CHUNK_SIZE;
 
 ClientQueryStreamedResult::ClientQueryStreamedResult(
-    char* dataArg, std::uint64_t lengthArg, std::int32_t clientUUIDArg,
-    bool* nullMaskArg, std::uint64_t nullMaskLengthArg)
+    char *dataArg, std::uint64_t lengthArg, std::int32_t clientUUIDArg,
+    bool *nullMaskArg, std::uint64_t nullMaskLengthArg)
     : clientUUID(clientUUIDArg),
       data(dataArg), length(lengthArg),
       nullMask(nullMaskArg), nullMaskLength(nullMaskLengthArg)
@@ -22,10 +22,11 @@ DataChunk ClientQueryStreamedResult::getNextChunk()
     chunk.bytes = this->data.get() + this->dataOffset;
     this->dataOffset += chunk.length;
 
-    if (this->nullMask != nullptr) {
-      chunk.nullMaskLength = std::min(this->getRemainingNullMaskBytesLength(), CHUNK_SIZE);
-      chunk.nullMask = this->nullMask.get() + this->nullMaskOffset;
-      this->nullMaskOffset += chunk.nullMaskLength;
+    if (this->nullMask != nullptr)
+    {
+        chunk.nullMaskLength = std::min(this->getRemainingNullMaskBytesLength(), CHUNK_SIZE);
+        chunk.nullMask = this->nullMask.get() + this->nullMaskOffset;
+        this->nullMaskOffset += chunk.nullMaskLength;
     }
 
     return chunk;
@@ -43,8 +44,9 @@ std::uint64_t ClientQueryStreamedResult::getRemainingBytesLength() const
 
 std::uint64_t ClientQueryStreamedResult::getRemainingNullMaskBytesLength() const
 {
-  return this->nullMask != nullptr 
-      ? this->nullMaskLength - this->nullMaskOffset : 0;
+    return this->nullMask != nullptr
+               ? this->nullMaskLength - this->nullMaskOffset
+               : 0;
 }
 
-}
+}  // namespace rasserver

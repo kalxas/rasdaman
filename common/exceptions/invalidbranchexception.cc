@@ -21,17 +21,18 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
 #include "invalidbranchexception.hh"
 
-namespace common {
+namespace common
+{
 
 InvalidBranchException::InvalidBranchException()
     : LogicException("Execution reached an invalid code branch.") {}
 
 InvalidBranchException::InvalidBranchException(const std::string &msgArg)
-  : LogicException(msgArg) {
+    : LogicException(msgArg)
+{
 }
 
 InvalidBranchException::~InvalidBranchException() = default;
-}
+}  // namespace common

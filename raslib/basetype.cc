@@ -24,8 +24,8 @@ rasdaman GmbH.
 #include "raslib/basetype.hh"
 
 r_Base_Type::r_Base_Type(const char *newTypeName, r_Bytes newTypeSize)
-    :   r_Type(newTypeName),
-        typeSize(newTypeSize)
+    : r_Type(newTypeName),
+      typeSize(newTypeSize)
 {
 }
 
@@ -50,8 +50,7 @@ r_Base_Type::operator=(const r_Base_Type &oldObj)
     return *this;
 }
 
-bool
-r_Base_Type::isBaseType() const
+bool r_Base_Type::isBaseType() const
 {
     return true;
 }
@@ -61,4 +60,3 @@ r_Base_Type::size() const
 {
     return typeSize;
 }
-

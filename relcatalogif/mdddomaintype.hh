@@ -26,7 +26,6 @@ rasdaman GmbH.
 #ifndef _MDDDOMAINTYPE_HH_
 #define _MDDDOMAINTYPE_HH_
 
-
 #include <iosfwd>
 #include "raslib/minterval.hh"
 #include "mddbasetype.hh"

@@ -12,8 +12,8 @@ ClientManagerConfig::ClientManagerConfig()
 }
 
 ClientManagerConfig::~ClientManagerConfig()
-{}
-
+{
+}
 
 std::int32_t ClientManagerConfig::getCleanupInterval() const
 {
@@ -42,7 +42,7 @@ int32_t ClientManagerConfig::getMaxClientQueueSize() const
 
 void ClientManagerConfig::setMaxClientQueueSize(const int32_t &value)
 {
-    maxClientQueueSize = value; 
+    maxClientQueueSize = value;
 }
 
-}
+}  // namespace rasmgr

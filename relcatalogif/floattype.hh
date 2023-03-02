@@ -25,7 +25,7 @@ rasdaman GmbH.
 #ifndef _FLOATTYPE_HH_
 #define _FLOATTYPE_HH_
 
-#include <iosfwd>     // for ostream
+#include <iosfwd>       // for ostream
 #include "realtype.hh"  // for RealType
 
 class OId;
@@ -60,12 +60,11 @@ public:
 
     double *convertToCDouble(const char *cell, r_Double *value) const override;
     char *makeFromCDouble(char *cell, const r_Double *value) const override;
-    
+
     r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
     r_Long *convertToCLong(const char *cell, r_Long *value) const override;
 
     static const char *Name;
-
 };
 
 #endif

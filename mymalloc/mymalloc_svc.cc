@@ -50,10 +50,10 @@ void *mymalloc(size_t size)
     else
     {
         // failed, retry
-        auto retriesSoFar = MAX_RETRIES;   // while all of these are true:
-        while (ret == (void *)NULL         //  - p is null == malloc failed
-                && retriesSoFar != 0           //  - retried less than MAX_RETRIES times so far
-                && ObjectBroker::freeMemory()) //  - it's possible to free some cached memory
+        auto retriesSoFar = MAX_RETRIES;       // while all of these are true:
+        while (ret == (void *)NULL             //  - p is null == malloc failed
+               && retriesSoFar != 0            //  - retried less than MAX_RETRIES times so far
+               && ObjectBroker::freeMemory())  //  - it's possible to free some cached memory
         {
             ret = malloc(size);
             --retriesSoFar;

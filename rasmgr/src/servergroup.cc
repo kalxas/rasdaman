@@ -41,19 +41,31 @@
 // wrap the tryBody in a TRY_CATCH with this macro
 #define CODE(...) __VA_ARGS__
 
-#define TRY_CATCH(tryBody, logError) \
-  try { tryBody } \
-  catch (common::Exception &ex) { logError << ", reason: " << ex.what(); } \
-  catch (std::exception &ex)    { logError << ", reason: " << ex.what(); } \
-  catch (...)                   { logError; }
+#define TRY_CATCH(tryBody, logError)           \
+    try                                        \
+    {                                          \
+        tryBody                                \
+    }                                          \
+    catch (common::Exception & ex)             \
+    {                                          \
+        logError << ", reason: " << ex.what(); \
+    }                                          \
+    catch (std::exception & ex)                \
+    {                                          \
+        logError << ", reason: " << ex.what(); \
+    }                                          \
+    catch (...)                                \
+    {                                          \
+        logError;                              \
+    }
 
 namespace rasmgr
 {
 
 ServerGroup::ServerGroup(const ServerGroupConfigProto &c,
                          std::shared_ptr<DatabaseHostManager> m,
-                         std::shared_ptr<ServerFactory> f):
-    config(c), dbhManager(m), serverFactory(f)
+                         std::shared_ptr<ServerFactory> f)
+    : config(c), dbhManager(m), serverFactory(f)
 {
     if (dbhManager)
     {
@@ -71,12 +83,10 @@ ServerGroup::~ServerGroup()
     if (this->databaseHost)
     {
         TRY_CATCH(
-          CODE(
-            this->databaseHost->decreaseServerCount();
-            this->stopActiveServer(KILL);
-          ),
-          CODE(LERROR << "Server group destructor failed " << getGroupName())
-        )
+            CODE(
+                this->databaseHost->decreaseServerCount();
+                this->stopActiveServer(KILL);),
+            CODE(LERROR << "Server group destructor failed " << getGroupName()))
     }
 }
 
@@ -144,16 +154,14 @@ void ServerGroup::restartServer()
         auto serverId = runningServer->getServerId();
         LDEBUG << "\n\nRestarting server " << serverId;
         TRY_CATCH(
-          CODE(
-            LDEBUG << "Stopping server " << serverId << " gracefully.";
-            runningServer->stop(NONE);
-            serverStatus = ServerStatus::RESTARTING;
-            this->scheduledForRestart = false;
-            this->evaluateGroup();
-          ),
-          CODE(LWARNING << "Failed to stop server " << serverId)
-        )
-              
+            CODE(
+                LDEBUG << "Stopping server " << serverId << " gracefully.";
+                runningServer->stop(NONE);
+                serverStatus = ServerStatus::RESTARTING;
+                this->scheduledForRestart = false;
+                this->evaluateGroup();),
+            CODE(LWARNING << "Failed to stop server " << serverId))
+
         LDEBUG << "Server " << serverId << " restarted: " << !this->scheduledForRestart;
     }
     else
@@ -165,7 +173,7 @@ void ServerGroup::restartServer()
 bool ServerGroup::tryRegisterServer(const std::string &serverId)
 {
     bool registered = false;
-    
+
     boost::upgrade_lock<boost::shared_mutex> groupLock(this->groupMutex);
     LDEBUG << "Try register server " << serverId;
 
@@ -175,41 +183,37 @@ bool ServerGroup::tryRegisterServer(const std::string &serverId)
         throw common::InvalidStateException(
             "Server group is already stopped, server " + serverId + " cannot be registered.");
     }
-    
+
     if (this->serverStatus == ServerStatus::STARTING && runningServer->getServerId() == serverId)
     {
         TRY_CATCH(
-          CODE(
-            boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(groupLock);
-            runningServer->registerServer(serverId);
-            registered = true;
-            serverStatus = ServerStatus::RUNNING;
-          ),
-          CODE(LWARNING << "Failed registering server " << serverId)
-        )
+            CODE(
+                boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(groupLock);
+                runningServer->registerServer(serverId);
+                registered = true;
+                serverStatus = ServerStatus::RUNNING;),
+            CODE(LWARNING << "Failed registering server " << serverId))
 
         // record failed registrations
         if (registered)
         {
-            failedRegistrations = 0; // all good, reset
+            failedRegistrations = 0;  // all good, reset
         }
         else if (static_cast<uint32_t>(failedRegistrations++) >= MAX_GET_SERVER_RETRIES)
         {
             LERROR << "Server registration failed too many times, stopping " << runningServer->getServerId();
             TRY_CATCH(
-              CODE(
-                boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(groupLock);
-                runningServer->stop(KILL);
-                runningServer.reset();
-                this->serverStatus = ServerStatus::RESTARTING;
-                failedRegistrations = 0;
-              ),
-              CODE(LERROR << "Server is not responding to pings " << runningServer->getServerId())
-            )
+                CODE(
+                    boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(groupLock);
+                    runningServer->stop(KILL);
+                    runningServer.reset();
+                    this->serverStatus = ServerStatus::RESTARTING;
+                    failedRegistrations = 0;),
+                CODE(LERROR << "Server is not responding to pings " << runningServer->getServerId()))
         }
     }
     // else: the serverId is not found in this server group, nothing to do
-    
+
     LDEBUG << "Try register server " << serverId << ": " << registered;
     return registered;
 }
@@ -245,8 +249,8 @@ std::shared_ptr<Server> ServerGroup::getServer(const std::string &serverId)
 {
     boost::shared_lock<boost::shared_mutex> groupLock(this->groupMutex);
     return this->runningServer && this->runningServer->getServerId() == serverId
-           ? this->runningServer
-           : nullptr;
+               ? this->runningServer
+               : nullptr;
 }
 
 ServerGroupConfigProto ServerGroup::getConfig() const
@@ -331,15 +335,13 @@ ServerGroupProto ServerGroup::serializeToProto()
 }
 
 bool ServerGroup::hasAvailableServer()
-{    
+{
     if (this->serverStatus == ServerStatus::RUNNING)
     {
         TRY_CATCH(
-          CODE(
-            return runningServer->isAvailable();
-          ),
-          CODE(LWARNING << "Failed to check if server is available " << runningServer->getServerId())
-        )
+            CODE(
+                return runningServer->isAvailable();),
+            CODE(LWARNING << "Failed to check if server is available " << runningServer->getServerId()))
     }
     return false;
 }
@@ -348,16 +350,16 @@ void ServerGroup::evaluateGroup()
 {
     // Remove dead servers
     LTRACE << "Evaluating server group " << getGroupName();
-    
+
     if (this->serverStatus == ServerStatus::STOPPED)
     {
         // nothing to do as the server was explicitly stopped e.g. by stop_rasdaman.sh
         return;
     }
-    
+
     this->removeDeadServers();
     this->evaluateServersToRestart();
-    
+
     if (this->serverStatus == ServerStatus::RESTARTING)
     {
         if (runningServer && !runningServer->isAlive())
@@ -374,7 +376,7 @@ void ServerGroup::evaluateGroup()
         }
         else
         {
-            LTRACE << "Server " << runningServer->getServerId() 
+            LTRACE << "Server " << runningServer->getServerId()
                    << " still running, cannot start a new server";
         }
     }
@@ -384,23 +386,20 @@ void ServerGroup::evaluateGroup()
 void ServerGroup::removeDeadServers()
 {
     LTRACE << "Remove any dead servers in group " << getGroupName();
-    
+
     try
     {
         bool killServer = false;
-        
+
         if (this->serverStatus == ServerStatus::RUNNING)
-        {        
+        {
             // check for dead process
             TRY_CATCH(
-              CODE(
-                killServer = !runningServer->isAlive();
-              ),
-              CODE(
-                killServer = true;
-                LWARNING << "Server is not responding to pings " << runningServer->getServerId()
-              )
-            )
+                CODE(
+                    killServer = !runningServer->isAlive();),
+                CODE(
+                    killServer = true;
+                    LWARNING << "Server is not responding to pings " << runningServer->getServerId()))
         }
         else if (this->serverStatus == ServerStatus::STARTING)
         {
@@ -411,37 +410,29 @@ void ServerGroup::removeDeadServers()
         {
             // check for stopping rasserver that hasn't exited within a timeout
             TRY_CATCH(
-              CODE(
-                if (!runningServer->isAlive())
-                {
-                    serverStatus = ServerStatus::STOPPED;
-                    runningServer->setStarted(false);
-                    runningServer.reset();
-                }
-                else
-                {
-                    killServer = stoppingServerTimer->hasExpired();
-                }
-              ),
-              CODE(
-                killServer = true;
-                LWARNING << "Server is not responding to pings " << runningServer->getServerId()
-              )
-            )
+                CODE(
+                    if (!runningServer->isAlive()) {
+                        serverStatus = ServerStatus::STOPPED;
+                        runningServer->setStarted(false);
+                        runningServer.reset();
+                    } else {
+                        killServer = stoppingServerTimer->hasExpired();
+                    }),
+                CODE(
+                    killServer = true;
+                    LWARNING << "Server is not responding to pings " << runningServer->getServerId()))
         }
-        
+
         if (killServer)
         {
             TRY_CATCH(
-              CODE(
-                LDEBUG << "Killing server and marking for restart " << runningServer->getServerId();
-                runningServer->stop(KILL);
-                this->scheduledForRestart = false;
-                this->serverStatus = ServerStatus::RESTARTING;
-                runningServer.reset();
-              ),
-              CODE(LDEBUG << "Server in is not responding to pings " << runningServer->getServerId())
-            )
+                CODE(
+                    LDEBUG << "Killing server and marking for restart " << runningServer->getServerId();
+                    runningServer->stop(KILL);
+                    this->scheduledForRestart = false;
+                    this->serverStatus = ServerStatus::RESTARTING;
+                    runningServer.reset();),
+                CODE(LDEBUG << "Server in is not responding to pings " << runningServer->getServerId()))
         }
     }
     catch (common::Exception &ex)
@@ -464,7 +455,7 @@ void ServerGroup::removeDeadServers()
 void ServerGroup::evaluateServersToRestart()
 {
     LTRACE << "Evaluate which servers to be restarted in group " << this->getGroupName();
-    
+
     if (!runningServer)
         return;
 
@@ -474,25 +465,23 @@ void ServerGroup::evaluateServersToRestart()
         const auto totalSessionNo = runningServer->getTotalSessionNo();
         if (totalSessionNo >= this->config.countdown())
         {
-            LDEBUG << "Server " << serverId << " has had " << totalSessionNo 
+            LDEBUG << "Server " << serverId << " has had " << totalSessionNo
                    << " sessions, more than the configured session countdown of "
                    << this->config.countdown() << ", so it will be restarted.";
             this->serverStatus = ServerStatus::RESTARTING;
         }
     }
     // else the countdown is set to 0: servers will not be restarted
-    
-    // Stop the server that has to be restarted; it will be started 
+
+    // Stop the server that has to be restarted; it will be started
     // afterwards in evaluateGroup()
     if (runningServer && this->serverStatus == ServerStatus::RESTARTING)
     {
         bool serverIsFree = true;
         TRY_CATCH(
-          CODE(
-            serverIsFree = runningServer->isFree();
-          ),
-          CODE(LWARNING << "Failed to check if server is free " << runningServer->getServerId())
-        )
+            CODE(
+                serverIsFree = runningServer->isFree();),
+            CODE(LWARNING << "Failed to check if server is free " << runningServer->getServerId()))
         if (serverIsFree)
         {
             LDEBUG << "Killing free server " << runningServer->getServerId() << " so it can be restarted.";
@@ -509,19 +498,19 @@ void ServerGroup::startServer()
 {
     int32_t port = getConfiguredPort();
     const auto &host = this->config.host();
-    
+
     LDEBUG << "Starting server " << this->getGroupName() << " on " << host << ":" << port;
-    
+
     ServerConfig serverConfig(host, static_cast<uint32_t>(port), this->databaseHost);
     serverConfig.setOptions(this->config.server_options());
-    
+
     runningServer = this->serverFactory->createServer(serverConfig);
     auto startingServerLifetime = this->config.starting_server_lifetime();
     startingServerTimer = std::make_shared<common::Timer>(startingServerLifetime);
-    
+
     runningServer->startProcess();
     LDEBUG << "Server " << this->getGroupName() << " started.";
-    
+
     serverStatus = ServerStatus::STARTING;
     this->scheduledForRestart = false;
 }
@@ -534,14 +523,12 @@ void ServerGroup::stopActiveServer(KillLevel level)
     if (serverStatus == ServerStatus::RUNNING)
     {
         TRY_CATCH(
-          CODE(
-            runningServer->stop(level);
-            serverStatus = ServerStatus::STOPPING;
-            this->scheduledForRestart = false;
-            stoppingServerTimer = std::make_shared<common::Timer>(10*1000);
-          ),
-          CODE(LERROR << "Failed to stop running server " << runningServer->getServerId())
-        )
+            CODE(
+                runningServer->stop(level);
+                serverStatus = ServerStatus::STOPPING;
+                this->scheduledForRestart = false;
+                stoppingServerTimer = std::make_shared<common::Timer>(10 * 1000);),
+            CODE(LERROR << "Failed to stop running server " << runningServer->getServerId()))
     }
 
     //The servers that are starting but have not yet registered
@@ -550,15 +537,13 @@ void ServerGroup::stopActiveServer(KillLevel level)
     if (serverStatus == ServerStatus::STARTING)
     {
         TRY_CATCH(
-          CODE(
-            LDEBUG << "killing server " << runningServer->getServerId();
-            runningServer->stop(KILL);
-            serverStatus = ServerStatus::STOPPED;
-            this->scheduledForRestart = false;
-            runningServer.reset();
-          ),
-          CODE(LERROR << "Failed to stop starting server " << runningServer->getServerId())
-        )
+            CODE(
+                LDEBUG << "killing server " << runningServer->getServerId();
+                runningServer->stop(KILL);
+                serverStatus = ServerStatus::STOPPED;
+                this->scheduledForRestart = false;
+                runningServer.reset();),
+            CODE(LERROR << "Failed to stop starting server " << runningServer->getServerId()))
     }
 }
 
@@ -595,10 +580,10 @@ void ServerGroup::validateAndInitConfig(ServerGroupConfigProto &cfg)
         cfg.set_starting_server_lifetime(STARTING_SERVER_LIFETIME);
     if (cfg.min_available_server_no() > cfg.min_alive_server_no())
         throw common::InvalidArgumentException(
-                "The minimum number of available servers must be less or equal to the minimum number of alive servers");
+            "The minimum number of available servers must be less or equal to the minimum number of alive servers");
     if ((std::uint32_t)cfg.ports_size() < cfg.min_alive_server_no())
         throw common::InvalidArgumentException(
-          "The number of allocated ports must be greater than the minimum number of alive servers.");
+            "The number of allocated ports must be greater than the minimum number of alive servers.");
 }
 
 std::int32_t ServerGroup::getConfiguredPort() const
@@ -606,4 +591,4 @@ std::int32_t ServerGroup::getConfiguredPort() const
     return std::int32_t(config.ports(0));
 }
 
-}
+}  // namespace rasmgr

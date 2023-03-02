@@ -99,7 +99,7 @@ public:
     virtual void loadUserInformation();
 
     virtual UserMgrProto serializeToProto();
-    
+
     void setDatabaseManager(std::shared_ptr<DatabaseManager> dbManager);
 
 private:

@@ -51,32 +51,29 @@ extern bool isLockMgrOn;
 const QtNode::QtNodeType QtMDDAccess::nodeType = QT_MDD_ACCESS;
 
 QtMDDAccess::QtMDDAccess(const QtCollection &collectionNew)
-    :  QtONCStream(),
-       collection(collectionNew),
-       mddColl(NULL),
-       mddIter(NULL)
+    : QtONCStream(),
+      collection(collectionNew),
+      mddColl(NULL),
+      mddIter(NULL)
 {
 }
 
 QtMDDAccess::QtMDDAccess(const QtCollection &collectionNew, const string &initName)
-    :  QtONCStream(),
-       collection(collectionNew),
-       iteratorName(initName),
-       mddColl(NULL),
-       mddIter(NULL)
+    : QtONCStream(),
+      collection(collectionNew),
+      iteratorName(initName),
+      mddColl(NULL),
+      mddIter(NULL)
 {
-
 }
 
 QtMDDAccess::~QtMDDAccess()
 {
-//just to be on the safe side
+    //just to be on the safe side
     close();
 }
 
-
-void
-QtMDDAccess::open()
+void QtMDDAccess::open()
 {
     startTimer("QtMDDAccess");
 
@@ -113,7 +110,7 @@ QtMDDAccess::next()
         //
 
         // encapsulate the next MDDObj in an QtMDD object
-        ptr =  mddIter->getElement();
+        ptr = mddIter->getElement();
         if (isLockMgrOn)
         {
             if (ptr)
@@ -134,12 +131,12 @@ QtMDDAccess::next()
                 ptr->setNullValues(dbmi);
             }
         }
-        
-        QtMDD  *elem = new QtMDD(ptr, iteratorName);
+
+        QtMDD *elem = new QtMDD(ptr, iteratorName);
         elem->setCollType(collType);
 
         // create the list
-        QtNode::QtDataList *dataList = new QtNode::QtDataList(1); // create container to contain one element
+        QtNode::QtDataList *dataList = new QtNode::QtDataList(1);  // create container to contain one element
 
         // insert the element into the list
         (*dataList)[0] = elem;
@@ -165,9 +162,7 @@ QtMDDAccess::next()
     return returnValue;
 }
 
-
-void
-QtMDDAccess::close()
+void QtMDDAccess::close()
 {
     // delete the mdd iterator
     if (mddIter)
@@ -179,9 +174,7 @@ QtMDDAccess::close()
     stopTimer();
 }
 
-
-void
-QtMDDAccess::reset()
+void QtMDDAccess::reset()
 {
     if (mddIter)
     {
@@ -189,9 +182,7 @@ QtMDDAccess::reset()
     }
 }
 
-
-void
-QtMDDAccess::printTree(int tab, ostream &s, QtChildType /*mode*/)
+void QtMDDAccess::printTree(int tab, ostream &s, QtChildType /*mode*/)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMDDAccess Object: type " << flush;
     dataStreamType.printStatus(s);
@@ -202,15 +193,10 @@ QtMDDAccess::printTree(int tab, ostream &s, QtChildType /*mode*/)
       << " <- " << iteratorName.c_str() << endl;
 }
 
-
-
-void
-QtMDDAccess::printAlgebraicExpression(ostream &s)
+void QtMDDAccess::printAlgebraicExpression(ostream &s)
 {
     s << collection.getCollectionName().c_str() << " as " << iteratorName.c_str() << flush;
 }
-
-
 
 const QtTypeTuple &
 QtMDDAccess::checkType()
@@ -224,7 +210,7 @@ QtMDDAccess::checkType()
     if (collection.getHostname() != "" && collection.getHostname() != "localhost")
     {
         LERROR << "Non-local collection is unsupported";
-        parseInfo.setErrorNo(FEATURENOTSUPPORTED); //to be changed
+        parseInfo.setErrorNo(FEATURENOTSUPPORTED);  //to be changed
         throw parseInfo;
     }
 

@@ -125,7 +125,7 @@ public:
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream &s) const;
-    
+
     /// returns the current value for the tile configuration option
     const r_Minterval &get_tile_config() const;
 
@@ -153,7 +153,6 @@ public:
     */
 
 protected:
-
     ///  tile configuration
     r_Minterval tile_config;
 

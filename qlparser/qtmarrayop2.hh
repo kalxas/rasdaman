@@ -49,15 +49,15 @@ public:
     /// variables to pass to old marray
     r_Dimension greatDimension;
     r_Minterval greatDomain;
-    std::string      greatIterator;
+    std::string greatIterator;
 
     /// pair (Identifier, Interval)
     typedef struct
     {
-        std::string  variable;
+        std::string variable;
         QtOperation *tree;
-        ParseInfo    parseInfo;
-        r_Dimension  dimensionOffset;
+        ParseInfo parseInfo;
+        r_Dimension dimensionOffset;
     } mddIntervalType;
 
     /// list storing pairs (Identifier, Interval)
@@ -74,11 +74,11 @@ public:
     virtual void rewriteVars();
     inline QtOperation *getInput() const;
     ///
-    inline const ParseInfo     &getParseInfo();
+    inline const ParseInfo &getParseInfo();
     ///
-    inline void                 setParseInfo(const ParseInfo &info);
+    inline void setParseInfo(const ParseInfo &info);
     ///
-    inline void                 setOldMarray(bool value);
+    inline void setOldMarray(bool value);
 
 protected:
     /// attribute for parser info
@@ -96,10 +96,8 @@ private:
 
     /// replace Iterator name if this is false
     bool oldMarray;
-
 };
 
 #include "qlparser/qtmarrayop2.icc"
 
 #endif
-

@@ -21,7 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
 #include "config.h"
 
 #include "qlparser/qtbinaryinduce.hh"
@@ -49,8 +48,8 @@ using namespace std;
 const QtNode::QtNodeType QtBinaryInduce::nodeType = QtNode::QT_BINARY_INDUCE;
 
 QtBinaryInduce::QtBinaryInduce(QtOperation *initInput1, QtOperation *initInput2, Ops::OpType initOpType)
-    :  QtBinaryOperation(initInput1, initInput2),
-       opType(initOpType)
+    : QtBinaryOperation(initInput1, initInput2),
+      opType(initOpType)
 {
 }
 
@@ -60,7 +59,7 @@ QtBinaryInduce::computeOp(QtData *operand1, QtData *operand2)
     QtData *returnValue = NULL;
 
     if (operand1->getDataType() == QT_MDD &&
-            operand2->getDataType() == QT_MDD)
+        operand2->getDataType() == QT_MDD)
     {
         QtMDD *mdd1 = static_cast<QtMDD *>(operand1);
         QtMDD *mdd2 = static_cast<QtMDD *>(operand2);
@@ -82,7 +81,7 @@ QtBinaryInduce::computeOp(QtData *operand1, QtData *operand2)
     else if (operand1->getDataType() == QT_MDD &&
              operand2->isScalarData())
     {
-        QtMDD        *mdd    = static_cast<QtMDD *>(operand1);
+        QtMDD *mdd = static_cast<QtMDD *>(operand1);
         QtScalarData *scalar = static_cast<QtScalarData *>(operand2);
 
         const BaseType *resultBaseType = (static_cast<MDDBaseType *>(const_cast<Type *>(dataStreamType.getType())))->getBaseType();
@@ -100,7 +99,7 @@ QtBinaryInduce::computeOp(QtData *operand1, QtData *operand2)
     else if (operand1->isScalarData() &&
              operand2->getDataType() == QT_MDD)
     {
-        QtMDD        *mdd    = static_cast<QtMDD *>(operand2);
+        QtMDD *mdd = static_cast<QtMDD *>(operand2);
         QtScalarData *scalar = static_cast<QtScalarData *>(operand1);
 
         const BaseType *resultBaseType = (static_cast<MDDBaseType *>(const_cast<Type *>(dataStreamType.getType())))->getBaseType();
@@ -156,7 +155,7 @@ QtBinaryInduce::computeUnaryMDDOp(QtMDD *operand1, QtScalarData *operand2, const
 
     // create ULong type with QtIntData value
     const BaseType *constBaseType = operand2->getValueType();
-    const char     *constValue    = operand2->getValueBuffer();
+    const char *constValue = operand2->getValueBuffer();
 
     //  get the area, where the operation has to be applied
     const r_Minterval &areaOp = operand1->getLoadDomain();
@@ -267,8 +266,8 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
         unique_ptr<vector<std::shared_ptr<Tile>>> allTilesOp1;
         allTilesOp1.reset(op1->intersect(areaOp1));
 
-        vector<vector<std::shared_ptr<Tile>>*> intersectTilesVector;
-        for (auto tileOp1It = allTilesOp1->begin(); tileOp1It !=  allTilesOp1->end(); tileOp1It++)
+        vector<vector<std::shared_ptr<Tile>> *> intersectTilesVector;
+        for (auto tileOp1It = allTilesOp1->begin(); tileOp1It != allTilesOp1->end(); tileOp1It++)
         {
             auto tile = (*tileOp1It);
 
@@ -283,7 +282,7 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
 
             intersectTilesVector.push_back(intersectTilesOp2);
         }
-        
+
         // create MDDObj for result
         MDDDomainType *mddBaseType = new MDDDomainType("tmp", resultBaseType, areaOp1);
         TypeFactory::addTempType(mddBaseType);
@@ -295,13 +294,12 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
             for (size_t i = 0; i < allTilesOp1->size(); i++)
             {
                 unique_ptr<vector<std::shared_ptr<Tile>>> tileOp2(intersectTilesVector[i]);
-                auto currResTiles = computeBinaryMDDOpOneTile(allTilesOp1->at(i), tileOp2, offset12, offset21, 
-                                                         areaOp1, resultBaseType, myOp, false, capturedErrCode);
+                auto currResTiles = computeBinaryMDDOpOneTile(allTilesOp1->at(i), tileOp2, offset12, offset21,
+                                                              areaOp1, resultBaseType, myOp, false, capturedErrCode);
                 for (const auto &tile: currResTiles)
                     mddres->insertTile(tile);
             }
         }
-
 
         // create a new QtMDD object as carrier object for the transient MDD object
         returnValue = new QtMDD(mddres.release());
@@ -319,9 +317,9 @@ QtBinaryInduce::computeBinaryMDDOp(QtMDD *operand1, QtMDD *operand2, const BaseT
 }
 
 std::vector<std::shared_ptr<Tile>> QtBinaryInduce::computeBinaryMDDOpOneTile(
-        const std::shared_ptr<Tile> &tileOp1, const unique_ptr<vector<std::shared_ptr<Tile>>> &tileOp2Vec,
-        const r_Point &offset12, const r_Point &offset21, const r_Minterval &areaOp1,
-        const BaseType *resultBaseType, BinaryOp *myOp, bool fullTiles, unsigned int &capturedErrCode)
+    const std::shared_ptr<Tile> &tileOp1, const unique_ptr<vector<std::shared_ptr<Tile>>> &tileOp2Vec,
+    const r_Point &offset12, const r_Point &offset21, const r_Minterval &areaOp1,
+    const BaseType *resultBaseType, BinaryOp *myOp, bool fullTiles, unsigned int &capturedErrCode)
 {
     // domain of the op1 tile
     const r_Minterval &tileOp1Dom = tileOp1->getDomain();
@@ -331,17 +329,17 @@ std::vector<std::shared_ptr<Tile>> QtBinaryInduce::computeBinaryMDDOpOneTile(
     for (const auto &tileOp2: *tileOp2Vec)
     {
         const r_Minterval &tileOp2Dom = tileOp2->getDomain();
-    
+
         // the relevant domain is the intersection of the
         // domains of the two tiles with the relevant area.
         r_Minterval tileIntersectDom = tileOp1Dom.create_intersection(tileOp2Dom.create_translation(offset21));
-    
+
         r_Minterval intersectDom = tileIntersectDom.create_intersection(areaOp1);
-        (void) fullTiles;
-    
+        (void)fullTiles;
+
         // create tile for result
         auto resTile = std::make_shared<Tile>(intersectDom, resultBaseType);
-    
+
         //
         // carry out operation on the relevant area of the tiles
         //
@@ -361,8 +359,6 @@ std::vector<std::shared_ptr<Tile>> QtBinaryInduce::computeBinaryMDDOpOneTile(
     return resTiles;
 }
 
-
-
 QtData *
 QtBinaryInduce::computeBinaryOp(QtScalarData *operand1, QtScalarData *operand2, const BaseType *resultBaseType)
 {
@@ -370,10 +366,10 @@ QtBinaryInduce::computeBinaryOp(QtScalarData *operand1, QtScalarData *operand2, 
     auto *nullValues = operand1->getNullValues();  // FIXME use also operand2
 
     // allocate memory for the result
-    char *resultBuffer = new char[ resultBaseType->getSize() ];
+    char *resultBuffer = new char[resultBaseType->getSize()];
 
     BinaryOp *myOp = Ops::getBinaryOp(opType, resultBaseType,
-                                      operand1->getValueType(),   operand2->getValueType());
+                                      operand1->getValueType(), operand2->getValueType());
     if (myOp)
     {
         myOp->setNullValues(nullValues);
@@ -457,16 +453,19 @@ QtBinaryInduce::checkType(QtTypeTuple *typeTuple)
         if (baseType1 != nullptr && baseType2 != nullptr)
         {
             const BaseType *resultBaseType;
-            try {
+            try
+            {
                 resultBaseType = Ops::getResultType(opType, baseType1, baseType2);
                 if (!resultBaseType) throw r_Error(BININDUCE_BASETYPESINCOMPATIBLE);
-            } catch (r_Error &e) {
+            }
+            catch (r_Error &e)
+            {
                 LERROR << "operand types of binary induced operation are incompatible.";
                 parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
                 throw parseInfo;
             }
             if (inputType1.getDataType() == QT_MDD || inputType2.getDataType() == QT_MDD)
-            {   
+            {
                 MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
                 TypeFactory::addTempType(resultMDDType);
                 dataStreamType.setType(resultMDDType);
@@ -474,7 +473,7 @@ QtBinaryInduce::checkType(QtTypeTuple *typeTuple)
             else
             {
                 dataStreamType.setType(resultBaseType);
-            }   
+            }
         }
         else if (inputType1.getDataType() == QT_STRING && inputType2.getDataType() == QT_STRING)
         {
@@ -541,16 +540,14 @@ QtPlus::getUniqueOrder(const QtNode::QtNodeType ID)
     return returnValue;
 }
 
-void
-QtPlus::printTree(int tab, ostream &s, QtChildType mode)
+void QtPlus::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtPlus Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
 
-void
-QtPlus::printAlgebraicExpression(ostream &s)
+void QtPlus::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 
@@ -580,26 +577,23 @@ QtPlus::printAlgebraicExpression(ostream &s)
 const QtNode::QtNodeType QtMinus::nodeType = QT_MINUS;
 
 QtMinus::QtMinus(QtOperation *initInput1, QtOperation *initInput2)
-    :  QtBinaryInduce(initInput1, initInput2, Ops::OP_MINUS)
+    : QtBinaryInduce(initInput1, initInput2, Ops::OP_MINUS)
 {
 }
 
-bool
-QtMinus::isCommutative() const
+bool QtMinus::isCommutative() const
 {
-    return false; // NOT commutative
+    return false;  // NOT commutative
 }
 
-void
-QtMinus::printTree(int tab, ostream &s, QtChildType mode)
+void QtMinus::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMinus Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
 
-void
-QtMinus::printAlgebraicExpression(ostream &s)
+void QtMinus::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 
@@ -633,16 +627,14 @@ QtMax_binary::QtMax_binary(QtOperation *initInput1, QtOperation *initInput2)
 {
 }
 
-void
-QtMax_binary::printTree(int tab, ostream &s, QtChildType mode)
+void QtMax_binary::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMax_binary Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
 
-void
-QtMax_binary::printAlgebraicExpression(ostream &s)
+void QtMax_binary::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 
@@ -676,16 +668,14 @@ QtMin_binary::QtMin_binary(QtOperation *initInput1, QtOperation *initInput2)
 {
 }
 
-void
-QtMin_binary::printTree(int tab, ostream &s, QtChildType mode)
+void QtMin_binary::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMin_binary Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
 
-void
-QtMin_binary::printAlgebraicExpression(ostream &s)
+void QtMin_binary::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 
@@ -715,7 +705,7 @@ QtMin_binary::printAlgebraicExpression(ostream &s)
 const QtNode::QtNodeType QtMult::nodeType = QT_MULT;
 
 QtMult::QtMult(QtOperation *initInput1, QtOperation *initInput2)
-    :  QtBinaryInduce(initInput1, initInput2, Ops::OP_MULT)
+    : QtBinaryInduce(initInput1, initInput2, Ops::OP_MULT)
 {
 }
 
@@ -752,16 +742,14 @@ QtMult::getUniqueOrder(const QtNode::QtNodeType ID)
     return returnValue;
 }
 
-void
-QtMult::printTree(int tab, ostream &s, QtChildType mode)
+void QtMult::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMult Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
 
-void
-QtMult::printAlgebraicExpression(ostream &s)
+void QtMult::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 
@@ -791,26 +779,23 @@ QtMult::printAlgebraicExpression(ostream &s)
 const QtNode::QtNodeType QtDiv::nodeType = QT_DIV;
 
 QtDiv::QtDiv(QtOperation *initInput1, QtOperation *initInput2)
-    :  QtBinaryInduce(initInput1, initInput2, Ops::OP_DIV)
+    : QtBinaryInduce(initInput1, initInput2, Ops::OP_DIV)
 {
 }
 
-bool
-QtDiv::isCommutative() const
+bool QtDiv::isCommutative() const
 {
-    return false; // NOT commutative
+    return false;  // NOT commutative
 }
 
-void
-QtDiv::printTree(int tab, ostream &s, QtChildType mode)
+void QtDiv::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtDiv Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
 
-void
-QtDiv::printAlgebraicExpression(ostream &s)
+void QtDiv::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 
@@ -840,26 +825,23 @@ QtDiv::printAlgebraicExpression(ostream &s)
 const QtNode::QtNodeType QtIntDiv::nodeType = QT_INTDIV;
 
 QtIntDiv::QtIntDiv(QtOperation *initInput1, QtOperation *initInput2)
-    :  QtBinaryInduce(initInput1, initInput2, Ops::OP_INTDIV)
+    : QtBinaryInduce(initInput1, initInput2, Ops::OP_INTDIV)
 {
 }
 
-bool
-QtIntDiv::isCommutative() const
+bool QtIntDiv::isCommutative() const
 {
-    return false; // NOT commutative
+    return false;  // NOT commutative
 }
 
-void
-QtIntDiv::printTree(int tab, ostream &s, QtChildType mode)
+void QtIntDiv::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIntDiv Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
 
-void
-QtIntDiv::printAlgebraicExpression(ostream &s)
+void QtIntDiv::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 
@@ -888,26 +870,23 @@ QtIntDiv::printAlgebraicExpression(ostream &s)
 const QtNode::QtNodeType QtMod::nodeType = QT_MOD;
 
 QtMod::QtMod(QtOperation *initInput1, QtOperation *initInput2)
-    :  QtBinaryInduce(initInput1, initInput2, Ops::OP_MOD)
+    : QtBinaryInduce(initInput1, initInput2, Ops::OP_MOD)
 {
 }
 
-bool
-QtMod::isCommutative() const
+bool QtMod::isCommutative() const
 {
-    return false; // NOT commutative
+    return false;  // NOT commutative
 }
 
-void
-QtMod::printTree(int tab, ostream &s, QtChildType mode)
+void QtMod::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMod Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree(tab, s, mode);
 }
 
-void
-QtMod::printAlgebraicExpression(ostream &s)
+void QtMod::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 

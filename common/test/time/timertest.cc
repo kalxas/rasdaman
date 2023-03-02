@@ -33,8 +33,8 @@ static int32_t period = 300;
 class TimerTest : public ::testing::Test
 {
 protected:
-    TimerTest() :
-        timer(period)
+    TimerTest()
+        : timer(period)
     {
     }
 
@@ -60,5 +60,5 @@ TEST_F(TimerTest, SleepUntilTimerExpiresAndReset)
     timer.reset();
     ASSERT_FALSE(timer.hasExpired());
 }
-}
-}
+}  // namespace test
+}  // namespace common

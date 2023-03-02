@@ -64,97 +64,91 @@ rasdaman GmbH.
 #ifdef HAVE_PNG
 
 /* memfs interface functions in C namespace */
-extern "C" {
-
-    static void png_mem_read_data(png_struct* png_ptr, png_byte* data, png_size_t length)
+extern "C"
+{
+    static void png_mem_read_data(png_struct *png_ptr, png_byte *data, png_size_t length)
     {
-        void* handle = NULL;
+        void *handle = NULL;
 
-        handle = (void*)png_get_io_ptr(png_ptr);
+        handle = (void *)png_get_io_ptr(png_ptr);
         memfs_chunk_read(handle, (ras_data_t)data, (ras_size_t)length);
     }
-    static void png_mem_write_data(png_struct* png_ptr, png_byte* data, png_size_t length)
+    static void png_mem_write_data(png_struct *png_ptr, png_byte *data, png_size_t length)
     {
-        void* handle = NULL;
+        void *handle = NULL;
 
-        handle = (void*)png_get_io_ptr(png_ptr);
+        handle = (void *)png_get_io_ptr(png_ptr);
         memfs_write(handle, (ras_data_t)data, (ras_size_t)length);
     }
-    static void png_mem_flush_data(png_struct* png_ptr)
+    static void png_mem_flush_data(png_struct *png_ptr)
     {
-        void* handle = NULL;
+        void *handle = NULL;
 
-        handle = (void*)png_get_io_ptr(png_ptr);
+        handle = (void *)png_get_io_ptr(png_ptr);
     }
 
+    static void *png_user_error_ptr = NULL;
 
-    static void* png_user_error_ptr = NULL;
-
-    static void png_user_warning_fn(__attribute__((unused)) png_struct* png_ptr, const char* warning_msg)
+    static void png_user_warning_fn(__attribute__((unused)) png_struct *png_ptr, const char *warning_msg)
     {
         fprintf(stdout, "r_Conv_PNG warning: %s\n", warning_msg);
         fflush(stdout);
     }
-    static void png_user_error_fn(__attribute__((unused)) png_struct* png_ptr, const char* error_msg)
+    static void png_user_error_fn(__attribute__((unused)) png_struct *png_ptr, const char *error_msg)
     {
         fprintf(stderr, "r_Conv_PNG error: %s\n", error_msg);
         // return from this routine, exception will be thrown in setjmp code
     }
 
-} // end of C namespace
+}  // end of C namespace
 
-#endif // HAVE_PNG
-
+#endif  // HAVE_PNG
 
 /*
  *  r_Conv_PNG class for converting MDD to PNG and back
  */
 
-const char* r_Conv_PNG::name_InfoKey = "Description";
-const char* r_Conv_PNG::name_InfoText = "rasdaman MDD encoded as PNG";
-const char* r_Conv_PNG::method_convertTo = "r_Conv_PNG::convertTo()";
-const char* r_Conv_PNG::method_convertFrom = "r_Conv_PNG::convertFrom()";
+const char *r_Conv_PNG::name_InfoKey = "Description";
+const char *r_Conv_PNG::name_InfoText = "rasdaman MDD encoded as PNG";
+const char *r_Conv_PNG::method_convertTo = "r_Conv_PNG::convertTo()";
+const char *r_Conv_PNG::method_convertFrom = "r_Conv_PNG::convertFrom()";
 
-r_Conv_PNG::r_Conv_PNG(const char* src, const r_Minterval& interv, int tp)
+r_Conv_PNG::r_Conv_PNG(const char *src, const r_Minterval &interv, int tp)
     : r_Convert_Memory(src, interv, tp)
 {
 }
 
-
-r_Conv_PNG::r_Conv_PNG(const char* src, const r_Minterval& interv, const r_Type* tp)
+r_Conv_PNG::r_Conv_PNG(const char *src, const r_Minterval &interv, const r_Type *tp)
     : r_Convert_Memory(src, interv, tp)
 {
 }
-
 
 r_Conv_PNG::~r_Conv_PNG(void)
 {
 }
 
-
-r_Conv_Desc& r_Conv_PNG::convertFrom(r_Format_Params options)
+r_Conv_Desc &r_Conv_PNG::convertFrom(r_Format_Params options)
 {
     formatParams = options;
     return convertFrom(NULL);
 }
 
-
-r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
+r_Conv_Desc &r_Conv_PNG::convertTo(const char *options, const r_Range *)
 {
 #ifdef HAVE_PNG
-    png_struct* write_ptr = NULL;
-    png_info* info_ptr = NULL;
+    png_struct *write_ptr = NULL;
+    png_info *info_ptr = NULL;
     unsigned int i = 0, j = 0;
     png_uint_32 width = 0, height = 0;
     int colourType = 0, compType = 0;
     int spp = 0, bps = 0, lineAdd = 0, pixelAdd = 0;
     png_color_8 sig_bit;
     png_text infotext[1];
-    char* trans_string = NULL;        // transparency string buffer
-    int itemsScanned = 0;         // # of items scanned in options string
-    bool transpFound = false;     // keyword for transparency found in options?
+    char *trans_string = NULL;  // transparency string buffer
+    int itemsScanned = 0;       // # of items scanned in options string
+    bool transpFound = false;   // keyword for transparency found in options?
 
-    i = 0;                // error state: 0 is ok, !=0 is error
+    i = 0;  // error state: 0 is ok, !=0 is error
 
     // option analysis: create parse object -- PB 2005-jul-12
     if (params == NULL)
@@ -165,7 +159,7 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
     transpFound = params->process(options);
 
     // check for good options, if any
-    if (options != NULL && ! transpFound)
+    if (options != NULL && !transpFound)
     {
         LERROR << "Error: illegal PNG option string: " << options;
         throw r_Error(r_Error::r_Error_General);
@@ -201,13 +195,13 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
 
     memfs_newfile(handle);
 
-    png_set_write_fn(write_ptr, static_cast<void*>(handle), png_mem_write_data, png_mem_flush_data);
+    png_set_write_fn(write_ptr, static_cast<void *>(handle), png_mem_write_data, png_mem_flush_data);
 
     // Compression
     compType = PNG_COMPRESSION_TYPE_DEFAULT;
 
     // Size
-    width  = static_cast<png_uint_32>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
+    width = static_cast<png_uint_32>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
     height = static_cast<png_uint_32>(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
 
     png_bytep trans_alpha = NULL;
@@ -284,7 +278,7 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
         // check first if it's 4 char bands
         {
             int bands = 0;
-            for (const auto& att : static_cast<const r_Structure_Type*>(desc.srcType)->getAttributes())
+            for (const auto &att: static_cast<const r_Structure_Type *>(desc.srcType)->getAttributes())
             {
                 ++bands;
                 if (att.type_of().type_id() != r_Type::CHAR)
@@ -314,7 +308,7 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
     default:
         LERROR << "Error: " << method_convertTo << ": Unknown base type.";
         throw r_Error(r_Error::r_Error_General);
-    } // switch
+    }  // switch
 
     // TODO: adapt below for png 1.5+
     // adjust transparency color value to pixel depth (unconditionally, even if transparency is unused)
@@ -328,10 +322,9 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
 
     if (trans_string != NULL)
     {
-        delete [] trans_string;
+        delete[] trans_string;
         trans_string = NULL;
     }
-
 
     png_set_IHDR(write_ptr, info_ptr, width, height, bps, colourType, PNG_INTERLACE_NONE, compType, PNG_FILTER_TYPE_BASE);
     png_set_compression_level(write_ptr, 2);
@@ -349,11 +342,11 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
     // Write header
     png_write_info(write_ptr, info_ptr);
 
-    png_byte* row = NULL, *rowPtr = NULL;
-    const unsigned char* src = NULL, *srcPtr = NULL;
+    png_byte *row = NULL, *rowPtr = NULL;
+    const unsigned char *src = NULL, *srcPtr = NULL;
 
     row = new png_byte[((static_cast<size_t>(bps * spp) * width + 7) >> 3u)];
-    src = (const unsigned char*)(desc.src);
+    src = (const unsigned char *)(desc.src);
 
     for (j = 0; j < height; j++)
     {
@@ -368,7 +361,7 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
             png_byte val = 0;
 
             val = 0;
-            mask = 0x80; // png docs: leftmost pixel in high-order bits
+            mask = 0x80;  // png docs: leftmost pixel in high-order bits
             for (i = 0; i < width; i++, srcPtr += pixelAdd)
             {
                 if (*srcPtr != 0)
@@ -427,7 +420,7 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
         src += lineAdd;
     }
 
-    delete [] row;
+    delete[] row;
     row = NULL;
 
     png_write_end(write_ptr, info_ptr);
@@ -435,14 +428,14 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
     // --- Cleanup -------------------------------------------------------
     png_destroy_write_struct(&write_ptr, &info_ptr);
 
-    delete [] infotext[0].key;
+    delete[] infotext[0].key;
     infotext[0].key = NULL;
-    delete [] infotext[0].text;
+    delete[] infotext[0].text;
     infotext[0].text = NULL;
 
     r_Long pngSize = static_cast<r_Long>(memfs_size(handle));
 
-    if ((desc.dest = static_cast<char*>(mymalloc(size_t(pngSize)))) == NULL)
+    if ((desc.dest = static_cast<char *>(mymalloc(size_t(pngSize)))) == NULL)
     {
         LERROR << "Error: " << method_convertTo << ": out of memory.";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -460,15 +453,14 @@ r_Conv_Desc& r_Conv_PNG::convertTo(const char* options, const r_Range*)
 #else
     LERROR << "encoding PNG with internal encoder is not supported; rasdaman should be configured with option -DUSE_PNG=ON to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
-#endif // HAVE_PNG
+#endif  // HAVE_PNG
 }
 
-
-r_Conv_Desc& r_Conv_PNG::convertFrom(const char* options)
+r_Conv_Desc &r_Conv_PNG::convertFrom(const char *options)
 {
 #ifdef HAVE_PNG
-    png_struct* read_ptr = NULL;
-    png_info* info_ptr = NULL;
+    png_struct *read_ptr = NULL;
+    png_info *info_ptr = NULL;
     int pass = 0, numPasses = 0;
     png_uint_32 width = 0, height = 0, pitch = 0;
     int colourType = 0, interlaceType = 0, compType = 0, filterType = 0;
@@ -500,11 +492,11 @@ r_Conv_Desc& r_Conv_PNG::convertFrom(const char* options)
         throw r_Error(r_Error::r_Error_General);
     }
 
-    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), static_cast<r_Long>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
+    memfs_chunk_initfs(handle, const_cast<char *>(desc.src), static_cast<r_Long>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
 
     desc.dest = NULL;
 
-    png_set_read_fn(read_ptr, static_cast<void*>(handle), png_mem_read_data);
+    png_set_read_fn(read_ptr, static_cast<void *>(handle), png_mem_read_data);
 
     png_read_info(read_ptr, info_ptr);
 
@@ -583,18 +575,18 @@ r_Conv_Desc& r_Conv_PNG::convertFrom(const char* options)
     }
 #endif
 
-    png_byte* row = new png_byte[pitch];
+    png_byte *row = new png_byte[pitch];
 
-    desc.dest = static_cast<char*>(mymalloc(pitch * height));
+    desc.dest = static_cast<char *>(mymalloc(pitch * height));
 
     for (pass = 0; pass < numPasses; pass++)
     {
-        unsigned char* dest, *destPtr;
+        unsigned char *dest, *destPtr;
 
-        dest = (unsigned char*)(desc.dest);
+        dest = (unsigned char *)(desc.dest);
         for (j = 0; j < height; j++, dest += lineAdd)
         {
-            png_byte* rowPtr = NULL;
+            png_byte *rowPtr = NULL;
 
             destPtr = dest;
             rowPtr = row;
@@ -650,13 +642,13 @@ r_Conv_Desc& r_Conv_PNG::convertFrom(const char* options)
 
     png_read_end(read_ptr, info_ptr);
 
-    delete [] row;
+    delete[] row;
     row = NULL;
 
     png_destroy_read_struct(&read_ptr, &info_ptr, NULL);
 
     if (desc.srcInterv.dimension() == 2)
-        // this means it was explicitly specified, so we shouldn't override it
+    // this means it was explicitly specified, so we shouldn't override it
     {
         desc.destInterv = desc.srcInterv;
     }
@@ -674,24 +666,20 @@ r_Conv_Desc& r_Conv_PNG::convertFrom(const char* options)
 #else
     LERROR << "decoding PNG with internal decoder is not supported; rasdaman should be configured with option -DUSE_PNG=ON to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
-#endif // HAVE_PNG
+#endif  // HAVE_PNG
 }
 
-
-
-const char* r_Conv_PNG::get_name(void) const
+const char *r_Conv_PNG::get_name(void) const
 {
     return format_name_png;
 }
-
 
 r_Data_Format r_Conv_PNG::get_data_format(void) const
 {
     return r_PNG;
 }
 
-
-r_Convertor* r_Conv_PNG::clone(void) const
+r_Convertor *r_Conv_PNG::clone(void) const
 {
     return new r_Conv_PNG(desc.src, desc.srcInterv, desc.baseType);
 }

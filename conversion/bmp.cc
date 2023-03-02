@@ -42,7 +42,6 @@ rasdaman GmbH.
 #include <cstdlib>
 #include <cstring>
 
-
 // Some Windows-structs, redefined for platform-independent use.
 typedef struct
 {
@@ -90,17 +89,22 @@ const int BMPINFOHEADERSIZE = sizeof(bitmap_info_header_t);
 const int BMPHEADERSIZE = (BMPFILEHEADERSIZE + BMPINFOHEADERSIZE);
 
 // Shortcuts for reading and writing short and long types from/to little endian bytestreams
-#define READ_LE_SHORT(p,s) \
-    s = p[0] | (p[1] << 8); p += 2;
-#define READ_LE_LONG(p,l) \
-    l = p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24); p += 4;
-#define WRITE_LE_SHORT(p,s) \
-    p[0] = s & 0xff; p[1] = (s >> 8) & 0xff; p += 2;
-#define WRITE_LE_LONG(p,l) \
-    p[0] = l & 0xff; p[1] = (l >> 8) & 0xff; \
-    p[2] = (l >> 16) & 0xff; p[3] = (l >> 24) & 0xff; p += 4;
-
-
+#define READ_LE_SHORT(p, s) \
+    s = p[0] | (p[1] << 8); \
+    p += 2;
+#define READ_LE_LONG(p, l)                                \
+    l = p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24); \
+    p += 4;
+#define WRITE_LE_SHORT(p, s) \
+    p[0] = s & 0xff;         \
+    p[1] = (s >> 8) & 0xff;  \
+    p += 2;
+#define WRITE_LE_LONG(p, l)  \
+    p[0] = l & 0xff;         \
+    p[1] = (l >> 8) & 0xff;  \
+    p[2] = (l >> 16) & 0xff; \
+    p[3] = (l >> 24) & 0xff; \
+    p += 4;
 
 void r_Conv_BMP::initBMP(void)
 {
@@ -116,35 +120,31 @@ void r_Conv_BMP::initBMP(void)
     params->add("compress", &compress, r_Parse_Params::param_type_int);
 }
 
-
-r_Conv_BMP::r_Conv_BMP(const char* src, const r_Minterval& interv, int tp)
+r_Conv_BMP::r_Conv_BMP(const char *src, const r_Minterval &interv, int tp)
     : r_Convertor(src, interv, tp)
 {
     initBMP();
 }
 
-
-r_Conv_BMP::r_Conv_BMP(const char* src, const r_Minterval& interv, const r_Type* tp)
+r_Conv_BMP::r_Conv_BMP(const char *src, const r_Minterval &interv, const r_Type *tp)
     : r_Convertor(src, interv, tp)
 {
     initBMP();
 }
-
 
 r_Conv_BMP::~r_Conv_BMP(void)
 {
     if (memFS != NULL)
     {
-        memfs_killfs(static_cast<void*>(memFS));
+        memfs_killfs(static_cast<void *>(memFS));
         delete memFS;
         memFS = NULL;
     }
 }
 
-
-unsigned char* r_Conv_BMP::flushLiterals(int numLit, int pixelAdd, unsigned char* dest, const unsigned char* lastLit, const unsigned char* mapColours)
+unsigned char *r_Conv_BMP::flushLiterals(int numLit, int pixelAdd, unsigned char *dest, const unsigned char *lastLit, const unsigned char *mapColours)
 {
-    unsigned char* destPtr = dest;
+    unsigned char *destPtr = dest;
 
     while (numLit != 0)
     {
@@ -188,12 +188,11 @@ unsigned char* r_Conv_BMP::flushLiterals(int numLit, int pixelAdd, unsigned char
     return destPtr;
 }
 
-
-r_Conv_Desc& r_Conv_BMP::convertTo(const char* options, const r_Range*)
+r_Conv_Desc &r_Conv_BMP::convertTo(const char *options, const r_Range *)
 {
-    void* handle = NULL;
+    void *handle = NULL;
     bitmap_info_header_t ihead;
-    rgb_quad_t* palette = NULL;
+    rgb_quad_t *palette = NULL;
     int i = 0, j = 0;
     r_ULong paletteSize = 0;
     int pixelSize = 0;
@@ -201,13 +200,13 @@ r_Conv_Desc& r_Conv_BMP::convertTo(const char* options, const r_Range*)
     int width = 0, height = 0;
     r_ULong offset = 0;
     r_ULong fileSize = 0;
-    unsigned char* dest = NULL, *destPtr = NULL;
-    const unsigned char* srcLine = NULL, *srcPtr = NULL;
+    unsigned char *dest = NULL, *destPtr = NULL;
+    const unsigned char *srcLine = NULL, *srcPtr = NULL;
     unsigned char bmpHeaders[BMPHEADERSIZE];
     unsigned char mapColours[256];
 
     memFS = new memFSContext;
-    handle = static_cast<void*>(memFS);
+    handle = static_cast<void *>(memFS);
     if ((memFS == NULL) || (memfs_initfs(handle) < 0))
     {
         LERROR << "couldn't initialize memfs.";
@@ -215,7 +214,7 @@ r_Conv_Desc& r_Conv_BMP::convertTo(const char* options, const r_Range*)
     }
     memfs_newfile(handle);
 
-    width  = static_cast<int>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
+    width = static_cast<int>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
     height = static_cast<int>(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
 
     params->process(options);
@@ -258,14 +257,15 @@ r_Conv_Desc& r_Conv_BMP::convertTo(const char* options, const r_Range*)
         }
         // Determine which colours actually appear in the image
         memset(mapColours, 0, 256);
-        srcLine = (const unsigned char*)desc.src;
+        srcLine = (const unsigned char *)desc.src;
         for (i = 0; i < width * height; i++)
         {
             mapColours[*srcLine++] = 1;
         }
         // Count distinct colours
         paletteSize = 0;
-        for (i = 0; i < 256; i++) if (mapColours[i] != 0)
+        for (i = 0; i < 256; i++)
+            if (mapColours[i] != 0)
             {
                 paletteSize++;
             }
@@ -317,12 +317,12 @@ r_Conv_Desc& r_Conv_BMP::convertTo(const char* options, const r_Range*)
     memfs_write(handle, bmpHeaders, BMPHEADERSIZE);
     if (paletteSize != 0)
     {
-        memfs_write(handle, palette,  static_cast<ras_size_t>(paletteSize) * static_cast<ras_size_t>(sizeof(rgb_quad_t)));
-        delete [] palette;
+        memfs_write(handle, palette, static_cast<ras_size_t>(paletteSize) * static_cast<ras_size_t>(sizeof(rgb_quad_t)));
+        delete[] palette;
         palette = NULL;
     }
 
-    srcLine = (const unsigned char*)(desc.src + (height - 1) * pixelSize);
+    srcLine = (const unsigned char *)(desc.src + (height - 1) * pixelSize);
 
     if (ihead.compression == COMPRESS_NONE)
     {
@@ -388,7 +388,7 @@ r_Conv_Desc& r_Conv_BMP::convertTo(const char* options, const r_Range*)
             }
             memfs_write(handle, dest, destPitch);
         }
-        delete [] dest;
+        delete[] dest;
         dest = NULL;
     }
     else  // implies RLE 8
@@ -401,7 +401,7 @@ r_Conv_Desc& r_Conv_BMP::convertTo(const char* options, const r_Range*)
 
         for (j = 0; j < height; j++, srcLine -= lineAdd)
         {
-            const unsigned char* lastLit = NULL, *tryRun = NULL;
+            const unsigned char *lastLit = NULL, *tryRun = NULL;
             int k = 0, numLit = 0;
 
             srcPtr = srcLine;
@@ -479,7 +479,7 @@ r_Conv_Desc& r_Conv_BMP::convertTo(const char* options, const r_Range*)
         dest[1] = 1;
         memfs_write(handle, dest, 2);
 
-        delete [] dest;
+        delete[] dest;
         dest = NULL;
     }
 
@@ -510,7 +510,7 @@ r_Conv_Desc& r_Conv_BMP::convertTo(const char* options, const r_Range*)
     memfs_seek(handle, 0, SEEK_SET);
     memfs_write(handle, bmpHeaders, BMPHEADERSIZE);
 
-    if ((desc.dest = static_cast<char*>(mymalloc(fileSize))) == NULL)
+    if ((desc.dest = static_cast<char *>(mymalloc(fileSize))) == NULL)
     {
         LERROR << "r_Conv_BMP::convertTo(): out of memory!";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -530,32 +530,34 @@ r_Conv_Desc& r_Conv_BMP::convertTo(const char* options, const r_Range*)
     return desc;
 }
 
-
 // Auxiliary makro for RLE coders
 #define BMP_RLE_LINEFEED \
-    destLine -= lineAdd; destPtr = destLine; j++; i = 0;
+    destLine -= lineAdd; \
+    destPtr = destLine;  \
+    j++;                 \
+    i = 0;
 
-r_Conv_Desc& r_Conv_BMP::convertFrom(r_Format_Params options)
+r_Conv_Desc &r_Conv_BMP::convertFrom(r_Format_Params options)
 {
     formatParams = options;
     return convertFrom(NULL);
 }
 
-r_Conv_Desc& r_Conv_BMP::convertFrom(__attribute__((unused)) const char* options)
+r_Conv_Desc &r_Conv_BMP::convertFrom(__attribute__((unused)) const char *options)
 {
     bitmap_file_header_t fhead;
     bitmap_info_header_t ihead;
-    const rgb_quad_t* palette = NULL;
-    const unsigned char* bmp = NULL;
+    const rgb_quad_t *palette = NULL;
+    const unsigned char *bmp = NULL;
     int i = 0, j = 0;
     int srcPitch = 0;
     int pixelSize = 0, destType = 0;
     int paletteIsGrey = 0, paletteSize = 0;
     int width = 0, height = 0;
-    unsigned char emit0 = 0, emit1 = 0; // in case of bitmap -> bool: values to emit for 0 and 1
+    unsigned char emit0 = 0, emit1 = 0;  // in case of bitmap -> bool: values to emit for 0 and 1
     int lineAdd = 0, pixelAdd = 0;
 
-    bmp = (const unsigned char*)desc.src;
+    bmp = (const unsigned char *)desc.src;
 
     // Read file header
     READ_LE_SHORT(bmp, fhead.type);
@@ -594,7 +596,7 @@ r_Conv_Desc& r_Conv_BMP::convertFrom(__attribute__((unused)) const char* options
     LTRACE << ", clrUsed " << ihead.clrUsed << ", clrImp " << ihead.clrImportant;
 #endif
 
-    palette = (const rgb_quad_t*)(desc.src + BMPFILEHEADERSIZE + ihead.size);
+    palette = (const rgb_quad_t *)(desc.src + BMPFILEHEADERSIZE + ihead.size);
     paletteIsGrey = 0;
     paletteSize = static_cast<int>(ihead.clrUsed);
     if ((paletteSize == 0) && (ihead.bitCount != 24))
@@ -608,13 +610,13 @@ r_Conv_Desc& r_Conv_BMP::convertFrom(__attribute__((unused)) const char* options
         srcPitch = ((width + 31) & ~31) >> 3;
         // Grey?
         if ((palette[0].red == palette[0].green) && (palette[0].green == palette[0].blue) &&
-                (palette[1].red == palette[1].green) && (palette[1].green == palette[1].blue))
+            (palette[1].red == palette[1].green) && (palette[1].green == palette[1].blue))
         {
             paletteIsGrey = 1;
             pixelSize = 1;
             // Yes; also black + white?
             if (((palette[0].red == 0x00) && (palette[1].red == 0xff)) ||
-                    ((palette[0].red == 0xff) && (palette[1].red == 0x00)))
+                ((palette[0].red == 0xff) && (palette[1].red == 0x00)))
             {
                 // Yes
                 destType = ctype_bool;
@@ -688,15 +690,15 @@ r_Conv_Desc& r_Conv_BMP::convertFrom(__attribute__((unused)) const char* options
 
     LTRACE << "convertFrom(): type " << destType << ", srcPitch " << srcPitch << ", pixelSize " << pixelSize << ", palsize " << paletteSize;
 
-    unsigned char* dest = NULL, *destPtr = NULL, *destLine = NULL;
-    const unsigned char* imgPtr = NULL, *imgLine = NULL;
+    unsigned char *dest = NULL, *destPtr = NULL, *destLine = NULL;
+    const unsigned char *imgPtr = NULL, *imgLine = NULL;
 
     pixelAdd = pixelSize * height;
     lineAdd = pixelSize;
 
-    imgLine = (const unsigned char*)(palette + paletteSize);
+    imgLine = (const unsigned char *)(palette + paletteSize);
 
-    if ((dest = static_cast<unsigned char*>(mymalloc(static_cast<size_t>(width * height * pixelSize)))) == NULL)
+    if ((dest = static_cast<unsigned char *>(mymalloc(static_cast<size_t>(width * height * pixelSize)))) == NULL)
     {
         LERROR << "r_Conv_BMP::convertFrom(): out of memory";
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -893,20 +895,20 @@ r_Conv_Desc& r_Conv_BMP::convertFrom(__attribute__((unused)) const char* options
 
             //cout << "(" << i << "," << j << ")" << endl;
             cmd = *imgPtr++;
-            if (cmd == 0) // escape
+            if (cmd == 0)  // escape
             {
                 cmd = *imgPtr++;
                 switch (cmd)
                 {
-                case 0:   // end of line
+                case 0:  // end of line
                     //cout << "EOL" << endl;
                     BMP_RLE_LINEFEED;
                     break;
-                case 1:   // end of bitmap
+                case 1:  // end of bitmap
                     //cout << "EOB" << endl;
                     j = -1;
                     break;
-                case 2:   // delta
+                case 2:  // delta
                     //cout << "DELTA" << endl;
                     val = *imgPtr++;
                     i += val;
@@ -984,18 +986,18 @@ r_Conv_Desc& r_Conv_BMP::convertFrom(__attribute__((unused)) const char* options
             unsigned char val = 0, cmd = 0;
 
             cmd = *imgPtr++;
-            if (cmd == 0) // escape
+            if (cmd == 0)  // escape
             {
                 cmd = *imgPtr++;
                 switch (cmd)
                 {
-                case 0:   // end of line
+                case 0:  // end of line
                     BMP_RLE_LINEFEED;
                     break;
-                case 1:   // end of bitmap
+                case 1:  // end of bitmap
                     j = -1;
                     break;
-                case 2:   // delta
+                case 2:  // delta
                     val = *imgPtr++;
                     i += val;
                     destPtr += val * pixelAdd;
@@ -1128,12 +1130,12 @@ r_Conv_Desc& r_Conv_BMP::convertFrom(__attribute__((unused)) const char* options
     }
     }
 
-    desc.dest = (char*)dest;
+    desc.dest = (char *)dest;
     desc.baseType = destType;
 
     // Build destination interval
     if (desc.srcInterv.dimension() == 2)
-        // this means it was explicitly specified, so we shouldn't override it
+    // this means it was explicitly specified, so we shouldn't override it
     {
         desc.destInterv = desc.srcInterv;
     }
@@ -1149,21 +1151,17 @@ r_Conv_Desc& r_Conv_BMP::convertFrom(__attribute__((unused)) const char* options
     return desc;
 }
 
-
-
-const char* r_Conv_BMP::get_name(void) const
+const char *r_Conv_BMP::get_name(void) const
 {
     return format_name_bmp;
 }
-
 
 r_Data_Format r_Conv_BMP::get_data_format(void) const
 {
     return r_BMP;
 }
 
-
-r_Convertor* r_Conv_BMP::clone(void) const
+r_Convertor *r_Conv_BMP::clone(void) const
 {
     return new r_Conv_BMP(desc.src, desc.srcInterv, desc.baseType);
 }

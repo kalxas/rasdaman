@@ -50,61 +50,59 @@ const unsigned int r_Conv_TIFF::TIFF_DEFAULT_QUALITY = 80;
 
 #ifdef HAVE_TIFF
 const struct r_Convertor::convert_string_s r_Conv_TIFF::compNames[] =
-{
-    {"none", COMPRESSION_NONE},
-    {"ccittrle", COMPRESSION_CCITTRLE},
-    {"ccittfax3", COMPRESSION_CCITTFAX3},
-    {"ccittfax4", COMPRESSION_CCITTFAX4},
-    {"lzw", COMPRESSION_LZW},
-    {"ojpeg", COMPRESSION_OJPEG},
-    {"jpeg", COMPRESSION_JPEG},
-    {"next", COMPRESSION_NEXT},
-    {"ccittrlew", COMPRESSION_CCITTRLEW},
-    {"packbits", COMPRESSION_PACKBITS},
-    {"thunderscan", COMPRESSION_THUNDERSCAN},
-    {"pixarfilm", COMPRESSION_PIXARFILM},
-    {"pixarlog", COMPRESSION_PIXARLOG},
-    {"deflate", COMPRESSION_DEFLATE},
-    {"dcs", COMPRESSION_DCS},
-    {"jbig", COMPRESSION_JBIG},
+    {
+        {"none", COMPRESSION_NONE},
+        {"ccittrle", COMPRESSION_CCITTRLE},
+        {"ccittfax3", COMPRESSION_CCITTFAX3},
+        {"ccittfax4", COMPRESSION_CCITTFAX4},
+        {"lzw", COMPRESSION_LZW},
+        {"ojpeg", COMPRESSION_OJPEG},
+        {"jpeg", COMPRESSION_JPEG},
+        {"next", COMPRESSION_NEXT},
+        {"ccittrlew", COMPRESSION_CCITTRLEW},
+        {"packbits", COMPRESSION_PACKBITS},
+        {"thunderscan", COMPRESSION_THUNDERSCAN},
+        {"pixarfilm", COMPRESSION_PIXARFILM},
+        {"pixarlog", COMPRESSION_PIXARLOG},
+        {"deflate", COMPRESSION_DEFLATE},
+        {"dcs", COMPRESSION_DCS},
+        {"jbig", COMPRESSION_JBIG},
 #ifndef LINUX
-    {"sgilog", COMPRESSION_SGILOG},
-    {"sgilog24", COMPRESSION_SGILOG24},
-    {"it8ctpad", COMPRESSION_IT8CTPAD},
-    {"it8lw", COMPRESSION_IT8LW},
-    {"it8mp", COMPRESSION_IT8MP},
-    {"it8bl", COMPRESSION_IT8BL},
+        {"sgilog", COMPRESSION_SGILOG},
+        {"sgilog24", COMPRESSION_SGILOG24},
+        {"it8ctpad", COMPRESSION_IT8CTPAD},
+        {"it8lw", COMPRESSION_IT8LW},
+        {"it8mp", COMPRESSION_IT8MP},
+        {"it8bl", COMPRESSION_IT8BL},
 #endif
-    {NULL, COMPRESSION_NONE}
-};
+        {NULL, COMPRESSION_NONE}};
 
 const struct r_Convertor::convert_string_s r_Conv_TIFF::resunitNames[] =
-{
-    {"none", RESUNIT_NONE},
-    {"inch", RESUNIT_INCH},
-    {"centimeter", RESUNIT_CENTIMETER},
-    {NULL, RESUNIT_NONE}
-};
-#endif // HAVE_TIFF
+    {
+        {"none", RESUNIT_NONE},
+        {"inch", RESUNIT_INCH},
+        {"centimeter", RESUNIT_CENTIMETER},
+        {NULL, RESUNIT_NONE}};
+#endif  // HAVE_TIFF
 
 // Change these according to the platform!
 // Fill order of bits in bitmap mode. Define 0 for LSB, otherwise MSB
-#define _R_TIFF_BITFILLORDER    1
+#define _R_TIFF_BITFILLORDER 1
 
 // Setup internal macros according to the fill-order
 #if (_R_TIFF_BITFILLORDER == 0)
-#define _R_TIFF_MASK_VALUE      1
-#define _R_TIFF_MASK_SHIFT(x)   (x) <<= 1;
+#define _R_TIFF_MASK_VALUE 1
+#define _R_TIFF_MASK_SHIFT(x) (x) <<= 1;
 #else
-#define _R_TIFF_MASK_VALUE      (1<<7)
-#define _R_TIFF_MASK_SHIFT(x)   (x) >>= 1;
+#define _R_TIFF_MASK_VALUE (1 << 7)
+#define _R_TIFF_MASK_SHIFT(x) (x) >>= 1;
 #endif
 
 // TIFF class functions
 
 #ifdef HAVE_TIFF
 /// Translate string compression type to libtiff compression type
-int r_Conv_TIFF::get_compression_from_name(const char* strComp)
+int r_Conv_TIFF::get_compression_from_name(const char *strComp)
 {
     unsigned short i = 0;
     int tiffComp = COMPRESSION_NONE;
@@ -130,7 +128,7 @@ int r_Conv_TIFF::get_compression_from_name(const char* strComp)
 }
 
 /// Translate string resolution unit type to libtiff resolution unit type
-int r_Conv_TIFF::get_resunit_from_name(const char* strResUnit)
+int r_Conv_TIFF::get_resunit_from_name(const char *strResUnit)
 {
     unsigned short i = 0;
     int tiffResUnit = RESUNIT_NONE;
@@ -153,10 +151,10 @@ int r_Conv_TIFF::get_resunit_from_name(const char* strResUnit)
 
     return tiffResUnit;
 }
-#endif // HAVE_TIFF
+#endif  // HAVE_TIFF
 
 /// Capture errors
-void TIFFError(__attribute__((unused)) const char* module, const char* fmt, va_list argptr)
+void TIFFError(__attribute__((unused)) const char *module, const char *fmt, va_list argptr)
 {
     char msg[10240];
     vsprintf(msg, fmt, argptr);
@@ -165,7 +163,7 @@ void TIFFError(__attribute__((unused)) const char* module, const char* fmt, va_l
 }
 
 /// Capture warnings
-void TIFFWarning(__attribute__((unused)) const char* module, const char* fmt, va_list argptr)
+void TIFFWarning(__attribute__((unused)) const char *module, const char *fmt, va_list argptr)
 {
     char msg[10240];
     vsprintf(msg, fmt, argptr);
@@ -198,18 +196,18 @@ void r_Conv_TIFF::initTIFF(void)
     // set our error handlers
     TIFFSetErrorHandler(TIFFError);
     TIFFSetWarningHandler(TIFFWarning);
-#endif // HAVE_TIFF
+#endif  // HAVE_TIFF
 }
 
 /// constructor using type structure
-r_Conv_TIFF::r_Conv_TIFF(const char* src, const r_Minterval& interv, const r_Type* tp)
+r_Conv_TIFF::r_Conv_TIFF(const char *src, const r_Minterval &interv, const r_Type *tp)
     : r_Convert_Memory(src, interv, tp, true)
 {
     initTIFF();
 }
 
 /// constructor using int type indicator
-r_Conv_TIFF::r_Conv_TIFF(const char* src, const r_Minterval& interv, int type)
+r_Conv_TIFF::r_Conv_TIFF(const char *src, const r_Minterval &interv, int type)
     : r_Convert_Memory(src, interv, type)
 {
     initTIFF();
@@ -220,7 +218,7 @@ r_Conv_TIFF::~r_Conv_TIFF(void)
 {
     if (compType != NULL)
     {
-        delete [] compType;
+        delete[] compType;
         compType = NULL;
     }
 }
@@ -229,14 +227,14 @@ r_Conv_TIFF::~r_Conv_TIFF(void)
 // Compression modes recommended:
 // Bitmap, Greyscales:  COMPRESSION_LZW, COMPRESSION_DEFLATE
 // RGB:                 COMPRESSION_JPEG, COMPRESSION_SGILOG24
-r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
-                                    const r_Range* nullValue)
+r_Conv_Desc &r_Conv_TIFF::convertTo(const char *options,
+                                    const r_Range *nullValue)
 {
 #ifdef HAVE_TIFF
-    TIFF* tif = NULL;
+    TIFF *tif = NULL;
     char dummyFile[256];
-    uint16_t cmap[256];             // Colour map (for greyscale images)
-    uint32_t pixelAdd = 0, lineAdd = 0; // number of _bytes_ to add to a pointer
+    uint16_t cmap[256];                  // Colour map (for greyscale images)
+    uint32_t pixelAdd = 0, lineAdd = 0;  // number of _bytes_ to add to a pointer
     // to the source data to get the address
     // of the pixel to the right / downwards.
     uint16_t bps = 0, bpp = 0;
@@ -244,7 +242,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     int tiffcomp = COMPRESSION_NONE;
 
     int sampleFormat = SAMPLEFORMAT_INT;
-    unsigned int spp = 1; // samples per pixel
+    unsigned int spp = 1;  // samples per pixel
 
     params->process(options);
     updateNodataValue(nullValue);
@@ -256,7 +254,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     }
 
     // Set dimensions
-    width  = static_cast<uint32_t>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
+    width = static_cast<uint32_t>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
     height = static_cast<uint32_t>(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
 
     switch (desc.baseType)
@@ -308,14 +306,14 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
         break;
     case ctype_struct:
     {
-        r_Structure_Type* st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(desc.srcType));
+        r_Structure_Type *st = static_cast<r_Structure_Type *>(const_cast<r_Type *>(desc.srcType));
         spp = st->count_elements();
 
         unsigned int structSize = 0;
         r_Type::r_Type_Id bandType = r_Type::UNKNOWNTYPE;
 
         // iterate over the attributes of the struct
-        for (const auto& att : st->getAttributes())
+        for (const auto &att: st->getAttributes())
         {
             if (att.type_of().isPrimitiveType())
             {
@@ -373,7 +371,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     // Memory). Make dummy file unique for each object by using the
     // address of its memFSContext (kind of a hack, I know...). That
     // should ensure re-entrancy.
-    sprintf(dummyFile, dummyFileFmt, static_cast<void*>(handle));
+    sprintf(dummyFile, dummyFileFmt, static_cast<void *>(handle));
     tif = TIFFClientOpen(dummyFile, "w", handle,
                          memfs_read, memfs_write, memfs_seek, memfs_close, memfs_size,
                          memfs_map, memfs_unmap);
@@ -478,18 +476,18 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
 
     // Be VERY, VERY careful about the order and the items you write
     // out. TIFFWriteDirectory, e.g.,  has very ugly side-effects.
-    uint32_t* tbuff = NULL;
-    const char* l = NULL, *line = desc.src;
-    uint8_t* normal = NULL; // normalised source data
+    uint32_t *tbuff = NULL;
+    const char *l = NULL, *line = desc.src;
+    uint8_t *normal = NULL;  // normalised source data
     uint32_t row = 0;
 
-    if ((tbuff = static_cast<uint32_t*>(mymalloc(((width * height * bpp) >> 5) * sizeof(uint32_t)))) != NULL)
+    if ((tbuff = static_cast<uint32_t *>(mymalloc(((width * height * bpp) >> 5) * sizeof(uint32_t)))) != NULL)
     {
-        int error = 0; // indicates if writing succeeded
+        int error = 0;  // indicates if writing succeeded
         // now go line by line
         for (row = 0; row < height && !error; row++, line += lineAdd)
         {
-            normal = (uint8_t*)tbuff;
+            normal = (uint8_t *)tbuff;
             l = line;
 
             // copy data in the correct format to the buffer
@@ -556,7 +554,7 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
     r_Long tifSize = static_cast<r_Long>(memfs_size(handle));
 
     // Allocate an array of just the right size and "load" object there
-    if ((desc.dest = static_cast<char*>(mymalloc(sizeof(char) * static_cast<unsigned long>(tifSize)))) == NULL)
+    if ((desc.dest = static_cast<char *>(mymalloc(sizeof(char) * static_cast<unsigned long>(tifSize)))) == NULL)
     {
         LDEBUG << "r_Conv_TIFF::convertTo(): out of memory.";
         LERROR << "Error: out of memory.";
@@ -576,32 +574,31 @@ r_Conv_Desc& r_Conv_TIFF::convertTo(const char* options,
 #else
     LERROR << "encoding TIFF with internal encoder is not supported; rasdaman should be configured with option -DUSE_TIFF=ON to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
-#endif // HAVE_TIFF
+#endif  // HAVE_TIFF
 }
 
-r_Conv_Desc& r_Conv_TIFF::convertFrom(r_Format_Params options)
+r_Conv_Desc &r_Conv_TIFF::convertFrom(r_Format_Params options)
 {
     formatParams = options;
     return convertFrom(NULL);
 }
 
-
 /// convert TIFF stream into array
-r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TIFF TO DATA
+r_Conv_Desc &r_Conv_TIFF::convertFrom(const char *options)  // CONVERTION FROM TIFF TO DATA
 {
 #ifdef HAVE_TIFF
     if (options && !formatParams.parse(options))
     {
-        params->process(options); //==> CHECK THIS "IMP"
+        params->process(options);  //==> CHECK THIS "IMP"
     }
-    TIFF* tif = NULL;
+    TIFF *tif = NULL;
     char dummyFile[256];
     unsigned int typeSize = 0;
     int bandType = ctype_void;
     uint16_t sampleFormat = 0;
     uint16_t bps = 0, bpp = 0, spp = 0, planar = 0, photometric = 0, Bpp = 0, Bps = 0;
     uint32_t width = 0, height = 0, pixelAdd = 0, lineAdd = 0, i = 0;
-    uint16_t* reds = NULL, *greens = NULL, *blues = NULL;
+    uint16_t *reds = NULL, *greens = NULL, *blues = NULL;
 
     // Init simple (chunky) memFS
 
@@ -609,9 +606,9 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
 
     if (formatParams.getFilePaths().empty())
     {
-        memfs_chunk_initfs(handle, const_cast<char*>(reinterpret_cast<const char*>(desc.src)), static_cast<r_Long>(desc.srcInterv.cell_count()));   //==> CHECK THIS
+        memfs_chunk_initfs(handle, const_cast<char *>(reinterpret_cast<const char *>(desc.src)), static_cast<r_Long>(desc.srcInterv.cell_count()));  //==> CHECK THIS
         // Create dummy file for use in the TIFF open function
-        sprintf(dummyFile, dummyFileFmt, static_cast<void*>(handle));
+        sprintf(dummyFile, dummyFileFmt, static_cast<void *>(handle));
         fclose(fopen(dummyFile, "wb"));
         // Open and force memory mapping mode
         tif = TIFFClientOpen(dummyFile, "rM", handle,
@@ -644,8 +641,8 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
     {
         bpp = override_bpp;
     }
-    Bpp = bpp / 8; // bytes per pixel
-    Bps = bps / 8; // bytes per sample
+    Bpp = bpp / 8;  // bytes per pixel
+    Bps = bps / 8;  // bytes per sample
     if (override_depth)
     {
         Bpp = Bps = override_depth / 8;
@@ -665,7 +662,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
     LDEBUG << "  Bytes per pixel: " << Bpp;
     LDEBUG << "  Size: " << width << "x" << height;
 
-    if (planar == PLANARCONFIG_CONTIG) // must be contiguous for our case to handle, other cases not dealt yet
+    if (planar == PLANARCONFIG_CONTIG)  // must be contiguous for our case to handle, other cases not dealt yet
     {
         switch (sampleFormat)
         {
@@ -733,10 +730,10 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
         {
             switch (bpp)
             {
-            case 1 :
+            case 1:
                 bandType = ctype_bool;
                 break;
-            case 8 :
+            case 8:
                 bandType = ctype_char;
                 break;
             case 16:
@@ -785,10 +782,10 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
 
             switch (override_depth)
             {
-            case 1 :
+            case 1:
                 desc.baseType = ctype_bool;
                 break;
-            case 8 :
+            case 8:
                 desc.baseType = ctype_char;
                 break;
             case 16:
@@ -821,17 +818,16 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
             desc.baseType = bandType;
         }
 
-
-        if ((desc.dest = static_cast<char*>(mymalloc(width * height * typeSize * sizeof(char)))) == NULL)
+        if ((desc.dest = static_cast<char *>(mymalloc(width * height * typeSize * sizeof(char)))) == NULL)
         {
             LERROR << "r_Conv_TIFF::convertFrom(): out of memory error!";
             throw r_Error(MEMMORYALLOCATIONERROR);
         }
         else
         {
-            uint32_t* tbuff = NULL;
-            char* l = NULL, *line = desc.dest;
-            uint8_t* normal = NULL;
+            uint32_t *tbuff = NULL;
+            char *l = NULL, *line = desc.dest;
+            uint8_t *normal = NULL;
             uint32_t row = 0;
 
             if ((tbuff = new uint32_t[(width * bpp + 31) >> 5]) != NULL)
@@ -844,12 +840,12 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                         {
                             break;
                         }
-                        normal = (uint8_t*)tbuff;
+                        normal = (uint8_t *)tbuff;
                         l = line;
                     }
                     switch (desc.baseType)
                     {
-                    case ctype_bool: // when cytpe is bool
+                    case ctype_bool:  // when cytpe is bool
                     {
                         uint8_t mask = _R_TIFF_MASK_VALUE;
                         for (i = 0; i < width; i++, l += pixelAdd)
@@ -865,7 +861,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                     }
                     break;
 
-                    case ctype_char: // when ctype is char
+                    case ctype_char:  // when ctype is char
                     {
                         if (reds != NULL)
                         {
@@ -878,13 +874,13 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                         {
                             for (i = 0; i < width; i++, l += pixelAdd)
                             {
-                                *l = (char) * normal++;
+                                *l = (char)*normal++;
                             }
                         }
                     }
                     break;
 
-                    case ctype_rgb: // when cytpe is rgb
+                    case ctype_rgb:  // when cytpe is rgb
                     {
                         if (reds != NULL)
                         {
@@ -900,9 +896,9 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                         {
                             for (i = 0; i < width; i++, l += pixelAdd)
                             {
-                                l[0] = (char) * normal++;
-                                l[1] = (char) * normal++;
-                                l[2] = (char) * normal++;
+                                l[0] = (char)*normal++;
+                                l[1] = (char)*normal++;
+                                l[2] = (char)*normal++;
                             }
                         }
                     }
@@ -911,11 +907,11 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                     {
                         for (int j = 0; j < spp; j++)
                         {
-                            TIFFReadScanline(tif, static_cast<tdata_t>(tbuff), row, j); // read the j-th band
+                            TIFFReadScanline(tif, static_cast<tdata_t>(tbuff), row, j);  // read the j-th band
 
-                            int offset = j * Bps; // an offset to the j-th band
+                            int offset = j * Bps;  // an offset to the j-th band
                             l = line + offset;
-                            normal = (uint8_t*)tbuff + offset;
+                            normal = (uint8_t *)tbuff + offset;
                             for (i = 0; i < width; i++, l += pixelAdd, normal += lineAdd)
                             {
                                 memcpy(l, normal, Bps);
@@ -932,11 +928,11 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
                     }
                     break;
 
-                    } // switch CLOSED
-                } // for loop CLOSED
-                delete [] tbuff;
+                    }  // switch CLOSED
+                }      // for loop CLOSED
+                delete[] tbuff;
                 tbuff = NULL;
-            } // if ((tbuff = new uint32_t[(width * bpp + 31) >> 5]) != NULL) CLOSED
+            }  // if ((tbuff = new uint32_t[(width * bpp + 31) >> 5]) != NULL) CLOSED
 
             if (row < height)
             {
@@ -958,7 +954,7 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
 
     // Build destination interval
     if (desc.srcInterv.dimension() == 2)
-        // this means it was explicitly specified, so we shouldn't override it
+    // this means it was explicitly specified, so we shouldn't override it
     {
         desc.destInterv = desc.srcInterv;
     }
@@ -1005,24 +1001,20 @@ r_Conv_Desc& r_Conv_TIFF::convertFrom(const char* options) // CONVERTION FROM TI
 #else
     LERROR << "decoding TIFF with internal decoder is not supported; rasdaman should be configured with option -DUSE_TIFF=ON to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
-#endif // HAVE_TIFF
+#endif  // HAVE_TIFF
 }
 
-
-const char* r_Conv_TIFF::get_name(void) const
+const char *r_Conv_TIFF::get_name(void) const
 {
     return format_name_tiff;
 }
-
 
 r_Data_Format r_Conv_TIFF::get_data_format(void) const
 {
     return r_TIFF;
 }
 
-
-r_Convertor* r_Conv_TIFF::clone(void) const
+r_Convertor *r_Conv_TIFF::clone(void) const
 {
     return new r_Conv_TIFF(desc.src, desc.srcInterv, desc.baseType);
 }
-

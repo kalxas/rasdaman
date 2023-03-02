@@ -381,11 +381,10 @@ std::vector<Tile *> r_Tiler::generateTiles(const std::vector<Tile *> &sourceTile
     const BaseType *basetype = (*sourceTiles.begin())->getType();
     r_Data_Format dataformat = (*sourceTiles.begin())->getDataFormat();
 
-    for (const auto &splitedDom : splitedDomains)
+    for (const auto &splitedDom: splitedDomains)
     {
         Tile *p = new Tile(splitedDom, basetype, dataformat);
         ret.push_back(p);
     }
     return ret;
 }
-

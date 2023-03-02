@@ -28,24 +28,28 @@
 
 #include "crypto.hh"
 
-namespace common {
+namespace common
+{
 
-bool Crypto::isMessageDigestAvailable(const std::string &mdName) {
+bool Crypto::isMessageDigestAvailable(const std::string &mdName)
+{
     initDigests();
-    const EVP_MD* md;
+    const EVP_MD *md;
     md = EVP_get_digestbyname(mdName.c_str());
     return md != nullptr;
 }
 
 std::string Crypto::messageDigest(const std::string &message,
-                                  const std::string &mdName) {
+                                  const std::string &mdName)
+{
     initDigests();
     unsigned int md_len, i;
     unsigned char md_value[100];
     char output[35];
 
-    const EVP_MD* md = EVP_get_digestbyname(mdName.c_str());
-    if (!md) {
+    const EVP_MD *md = EVP_get_digestbyname(mdName.c_str());
+    if (!md)
+    {
         throw std::runtime_error("The '" + mdName + "' digest is not available.");
     }
 
@@ -62,7 +66,8 @@ std::string Crypto::messageDigest(const std::string &message,
     EVP_MD_CTX_free(mdctx);
 #endif
 
-    for (i = 0; i < md_len; i++) {
+    for (i = 0; i < md_len; i++)
+    {
         sprintf(output + i + i, "%02x", md_value[i]);
     }
 
@@ -74,7 +79,8 @@ void Crypto::initDigests()
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
     // OpenSSL_add_all_digests() needs to be executed only once:
     // static variable with block scope is a clean and fast way to do this
-    static bool init = []() {
+    static bool init = []()
+    {
         OpenSSL_add_all_digests();
         return true;
     }();
@@ -82,4 +88,4 @@ void Crypto::initDigests()
     // nothing to do in newer openssl
 #endif
 }
-}
+}  // namespace common

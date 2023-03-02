@@ -54,6 +54,7 @@ public:
     static UserDatabaseRights parseFromProto(const UserDatabaseRightsProto &rights);
 
     static UserDatabaseRightsProto serializeToProto(const UserDatabaseRights &userDatabaseRights);
+
 private:
     bool readAccess{false};
     bool writeAccess{false};

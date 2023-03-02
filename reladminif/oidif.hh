@@ -200,7 +200,7 @@ protected:
     static OIdCounter nextDBNULLVALUESOID;
     static OIdCounter nextSTORAGEOID;
     static OIdCounter nextMDDHIERIXOID;
-    
+
     // static OIdCounter nextDBTCINDEXOID;
     /*@Doc:
     this counter is not used because mddhierix takes care of that
@@ -232,4 +232,3 @@ extern std::ostream &operator<<(std::ostream &in, OId::OIdType d);
 
 extern bool operator==(const OId::OIdPrimitive one, const OId &two);
 extern bool operator==(const OId &two, const OId::OIdPrimitive one);
-

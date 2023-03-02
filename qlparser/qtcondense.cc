@@ -30,7 +30,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-
 #include "qlparser/qtcondense.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtatomicdata.hh"
@@ -60,13 +59,10 @@ QtCondense::QtCondense(Ops::OpType newOpType)
 {
 }
 
-
-
 QtCondense::QtCondense(Ops::OpType newOpType, QtOperation *initInput)
     : QtUnaryOperation(initInput), opType(newOpType)
 {
 }
-
 
 QtNode::QtAreaType
 QtCondense::getAreaType()
@@ -74,10 +70,7 @@ QtCondense::getAreaType()
     return QT_AREA_SCALAR;
 }
 
-
-
-void
-QtCondense::optimizeLoad(QtTrimList *trimList)
+void QtCondense::optimizeLoad(QtTrimList *trimList)
 {
     // reset trimList because optimization enters a new MDD area
 
@@ -99,8 +92,6 @@ QtCondense::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-
-
 QtData *
 QtCondense::computeFullCondense(QtDataList *inputList, r_Minterval &areaOp)
 {
@@ -114,10 +105,13 @@ QtCondense::computeFullCondense(QtDataList *inputList, r_Minterval &areaOp)
         QtMDD *mdd = static_cast<QtMDD *>(operand);
 
         const BaseType *resultType;
-        try {
+        try
+        {
             resultType = Ops::getResultType(opType, mdd->getCellType());
             if (!resultType) throw r_Error(OPERANDTYPENOTSUPPORTED);
-        } catch (r_Error &e) {
+        }
+        catch (r_Error &e)
+        {
             LERROR << "operation " << opType << " is not supported on the given operands.";
             operand->deleteRef();
             parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
@@ -174,7 +168,6 @@ QtCondense::computeFullCondense(QtDataList *inputList, r_Minterval &areaOp)
             tile->execCondenseOp(condOp.get(), intersectDom);
         }
 
-
         // create result object
         if (resultType->getType() == STRUCT)
             returnValue = new QtComplexData();
@@ -198,8 +191,6 @@ QtCondense::computeFullCondense(QtDataList *inputList, r_Minterval &areaOp)
     return returnValue;
 }
 
-
-
 const QtTypeElement &
 QtCondense::checkType(QtTypeTuple *typeTuple)
 {
@@ -219,10 +210,13 @@ QtCondense::checkType(QtTypeTuple *typeTuple)
 
         const BaseType *baseType = getBaseType(inputType);
         const BaseType *resultBaseType;
-        try {
+        try
+        {
             resultBaseType = Ops::getResultType(opType, baseType);
             if (!resultBaseType) throw r_Error(OPERANDTYPENOTSUPPORTED);
-        } catch (r_Error &e) {
+        }
+        catch (r_Error &e)
+        {
             LERROR << "condenser cannot be applied on operand of the given type.";
             parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
             throw parseInfo;
@@ -230,10 +224,13 @@ QtCondense::checkType(QtTypeTuple *typeTuple)
 
         if (getNodeType() == QT_AVGCELLS)
         {
-            try {
+            try
+            {
                 resultBaseType = Ops::getResultType(Ops::OP_DIV, resultBaseType, TypeFactory::mapType("Double"));
                 if (!resultBaseType) throw r_Error(BININDUCE_BASETYPESINCOMPATIBLE);
-            } catch (r_Error &e) {
+            }
+            catch (r_Error &e)
+            {
                 LERROR << "division cannot be applied on operands of the given types.";
                 parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
                 throw parseInfo;
@@ -241,10 +238,13 @@ QtCondense::checkType(QtTypeTuple *typeTuple)
         }
         else if (getNodeType() >= QT_VARPOP && getNodeType() <= QT_STDDEVSAMP)
         {
-            try {
+            try
+            {
                 resultBaseType = Ops::getResultType(Ops::OP_CAST_DOUBLE, resultBaseType);
                 if (!resultBaseType) throw r_Error(OPERANDTYPENOTSUPPORTED);
-            } catch (r_Error &e) {
+            }
+            catch (r_Error &e)
+            {
                 LERROR << "cast cannot be applied on operands of the given types.";
                 parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
                 throw parseInfo;
@@ -261,19 +261,14 @@ QtCondense::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-
-void
-QtCondense::printTree(int tab, ostream &s, QtChildType mode)
+void QtCondense::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << getClassName() << " object" << getEvaluationTime() << endl;
 
     QtUnaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtCondense::printAlgebraicExpression(ostream &s)
+void QtCondense::printAlgebraicExpression(ostream &s)
 {
     s << getAlgebraicName() << "(";
 
@@ -289,22 +284,17 @@ QtCondense::printAlgebraicExpression(ostream &s)
     s << ")";
 }
 
-
-
 const QtNode::QtNodeType QtSome::nodeType = QtNode::QT_SOME;
-
 
 QtSome::QtSome()
     : QtCondense(Ops::OP_SOME)
 {
 }
 
-
 QtSome::QtSome(QtOperation *inputNew)
     : QtCondense(Ops::OP_SOME, inputNew)
 {
 }
-
 
 QtData *
 QtSome::evaluate(QtDataList *inputList)
@@ -312,7 +302,7 @@ QtSome::evaluate(QtDataList *inputList)
     startTimer("Qt");
 
     QtData *returnValue = NULL;
-    r_ULong dummy = 0; // needed for conversion to and from CULong
+    r_ULong dummy = 0;  // needed for conversion to and from CULong
 
     // get the operand
     QtData *operand = input->evaluate(inputList);
@@ -374,7 +364,7 @@ QtSome::evaluate(QtDataList *inputList)
     CondenseOp *condOp = Ops::getCondenseOp(Ops::OP_SOME, resultType, resultBuffer, resultType, 0, 0);
 
     // and iterate over them
-    for (auto tileIt = allTiles->begin(); tileIt !=  allTiles->end() && !dummy ; tileIt++)
+    for (auto tileIt = allTiles->begin(); tileIt != allTiles->end() && !dummy; tileIt++)
     {
         // domain of the actual tile
         r_Minterval tileDom = (*tileIt)->getDomain();
@@ -413,22 +403,17 @@ stopTimer();
 return returnValue;
 }
 
-
-
 const QtAll::QtNodeType QtAll::nodeType = QtNode::QT_ALL;
-
 
 QtAll::QtAll()
     : QtCondense(Ops::OP_ALL)
 {
 }
 
-
 QtAll::QtAll(QtOperation *inputNew)
     : QtCondense(Ops::OP_ALL, inputNew)
 {
 }
-
 
 QtData *
 QtAll::evaluate(QtDataList *inputList)
@@ -436,14 +421,13 @@ QtAll::evaluate(QtDataList *inputList)
     startTimer("QtAll");
 
     QtData *returnValue = NULL;
-    r_ULong dummy = 0; // needed for conversion to and from CULong
+    r_ULong dummy = 0;  // needed for conversion to and from CULong
 
     // get the operand
     QtData *operand = input->evaluate(inputList);
 
     if (operand)
     {
-
 #ifdef QT_RUNTIME_TYPE_CHECK
         if (operand->getDataType() != QT_MDD)
         {
@@ -534,22 +518,17 @@ stopTimer();
 return returnValue;
 }
 
-
-
 const QtCountCells::QtNodeType QtCountCells::nodeType = QtNode::QT_COUNTCELLS;
-
 
 QtCountCells::QtCountCells()
     : QtCondense(Ops::OP_COUNT)
 {
 }
 
-
 QtCountCells::QtCountCells(QtOperation *inputNew)
     : QtCondense(Ops::OP_COUNT, inputNew)
 {
 }
-
 
 QtData *
 QtCountCells::evaluate(QtDataList *inputList)
@@ -562,22 +541,17 @@ QtCountCells::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
 const QtAddCells::QtNodeType QtAddCells::nodeType = QtNode::QT_ADDCELLS;
-
 
 QtAddCells::QtAddCells()
     : QtCondense(Ops::OP_SUM)
 {
 }
 
-
 QtAddCells::QtAddCells(QtOperation *inputNew)
     : QtCondense(Ops::OP_SUM, inputNew)
 {
 }
-
 
 QtData *
 QtAddCells::evaluate(QtDataList *inputList)
@@ -591,22 +565,17 @@ QtAddCells::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
 const QtAvgCells::QtNodeType QtAvgCells::nodeType = QtNode::QT_AVGCELLS;
-
 
 QtAvgCells::QtAvgCells()
     : QtCondense(Ops::OP_SUM)
 {
 }
 
-
 QtAvgCells::QtAvgCells(QtOperation *inputNew)
     : QtCondense(Ops::OP_SUM, inputNew)
 {
 }
-
 
 QtData *
 QtAvgCells::evaluate(QtDataList *inputList)
@@ -623,10 +592,10 @@ QtAvgCells::evaluate(QtDataList *inputList)
     //
 
     QtScalarData *scalarDataResult = NULL;
-    QtScalarData *scalarDataCond   = static_cast<QtScalarData *>(dataCond);
-    BaseType     *resultType;
-    BaseType     *inputValueType  = const_cast<BaseType *>(scalarDataCond->getValueType());
-    char         *inputBuffer     = NULL;
+    QtScalarData *scalarDataCond = static_cast<QtScalarData *>(dataCond);
+    BaseType *resultType;
+    BaseType *inputValueType = const_cast<BaseType *>(scalarDataCond->getValueType());
+    char *inputBuffer = NULL;
     // allocate memory for the result
     char *resultBuffer = NULL;
 
@@ -638,23 +607,22 @@ QtAvgCells::evaluate(QtDataList *inputList)
     }
     const auto inpType = inputValueType->getType();
     char *constBuffer;
-    const BaseType     *constType;
+    const BaseType *constType;
     if (isComplexType(inpType))
     {
         double constValueD = 0;
         constValueD = static_cast<double>(constValue);
         if (inpType == COMPLEXTYPE1 || inpType == CINT16)
         {
-            constType   = TypeFactory::mapType("Float");
+            constType = TypeFactory::mapType("Float");
             resultType = const_cast<BaseType *>(TypeFactory::mapType("Complex"));
-
         }
         else
         {
-            constType   = TypeFactory::mapType("Double");
+            constType = TypeFactory::mapType("Double");
             resultType = const_cast<BaseType *>(TypeFactory::mapType("Complexd"));
         }
-        
+
         if (inpType == CINT16 || inpType == CINT32)
         {
             size_t inReOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(inputValueType)))->getReOffset();
@@ -663,38 +631,36 @@ QtAvgCells::evaluate(QtDataList *inputList)
             r_Long inIm;
             inRe = *(inputValueType->convertToCLong(const_cast<char *>(scalarDataCond->getValueBuffer()) + inReOff, &inRe));
             inIm = *(inputValueType->convertToCLong(const_cast<char *>(scalarDataCond->getValueBuffer()) + inImOff, &inIm));
-            
+
             if (inpType == CINT16)
                 inputValueType = const_cast<BaseType *>(TypeFactory::mapType("Complex"));
             else
                 inputValueType = const_cast<BaseType *>(TypeFactory::mapType("Complexd"));
-            inputBuffer = new char[ constType->getSize() * 2 ];
+            inputBuffer = new char[constType->getSize() * 2];
             double resRe = inRe;
             double resIm = inIm;
             size_t inResReOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(resultType)))->getReOffset();
             size_t inResImOff = (static_cast<GenericComplexType *>(const_cast<BaseType *>(resultType)))->getImOffset();
             inputValueType->makeFromCDouble(inputBuffer + inResReOff, &resRe);
             inputValueType->makeFromCDouble(inputBuffer + inResImOff, &resIm);
-    
         }
         else
         {
-            inputBuffer     = const_cast<char *>(scalarDataCond->getValueBuffer());
+            inputBuffer = const_cast<char *>(scalarDataCond->getValueBuffer());
         }
-        
-        constBuffer = new char[ constType->getSize() ];
+
+        constBuffer = new char[constType->getSize()];
         constType->makeFromCDouble(constBuffer, &constValueD);
     }
     else
     {
-        inputBuffer     = const_cast<char *>(scalarDataCond->getValueBuffer());
-        constType   = TypeFactory::mapType("ULong");
-        constBuffer = new char[ constType->getSize() ];
-        resultType       = static_cast<BaseType *>(const_cast<Type *>(dataStreamType.getType()));
+        inputBuffer = const_cast<char *>(scalarDataCond->getValueBuffer());
+        constType = TypeFactory::mapType("ULong");
+        constBuffer = new char[constType->getSize()];
+        resultType = static_cast<BaseType *>(const_cast<Type *>(dataStreamType.getType()));
         constType->makeFromCULong(constBuffer, &constValue);
-       
     }
-resultBuffer = new char[ resultType->getSize() ];
+    resultBuffer = new char[resultType->getSize()];
 
 #ifdef DEBUG
     LTRACE << "Number of cells....: ";
@@ -702,7 +668,7 @@ resultBuffer = new char[ resultType->getSize() ];
 #endif
 
     Ops::execBinaryConstOp(Ops::OP_DIV, resultType,
-                           inputValueType,   constType,
+                           inputValueType, constType,
                            resultBuffer,
                            inputBuffer, constBuffer);
 
@@ -734,21 +700,17 @@ resultBuffer = new char[ resultType->getSize() ];
     return scalarDataResult;
 }
 
-
 const QtMinCells::QtNodeType QtMinCells::nodeType = QtNode::QT_MINCELLS;
-
 
 QtMinCells::QtMinCells()
     : QtCondense(Ops::OP_MIN)
 {
 }
 
-
 QtMinCells::QtMinCells(QtOperation *inputNew)
     : QtCondense(Ops::OP_MIN, inputNew)
 {
 }
-
 
 QtData *
 QtMinCells::evaluate(QtDataList *inputList)
@@ -763,22 +725,17 @@ QtMinCells::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
 const QtMaxCells::QtNodeType QtMaxCells::nodeType = QtNode::QT_MAXCELLS;
-
 
 QtMaxCells::QtMaxCells()
     : QtCondense(Ops::OP_MAX)
 {
 }
 
-
 QtMaxCells::QtMaxCells(QtOperation *inputNew)
     : QtCondense(Ops::OP_MAX, inputNew)
 {
 }
-
 
 QtData *
 QtMaxCells::evaluate(QtDataList *inputList)
@@ -793,18 +750,15 @@ QtMaxCells::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
 QtStdDevVar::QtStdDevVar(QtNodeType newNodeType)
     : QtCondense(Ops::OP_SQSUM), nodeType(newNodeType)
 {
 }
 
-
 QtStdDevVar::QtStdDevVar(QtOperation *inputNew, QtNodeType newNodeType)
     : QtCondense(Ops::OP_SQSUM, inputNew), nodeType(newNodeType)
 {
 }
-
 
 QtData *
 QtStdDevVar::evaluate(QtDataList *inputList)
@@ -824,41 +778,38 @@ QtStdDevVar::evaluate(QtDataList *inputList)
     QtCondense *tmp = new QtCondense(Ops::OP_SUM, input);
     QtData *sum = tmp->computeFullCondense(inputList, dummyint2);
 
-
-    QtScalarData *scalarSum    = static_cast<QtScalarData *>(sum);
-    BaseType     *resultType   = static_cast<BaseType *>(const_cast<Type *>(dataStreamType.getType()));
-    char *resultBuffer = new char[ resultType->getSize() ];
+    QtScalarData *scalarSum = static_cast<QtScalarData *>(sum);
+    BaseType *resultType = static_cast<BaseType *>(const_cast<Type *>(dataStreamType.getType()));
+    char *resultBuffer = new char[resultType->getSize()];
 
     Ops::execUnaryConstOp(Ops::OP_CAST_DOUBLE, resultType, scalarSum->getValueType(),
                           resultBuffer, scalarSum->getValueBuffer());
 
     Ops::execBinaryConstOp(Ops::OP_MULT, resultType,
-                           resultType,   resultType,
+                           resultType, resultType,
                            resultBuffer,
                            resultBuffer, resultBuffer);
 
-
     // allocate ulong constant with number of cells
-    r_ULong constValue  = scalarSum->getTotalValuesCount() - sum->getNullValuesCount();
+    r_ULong constValue = scalarSum->getTotalValuesCount() - sum->getNullValuesCount();
     if (constValue == 0)
     {
         constValue = 1;
     }
-    const BaseType     *constType   = TypeFactory::mapType("ULong");
-    char               *constBuffer = new char[ constType->getSize() ];
+    const BaseType *constType = TypeFactory::mapType("ULong");
+    char *constBuffer = new char[constType->getSize()];
 
     constType->makeFromCULong(constBuffer, &constValue);
 
     Ops::execBinaryConstOp(Ops::OP_DIV, resultType,
-                           resultType,   constType,
+                           resultType, constType,
                            resultBuffer,
                            resultBuffer, constBuffer);
-
 
     QtScalarData *scalarSqSum = static_cast<QtScalarData *>(sqSum);
 
     Ops::execBinaryConstOp(Ops::OP_MINUS, resultType,
-                           scalarSqSum->getValueType(),   resultType,
+                           scalarSqSum->getValueType(), resultType,
                            resultBuffer,
                            scalarSqSum->getValueBuffer(), resultBuffer);
 
@@ -868,13 +819,13 @@ QtStdDevVar::evaluate(QtDataList *inputList)
     {
         if (constValue > 1)
         {
-            constValue --;
+            constValue--;
         }
         constType->makeFromCULong(constBuffer, &constValue);
     }
 
     Ops::execBinaryConstOp(Ops::OP_DIV, resultType,
-                           resultType,   constType,
+                           resultType, constType,
                            resultBuffer,
                            resultBuffer, constBuffer);
 

@@ -39,7 +39,7 @@ enum class TransactionLockType
     General,
     Commit,
     Abort,
-    Invalid // always (!) keep as last item (used in BlobFSTransactionLock)
+    Invalid  // always (!) keep as last item (used in BlobFSTransactionLock)
 };
 
 /**
@@ -105,7 +105,7 @@ private:
 
     // transaction root path
     std::string transactionPath;
-    
+
     // /tmp/rasdaman_transaction_locks/<transactionPath>
     std::string transactionLockPath;
 

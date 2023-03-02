@@ -27,7 +27,7 @@
 
 // generate benchmark code only when RMANBENCHMARK is set
 #ifdef RMANBENCHMARK
-#define RMTIMER(class, func)  RMTimer localRMTimer = RMTimer(class, func);
+#define RMTIMER(class, func) RMTimer localRMTimer = RMTimer(class, func);
 #else
 #define RMTIMER(class, func)
 #endif
@@ -69,7 +69,7 @@ class RMTimer
 public:
     /// constructor, initializes members and starts timer.
     RMTimer(const char *newClass, const char *newFunc,
-                   int newBmLevel = 4);
+            int newBmLevel = 4);
     /**
       The parameters newClass and newFunc have to be string literals. Just
       a pointer to them is stored. No output is generated if RManBenchmark

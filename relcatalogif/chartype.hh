@@ -36,10 +36,10 @@ rasdaman GmbH.
 #ifndef _CHARTYPE_HH_
 #define _CHARTYPE_HH_
 
-#include <iosfwd>          // for ostream
+#include <iosfwd>  // for ostream
 
-#include "raslib/odmgtypes.hh"      // for r_ULong
-#include "uintegraltype.hh"  // for UIntegralType
+#include "raslib/odmgtypes.hh"  // for r_ULong
+#include "uintegraltype.hh"     // for UIntegralType
 
 class OId;
 
@@ -72,13 +72,12 @@ public:
      * Prints a cell cell on stream followed by a space.
      */
     void printCell(std::ostream &stream, const char *cell) const override;
-    
+
     r_ULong *convertToCULong(const char *cell, r_ULong *value) const override;
     char *makeFromCULong(char *cell, const r_ULong *value) const override;
     char *makeFromCLong(char *cell, const r_Long *value) const override;
 
     static const char *Name;
-
 };
 
 #endif

@@ -30,7 +30,6 @@ rasdaman GmbH.
 #include "raslib/sinterval.hh"
 #include "raslib/minterval.hh"
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -42,7 +41,6 @@ The class represents a spatial domain operation, e.g. trimming or projections.
 class QtDomainOperation : public QtUnaryOperation
 {
 public:
-
     /// constructor getting an minterval expression
     QtDomainOperation(QtOperation *mintOp);
     ///Constructor in case of positionally-independent subsetting in rasql
@@ -87,7 +85,7 @@ public:
     ///
     inline virtual void setMintervalOp(QtOperation *miop);
     ///
-    inline QtOperation  *getMintervalOp();
+    inline QtOperation *getMintervalOp();
 
     ///
     //@}
@@ -116,4 +114,3 @@ private:
 #include "qlparser/qtdomainoperation.icc"
 
 #endif
-

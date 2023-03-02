@@ -106,7 +106,7 @@ public:
      * @param serverId - Server id of the server which became available.
      */
     virtual void registerServer(const std::string &serverId);
-    
+
     /**
      * Define a server group that will be used to automatically spawn servers.
      * @param serverGroupConfig Configuration used to initialize the server group
@@ -141,7 +141,7 @@ public:
      * already running transactions.
      */
     virtual void stopServerGroup(const StopServerGroup &stopGroup);
-    
+
     /**
      * Restart gracefully all server groups.
      */
@@ -151,7 +151,7 @@ public:
      * Check if there are running server groups
      */
     virtual bool hasRunningServers();
-    
+
     /**
      * @return the server with serverId if found, nullptr otherwise.
      */
@@ -164,37 +164,34 @@ public:
     virtual ServerMgrProto serializeToProto();
 
 private:
-    std::list<std::shared_ptr<ServerGroup>> serverGroupList;/*!< Server group list */
-    boost::shared_mutex serverGroupMutex;/*!< Mutex used to synchronize access to the list of server groups */
+    std::list<std::shared_ptr<ServerGroup>> serverGroupList; /*!< Server group list */
+    boost::shared_mutex serverGroupMutex;                    /*!< Mutex used to synchronize access to the list of server groups */
     std::shared_ptr<ServerGroupFactory> serverGroupFactory;
     ServerManagerConfig config;
 
     // -------------------------------------------------------------------------
     // cleanup thread
-    std::unique_ptr<std::thread> workerCleanup; /*!< Thread object running the @see workerCleanupRunner() function. */
-    bool isWorkerThreadRunning; /*! Flag used to stop the worker thread */
-    std::mutex threadMutex;/*! Mutex used to safely stop the worker thread */
+    std::unique_ptr<std::thread> workerCleanup;       /*!< Thread object running the @see workerCleanupRunner() function. */
+    bool isWorkerThreadRunning;                       /*! Flag used to stop the worker thread */
+    std::mutex threadMutex;                           /*! Mutex used to safely stop the worker thread */
     std::condition_variable isThreadRunningCondition; /*! Condition variable used to stop the worker thread */
-    
+
     /// Function which cleans the servers which failed to start or were stopped.
     void workerCleanupRunner();
     /// For each server group evaluate the group's status. This means that dead
     /// server entries will be removed and new servers will be started.
     void evaluateServerGroups();
     // -------------------------------------------------------------------------
-    
-    
+
     // -------------------------------------------------------------------------
     // restart servers thread
     std::shared_ptr<std::thread> restartServersThread; /*!< Restarts the servers after 1 second delay upon startup */
-    boost::shared_mutex restartServersMutex;/*!< Mutex used to synchronize access to the restartServersThreads */
+    boost::shared_mutex restartServersMutex;           /*!< Mutex used to synchronize access to the restartServersThreads */
     bool isRestartServersThreadRunning;
     /// Wait for 1 second, then restart all server groups. Executed in the
     /// restartServersThread from restartAllServerGroups()
     void restartServersRunner();
     // -------------------------------------------------------------------------
-    
-
 };
 
 } /* namespace rasmgr */

@@ -30,19 +30,20 @@
 
 namespace rasmgr
 {
-using std::set;
 using std::pair;
-using std::string;
 using std::runtime_error;
+using std::set;
+using std::string;
 
-Database::Database(const std::string &db):
-    dbName(db)
-{}
+Database::Database(const std::string &db)
+    : dbName(db)
+{
+}
 
 void Database::addClientSession(std::uint32_t clientId, std::uint32_t sessionId)
 {
     boost::lock_guard<boost::shared_mutex> lock(sessionListMutex);
-    
+
     auto insertResult = this->sessionList.emplace(clientId, sessionId);
     if (!insertResult.second)
     {
@@ -54,7 +55,7 @@ void Database::addClientSession(std::uint32_t clientId, std::uint32_t sessionId)
 int Database::removeClientSession(std::uint32_t clientId, std::uint32_t sessionId)
 {
     pair<std::uint32_t, std::uint32_t> toRemove(clientId, sessionId);
-    
+
     boost::lock_guard<boost::shared_mutex> lock(sessionListMutex);
     return this->sessionList.erase(toRemove);
 }
@@ -69,7 +70,7 @@ DatabaseProto Database::serializeToProto(const Database &db)
 {
     DatabaseProto result;
     result.set_name(db.getDbName());
-    
+
     boost::shared_lock<boost::shared_mutex> lock(db.sessionListMutex);
     for (auto it = db.sessionList.begin(); it != db.sessionList.end(); ++it)
     {
@@ -98,6 +99,5 @@ void Database::setDbName(const std::string &value)
     }
     dbName = value;
 }
-
 
 } /* namespace rasmgr */

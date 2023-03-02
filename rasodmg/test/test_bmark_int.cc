@@ -59,21 +59,21 @@ rasdaman GmbH.
 #include "rasodmg/storagelayout.hh"
 #include "RGBCube.hh"
 
-#define S_32K               (32  * 1024L)
-#define S_64K               (64  * 1024L)
-#define S_128K              (128 * 1024L)
-#define S_256K              (256 * 1024L)
+#define S_32K (32 * 1024L)
+#define S_64K (64 * 1024L)
+#define S_128K (128 * 1024L)
+#define S_256K (256 * 1024L)
 
-#define TOTAL_CUBES         8
-#define SIZE_X              120L
-#define SIZE_Y              159L
-#define SIZE_Z              119L
+#define TOTAL_CUBES 8
+#define SIZE_X 120L
+#define SIZE_Y 159L
+#define SIZE_Z 119L
 
-char* server_name;
-char* dbase_name;
-char* colect_name;
+char *server_name;
+char *dbase_name;
+char *colect_name;
 
-void parse(int argc, char* argv[])
+void parse(int argc, char *argv[])
 {
     if (argc != 4)
     {
@@ -84,23 +84,21 @@ void parse(int argc, char* argv[])
     }
 
     server_name = argv[1];
-    dbase_name  = argv[2];
+    dbase_name = argv[2];
     colect_name = argv[3];
 }
 
 void insert_datacube()
 {
-
-    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>>  cube_set;
-    r_Minterval                                   domain;
-    r_Storage_Layout*                      dsl[TOTAL_CUBES];
-    r_OId                                         oid[TOTAL_CUBES];
+    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>> cube_set;
+    r_Minterval domain;
+    r_Storage_Layout *dsl[TOTAL_CUBES];
+    r_OId oid[TOTAL_CUBES];
 
     domain = r_Minterval(3);
     domain << r_Sinterval((r_Range)0L, (r_Range)SIZE_X)
            << r_Sinterval((r_Range)0L, (r_Range)SIZE_Y)
            << r_Sinterval((r_Range)0L, (r_Range)SIZE_Z);
-
 
     // For alligned tiling (Regular tiling)
 
@@ -109,11 +107,10 @@ void insert_datacube()
                  << r_Sinterval((r_Range)0L, (r_Range)SIZE_Y)
                  << r_Sinterval((r_Range)0L, (r_Range)SIZE_Z);
 
-    r_Aligned_Tiling* til_reg_32k = new r_Aligned_Tiling(block_config, S_32K);
-    r_Aligned_Tiling* til_reg_64k = new r_Aligned_Tiling(block_config, S_64K);
-    r_Aligned_Tiling* til_reg_128k = new r_Aligned_Tiling(block_config, S_128K);
-    r_Aligned_Tiling* til_reg_256k = new r_Aligned_Tiling(block_config, S_256K);
-
+    r_Aligned_Tiling *til_reg_32k = new r_Aligned_Tiling(block_config, S_32K);
+    r_Aligned_Tiling *til_reg_64k = new r_Aligned_Tiling(block_config, S_64K);
+    r_Aligned_Tiling *til_reg_128k = new r_Aligned_Tiling(block_config, S_128K);
+    r_Aligned_Tiling *til_reg_256k = new r_Aligned_Tiling(block_config, S_256K);
 
     // For directional tiling
 
@@ -137,13 +134,13 @@ void insert_datacube()
     areas.push_back(interest2);
     areas.push_back(interest3);
 
-    r_Interest_Tiling* til_int_32k =
+    r_Interest_Tiling *til_int_32k =
         new r_Interest_Tiling((r_Dimension)3, areas, S_32K, r_Interest_Tiling::SUB_TILING);
-    r_Interest_Tiling* til_int_64k =
+    r_Interest_Tiling *til_int_64k =
         new r_Interest_Tiling((r_Dimension)3, areas, S_64K, r_Interest_Tiling::SUB_TILING);
-    r_Interest_Tiling* til_int_128k =
+    r_Interest_Tiling *til_int_128k =
         new r_Interest_Tiling((r_Dimension)3, areas, S_128K, r_Interest_Tiling::SUB_TILING);
-    r_Interest_Tiling* til_int_256k =
+    r_Interest_Tiling *til_int_256k =
         new r_Interest_Tiling((r_Dimension)3, areas, S_256K, r_Interest_Tiling::SUB_TILING);
 
     // Domain storage layouts
@@ -158,13 +155,12 @@ void insert_datacube()
     dsl[6] = new r_Storage_Layout(til_int_128k);
     dsl[7] = new r_Storage_Layout(til_int_256k);
 
-
     // Create cubes
 
     r_Database db;
     db.set_servername(server_name);
 
-    for (int i = 0; i < TOTAL_CUBES ; i++)
+    for (int i = 0; i < TOTAL_CUBES; i++)
     {
         r_Transaction trans;
 
@@ -195,7 +191,7 @@ void insert_datacube()
                 cout << "Creating the set... " << flush;
 
                 cube_set =
-                    new(&db, "RGBSet3") r_Set<r_Ref<r_Marray<RGBPixel>>>;
+                    new (&db, "RGBSet3") r_Set<r_Ref<r_Marray<RGBPixel>>>;
 
                 db.set_object_name(*cube_set, colect_name);
             }
@@ -204,7 +200,7 @@ void insert_datacube()
             cout << "Creating the datacube... " << flush;
 
             cube =
-                new(&db, "RGBCube") r_Marray<RGBPixel>(domain, dsl[i]);
+                new (&db, "RGBCube") r_Marray<RGBPixel>(domain, dsl[i]);
 
             cube_set->insert_element(cube);
 
@@ -221,7 +217,7 @@ void insert_datacube()
 
             db.close();
         }
-        catch (r_Error& e)
+        catch (r_Error &e)
         {
             cout << e.what() << endl;
             exit(0);
@@ -234,18 +230,10 @@ void insert_datacube()
     }
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     parse(argc, argv);
     insert_datacube();
 
     return 0;
 }
-
-
-
-
-
-
-
-

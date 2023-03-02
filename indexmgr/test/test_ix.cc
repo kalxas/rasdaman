@@ -44,33 +44,30 @@ rasdaman GmbH.
 
 using namespace std;
 
-
 #include <math.h>
 
-extern char* myExecArgv0 = "";
+extern char *myExecArgv0 = "";
 
 unsigned maximumFill = 10;
 
 #include "raslib/rminit.hh"
 RMINITGLOBALS('C')
 
+void calculateGrid(const r_Minterval &baseTile,
+                   const r_Minterval &gridDesc,
+                   long &numberParts,
+                   vector<r_Minterval> *&grid);  //r_Minterval*& grid );
 
-void calculateGrid(const r_Minterval& baseTile,
-                   const r_Minterval& gridDesc,
-                   long& numberParts,
-                   vector<r_Minterval>*& grid);  //r_Minterval*& grid );
+float calculateAlignFactor(const vector<r_Minterval> &partition);
 
+int isDisjunctive(const vector<r_Minterval> &parts);
 
-float calculateAlignFactor(const vector<r_Minterval>& partition);
-
-int isDisjunctive(const vector<r_Minterval>& parts);
-
-void createTilesDomains(ofstream& outRndPopFile,
-                        ofstream& outRndBMFile,
-                        ofstream& outPopFile,
-                        ofstream& outBMFile,
+void createTilesDomains(ofstream &outRndPopFile,
+                        ofstream &outRndBMFile,
+                        ofstream &outPopFile,
+                        ofstream &outBMFile,
                         float alignFactor,
-                        vector<r_Minterval>*& tgIntsVec,
+                        vector<r_Minterval> *&tgIntsVec,
                         int numberTiles,
                         unsigned dim);
 int randomInsertion = 1;
@@ -85,10 +82,8 @@ int seqInsertion = 1;
  * Return value..: exit status
  * Description...: none
  ************************************************************/
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-
     // variables representing O2 database, ta and session
 
     if (argc < 4)
@@ -116,7 +111,7 @@ main(int argc, char** argv)
         cout << " Error : number of tiles outside supported limits !" << endl;
         return -1;
     }
-    if (af < 0.05 || af  > 1)
+    if (af < 0.05 || af > 1)
     {
         cout << " Error : alignment fator outside supported limits !" << endl;
         return -1;
@@ -130,7 +125,6 @@ main(int argc, char** argv)
     {
         randomInsertion = 0;
     }
-
 
     cout << "Dimensionality " << dim << endl;
     cout << "Number of Tiles " << numberTiles << endl;
@@ -146,13 +140,12 @@ main(int argc, char** argv)
         cout << "SequentialInsertion " << endl;
     }
 
-    vector<r_Minterval>* tgIntsVec;
+    vector<r_Minterval> *tgIntsVec;
 
-
-    char  namePopFile[100];
-    char  nameRndPopFile[100];
-    char  nameBMFile[100];
-    char  nameRndBMFile[100];
+    char namePopFile[100];
+    char nameRndPopFile[100];
+    char nameBMFile[100];
+    char nameRndBMFile[100];
     int afint = af * 100;
 
     sprintf(nameRndPopFile, "ix%dd%dn%dafrndpop.txt", dim, numberTiles, afint);
@@ -187,17 +180,14 @@ main(int argc, char** argv)
         }
     }
 
-
     cout << "Dim                " << dim << endl;
-    cout  << "NTiles wanted      " << numberTiles << endl;
+    cout << "NTiles wanted      " << numberTiles << endl;
     cout << "AlignFactor wanted " << af << endl;
-
 
     createTilesDomains(ixStreamRndPopResults, ixStreamRndBMResults,
                        ixStreamPopResults, ixStreamBMResults, af, tgIntsVec,
                        numberTiles, dim);
     numberTiles = tgIntsVec->size();  // integer arithmetic error
-
 
     ixStreamPopResults.close();
     ixStreamBMResults.close();
@@ -207,71 +197,66 @@ main(int argc, char** argv)
     return 0;
 }
 
-
 /*************************************************************************
  *
  *
  ************************************************************************/
-void
-calculateGrid(const r_Minterval& baseTile,
-              const r_Minterval& gridDesc,
-              long& numberParts,
-              vector<r_Minterval>*& grid)  // grid r_Minterval*& grid)
+void calculateGrid(const r_Minterval &baseTile,
+                   const r_Minterval &gridDesc,
+                   long &numberParts,
+                   vector<r_Minterval> *&grid)  // grid r_Minterval*& grid)
 {
     cout << "calculateGrid( " << baseTile << ", " << gridDesc << ") " << endl;
     numberParts = gridDesc.cell_count();
-    grid = new vector<r_Minterval>(numberParts); //new r_Minterval[numberParts];
+    grid = new vector<r_Minterval>(numberParts);  //new r_Minterval[numberParts];
     r_Point ix(baseTile.dimension());
     r_Point ext = baseTile.get_extent();
-    for (int i = 0; i < numberParts ; i++)
+    for (int i = 0; i < numberParts; i++)
     {
         ix = gridDesc.cell_point(i) * ext;
         (*grid)[i] = baseTile.create_translation(ix);
         // grid[i] = r_Minterval( baseTile.create_translation( ix ) );
     }
-
 }
 
 /*************************************************************************
  *
  *
  ************************************************************************/
-void
-createTilesDomains(ofstream& outRndPopFile,  // file for test_populate
-                   ofstream& outRndBMFile,  // file for benchmark
-                   ofstream& outPopFile, // file for test_populate
-                   ofstream& outBMFile,  // file for benchmark
-                   float alignFactor,
-                   vector<r_Minterval>*& tgIntsVec,
-                   int numberTiles,
-                   unsigned dim)
+void createTilesDomains(ofstream &outRndPopFile,  // file for test_populate
+                        ofstream &outRndBMFile,   // file for benchmark
+                        ofstream &outPopFile,     // file for test_populate
+                        ofstream &outBMFile,      // file for benchmark
+                        float alignFactor,
+                        vector<r_Minterval> *&tgIntsVec,
+                        int numberTiles,
+                        unsigned dim)
 {
-
     if (alignFactor > 1 || alignFactor == 0)
     {
         cout << "Error: invalid alignment factor." << endl;
         exit(0);
     }
 
-    cout << "Alignment factor wanted "  << alignFactor << endl;
+    cout << "Alignment factor wanted " << alignFactor << endl;
     cout << "Number of tiles, dim " << numberTiles << ", " << dim << endl;
 
     // number of partitions of the total grid
     double ntgdouble = numberTiles / alignFactor;
     // cout <<"Number of tiles in total grid (double)== " << ntgdouble << endl;
-    long ntg =  ntgdouble;
+    long ntg = ntgdouble;
     cout << "Number of tiles in total grid (long)== " << ntg << endl;
 
     // r_Minterval* tgInts;
 
-    float f = float (1 / float(dim));
+    float f = float(1 / float(dim));
     long n = pow(ntg, f);
-    cout << "Number of tiles in d-1 first directions (n) == "  << n << endl;
+    cout << "Number of tiles in d-1 first directions (n) == " << n << endl;
     r_Minterval tile(dim);
     const unsigned tileLength = 3;
     r_Minterval totalGrid(dim);
     int i;
-    for (i = 0; i <  dim - 1; i++)
+    for (i = 0; i < dim - 1; i++)
     {
         tile[i].set_interval(r_Range(0), r_Range(tileLength - 1));
         totalGrid[i].set_interval(r_Range(0), r_Range(n - 1));
@@ -311,24 +296,23 @@ createTilesDomains(ofstream& outRndPopFile,  // file for test_populate
     */
     int numberMerges = ntg1 - numberTiles;
     int cont = 1;
-    for (i = 0; i < numberMerges && cont ;)
+    for (i = 0; i < numberMerges && cont;)
     {
         int found = 0;
-        int r = rand()  % (tgIntsVec->size());
+        int r = rand() % (tgIntsVec->size());
         // merge randomly
         int notFinished = 1;
 
         int contr = 1;
-        for (int ri = 0; contr  && cont ; ri++)
+        for (int ri = 0; contr && cont; ri++)
         {
             notFinished = 1;
             int init = rand() % tgIntsVec->size();
-            for (int j = init; notFinished ;)
+            for (int j = init; notFinished;)
             {
                 // cout <<"i,j"<< i <<","<< j<<endl;
                 if ((*tgIntsVec)[j].is_mergeable((*tgIntsVec)[r]))
                 {
-
                     if (i % 100 == 0)
                         cout << numberMerges - i << ". Merging j,r " << j << "," << r << " "
                              << (*tgIntsVec)[j] << ", " << (*tgIntsVec)[r] << " resulting ";
@@ -356,7 +340,7 @@ createTilesDomains(ofstream& outRndPopFile,  // file for test_populate
                     notFinished = 0;
                     found = 1;
                 }
-                j = (j + 1) %  tgIntsVec->size();
+                j = (j + 1) % tgIntsVec->size();
                 if (j == init)
                 {
                     notFinished = 0;
@@ -364,20 +348,20 @@ createTilesDomains(ofstream& outRndPopFile,  // file for test_populate
             }
             // cout << " r == " << r << ", j == " << j << " , notFinished == " << notFinished << endl;
             //  cout << " ri == " << ri << " , tgIntsVec->size( ) " << tgIntsVec->size( ) << endl;
-            r = (r + 1)  % tgIntsVec->size();
+            r = (r + 1) % tgIntsVec->size();
             if (found)
             {
-                contr = 0;    // already found
+                contr = 0;  // already found
             }
             else
             {
                 if (ri >= tgIntsVec->size())
                 {
-                    cont = 0;    // no more merges possible
+                    cont = 0;  // no more merges possible
                 }
                 else
                 {
-                    r = (r + 1)  % tgIntsVec->size();
+                    r = (r + 1) % tgIntsVec->size();
                 }
             }
         }
@@ -393,7 +377,7 @@ createTilesDomains(ofstream& outRndPopFile,  // file for test_populate
     unsigned ntilesObta = tgIntsVec->size();
     cout << "NTiles obtained    " << ntilesObta << endl;
 
-    float faObta = float (tgIntsVec->size()) / ntg1;
+    float faObta = float(tgIntsVec->size()) / ntg1;
     cout << "  Alignment factor obtained " << faObta << endl;
 
     /*
@@ -428,10 +412,10 @@ createTilesDomains(ofstream& outRndPopFile,  // file for test_populate
      *   HowToStore:
      *   IndexType: R+TreeIx
      */
-    char  collRndName[100];
-    char  collName[100];
-    char  collTypeName[100];
-    char  mddTypeName[100];
+    char collRndName[100];
+    char collName[100];
+    char collTypeName[100];
+    char mddTypeName[100];
     int faInt = faObta * 100;
     if (randomInsertion)
     {
@@ -452,41 +436,49 @@ createTilesDomains(ofstream& outRndPopFile,  // file for test_populate
 
     if (seqInsertion)
     {
-        outPopFile << "Database: BmarkIxBase " << endl << endl;
-        outPopFile << "MDDColl: " << collName << "; " << collTypeName << endl << endl;
+        outPopFile << "Database: BmarkIxBase " << endl
+                   << endl;
+        outPopFile << "MDDColl: " << collName << "; " << collTypeName << endl
+                   << endl;
         outPopFile << "MDDObj: " << dom << " ; " << mddTypeName << endl;
         outPopFile << "HowToStore:" << endl;
-        outPopFile << "IndexType: R+TreeIx " << endl << endl;
+        outPopFile << "IndexType: R+TreeIx " << endl
+                   << endl;
     }
     if (randomInsertion)
     {
-        outRndPopFile << "Database: BmarkIxBase " << endl << endl;
-        outRndPopFile << "MDDColl: " << collRndName << "; " << collTypeName << endl << endl;
+        outRndPopFile << "Database: BmarkIxBase " << endl
+                      << endl;
+        outRndPopFile << "MDDColl: " << collRndName << "; " << collTypeName << endl
+                      << endl;
         outRndPopFile << "MDDObj: " << dom << " ; " << mddTypeName << endl;
         outRndPopFile << "HowToStore:" << endl;
-        outRndPopFile << "IndexType: R+TreeIx " << endl << endl;
+        outRndPopFile << "IndexType: R+TreeIx " << endl
+                      << endl;
     }
     if (seqInsertion)
     {
         for (i = 0; i < tgIntsVec->size(); i++)
         {
-            outPopFile << "Tile :    " << " " << (*tgIntsVec)[i]  << "; 0x0000" << endl;
+            outPopFile << "Tile :    "
+                       << " " << (*tgIntsVec)[i] << "; 0x0000" << endl;
         }
     }
     if (randomInsertion)
     {
-        unsigned vecSz =  tgIntsVec->size();
-        vector<r_Minterval>* tgIntsVec2;
+        unsigned vecSz = tgIntsVec->size();
+        vector<r_Minterval> *tgIntsVec2;
         tgIntsVec2 = new vector<r_Minterval>(vecSz);
         unsigned tix = i;
         for (i = 0; i < vecSz; i++)
         {
             tix = rand() % tgIntsVec->size();
-            outRndPopFile << "Tile :    " << " " << (*tgIntsVec)[tix]  << "; 0x0000" << endl;
+            outRndPopFile << "Tile :    "
+                          << " " << (*tgIntsVec)[tix] << "; 0x0000" << endl;
             (*tgIntsVec2)[i] = (*tgIntsVec)[tix];
             tgIntsVec->erase(tgIntsVec->begin() + tix);
         }
-        vector<r_Minterval>* tmpIntsVec;
+        vector<r_Minterval> *tmpIntsVec;
         tmpIntsVec = tgIntsVec;
         tgIntsVec = tgIntsVec2;
         delete tmpIntsVec;
@@ -507,16 +499,13 @@ createTilesDomains(ofstream& outRndPopFile,  // file for test_populate
         // exit( 0);
     }
     // calculateAlignFactor( tgIntsVec );
-
 }
-
 
 /*************************************************************************
  *
  *
  ************************************************************************/
-float
-calculateAlignFactor(const vector<r_Minterval>& part)
+float calculateAlignFactor(const vector<r_Minterval> &part)
 {
     float fa;
     // for ( int i = 0; i < part.size( ); i++ ) ;
@@ -528,7 +517,7 @@ calculateAlignFactor(const vector<r_Minterval>& part)
  *
  *
  ************************************************************************/
-int isDisjunctive(const vector<r_Minterval>& parts)
+int isDisjunctive(const vector<r_Minterval> &parts)
 {
     for (int i = 0; i < parts.size(); i++)
     {
@@ -543,4 +532,3 @@ int isDisjunctive(const vector<r_Minterval>& parts)
     }
     return 1;
 }
-

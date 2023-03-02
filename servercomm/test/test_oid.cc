@@ -37,7 +37,7 @@ rasdaman GmbH.
 #include <stdlib.h>
 #include <iostream.h>
 
-#include "o2template_CC.hxx"         // declaration of O2 ref and coll classes
+#include "o2template_CC.hxx"  // declaration of O2 ref and coll classes
 
 #include "ulongtype.hh"
 
@@ -55,37 +55,37 @@ rasdaman GmbH.
 
 RMINITGLOBALS('C')
 
-extern char* myExecArgv0 = "";
+extern char *myExecArgv0 = "";
 
 static void
-insertObj(char* dbName, OId o, char* cn)
+insertObj(char *dbName, OId o, char *cn)
 {
-    MDDBaseType* mddType  = (MDDBaseType*)TypeFactory::mapMDDType("GreyImage");
+    MDDBaseType *mddType = (MDDBaseType *)TypeFactory::mapMDDType("GreyImage");
     r_Minterval domain("[0:9,0:9]");
 
     //  cout << " " << o << "," << cn << " ... " << flush;
 
-    PersMDDObj* obj = new PersMDDObj(mddType, domain, dbName, o);
+    PersMDDObj *obj = new PersMDDObj(mddType, domain, dbName, o);
     PersMDDColl objsSet(cn);
     objsSet.insert(obj);
     delete obj;
 }
 
-
-static void removeObj(char* dbName, char* collName, OId o)
+static void removeObj(char *dbName, char *collName, OId o)
 {
     // open collection
-    PersMDDColl* coll = 0;
+    PersMDDColl *coll = 0;
 
     char answer = 'n';
-    cout << endl << "SCAN (y/n) ?" << flush;
+    cout << endl
+         << "SCAN (y/n) ?" << flush;
     cin >> answer;
 
     if (answer == 'y')
     {
         coll = new PersMDDColl(collName);
-        MDDCollIter* collIter = coll->createIterator();
-        MDDObj* mddObj;
+        MDDCollIter *collIter = coll->createIterator();
+        MDDObj *mddObj;
         for (collIter->reset(); collIter->notDone(); collIter->advance())
         {
             mddObj = collIter->getElement();
@@ -98,7 +98,6 @@ static void removeObj(char* dbName, char* collName, OId o)
               cout << "MDD " << eOId.getOId() << flush;
             }
             */
-
         }
         /*
         cout << endl << "PRINT OBJECT (y/n) ?" << flush;
@@ -111,7 +110,8 @@ static void removeObj(char* dbName, char* collName, OId o)
         coll->releaseAll();
         delete coll;
 
-        cout << endl << "SCAN end" << endl;
+        cout << endl
+             << "SCAN end" << endl;
     }
 
     coll = new PersMDDColl(collName);
@@ -126,8 +126,7 @@ static void removeObj(char* dbName, char* collName, OId o)
     }
 }
 
-
-int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
+int checkArguments(int argc, char **argv, const char *searchText, int &optionValueIndex)
 {
     int found = 0;
     int i = 1;
@@ -149,9 +148,7 @@ int checkArguments(int argc, char** argv, const char* searchText, int& optionVal
     return found;
 }
 
-
-int
-main(int ac, char** av)
+int main(int ac, char **av)
 {
     int optionValueIndex;
     char dbName[255];
@@ -159,7 +156,8 @@ main(int ac, char** av)
 
     if (ac < 3 || checkArguments(ac, av, "-h", optionValueIndex))
     {
-        cout << "Usage:   test_oid base_name collection_name [options]" << endl << endl;
+        cout << "Usage:   test_oid base_name collection_name [options]" << endl
+             << endl;
         cout << "Options: -h  ... this help" << endl;
         cout << endl;
         return 0;
@@ -174,7 +172,7 @@ main(int ac, char** av)
 
     // don't forget to initialize before using AdminIf!
     myExecArgv0 = av[0];
-    AdminIf* myAdmin = AdminIf::instance();
+    AdminIf *myAdmin = AdminIf::instance();
 
     // connect to the database
     cout << "Connecting to database " << dbName << "..." << flush;
@@ -185,14 +183,14 @@ main(int ac, char** av)
     cout << "Create collection ... " << flush;
     ta.begin(&database);
     cout << "getting type ... " << flush;
-    CollectionType* collType = (CollectionType*)TypeFactory::mapSetType("GreySet");
+    CollectionType *collType = (CollectionType *)TypeFactory::mapSetType("GreySet");
     cout << "getting oid ... " << flush;
     OId oidColl;
     if (!OId::allocateMDDCollOId(&oidColl))
     {
         cout << oidColl << " ... " << flush;
     }
-    PersMDDColl* pc = PersMDDColl::createRoot(collName, oidColl, collType, &database);
+    PersMDDColl *pc = PersMDDColl::createRoot(collName, oidColl, collType, &database);
     delete pc;
     cout << "comitting ... " << flush;
     ta.commit();
@@ -238,4 +236,3 @@ main(int ac, char** av)
 
     return 0;
 }
-

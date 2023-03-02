@@ -51,7 +51,7 @@ RMINITGLOBALS('C')
 */
 
 r_Minterval
-createNormalizedDomain(const r_Point& mddDomainExtent, const r_Point& tileConfigExtent)
+createNormalizedDomain(const r_Point &mddDomainExtent, const r_Point &tileConfigExtent)
 {
     r_Dimension theDim = mddDomainExtent.dimension();
     r_Minterval normalizedDomain(theDim);
@@ -63,7 +63,7 @@ createNormalizedDomain(const r_Point& mddDomainExtent, const r_Point& tileConfig
         cout << "mdd domain extent [" << dim << "]  " << mddDomainExtent[dim] << endl;
         cout << "tile config extent [" << dim << "] " << tileConfigExtent[dim] << endl;
         cout << "division                           " << mddDomainExtent[dim] / tileConfigExtent[dim] << endl;
-        if ((normalized + 1)* tileConfigExtent[dim] != mddDomainExtent[dim])
+        if ((normalized + 1) * tileConfigExtent[dim] != mddDomainExtent[dim])
         {
             cout << "got you" << endl;
         }
@@ -73,7 +73,7 @@ createNormalizedDomain(const r_Point& mddDomainExtent, const r_Point& tileConfig
 }
 
 r_Point
-createNormalizedPoint(const r_Point& toNormalize, const r_Point& tileConfigExtent, const r_Point& mddDomainOrigin)
+createNormalizedPoint(const r_Point &toNormalize, const r_Point &tileConfigExtent, const r_Point &mddDomainOrigin)
 {
     r_Dimension theDim = mddDomainOrigin.dimension();
     r_Point normalizedPoint(theDim);
@@ -85,8 +85,7 @@ createNormalizedPoint(const r_Point& toNormalize, const r_Point& tileConfigExten
     return normalizedPoint;
 }
 
-void
-main(unsigned int argc, const char** argv)
+void main(unsigned int argc, const char **argv)
 {
     unsigned int baseCounter = 0;
     unsigned int entryType = 0;
@@ -104,6 +103,4 @@ main(unsigned int argc, const char** argv)
     r_Point normalizedSearch = createNormalizedPoint(whereToSearch, tileConfig.get_extent(), mddDomain.get_origin());
     cout << "normalized search " << normalizedSearch << endl;
     cout << "index of search point " << normalizedDomain.cell_offset(normalizedSearch) << endl;
-
 }
-

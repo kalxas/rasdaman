@@ -42,7 +42,6 @@ class r_Primitive_Type;
 class r_Primitive : public r_Scalar
 {
 public:
-
     r_Primitive(const char *newBuffer, const r_Primitive_Type *newType);
     r_Primitive(const r_Primitive &obj);
     ~r_Primitive() override;
@@ -64,14 +63,14 @@ public:
     //@Man: Type-safe value access methods. In case of type mismatch, an exception is raised.
     //@{
     r_Boolean get_boolean() const;
-    r_Char    get_char()    const;
-    r_Octet   get_octet()   const;
-    r_Short   get_short()   const;
-    r_UShort  get_ushort()  const;
-    r_Long    get_long()    const;
-    r_ULong   get_ulong()   const;
-    r_Float   get_float()   const;
-    r_Double  get_double()  const;
+    r_Char get_char() const;
+    r_Octet get_octet() const;
+    r_Short get_short() const;
+    r_UShort get_ushort() const;
+    r_Long get_long() const;
+    r_ULong get_ulong() const;
+    r_Float get_float() const;
+    r_Double get_double() const;
 
     void set_boolean(r_Boolean);
     void set_char(r_Char);
@@ -87,12 +86,10 @@ public:
 protected:
     void checkBufferAndType() const;
     void checkBufferAndType(r_Type::r_Type_Id type);
-    
+
     /// buffer
     char *valueBuffer{NULL};
 };
-
-
 
 //@ManMemo: Module: {\bf raslib}
 /**
@@ -101,4 +98,3 @@ protected:
 extern std::ostream &operator<<(std::ostream &s, const r_Primitive &obj);
 
 #endif
-

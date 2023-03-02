@@ -29,8 +29,7 @@ r_Minterval_Type::r_Minterval_Type(const r_Minterval_Type &oldObj)
 {
 }
 
-bool
-r_Minterval_Type::isMintervalType() const
+bool r_Minterval_Type::isMintervalType() const
 {
     return true;
 }
@@ -47,18 +46,15 @@ r_Minterval_Type::type_id() const
     return MINTERVALTYPE;
 }
 
-void
-r_Minterval_Type::convertToLittleEndian(char *, r_Area) const
+void r_Minterval_Type::convertToLittleEndian(char *, r_Area) const
 {
 }
 
-void
-r_Minterval_Type::convertToBigEndian(char *, r_Area) const
+void r_Minterval_Type::convertToBigEndian(char *, r_Area) const
 {
 }
 
-void
-r_Minterval_Type::print_status(std::ostream &s) const
+void r_Minterval_Type::print_status(std::ostream &s) const
 {
     s << "minterval";
 }

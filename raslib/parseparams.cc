@@ -49,7 +49,6 @@ r_Parse_Params::r_Parse_Params(unsigned int num)
     params = static_cast<parse_params_t *>(mymalloc(maxnum * sizeof(parse_params_t)));
 }
 
-
 r_Parse_Params::~r_Parse_Params(void)
 {
     if (params != NULL)
@@ -58,7 +57,6 @@ r_Parse_Params::~r_Parse_Params(void)
         params = NULL;
     }
 }
-
 
 int r_Parse_Params::add(const char *key, void *store, parse_param_type type)
 {
@@ -107,10 +105,10 @@ int r_Parse_Params::process(const char *str, char separator, bool withWhiteSpace
     while (*b != '\0')
     {
         while (isspace(static_cast<int>(*b)) || *b == separator)
-            b++;        
+            b++;
         if (*b == '\0')
             break;
-        
+
         if (!isalpha(static_cast<int>(*b)))
         {
             LERROR << "the string must start with alphabetic character";
@@ -127,21 +125,21 @@ int r_Parse_Params::process(const char *str, char separator, bool withWhiteSpace
         for (knum = 0; knum < number; knum++)
             if (strcmp(buff, params[knum].key) == 0)
                 break;
-        
+
         // we actually understand this key
         if (knum < number)
         {
-            int statval = 0; // status: -1 error, 0 not found, 1 OK
+            int statval = 0;  // status: -1 error, 0 not found, 1 OK
 
             while (isspace(static_cast<int>(*b)))
                 b++;
-            
+
             if (*b == '=')
             {
                 b++;
                 while (isspace(static_cast<int>(*b)))
                     b++;
-                
+
                 if (*b != separator && *b != '\0')
                 {
                     const char *aux = b;
@@ -189,7 +187,7 @@ int r_Parse_Params::process(const char *str, char separator, bool withWhiteSpace
                             aux = ++b;
                             while (*b != '\"' && *b != '\0')
                                 b++;
-                            
+
                             if (*b == '\0')
                             {
                                 statval = -1;
@@ -221,8 +219,8 @@ int r_Parse_Params::process(const char *str, char separator, bool withWhiteSpace
                         {
                             char **vptr = static_cast<char **>(params[knum].store);
                             if (*vptr != NULL)
-                                delete [] *vptr;
-                            
+                                delete[] * vptr;
+
                             *vptr = new char[vlen + 1];
                             strncpy(*vptr, aux, static_cast<size_t>(vlen));
                             (*vptr)[vlen] = '\0';
@@ -270,7 +268,7 @@ std::ostream &operator<<(std::ostream &s, const r_Parse_Params::parse_param_type
 {
     switch (d)
     {
-    case r_Parse_Params::param_type_int:    s << "param_type_int"; break;
+    case r_Parse_Params::param_type_int: s << "param_type_int"; break;
     case r_Parse_Params::param_type_double: s << "param_type_double"; break;
     case r_Parse_Params::param_type_string: s << "param_type_string"; break;
     default: s << "UNKNOWN r_Parse_Params::parse_paramt_type" << d; break;

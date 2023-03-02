@@ -65,4 +65,3 @@ public:
 extern std::ostream &operator<<(std::ostream &str, const r_Oid_Type &type);
 
 #endif
-

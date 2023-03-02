@@ -71,7 +71,7 @@ public:
     /// prefix incrementor
     r_Iterator<T> &operator++();
     /// postfix incrementor
-    r_Iterator<T>  operator++(int);
+    r_Iterator<T> operator++(int);
 
     /// re-initialize the iterator to the start of iteration for the same collection
     void reset(int removed_objects = 0);
@@ -87,9 +87,9 @@ public:
     void advance();
 
     /// the dereference operator gets the actual element
-    T    operator*();
+    T operator*();
     /// gets the actual element
-    T    get_element() const;
+    T get_element() const;
 
     /// gets the actual element, advances one element, and returns whether iteration is complete or not
     bool next(T &element);
@@ -104,7 +104,6 @@ private:
     r_Collection<T> *collection{NULL};
     /// pointer to the actual element
     typename r_Collection<T>::CNode *ptr{NULL};
-
 };
 
 class r_GMarray;
@@ -112,7 +111,8 @@ extern template class r_Iterator<r_GMarray *>;
 class r_Ref_Any;
 extern template class r_Iterator<r_Ref_Any>;
 class r_Object;
-template <typename T> class r_Ref;
+template <typename T>
+class r_Ref;
 extern template class r_Iterator<r_Ref<r_Object>>;
 extern template class r_Iterator<r_Ref<r_GMarray>>;
 

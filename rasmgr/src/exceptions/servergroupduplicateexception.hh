@@ -35,7 +35,7 @@ namespace rasmgr
 class ServerGroupDuplicateException : public common::LogicException
 {
 public:
-    ServerGroupDuplicateException(const std::string& serverGroupName);
+    ServerGroupDuplicateException(const std::string &serverGroupName);
 
     virtual ~ServerGroupDuplicateException() noexcept;
 };

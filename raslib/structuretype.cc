@@ -62,21 +62,18 @@ r_Structure_Type::clone() const
     return new r_Structure_Type(*this);
 }
 
-
 r_Type::r_Type_Id
 r_Structure_Type::type_id() const
 {
     return STRUCTURETYPE;
 }
 
-bool
-r_Structure_Type::isStructType() const
+bool r_Structure_Type::isStructType() const
 {
     return true;
 }
 
-bool
-r_Structure_Type::compatibleWith(const r_Structure_Type *myType) const
+bool r_Structure_Type::compatibleWith(const r_Structure_Type *myType) const
 {
     if (myType == NULL)
     {
@@ -169,8 +166,7 @@ r_Structure_Type::count_elements() const
     return static_cast<unsigned int>(myAttributes.size());
 }
 
-void
-r_Structure_Type::convertToLittleEndian(char *cells, r_Area noCells) const
+void r_Structure_Type::convertToLittleEndian(char *cells, r_Area noCells) const
 {
     r_Area i = 0;
     unsigned int j = 0;
@@ -185,8 +181,7 @@ r_Structure_Type::convertToLittleEndian(char *cells, r_Area noCells) const
     }
 }
 
-void
-r_Structure_Type::convertToBigEndian(char *cells, r_Area noCells) const
+void r_Structure_Type::convertToBigEndian(char *cells, r_Area noCells) const
 {
     r_Area i = 0;
     unsigned int j = 0;
@@ -201,8 +196,7 @@ r_Structure_Type::convertToBigEndian(char *cells, r_Area noCells) const
     }
 }
 
-void
-r_Structure_Type::print_status(std::ostream &s) const
+void r_Structure_Type::print_status(std::ostream &s) const
 {
     s << "struct{ ";
     bool addComma = false;
@@ -217,8 +211,7 @@ r_Structure_Type::print_status(std::ostream &s) const
     s << " }";
 }
 
-void
-r_Structure_Type::print_value(const char *storage,  std::ostream &s) const
+void r_Structure_Type::print_value(const char *storage, std::ostream &s) const
 {
     s << "{ ";
     bool addComma = false;
@@ -228,11 +221,10 @@ r_Structure_Type::print_value(const char *storage,  std::ostream &s) const
             s << ", ";
         else
             addComma = true;
-        att.type_of().print_value(storage + att.offset(),  s);
+        att.type_of().print_value(storage + att.offset(), s);
     }
     s << "}  ";
 }
-
 
 std::ostream &operator<<(std::ostream &str, const r_Structure_Type &type)
 {

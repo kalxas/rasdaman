@@ -46,7 +46,7 @@ rasdaman GmbH.
 
 #include "qlparser/qtcaseop.hh"
 
-class QtSimpleCaseOp: public QtCaseOp
+class QtSimpleCaseOp : public QtCaseOp
 {
 public:
     /// constructor taking the operation list
@@ -56,4 +56,4 @@ public:
     virtual ~QtSimpleCaseOp();
 };
 
-#endif  /* QTSIMPLECASEOP_HH */
+#endif /* QTSIMPLECASEOP_HH */

@@ -13,9 +13,9 @@ namespace rasserver
  */
 struct DataChunk
 {
-    char* bytes = nullptr;
+    char *bytes = nullptr;
     std::uint64_t length{};
-    bool* nullMask = nullptr;
+    bool *nullMask = nullptr;
     std::uint64_t nullMaskLength{};
 };
 
@@ -25,7 +25,7 @@ public:
     /**
      * The maximum size which can be served from the data.
      */
-    static const std::uint64_t CHUNK_SIZE = 50 * 1024 * 1024; // 50 MB
+    static const std::uint64_t CHUNK_SIZE = 50 * 1024 * 1024;  // 50 MB
 
     /**
      * Class streaming an array given the address and length.
@@ -40,10 +40,10 @@ public:
      * @param nullMask The null mask
      * @param nullMaskLength The size of the null mask
      */
-    ClientQueryStreamedResult(char* data,
+    ClientQueryStreamedResult(char *data,
                               std::uint64_t length,
                               std::int32_t clientUUID,
-                              bool* nullMask = nullptr,
+                              bool *nullMask = nullptr,
                               std::uint64_t nullMaskLength = 0);
 
     /**
@@ -79,11 +79,11 @@ private:
     /// The client uuid which requested a char array to be split into chunks.
     /// Used for cleanup in @see clientmanager.cc
     std::int32_t clientUUID;
-    
+
     /// The raw data pointer.
     std::unique_ptr<char[]> data;
     /// The length of the array in bytes.
-    std::uint64_t length;    
+    std::uint64_t length;
     /// The offset where the nextChunk begins.
     std::uint64_t dataOffset{};
 
@@ -93,9 +93,8 @@ private:
     std::uint64_t nullMaskLength;
     /// The offset where the nextChunk of nulls begins.
     std::uint64_t nullMaskOffset{};
-
 };
 
-} //namespace rasserver
+}  //namespace rasserver
 
-#endif // CLIENTQUERYRESULT_HH
+#endif  // CLIENTQUERYRESULT_HH

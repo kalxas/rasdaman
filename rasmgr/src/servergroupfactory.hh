@@ -19,14 +19,15 @@ class ServerGroupFactory
 public:
     ServerGroupFactory(std::shared_ptr<DatabaseHostManager> dbhManager,
                        std::shared_ptr<ServerFactory> serverFactory);
-    
+
     virtual ~ServerGroupFactory() = default;
-  
+
     virtual std::shared_ptr<ServerGroup> createServerGroup(const ServerGroupConfigProto &config);
+
 private:
     std::shared_ptr<DatabaseHostManager> dbhManager;
     std::shared_ptr<ServerFactory> serverFactory;
 };
-}
+}  // namespace rasmgr
 
-#endif // RASMGR_X_SRC_SERVERGROUPFACTORY_HH
+#endif  // RASMGR_X_SRC_SERVERGROUPFACTORY_HH

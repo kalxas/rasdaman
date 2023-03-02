@@ -60,7 +60,6 @@ class r_Set;
 class r_Storage_Layout
 {
 public:
-
     /// the dataformat is not used.  please use the database methods for this purpose.
     r_Storage_Layout(r_Data_Format init_format = r_Array, const char *formatParams = NULL);
 
@@ -98,7 +97,6 @@ public:
     virtual bool is_compatible(const r_Minterval &obj_domain, r_Bytes celltypesize) const;
 
 protected:
-
     /// Tiling scheme
     r_Tiling *til{NULL};
 

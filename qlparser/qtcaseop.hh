@@ -80,8 +80,8 @@ public:
     virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
     /// breaks down the operand list into conditions and results
-    void getCaseOperands(QtDataList *inputList, std::vector<std::pair <QtOperation *, QtDataList *>> *cacheList,
-                         std::vector<std::pair <QtOperation *, QtData *>> *scalarCache,
+    void getCaseOperands(QtDataList *inputList, std::vector<std::pair<QtOperation *, QtDataList *>> *cacheList,
+                         std::vector<std::pair<QtOperation *, QtData *>> *scalarCache,
                          QtDataList *conditionList, QtOperationList *resultList, QtOperation *&defaultResult);
 
     /// type coercion: given 2 types, computes the resulting type
@@ -95,7 +95,7 @@ public:
                                std::vector<Tile *> *currentTiles, std::vector<char *> *cachedPoints);
 
     /// method for retrieving the cached data list corresponding to an operation
-    QtDataList *getCachedData(QtOperation *op,  std::vector<std::pair <QtOperation *, QtDataList *>> *cacheList);
+    QtDataList *getCachedData(QtOperation *op, std::vector<std::pair<QtOperation *, QtDataList *>> *cacheList);
 
     /// method for retrieving cached scalar values
     QtData *getCachedScalar(QtOperation *op, std::vector<std::pair<QtOperation *, QtData *>> *scalarCacheList);
@@ -109,7 +109,7 @@ public:
 
     /// method for adding the list of corresponding mdd objects of an operation to cache
     void addMddsToCache(QtDataList *inputList, QtOperation *&op,
-                        std::vector<std::pair <QtOperation *, QtDataList *>> *cacheList);
+                        std::vector<std::pair<QtOperation *, QtDataList *>> *cacheList);
 
 private:
     /// attribute for identification of nodes
@@ -129,5 +129,4 @@ protected:
     QtOperationList *conditionList;
 };
 
-#endif  /* QTCASEOP_HH */
-
+#endif /* QTCASEOP_HH */

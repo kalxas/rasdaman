@@ -27,7 +27,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -328,4 +327,3 @@ public:
 private:
     static const QtNodeType nodeType;
 };
-

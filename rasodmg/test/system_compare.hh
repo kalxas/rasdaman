@@ -26,15 +26,14 @@ rasdaman GmbH.
 
 #include "system_basic.hh"
 
-class SystemCompare :   public SystemBasic
+class SystemCompare : public SystemBasic
 {
 public:
-    static int doStuff(int argc, const char** argv);
+    static int doStuff(int argc, const char **argv);
 
     static void printUsage();
 
     static int doCompare();
-
 };
 
 #endif

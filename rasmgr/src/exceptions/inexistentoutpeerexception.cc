@@ -20,17 +20,18 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-
 #include "inexistentoutpeerexception.hh"
 
 namespace rasmgr
 {
 
-InexistentOutPeerException::InexistentOutPeerException(const std::string& hostName)
+InexistentOutPeerException::InexistentOutPeerException(const std::string &hostName)
     : common::MissingResourceException("No outpeer with host name" + hostName + " found. ")
-{}
+{
+}
 
 InexistentOutPeerException::~InexistentOutPeerException() noexcept
-{}
-
+{
 }
+
+}  // namespace rasmgr

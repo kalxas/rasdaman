@@ -34,23 +34,17 @@ rasdaman GmbH.
 #include <string>
 using namespace std;
 
-
 const QtNode::QtNodeType QtIntervalOp::nodeType = QT_INTERVALOP;
 
 QtIntervalOp::QtIntervalOp(QtOperation *initInput1, QtOperation *initInput2)
-    :  QtBinaryOperation(initInput1, initInput2)
+    : QtBinaryOperation(initInput1, initInput2)
 {
 }
 
-
-
-bool
-QtIntervalOp::isCommutative() const
+bool QtIntervalOp::isCommutative() const
 {
-    return false; // NOT commutative
+    return false;  // NOT commutative
 }
-
-
 
 QtData *
 QtIntervalOp::evaluate(QtDataList *inputList)
@@ -161,7 +155,6 @@ QtIntervalOp::evaluate(QtDataList *inputList)
 
             throw parseInfo;
         }
-
 
         switch (operand2->getDataType())
         {
@@ -278,20 +271,14 @@ QtIntervalOp::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
-void
-QtIntervalOp::printTree(int tab, ostream &s, QtChildType mode)
+void QtIntervalOp::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIntervalOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtIntervalOp::printAlgebraicExpression(ostream &s)
+void QtIntervalOp::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 
@@ -318,8 +305,6 @@ QtIntervalOp::printAlgebraicExpression(ostream &s)
     s << ")";
 }
 
-
-
 const QtTypeElement &
 QtIntervalOp::checkType(QtTypeTuple *typeTuple)
 {
@@ -328,7 +313,6 @@ QtIntervalOp::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input1 && input2)
     {
-
         const QtTypeElement &input1Type = input1->checkType(typeTuple);
         const QtTypeElement &input2Type = input2->checkType(typeTuple);
 
@@ -336,19 +320,19 @@ QtIntervalOp::checkType(QtTypeTuple *typeTuple)
 
         // check operand1
         opTypesValid &= input1Type.getDataType() == QT_STRING ||
-                        input1Type.getDataType() == QT_LONG   ||
-                        input1Type.getDataType() == QT_SHORT  ||
-                        input1Type.getDataType() == QT_OCTET  ||
-                        input1Type.getDataType() == QT_ULONG  ||
+                        input1Type.getDataType() == QT_LONG ||
+                        input1Type.getDataType() == QT_SHORT ||
+                        input1Type.getDataType() == QT_OCTET ||
+                        input1Type.getDataType() == QT_ULONG ||
                         input1Type.getDataType() == QT_USHORT ||
                         input1Type.getDataType() == QT_CHAR;
 
         // check operand2
         opTypesValid &= input2Type.getDataType() == QT_STRING ||
-                        input2Type.getDataType() == QT_LONG   ||
-                        input2Type.getDataType() == QT_SHORT  ||
-                        input2Type.getDataType() == QT_OCTET  ||
-                        input2Type.getDataType() == QT_ULONG  ||
+                        input2Type.getDataType() == QT_LONG ||
+                        input2Type.getDataType() == QT_SHORT ||
+                        input2Type.getDataType() == QT_OCTET ||
+                        input2Type.getDataType() == QT_ULONG ||
                         input2Type.getDataType() == QT_USHORT ||
                         input2Type.getDataType() == QT_CHAR;
 

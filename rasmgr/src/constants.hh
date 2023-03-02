@@ -3,7 +3,6 @@
 
 #include <cstdint>
 
-
 namespace rasmgr
 {
 
@@ -100,6 +99,6 @@ const std::uint32_t MAX_GET_SERVER_RETRIES = 3;
  * A server is always running on the same machine as the rasmgr so it should be able to reply to a request immediately.
  */
 const std::int32_t SERVER_CALL_TIMEOUT = 3000;
-}
+}  // namespace rasmgr
 
-#endif // RASMGR_X_SRC_CONSTANTS_HH
+#endif  // RASMGR_X_SRC_CONSTANTS_HH

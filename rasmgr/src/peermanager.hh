@@ -108,12 +108,12 @@ public:
     virtual PeerMgrProto serializeToProto();
 
 private:
-    std::mutex mut;/*!< Mutex used to synchronize access to the resources managed by this class.*/
+    std::mutex mut; /*!< Mutex used to synchronize access to the resources managed by this class.*/
 
     std::list<std::shared_ptr<InPeer>> inPeers;
     std::list<std::shared_ptr<OutPeer>> outPeers;
 
-    std::map<std::string, std::shared_ptr<OutPeer>> remoteSessions;/*!< Mapping between a string identifying a remote session and the peer on which the remote session is active*/
+    std::map<std::string, std::shared_ptr<OutPeer>> remoteSessions; /*!< Mapping between a string identifying a remote session and the peer on which the remote session is active*/
 
     /**
      * @brief remoteClientSessionToString Generate a string uniquely identifying 
@@ -121,6 +121,6 @@ private:
      */
     std::string remoteClientSessionToString(const RemoteClientSession &clientSession);
 };
-}
+}  // namespace rasmgr
 
-#endif // PEERMANAGER_HH
+#endif  // PEERMANAGER_HH

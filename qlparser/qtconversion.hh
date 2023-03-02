@@ -103,7 +103,6 @@ public:
     virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
-
     /// set convType and convFormat based on the conversionType
     void setConversionTypeAndResultFormat(r_Data_Format &convType, r_Data_Format &convFormat);
 
@@ -132,4 +131,3 @@ extern std::ostream &operator<<(std::ostream &os, QtConversion::QtConversionType
 #include "qlparser/qtconversion.icc"
 
 #endif
-

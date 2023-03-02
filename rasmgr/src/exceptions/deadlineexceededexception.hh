@@ -31,7 +31,7 @@ namespace rasmgr
  * Reports an error that a service (client, rasserver) failed to respond to
  * request within a certain timeout.
  */
-class DeadlineExceededException: public common::ResourceBusyException
+class DeadlineExceededException : public common::ResourceBusyException
 {
 public:
     /**
@@ -42,9 +42,9 @@ public:
     DeadlineExceededException(const std::string &serviceType,
                               const std::string &id,
                               std::uint32_t timeout);
-    
+
     virtual ~DeadlineExceededException() noexcept = default;
 };
-}
+}  // namespace rasmgr
 
-#endif // DBBUSYEXCEPTION_HH
+#endif  // DBBUSYEXCEPTION_HH

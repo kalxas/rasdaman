@@ -66,21 +66,19 @@ r_MiterArea::r_MiterArea(const r_Minterval *newIterDom,
         const auto imgExtent = imgDom->get_extent()[i];
         const auto iterExtent = iterDom->get_extent()[i];
         incArrIter[i].repeat = static_cast<int>(
-                    (imgExtent / iterExtent) + (imgExtent % iterExtent != 0));
+            (imgExtent / iterExtent) + (imgExtent % iterExtent != 0));
 
         //LTRACE << "repeat dim " << i << ": " << incArrIter[i].repeat;
     }
     reset();
 }
 
-
 r_MiterArea::~r_MiterArea()
 {
-    delete [] incArrIter;
+    delete[] incArrIter;
 }
 
-void
-r_MiterArea::reset()
+void r_MiterArea::reset()
 {
     done = false;
     for (unsigned int i = 0; i < iterDom->dimension(); i++)
@@ -113,18 +111,17 @@ r_MiterArea::nextArea()
     {
         incArrIter[i].curr++;
         if (incArrIter[i].curr < incArrIter[i].repeat)
-            break;                  // no overflow in this dimension
+            break;  // no overflow in this dimension
         else
-            incArrIter[i].curr = 0; // overflow in this dimension
+            incArrIter[i].curr = 0;  // overflow in this dimension
     }
     if (i == iterDom->dimension())
-        done = true;                // overflow in last dimension
+        done = true;  // overflow in last dimension
 
     return retVal;
 }
 
-bool
-r_MiterArea::isDone()
+bool r_MiterArea::isDone()
 {
     return done;
 }

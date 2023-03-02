@@ -70,6 +70,3 @@ public:
 extern std::ostream &operator<<(std::ostream &str, const r_Point_Type &type);
 
 #endif
-
-
-

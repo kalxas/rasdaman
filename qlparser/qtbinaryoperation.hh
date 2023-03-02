@@ -27,7 +27,6 @@ rasdaman GmbH.
 #include <stdio.h>
 #include "qlparser/qtoperation.hh"
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -131,5 +130,3 @@ protected:
 #include "qlparser/qtbinaryoperation.icc"
 
 #endif
-
-

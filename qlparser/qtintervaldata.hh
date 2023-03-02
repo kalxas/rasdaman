@@ -53,7 +53,7 @@ public:
     ///
     inline const r_Sinterval &getIntervalData() const;
     ///
-    inline void               setIntervalData(const r_Sinterval &interval);
+    inline void setIntervalData(const r_Sinterval &interval);
 
     /// returns a null-terminated string describing the type structure
     virtual char *getTypeStructure() const;
@@ -78,7 +78,7 @@ public:
 
 private:
     /// prevents from using the default constructor
-    QtIntervalData() {};
+    QtIntervalData(){};
 
     ///
     r_Sinterval intervalData;
@@ -87,7 +87,3 @@ private:
 #include "qlparser/qtintervaldata.icc"
 
 #endif
-
-
-
-

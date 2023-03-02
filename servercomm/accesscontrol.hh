@@ -39,8 +39,8 @@ public:
     /// parse the capability string; return 0 - ok, or 804 - capability refused
     int crunchCapability(const char *);
 
-    void wantToRead();  // could throw r_Eno_permission
-    void wantToWrite(); // could throw r_Eno_permission
+    void wantToRead();   // could throw r_Eno_permission
+    void wantToWrite();  // could throw r_Eno_permission
 
     bool isClient();
 

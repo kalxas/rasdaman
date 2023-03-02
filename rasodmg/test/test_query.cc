@@ -94,7 +94,7 @@ const int MAX_QUERY_LEN = 10240;
 
 bool printText = false;
 
-int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
+int checkArguments(int argc, char **argv, const char *searchText, int &optionValueIndex)
 {
     int found = 0;
     int i = 1;
@@ -116,55 +116,54 @@ int checkArguments(int argc, char** argv, const char* searchText, int& optionVal
     return found;
 }
 
-
-void printScalar(const r_Scalar& scalar)
+void printScalar(const r_Scalar &scalar)
 {
     switch (scalar.get_type()->type_id())
     {
     case r_Type::BOOL:
-        std::cout << (((r_Primitive*)&scalar)->get_boolean() ? "T" : "F") << std::flush;
+        std::cout << (((r_Primitive *)&scalar)->get_boolean() ? "T" : "F") << std::flush;
         break;
 
     case r_Type::CHAR:
-        std::cout << (int)((r_Primitive*)&scalar)->get_char() << std::flush;
+        std::cout << (int)((r_Primitive *)&scalar)->get_char() << std::flush;
         break;
 
     case r_Type::OCTET:
-        std::cout << (int)((r_Primitive*)&scalar)->get_octet() << std::flush;
+        std::cout << (int)((r_Primitive *)&scalar)->get_octet() << std::flush;
         break;
 
     case r_Type::SHORT:
-        std::cout << ((r_Primitive*)&scalar)->get_short() << std::flush;
+        std::cout << ((r_Primitive *)&scalar)->get_short() << std::flush;
         break;
 
     case r_Type::USHORT:
-        std::cout << ((r_Primitive*)&scalar)->get_ushort() << std::flush;
+        std::cout << ((r_Primitive *)&scalar)->get_ushort() << std::flush;
         break;
 
     case r_Type::LONG:
-        std::cout << ((r_Primitive*)&scalar)->get_long() << std::flush;
+        std::cout << ((r_Primitive *)&scalar)->get_long() << std::flush;
         break;
 
     case r_Type::ULONG:
-        std::cout << ((r_Primitive*)&scalar)->get_ulong() << std::flush;
+        std::cout << ((r_Primitive *)&scalar)->get_ulong() << std::flush;
         break;
 
     case r_Type::FLOAT:
-        std::cout << ((r_Primitive*)&scalar)->get_float() << std::flush;
+        std::cout << ((r_Primitive *)&scalar)->get_float() << std::flush;
         break;
 
     case r_Type::DOUBLE:
-        std::cout << ((r_Primitive*)&scalar)->get_double() << std::flush;
+        std::cout << ((r_Primitive *)&scalar)->get_double() << std::flush;
         break;
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        std::cout << "(" << ((r_Complex*)&scalar)->get_re() << ", " << ((r_Complex*)&scalar)->get_im() << ")" << std::flush;
+        std::cout << "(" << ((r_Complex *)&scalar)->get_re() << ", " << ((r_Complex *)&scalar)->get_im() << ")" << std::flush;
         break;
 
     case r_Type::STRUCTURETYPE:
     {
-        r_Structure* structValue = (r_Structure*)&scalar;
+        r_Structure *structValue = (r_Structure *)&scalar;
 
         std::cout << "{ " << std::flush;
 
@@ -182,16 +181,17 @@ void printScalar(const r_Scalar& scalar)
     }
     break;
     default:
-        std::cout << "scalar type " << scalar.get_type()->type_id() <<  "  not supported!" << std::endl;
+        std::cout << "scalar type " << scalar.get_type()->type_id() << "  not supported!" << std::endl;
         break;
     }
 }
 
-void printUsage(char* name)
+void printUsage(char *name)
 {
     std::cout << name << "v1.1 systemtest query utility " << std::endl;
     std::cout << "Description: Systemtest query utility for query execution in RasDaMan" << std::endl;
-    std::cout << "Usage:   " << name << " [options]" << std::endl << std::endl;
+    std::cout << "Usage:   " << name << " [options]" << std::endl
+              << std::endl;
     std::cout << "Options: -h                                      ... this help" << std::endl;
     std::cout << "         -server                 <srvname>       ... name of server.(mandatory)" << std::endl;
     std::cout << "         -port                   <nnnn>          ... port of server.(default " << DEFAULT_PORT << ")" << std::endl;
@@ -210,15 +210,16 @@ void printUsage(char* name)
     std::cout << "         -nooutput                               ... no output of MDD content.(default on)" << std::endl;
     std::cout << "         -testbed                                ... turn on output for testbed.(default off)" << std::endl;
     std::cout << "         -text                                   ... print textual output.(default off)" << std::endl;
-    std::cout << std::endl << std::endl;
+    std::cout << std::endl
+              << std::endl;
 
     std::cout << "Report bugs to <support@active-knowledge.com>" << std::endl;
 }
 
-r_Tiling*
-getTilingScheme(r_Tiling_Scheme& tilingS, char* tilingP)
+r_Tiling *
+getTilingScheme(r_Tiling_Scheme &tilingS, char *tilingP)
 {
-    r_Tiling* retval = NULL;
+    r_Tiling *retval = NULL;
 
     try
     {
@@ -246,21 +247,21 @@ getTilingScheme(r_Tiling_Scheme& tilingS, char* tilingP)
         }
         std::cout << "OK" << std::flush;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         std::cout << "FAILED" << std::endl;
-        std::cout << "Error " << err.get_errorno() << " : "  << err.what() << std::endl;
+        std::cout << "Error " << err.get_errorno() << " : " << err.what() << std::endl;
     }
 
     return retval;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    int  optionValueIndex = 0;
+    int optionValueIndex = 0;
 
     char serverName[MAX_STR_LEN] = "";
-    r_ULong  serverPort = DEFAULT_PORT;
+    r_ULong serverPort = DEFAULT_PORT;
     char baseName[MAX_STR_LEN] = "";
 
     char userName[MAX_STR_LEN] = DEFAULT_USER;
@@ -269,21 +270,20 @@ int main(int argc, char** argv)
     char fileName[MAX_STR_LEN] = "";
 
     r_Data_Format transferFormat = r_Array;
-    char* transferFormatParams = NULL;
+    char *transferFormatParams = NULL;
     r_Data_Format storageFormat = r_Array;
-    char* storageFormatParams = NULL;
+    char *storageFormatParams = NULL;
 
     r_Tiling_Scheme tilingScheme = r_SizeTiling;
-    char* tilingSchemeParams = "131072";
+    char *tilingSchemeParams = "131072";
 
+    int output = 0;
+    int hexOutput = 0;
+    int testbed = 0;
 
-    int  output = 0;
-    int  hexOutput = 0;
-    int  testbed = 0;
-
-    r_ULong  tileSize = 0;
-    r_Minterval   tileConfig;
-    r_Minterval   mddDomain;
+    r_ULong tileSize = 0;
+    r_Minterval tileConfig;
+    r_Minterval mddDomain;
 
     if (checkArguments(argc, argv, "-h", optionValueIndex))
     {
@@ -307,18 +307,18 @@ int main(int argc, char** argv)
     }
 
     if (!strcmp(serverName, "") ||
-            !strcmp(baseName,   "") ||
-            !strcmp(fileName,   ""))
+        !strcmp(baseName, "") ||
+        !strcmp(fileName, ""))
     {
         std::cerr << "Mandatory parameters are missing!" << std::endl;
         printUsage(argv[0]);
         return EXIT_SUCCESS;
     }
 
-    hexOutput =  checkArguments(argc, argv, "-hex", optionValueIndex);
-    printText =  checkArguments(argc, argv, "-text", optionValueIndex);
-    output    = !checkArguments(argc, argv, "-nooutput", optionValueIndex);
-    testbed   =  checkArguments(argc, argv, "-testbed", optionValueIndex);
+    hexOutput = checkArguments(argc, argv, "-hex", optionValueIndex);
+    printText = checkArguments(argc, argv, "-text", optionValueIndex);
+    output = !checkArguments(argc, argv, "-nooutput", optionValueIndex);
+    testbed = checkArguments(argc, argv, "-testbed", optionValueIndex);
 
     if (checkArguments(argc, argv, "-mdddomain", optionValueIndex) && optionValueIndex)
     {
@@ -332,12 +332,12 @@ int main(int argc, char** argv)
 
     if (checkArguments(argc, argv, "-tilesize", optionValueIndex) && optionValueIndex)
     {
-        tileSize = strtoul(argv[optionValueIndex], (char**)NULL, 10) ;
+        tileSize = strtoul(argv[optionValueIndex], (char **)NULL, 10);
     }
 
     if (checkArguments(argc, argv, "-port", optionValueIndex) && optionValueIndex)
     {
-        serverPort = strtoul(argv[optionValueIndex], (char**)NULL, 10) ;
+        serverPort = strtoul(argv[optionValueIndex], (char **)NULL, 10);
     }
 
     if (checkArguments(argc, argv, "-user", optionValueIndex) && optionValueIndex)
@@ -355,14 +355,14 @@ int main(int argc, char** argv)
         transferFormat = get_data_format_from_name(argv[optionValueIndex]);
         if (transferFormat == r_Data_Format_NUMBER)
         {
-            std::cerr << "Invalid transfer format '" << argv[optionValueIndex] << "' switched to " << r_Array  << std::endl;
+            std::cerr << "Invalid transfer format '" << argv[optionValueIndex] << "' switched to " << r_Array << std::endl;
             transferFormat = r_Array;
         }
     }
 
     if (checkArguments(argc, argv, "-transferformatparams", optionValueIndex) && optionValueIndex)
     {
-        transferFormatParams = argv[optionValueIndex] ;
+        transferFormatParams = argv[optionValueIndex];
     }
 
     if (checkArguments(argc, argv, "-storageformat", optionValueIndex) && optionValueIndex)
@@ -370,14 +370,14 @@ int main(int argc, char** argv)
         storageFormat = get_data_format_from_name(argv[optionValueIndex]);
         if (storageFormat == r_Data_Format_NUMBER)
         {
-            std::cerr << "Invalid storage format '" << argv[optionValueIndex] << "' switched to " << r_Array  << std::endl;
+            std::cerr << "Invalid storage format '" << argv[optionValueIndex] << "' switched to " << r_Array << std::endl;
             storageFormat = r_Array;
         }
     }
 
     if (checkArguments(argc, argv, "-storageformatparams", optionValueIndex) && optionValueIndex)
     {
-        storageFormatParams = argv[optionValueIndex] ;
+        storageFormatParams = argv[optionValueIndex];
     }
 
     if (checkArguments(argc, argv, "-tiling", optionValueIndex) && optionValueIndex)
@@ -397,9 +397,8 @@ int main(int argc, char** argv)
 
     if (checkArguments(argc, argv, "-tilingparams", optionValueIndex) && optionValueIndex)
     {
-        tilingSchemeParams = argv[optionValueIndex] ;
+        tilingSchemeParams = argv[optionValueIndex];
     }
-
 
 #ifdef __VISUALC__
     std::ifstream fileStream(fileName, ios::nocreate);
@@ -425,7 +424,8 @@ int main(int argc, char** argv)
 
     queryStream << std::ends;
 
-    std::cout << std::endl << std::endl;
+    std::cout << std::endl
+              << std::endl;
 
     r_Database db;
     r_Transaction ta;
@@ -457,10 +457,9 @@ int main(int argc, char** argv)
             db.set_storage_format(storageFormat, storageFormatParams);
             std::cout << "OK" << std::endl;
 
-            r_Marray<r_ULong>* mddConst = NULL;
-            r_Tiling* tilingObj = NULL;
-            r_Storage_Layout* stl = NULL;
-
+            r_Marray<r_ULong> *mddConst = NULL;
+            r_Tiling *tilingObj = NULL;
+            r_Storage_Layout *stl = NULL;
 
             std::cout << "Executing the update query ..." << std::flush;
 
@@ -485,15 +484,15 @@ int main(int argc, char** argv)
                     stl = new r_Storage_Layout(tilingObj);
 
                     // mddConst = new( "GreyCube" ) r_Marray<r_Char>( domain, (unsigned char)0, stl );
-                    mddConst = new("ULongImage") r_Marray<r_ULong>(domain, (r_ULong)9, stl);
+                    mddConst = new ("ULongImage") r_Marray<r_ULong>(domain, (r_ULong)9, stl);
                     // mddConst = new( "FloatCube4" ) r_Marray<r_Float>( domain, 9ul, stl );
 
                     q1 << *mddConst;
                 }
-                catch (r_Error& errorObj)
+                catch (r_Error &errorObj)
                 {
                     std::cout << "FAILED" << std::endl;
-                    std::cout << "Error " << errorObj.get_errorno() << " : "  << errorObj.what() << std::endl;
+                    std::cout << "Error " << errorObj.get_errorno() << " : " << errorObj.what() << std::endl;
 
                     if (testbed)
                     {
@@ -518,7 +517,7 @@ int main(int argc, char** argv)
                     {
                         delete stl;
                     }
-                    else    if (tilingObj)
+                    else if (tilingObj)
                     {
                         delete tilingObj;
                     }
@@ -531,10 +530,10 @@ int main(int argc, char** argv)
             {
                 r_oql_execute(q1, &ta);
             }
-            catch (r_Error& errorObj)
+            catch (r_Error &errorObj)
             {
                 std::cout << "FAILED" << std::endl;
-                std::cout << "Error " << errorObj.get_errorno() << " : "  << errorObj.what() << std::endl;
+                std::cout << "Error " << errorObj.get_errorno() << " : " << errorObj.what() << std::endl;
 
                 if (testbed)
                 {
@@ -542,7 +541,7 @@ int main(int argc, char** argv)
                     std::cout << std::endl;
                 }
 
-                std::cout << "Aborting Transaction ... " <<  std::flush;
+                std::cout << "Aborting Transaction ... " << std::flush;
                 ta.abort();
                 std::cout << "OK" << std::endl;
 
@@ -584,10 +583,10 @@ int main(int argc, char** argv)
             {
                 r_oql_execute(q1, result_set, &ta);
             }
-            catch (r_Error& errorObj)
+            catch (r_Error &errorObj)
             {
                 std::cout << "FAILED" << std::endl;
-                std::cout << "Error " << errorObj.get_errorno() << " : "  << errorObj.what() << std::endl;
+                std::cout << "Error " << errorObj.get_errorno() << " : " << errorObj.what() << std::endl;
 
                 if (testbed)
                 {
@@ -659,13 +658,13 @@ int main(int argc, char** argv)
                     std::cout << "-- Testbed start block:" << std::endl;
                 }
 
-                for (int i = 1 ; iter.not_done(); iter++, i++)
+                for (int i = 1; iter.not_done(); iter++, i++)
                 {
                     switch (result_set.get_element_type_schema()->type_id())
                     {
                     case r_Type::MARRAYTYPE:
                     {
-                        const char* defExt;
+                        const char *defExt;
                         r_Data_Format mafmt = r_Ref<r_GMarray>(*iter)->get_current_format();
 
                         // special treatment only for DEFs
@@ -696,7 +695,7 @@ int main(int argc, char** argv)
                             if (printText)
                             {
                                 int numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
-                                const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
+                                const char *theStuff = r_Ref<r_GMarray>(*iter)->get_array();
                                 for (int cnt = 0; cnt < numCells; cnt++)
                                 {
                                     std::cout << theStuff[cnt];
@@ -716,8 +715,8 @@ int main(int argc, char** argv)
                             sprintf(defFileName, "image%d.%s", i, defExt);
                             std::cout << "Image " << i << " written to " << defFileName << std::endl;
 
-                            FILE* tfile = fopen(defFileName, "wb");
-                            fwrite((void*)r_Ref<r_GMarray>(*iter)->get_array(), 1,
+                            FILE *tfile = fopen(defFileName, "wb");
+                            fwrite((void *)r_Ref<r_GMarray>(*iter)->get_array(), 1,
                                    r_Ref<r_GMarray>(*iter)->get_array_size(), tfile);
                             fclose(tfile);
                         }
@@ -757,7 +756,7 @@ int main(int argc, char** argv)
                 std::cout << std::endl;
             }
 
-        } // retrieval query
+        }  // retrieval query
 
         std::cout << "Commiting Transaction ... " << std::endl;
         ta.commit();
@@ -767,10 +766,10 @@ int main(int argc, char** argv)
         db.close();
         std::cout << "OK" << std::endl;
     }
-    catch (r_Error& errorObj)
+    catch (r_Error &errorObj)
     {
         std::cout << "FAILED" << std::endl;
-        std::cout << "Error " << errorObj.get_errorno() << " : "  << errorObj.what() << std::endl;
+        std::cout << "Error " << errorObj.get_errorno() << " : " << errorObj.what() << std::endl;
         ta.abort();
         db.close();
         if (testbed)
@@ -783,4 +782,3 @@ int main(int argc, char** argv)
 
     return EXIT_SUCCESS;
 }
-

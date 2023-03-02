@@ -54,7 +54,7 @@ public:
     r_Scalar *clone() const override;
 
     /// operator for assigning a structure
-    const r_Structure &operator= (const r_Structure &);
+    const r_Structure &operator=(const r_Structure &);
 
     /// debug output
     void print_status(std::ostream &s) const override;
@@ -82,7 +82,7 @@ private:
 
     /// char representation
     char *valueBuffer{NULL};
-    
+
     /// number of elements
     unsigned int numElements{};
 };
@@ -93,4 +93,3 @@ private:
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Structure &oid);
 #endif
-

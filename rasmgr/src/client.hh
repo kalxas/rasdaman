@@ -68,7 +68,7 @@ public:
     Client(std::uint32_t clientId, std::shared_ptr<User> user,
            std::int32_t lifeTime, const std::string &rasmgrHostArg,
            const std::shared_ptr<CpuScheduler> &cpuSchedulerArg = nullptr);
-    
+
     ~Client();
 
     /**
@@ -83,7 +83,7 @@ public:
      * User data should be modified only through the UserManager.
      */
     const std::shared_ptr<const User> getUser() const;
-    
+
     /**
      * @return the rasmgr hostname to which this client originally connected to.
      */
@@ -123,19 +123,19 @@ public:
     void removeClientFromServer();
 
 private:
-    std::uint32_t clientId; /*! Unique client id.*/
+    std::uint32_t clientId;     /*! Unique client id.*/
     std::shared_ptr<User> user; /*! User represented by this client. */
-    common::Timer timer;/*! Timer for keeping track of the life of the client */
-    std::string rasmgrHost; /*! Hostname to which the client originally connected to. */
+    common::Timer timer;        /*! Timer for keeping track of the life of the client */
+    std::string rasmgrHost;     /*! Hostname to which the client originally connected to. */
 
     boost::shared_mutex timerMutex; /*! Mutex used to synchronize access to the timer */
 
     static std::atomic<std::uint32_t> sessionIdCounter;
-    std::uint32_t sessionId; /*! unique client session ID */
-    bool sessionOpen{false}; /*! true if a session is currently open */
-    std::shared_ptr<Server> assignedServer; /*! the server assigned for the session*/
+    std::uint32_t sessionId;                 /*! unique client session ID */
+    bool sessionOpen{false};                 /*! true if a session is currently open */
+    std::shared_ptr<Server> assignedServer;  /*! the server assigned for the session*/
     boost::shared_mutex assignedServerMutex; /*! Mutex used to synchronize access to the server*/
-    
+
     std::shared_ptr<CpuScheduler> cpuScheduler;
 
     /**
@@ -149,9 +149,8 @@ private:
      * @brief removeDeadServers Remove dead assignedServer
      */
     void removeDeadServer();
-
 };
 
-} /* namespace rnp */
+}  // namespace rasmgr
 
 #endif /* RASMGR_X_SRC_CLIENT_HH_ */

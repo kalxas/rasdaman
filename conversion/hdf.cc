@@ -61,13 +61,12 @@ rasdaman GmbH.
 #ifdef HAVE_HDF
 
 const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
-{
-    {"none", COMP_CODE_NONE},
-    {"rle", COMP_CODE_RLE},
-    {"huffman", COMP_CODE_SKPHUFF},
-    {"deflate", COMP_CODE_DEFLATE},
-    {NULL, COMP_CODE_NONE}
-};
+    {
+        {"none", COMP_CODE_NONE},
+        {"rle", COMP_CODE_RLE},
+        {"huffman", COMP_CODE_SKPHUFF},
+        {"deflate", COMP_CODE_DEFLATE},
+        {NULL, COMP_CODE_NONE}};
 
 //#else
 //
@@ -78,7 +77,6 @@ const r_Convertor::convert_string_t r_Conv_HDF::compNames[] =
 
 // Buffer used for switching the majorness (column <--> row) of the array data
 const int r_Conv_HDF::MaxSwapBufferSize = 0x10000;
-
 
 void r_Conv_HDF::initHDF(void)
 {
@@ -96,8 +94,7 @@ void r_Conv_HDF::initHDF(void)
     params->add("skiphuff", &skiphuff, r_Parse_Params::param_type_int);
 }
 
-
-r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, const r_Type* tp)
+r_Conv_HDF::r_Conv_HDF(const char *src, const r_Minterval &interv, const r_Type *tp)
     : r_Convertor(src, interv, tp, true)
 {
     initHDF();
@@ -109,36 +106,30 @@ r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, const r_Type*
     }
 }
 
-
-
-r_Conv_HDF::r_Conv_HDF(const char* src, const r_Minterval& interv, int tp)
+r_Conv_HDF::r_Conv_HDF(const char *src, const r_Minterval &interv, int tp)
     : r_Convertor(src, interv, tp)
 {
     initHDF();
 }
 
-
-
 r_Conv_HDF::~r_Conv_HDF(void)
 {
     if (compType != NULL)
     {
-        delete [] compType;
+        delete[] compType;
         compType = NULL;
     }
 }
 
-
-
-r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
-                                   const r_Range* nullValue)
+r_Conv_Desc &r_Conv_HDF::convertTo(const char *options,
+                                   const r_Range *nullValue)
 {
 #ifdef HAVE_HDF
     char name[] = "hdfTempXXXXXX";
     int32 handle = 0, sds_id = 0;
     comp_coder_t comp_type = COMP_CODE_NONE;
-    int32* dimsizes = NULL, *start = NULL;
-    FILE* fp = NULL;
+    int32 *dimsizes = NULL, *start = NULL;
+    FILE *fp = NULL;
     comp_info c_info;
     int tempFD;
 
@@ -202,11 +193,11 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
 
     SDsetcompress(sds_id, comp_type, &c_info);
 
-    SDwritedata(sds_id, start, NULL, dimsizes, const_cast<char*>(desc.src));
+    SDwritedata(sds_id, start, NULL, dimsizes, const_cast<char *>(desc.src));
 
-    delete [] dimsizes;
+    delete[] dimsizes;
     dimsizes = NULL;
-    delete [] start;
+    delete[] start;
     start = NULL;
 
     SDendaccess(sds_id);
@@ -224,7 +215,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
     desc.destInterv = r_Minterval(1);
     desc.destInterv << r_Sinterval((r_Range)0, (r_Range)filesize - 1);
 
-    if ((desc.dest = (char*)mymalloc(static_cast<size_t>(filesize))) == NULL)
+    if ((desc.dest = (char *)mymalloc(static_cast<size_t>(filesize))) == NULL)
     {
         LERROR << "r_Conv_HDF::convertTo(): out of memory error";
         fclose(fp);
@@ -242,7 +233,7 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
 
     return desc;
 
-#else // HAVE_HDF
+#else  // HAVE_HDF
     (void)options;
     LERROR << "support for encoding HDF4 is not enabled; rasdaman should be configured with option --with-hdf4 to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
@@ -250,18 +241,16 @@ r_Conv_Desc& r_Conv_HDF::convertTo(const char* options,
 #endif
 }
 
-
-
-r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
+r_Conv_Desc &r_Conv_HDF::convertFrom(const char *options)
 {
 #ifdef HAVE_HDF
 
     char name[] = "HDFtempXXXXXX";
     int32 handle = 0, sds_id = 0, dtype = 0, numattr = 0, array_size = 0;
     int32 dimsizes[H4_MAX_VAR_DIMS];
-    int32* start = NULL;
+    int32 *start = NULL;
     int dsize = 0;
-    FILE* fp = NULL;
+    FILE *fp = NULL;
     int tempFD;
 
     if (desc.srcInterv.dimension() != 1)
@@ -285,7 +274,7 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
         throw r_Error(r_Error::r_Error_General);
     }
     size_t filesize = static_cast<size_t>(
-                          desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
+        desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
     size_t j = 0;
     if ((j = fwrite(desc.src, 1, filesize, fp)) != filesize)
     {
@@ -327,12 +316,12 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
         start[i] = 0;
     }
     if (desc.srcInterv.dimension() == 2)
-        // this means it was explicitly specified, so we shouldn't override it
+    // this means it was explicitly specified, so we shouldn't override it
     {
         desc.destInterv = desc.srcInterv;
     }
 
-    if ((desc.dest = (char*)mymalloc(static_cast<size_t>(array_size))) == NULL)
+    if ((desc.dest = (char *)mymalloc(static_cast<size_t>(array_size))) == NULL)
     {
         LERROR << "r_Conv_HDF::convertFrom(): out of memory error!";
         SDend(handle);
@@ -340,7 +329,7 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
 
-    if (SDreaddata(sds_id, start, NULL, dimsizes, static_cast<void*>(desc.dest)) == FAIL)
+    if (SDreaddata(sds_id, start, NULL, dimsizes, static_cast<void *>(desc.dest)) == FAIL)
     {
         LERROR << "r_Conv_HDF::convertFrom(): error reading data";
         SDend(handle);
@@ -348,7 +337,7 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
         throw r_Error(r_Error::r_Error_General);
     }
 
-    delete [] start;
+    delete[] start;
     start = NULL;
 
     SDendaccess(sds_id);
@@ -359,35 +348,30 @@ r_Conv_Desc& r_Conv_HDF::convertFrom(const char* options)
 
     return desc;
 
-#else // HAVE_HDF
+#else  // HAVE_HDF
     (void)options;
     LERROR << "support for decoding HDF4 is not enabled; rasdaman should be configured with option --with-hdf4 to enable it.";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 
-#endif // HAVE_HDF
+#endif  // HAVE_HDF
 }
 
-r_Conv_Desc& r_Conv_HDF::convertFrom(__attribute__((unused)) r_Format_Params options)
+r_Conv_Desc &r_Conv_HDF::convertFrom(__attribute__((unused)) r_Format_Params options)
 {
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
 
-
-
-const char* r_Conv_HDF::get_name(void) const
+const char *r_Conv_HDF::get_name(void) const
 {
     return format_name_hdf;
 }
-
 
 r_Data_Format r_Conv_HDF::get_data_format(void) const
 {
     return r_HDF;
 }
 
-
-r_Convertor* r_Conv_HDF::clone(void) const
+r_Convertor *r_Conv_HDF::clone(void) const
 {
     return new r_Conv_HDF(desc.src, desc.srcInterv, desc.baseType);
 }
-

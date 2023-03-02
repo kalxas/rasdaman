@@ -13,7 +13,7 @@ public:
     template <typename T>
     static T generateRandomElement(T min, T max)
     {
-        return  min + (rand() % (int)(max - min + 1));
+        return min + (rand() % (int)(max - min + 1));
     }
 
     static bool randomBool()
@@ -21,7 +21,7 @@ public:
         return rand() % 2;
     }
 };
-}
-}
+}  // namespace test
+}  // namespace rasmgr
 
-#endif // RASMGR_X_TEST_UTIT_TESTUTIL_HH
+#endif  // RASMGR_X_TEST_UTIT_TESTUTIL_HH

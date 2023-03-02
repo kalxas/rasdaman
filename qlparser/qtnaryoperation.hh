@@ -29,7 +29,6 @@ rasdaman GmbH.
 
 #include "qlparser/qtoperation.hh"
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -50,7 +49,6 @@ public:
 
     /// constructor getting a list of operands
     QtNaryOperation(QtOperationList *opList);
-
 
     /// virtual destructor
     virtual ~QtNaryOperation();
@@ -94,7 +92,7 @@ public:
     //@{
     ///
     ///
-    inline void                     setInputs(QtOperationList *opList);
+    inline void setInputs(QtOperationList *opList);
     ///
     inline QtNode::QtOperationList *getInputs();
     ///
@@ -114,7 +112,6 @@ protected:
     /// operation trees
     QtOperationList *operationList;
 
-
 private:
     /// atribute for identification of nodes
     static const QtNodeType nodeType;
@@ -123,5 +120,3 @@ private:
 #include "qlparser/qtnaryoperation.icc"
 
 #endif
-
-

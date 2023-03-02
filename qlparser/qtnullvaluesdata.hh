@@ -31,7 +31,6 @@ rasdaman GmbH.
 #include <string>
 #include <iostream>
 
-
 class QtNullvaluesData : public QtData
 {
 public:
@@ -46,7 +45,7 @@ public:
     ///
 
     ///
-    inline const r_Nullvalues  &getNullvaluesData() const
+    inline const r_Nullvalues &getNullvaluesData() const
     {
         return nullvalues;
     }
@@ -78,7 +77,6 @@ public:
     virtual void printStatus(std::ostream &stream = std::cout) const;
 
 private:
-
     /// attribute storing the minterval
     r_Nullvalues nullvalues;
 };

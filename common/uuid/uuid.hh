@@ -25,26 +25,29 @@
 
 #include <mutex>
 #include <boost/uuid/random_generator.hpp>
-#include <string>                           // for string
+#include <string>  // for string
 
-namespace common {
-class UUID {
- public:
-  static const size_t UUID_LENGTH;
+namespace common
+{
+class UUID
+{
+public:
+    static const size_t UUID_LENGTH;
 
-  static std::string generate();
+    static std::string generate();
 
-  static int generateIntId();
+    static int generateIntId();
 
-  /**
+    /**
   * Generate a UUID using the UNIX uuid library.
   * @return A standard UUID represented by a 36 character C++ string.
   */
-  static std::string generateUUID();
- private:
-  static boost::uuids::random_generator generator;
-  static std::mutex generatorMutex;
+    static std::string generateUUID();
+
+private:
+    static boost::uuids::random_generator generator;
+    static std::mutex generatorMutex;
 };
-}
+}  // namespace common
 
 #endif

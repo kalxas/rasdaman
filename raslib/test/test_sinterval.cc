@@ -61,7 +61,7 @@ int main()
     }
 
     cout << "upper bound ? ";
-    cin  >> Buffer;
+    cin >> Buffer;
     cout << endl;
 
     if (Buffer[0] == '*')
@@ -75,10 +75,11 @@ int main()
 
     cout << "interval1 = [";
     interval1.print_status(cout);
-    cout << "]" << endl << endl;
+    cout << "]" << endl
+         << endl;
 
     cout << "lower bound ? ";
-    cin  >> Buffer;
+    cin >> Buffer;
     cout << endl;
 
     if (Buffer[0] == '*')
@@ -91,7 +92,7 @@ int main()
     }
 
     cout << "upper bound ? ";
-    cin  >> Buffer;
+    cin >> Buffer;
     cout << endl;
 
     if (Buffer[0] == '*')
@@ -105,7 +106,8 @@ int main()
 
     cout << "interval1 = [";
     interval2.print_status(cout);
-    cout << "]" << endl << endl;
+    cout << "]" << endl
+         << endl;
 
     r_Sinterval result;
 
@@ -173,8 +175,9 @@ int main()
     cerr << endl;
 
     r_Sinterval b(4l, 10l);
-    char* stringRep = b.get_string_representation();
-    cout << endl << "String representation of interval " << b << ": " << stringRep << endl;
+    char *stringRep = b.get_string_representation();
+    cout << endl
+         << "String representation of interval " << b << ": " << stringRep << endl;
     cout << "Result of string constructor: " << r_Sinterval(stringRep) << endl;
     free(stringRep);
 
@@ -185,5 +188,3 @@ int main()
 
     return 0;
 }
-
-

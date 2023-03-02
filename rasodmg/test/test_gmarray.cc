@@ -53,27 +53,26 @@ rasdaman GmbH.
 #include "raslib/structuretype.hh"
 #include "raslib/primitivetype.hh"
 
-
 struct myStructType
 {
-    char   red;
-    char   green;
-    short  east;
-    float  middle;
+    char red;
+    char green;
+    short east;
+    float middle;
 };
 
 struct myStructType3
 {
-    double  feature_1 ;
-    double  feature_2 ;
-    double  feature_3 ;
+    double feature_1;
+    double feature_2;
+    double feature_3;
 };
 
 struct myStructTypeCom
 {
-    long                 greyvalue;
-    long                 greyvalue2;
-    myStructType3  features;
+    long greyvalue;
+    long greyvalue2;
+    myStructType3 features;
 };
 
 static int INIT = 0;
@@ -82,7 +81,7 @@ static char CINIT = 0;
 static double DINIT = 0;
 static long LINIT = 0;
 
-int initFunction(const r_Point& /*pt*/)
+int initFunction(const r_Point & /*pt*/)
 {
     /*
     int value=0;
@@ -95,42 +94,39 @@ int initFunction(const r_Point& /*pt*/)
     return 3 * (INIT++) / 2;
 }
 
-float  initFunctionFloat(const r_Point& /*pt*/)
+float initFunctionFloat(const r_Point & /*pt*/)
 {
     return 3 * (FINIT++) / 2;
 }
 
-
-char  initFunctionChar(const r_Point& /*pt*/)
+char initFunctionChar(const r_Point & /*pt*/)
 {
     return 3 * (CINIT++) / 2;
 }
 
-double  initFunctionDouble(const r_Point& /*pt*/)
+double initFunctionDouble(const r_Point & /*pt*/)
 {
     return 3 * (DINIT++) / 2;
 }
 
-long  initFunctionLong(const r_Point& /*pt*/)
+long initFunctionLong(const r_Point & /*pt*/)
 {
     return (LINIT++);
 }
 
-
-myStructType  initFunctionStruct(const r_Point& /*pt*/)
+myStructType initFunctionStruct(const r_Point & /*pt*/)
 {
     myStructType myStruct;
 
-    myStruct.red   = 3;
+    myStruct.red = 3;
     myStruct.green = 4;
-    myStruct.east  = 123;
+    myStruct.east = 123;
     myStruct.middle = 7.4;
 
     return myStruct;
 }
 
-
-myStructType3  initFunctionStruct3(const r_Point& pt)
+myStructType3 initFunctionStruct3(const r_Point &pt)
 {
     myStructType3 myStruct;
 
@@ -143,14 +139,13 @@ myStructType3  initFunctionStruct3(const r_Point& pt)
     return myStruct;
 }
 
-
-myStructTypeCom  initFunctionStructCom(const r_Point& pt)
+myStructTypeCom initFunctionStructCom(const r_Point &pt)
 {
-    myStructTypeCom  myStructCom;
+    myStructTypeCom myStructCom;
 
-    myStructCom.greyvalue =  initFunctionLong(pt);
+    myStructCom.greyvalue = initFunctionLong(pt);
     LINIT--;
-    myStructCom.greyvalue2 =  3 * initFunctionLong(pt);
+    myStructCom.greyvalue2 = 3 * initFunctionLong(pt);
 
     //myStructCom.features =  initFunctionStruct3( pt );
 
@@ -160,17 +155,16 @@ myStructTypeCom  initFunctionStructCom(const r_Point& pt)
     DINIT--;
     myStructCom.features.feature_3 = initFunctionDouble(pt);
 
-
     return myStructCom;
 }
 
-
-
 int main()
 {
-    cout << endl << endl;
+    cout << endl
+         << endl;
     cout << "Marray Examples" << endl;
-    cout << "===============" << endl << endl;
+    cout << "===============" << endl
+         << endl;
 
     cout << "Initialization of Marray<int, [3:5,6:8]> with init function:" << endl;
     r_Marray<int> a(r_Minterval("[3:5,6:8]"), &initFunction);
@@ -178,20 +172,17 @@ int main()
     cout << "OK" << endl;
     a.print_status(cout);
 
-
     cout << "Initialization of Marray<float, [3:5,6:8]> with init function float:" << endl;
     r_Marray<float> b(r_Minterval("[3:5,6:8]"), &initFunctionFloat);
     b.set_type_structure("marray<float>");
     cout << "OK" << endl;
     b.print_status(cout);
 
-
     cout << "Initialization of Marray<char, [3:5,6:8]> with init function char:" << endl;
     r_Marray<char> c(r_Minterval("[3:5,6:8]"), &initFunctionChar);
     c.set_type_structure("marray<char>");
     cout << "OK" << endl;
     c.print_status(cout);
-
 
     cout << "Initialization of Marray<double, [3:5,6:8]> with init function double:" << endl;
     r_Marray<double> d(r_Minterval("[3:5,6:8]"), &initFunctionDouble);
@@ -223,15 +214,15 @@ int main()
     cout << endl;
 
     // print single cell
-    r_GMarray& gstCom = (r_GMarray&)stCom;
+    r_GMarray &gstCom = (r_GMarray &)stCom;
 
-    const r_Base_Type& baseType = *(gstCom.get_base_type_schema());
+    const r_Base_Type &baseType = *(gstCom.get_base_type_schema());
     cout << "gmarray_stCom[4,6] = " << flush;
     baseType.print_value(gstCom[r_Point(4, 6)]);
     cout << endl;
 
     cout << "access second double of inner struct: " << flush;
-    const r_Structure_Type& outerStruct     = (const r_Structure_Type&)baseType;
+    const r_Structure_Type &outerStruct = (const r_Structure_Type &)baseType;
     //  const r_Attribute&      innerAttribute  = outerStruct[2];
     //  const r_Structure_Type& innerStruct     = (const r_Structure_Type&)innerAttribute.type_of();
     //  const r_Attribute&      doubleAttribute = innerStruct[1];

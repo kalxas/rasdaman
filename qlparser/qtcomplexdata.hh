@@ -68,25 +68,3 @@ public:
 #include "qlparser/qtcomplexdata.icc"
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

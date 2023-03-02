@@ -43,6 +43,6 @@ public:
      */
     virtual std::string processCommand(const std::string &command) = 0;
 };
-}
+}  // namespace rascontrol
 
-#endif // RASCONTROL_X_SRC_CONTROLRASMGRCOMM_HH
+#endif  // RASCONTROL_X_SRC_CONTROLRASMGRCOMM_HH

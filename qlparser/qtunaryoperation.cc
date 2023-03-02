@@ -29,22 +29,20 @@ rasdaman GmbH.
 using namespace std;
 
 QtUnaryOperation::QtUnaryOperation()
-    :  QtOperation(),
-       input(NULL)
+    : QtOperation(),
+      input(NULL)
 {
 }
 
-
 QtUnaryOperation::QtUnaryOperation(QtOperation *inputInit)
-    :  QtOperation(),
-       input(inputInit)
+    : QtOperation(),
+      input(inputInit)
 {
     if (input)
     {
         input->setParent(this);
     }
 }
-
 
 QtUnaryOperation::~QtUnaryOperation()
 {
@@ -55,14 +53,12 @@ QtUnaryOperation::~QtUnaryOperation()
     }
 }
 
-
-
 string
 QtUnaryOperation::getSpelling()
 {
     char tempStr[20];
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
-    string result  = string(tempStr);
+    string result = string(tempStr);
     result.append("(");
     result.append(input->getSpelling());
     result.append(")");
@@ -70,10 +66,7 @@ QtUnaryOperation::getSpelling()
     return result;
 }
 
-
-
-void
-QtUnaryOperation::simplify()
+void QtUnaryOperation::simplify()
 {
     // In order to work bottom up, first inspect the descendants
     QtNode::simplify();
@@ -82,7 +75,7 @@ QtUnaryOperation::simplify()
     if (input)
     {
         // Test, if operand is of const type.
-        if (input->getNodeType() ==  QT_CONST)
+        if (input->getNodeType() == QT_CONST)
         {
             // evaluate the self node with no input list
             QtData *newConst = this->evaluate(NULL);
@@ -105,24 +98,19 @@ QtUnaryOperation::simplify()
     }
 }
 
-
-
-bool
-QtUnaryOperation::equalMeaning(QtNode *node)
+bool QtUnaryOperation::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     if (getNodeType() == node->getNodeType())
     {
-        QtUnaryOperation *unaryNode = static_cast<QtUnaryOperation *>(node); // by force
+        QtUnaryOperation *unaryNode = static_cast<QtUnaryOperation *>(node);  // by force
 
         result = input->equalMeaning(unaryNode->getInput());
     };
 
     return (result);
 }
-
-
 
 QtNode::QtNodeList *
 QtUnaryOperation::getChilds(QtChildType flag)
@@ -145,16 +133,13 @@ QtUnaryOperation::getChilds(QtChildType flag)
     return resultList;
 }
 
-
 QtNode::QtAreaType
 QtUnaryOperation::getAreaType()
 {
     return (input->getAreaType());
 }
 
-
-void
-QtUnaryOperation::optimizeLoad(QtTrimList *trimList)
+void QtUnaryOperation::optimizeLoad(QtTrimList *trimList)
 {
     // by default, pass load domain to the input
     if (input)
@@ -168,9 +153,7 @@ QtUnaryOperation::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-
-void
-QtUnaryOperation::printTree(int tab, ostream &s, QtChildType mode)
+void QtUnaryOperation::printTree(int tab, ostream &s, QtChildType mode)
 {
     if (mode != QtNode::QT_DIRECT_CHILDS)
     {
@@ -181,13 +164,7 @@ QtUnaryOperation::printTree(int tab, ostream &s, QtChildType mode)
         }
         else
         {
-            s << SPACE_STR(static_cast<size_t>(tab)).c_str()  << "no input" << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no input" << endl;
         }
     }
 }
-
-
-
-
-
-

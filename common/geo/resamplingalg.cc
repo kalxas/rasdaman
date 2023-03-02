@@ -5,12 +5,15 @@
 
 #include "resamplingalg.hh"
 
-namespace common {
+namespace common
+{
 
 using std::string;
 
-std::string raToString(ResampleAlg alg) {
-  switch (alg) {
+std::string raToString(ResampleAlg alg)
+{
+    switch (alg)
+    {
     case RA_NearestNeighbour: return "near";
     case RA_Bilinear: return "bilinear";
     case RA_Cubic: return "cubic";
@@ -24,11 +27,13 @@ std::string raToString(ResampleAlg alg) {
     case RA_Q1: return "q1";
     case RA_Q3: return "q3";
     default: return "unknown";
-  }
+    }
 }
 
-std::string raToDescription(ResampleAlg alg) {
-  switch (alg) {
+std::string raToDescription(ResampleAlg alg)
+{
+    switch (alg)
+    {
     case RA_NearestNeighbour: return "Nearest neighbour (select on one input pixel)";
     case RA_Bilinear: return "Bilinear (2x2 kernel)";
     case RA_Cubic: return "Cubic Convolution Approximation (4x4 kernel)";
@@ -42,7 +47,7 @@ std::string raToDescription(ResampleAlg alg) {
     case RA_Q1: return "Q1 (first quartile of all non-NODATA contributing pixels)";
     case RA_Q3: return "Q3 (third quartile of all non-NODATA contributing pixels)";
     default: return "Unknown";
-  }
+    }
 }
 
 }  // namespace common

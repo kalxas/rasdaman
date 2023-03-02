@@ -32,7 +32,7 @@ namespace common
 {
 namespace test
 {
-class HealthServiceServerTest: public ::testing::Test
+class HealthServiceServerTest : public ::testing::Test
 {
 protected:
     HealthServiceServerTest()
@@ -60,7 +60,7 @@ protected:
     std::string serverAddress;
     std::unique_ptr<grpc::Server> server;
     std::shared_ptr<HealthService::Stub> service;
-    HealthServiceImpl* serverService;
+    HealthServiceImpl *serverService;
 };
 
 TEST_F(HealthServiceServerTest, serviceIsRunning)
@@ -101,5 +101,5 @@ TEST_F(HealthServiceServerTest, serviceIsNotRunning)
     ASSERT_FALSE(status.ok());
 }
 
-}
-}
+}  // namespace test
+}  // namespace common

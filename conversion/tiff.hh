@@ -96,58 +96,58 @@ rasdaman GmbH.
   For more information refer to the TIFFlib manual pages.
  */
 
-void TIFFError(const char*, const char*, va_list);
+void TIFFError(const char *, const char *, va_list);
 
-void TIFFWarning(const char*, const char*, va_list);
+void TIFFWarning(const char *, const char *, va_list);
 
 class r_Conv_TIFF : public r_Convert_Memory
 {
 public:
     /// constructor using an r_Type object
-    r_Conv_TIFF(const char* src, const r_Minterval& interv, const r_Type* tp);
+    r_Conv_TIFF(const char *src, const r_Minterval &interv, const r_Type *tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_TIFF(const char* src, const r_Minterval& interv, int type);
+    r_Conv_TIFF(const char *src, const r_Minterval &interv, int type);
     /// destructor
     ~r_Conv_TIFF(void);
 
     /// convert to TIFF
-    virtual r_Conv_Desc& convertTo(const char* options = NULL,
-                                   const r_Range* nullValue = NULL);
+    virtual r_Conv_Desc &convertTo(const char *options = NULL,
+                                   const r_Range *nullValue = NULL);
     /// convert from TIFF
-    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
+    virtual r_Conv_Desc &convertFrom(const char *options = NULL);
     /// convert data in a specific format to array
-    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
+    virtual r_Conv_Desc &convertFrom(r_Format_Params options);
     /// cloning
-    virtual r_Convertor* clone(void) const;
+    virtual r_Convertor *clone(void) const;
     /// identification
-    virtual const char* get_name(void) const;
+    virtual const char *get_name(void) const;
     virtual r_Data_Format get_data_format(void) const;
 
 #ifdef HAVE_TIFF
     /// translate string compression type to libtiff compression type
-    static int get_compression_from_name(const char* strComp);
+    static int get_compression_from_name(const char *strComp);
 
     /// translate string resolution unit type to libtiff resolution unit type
-    static int get_resunit_from_name(const char* strComp);
-#endif // HAVE_TIFF
+    static int get_resunit_from_name(const char *strComp);
+#endif  // HAVE_TIFF
 
 private:
     /// init TIFF class
     void initTIFF(void);
     /// parameters
-    char* compType;
+    char *compType;
     int quality;
     int override_bpp;
     int override_bps;
     int override_depth;
-    char* sampleType;
+    char *sampleType;
 
 #ifdef HAVE_TIFF
     /// connection between string compression type and libtiff compression type
     static const convert_string_t compNames[];
     /// connection between string resolution unit type and libtiff resolution unit type
     static const convert_string_t resunitNames[];
-#endif // HAVE_TIFF
+#endif  // HAVE_TIFF
 
     /// default rows per strip (32)
     static const int defaultRPS;
@@ -156,7 +156,6 @@ private:
 
     /// default quality factor (0..100) for lossy compression
     static const unsigned int TIFF_DEFAULT_QUALITY;
-
 };
 
 #endif

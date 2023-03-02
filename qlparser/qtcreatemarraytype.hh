@@ -41,7 +41,6 @@ rasdaman GmbH.
 class QtCreateMarrayType : public QtExecute
 {
 public:
-
     /**
      * @brief QtCreateMarrayType
      * @param typeName
@@ -75,7 +74,6 @@ private:
     std::vector<std::string> axisNames;
 
     static const QtNodeType nodeType;
-
 };
 
-#endif // QTCREATEMDDTYPE_HH
+#endif  // QTCREATEMDDTYPE_HH

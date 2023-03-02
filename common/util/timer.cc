@@ -27,25 +27,29 @@ rasdaman GmbH.
 #include <ctime>
 #include <string>
 
-namespace common {
+namespace common
+{
 
-std::string common::TimerUtil::getCurrentDateTime() {
-  using system_clock = std::chrono::system_clock;
-  auto currTime = system_clock::to_time_t(system_clock::now());
-  char buf[80];
-  auto tstruct = *localtime(&currTime);
-  strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
-  return std::string(buf);
+std::string common::TimerUtil::getCurrentDateTime()
+{
+    using system_clock = std::chrono::system_clock;
+    auto currTime = system_clock::to_time_t(system_clock::now());
+    char buf[80];
+    auto tstruct = *localtime(&currTime);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
+    return std::string(buf);
 }
 
-std::string TimerUtil::getCurrentDateTimeUTC() {
-  /// Uses MIT-licenced lib: https://howardhinnant.github.io/date/date.html
-  return date::format("%F %T", std::chrono::system_clock::now());
+std::string TimerUtil::getCurrentDateTimeUTC()
+{
+    /// Uses MIT-licenced lib: https://howardhinnant.github.io/date/date.html
+    return date::format("%F %T", std::chrono::system_clock::now());
 }
 
-uintmax_t TimerUtil::getSecondsSinceEpoch() {
-  auto result = time(NULL);
-  return uintmax_t(result);
+uintmax_t TimerUtil::getSecondsSinceEpoch()
+{
+    auto result = time(NULL);
+    return uintmax_t(result);
 }
 
-}
+}  // namespace common

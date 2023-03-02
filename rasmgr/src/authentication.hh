@@ -39,8 +39,8 @@ struct AuthFileHeader
     char hostName[100];
     long countUsers;
     unsigned char messageDigest[35];
-    int  globalInitAdmR;
-    int  globalInitDbsR;
+    int globalInitAdmR;
+    int globalInitDbsR;
     char _unused[100];
 };
 
@@ -50,8 +50,8 @@ struct AuthUserRec
     char userName[100];
     char passWord[50];
 
-    int  adminRight;
-    int  databRight;
+    int adminRight;
+    int databRight;
     long countRights;
     char _unused[32];
 };
@@ -59,8 +59,8 @@ struct AuthUserRec
 struct AuthDbRRec
 {
     char dbName[100];
-    int  right;
+    int right;
 };
 
-}
-#endif // RASMGR_X_SRC_AUTHENTICATION_HH
+}  // namespace rasmgr
+#endif  // RASMGR_X_SRC_AUTHENTICATION_HH

@@ -37,12 +37,11 @@ rasdaman GmbH.
 #include "qlparser/qtconst.hh"
 #include "rasodmg/dirdecompose.hh"
 #include <iostream>
-#include<fstream>
+#include <fstream>
 #include <string>
 using namespace std;
 
-
-class QtMDDConfig: public QtData
+class QtMDDConfig : public QtData
 {
 private:
     int tilingType;
@@ -53,7 +52,7 @@ private:
     QtNode::QtOperationList *box;
     std::vector<r_Dir_Decompose> *dDecomp;
     int indexType;
-    int param;      // wavelet param
+    int param;  // wavelet param
 
 public:
     // Constructors
@@ -73,7 +72,7 @@ public:
     double getInterestThreshold();
     std::vector<r_Dir_Decompose> *getDirDecomp();
     int getStorageType();
-    int getWltValue();      // Check return type !
+    int getWltValue();  // Check return type !
     int getIndexType();
     int getTilingType();
     QtNode::QtOperationList *getBboxList();

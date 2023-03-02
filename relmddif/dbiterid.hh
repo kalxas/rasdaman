@@ -28,7 +28,6 @@ rasdaman GmbH.
 class DBMDDObj;
 
 using DBIter = DBObjectIterator<DBMDDObj>;
-using DBIterId = DBIter*;
+using DBIterId = DBIter *;
 
 #endif
-

@@ -59,60 +59,57 @@ rasdaman GmbH.
 #include "raslib/miter.hh"
 
 //program data
-const char* paramPrgHelp = "--help";
+const char *paramPrgHelp = "--help";
 bool defPrgHelp = false;
-char* prgHelp = NULL;
+char *prgHelp = NULL;
 
-const char* paramSrcFileName = "--srcfilename";
+const char *paramSrcFileName = "--srcfilename";
 bool defSrcFileName = false;
-char* srcFileName = NULL;
+char *srcFileName = NULL;
 
-const char* paramSrcFormat = "--srcformat";
+const char *paramSrcFormat = "--srcformat";
 bool defSrcFormat = false;
-char* srcFormatc = NULL;
+char *srcFormatc = NULL;
 r_Data_Format srcFormat = r_Array;
-char* srcIvc = NULL, *srcTypec = NULL;
+char *srcIvc = NULL, *srcTypec = NULL;
 r_Minterval srcIv;
-r_Type* srcType = NULL;
+r_Type *srcType = NULL;
 
-const char* paramSrcFormatParams = "--srcformatparams";
+const char *paramSrcFormatParams = "--srcformatparams";
 bool defSrcFormatParams = false;
-char* srcFormatParams = NULL;
+char *srcFormatParams = NULL;
 
-const char* paramDestFileName = "--destfilename";
+const char *paramDestFileName = "--destfilename";
 bool defDestFileName = false;
-char* destFileName = NULL;
+char *destFileName = NULL;
 
-const char* paramDestFormat = "--destformat";
+const char *paramDestFormat = "--destformat";
 bool defDestFormat = false;
-char* destFormatc = NULL;
+char *destFormatc = NULL;
 r_Data_Format destFormat = r_Array;
-char* destIvc = NULL, *destTypec = NULL;
+char *destIvc = NULL, *destTypec = NULL;
 r_Minterval destIv;
-r_Type* destType = NULL;
+r_Type *destType = NULL;
 
-const char* paramDestFormatParams = "--destformatparams";
+const char *paramDestFormatParams = "--destformatparams";
 bool defDestFormatParams = false;
-char* destFormatParams = NULL;
+char *destFormatParams = NULL;
 
 //data used to parase formatparams for format Array
-const char* fpDomain = "domain";
-const char* fpType = "type";
+const char *fpDomain = "domain";
+const char *fpType = "type";
 
 //structures used for parseParam
 const int paramsNo = 7;
 
-const char* paramsName[paramsNo] = { paramPrgHelp, paramSrcFileName, paramSrcFormat, paramSrcFormatParams,
-                                     paramDestFileName, paramDestFormat, paramDestFormatParams
-                                   };
+const char *paramsName[paramsNo] = {paramPrgHelp, paramSrcFileName, paramSrcFormat, paramSrcFormatParams,
+                                    paramDestFileName, paramDestFormat, paramDestFormatParams};
 
-bool* paramsPresent[paramsNo] = { &defPrgHelp, &defSrcFileName, &defSrcFormat, &defSrcFormatParams,
-                                  &defDestFileName, &defDestFormat, &defDestFormatParams
-                                };
+bool *paramsPresent[paramsNo] = {&defPrgHelp, &defSrcFileName, &defSrcFormat, &defSrcFormatParams,
+                                 &defDestFileName, &defDestFormat, &defDestFormatParams};
 
-char** paramsValue[paramsNo] = { &prgHelp, &srcFileName, &srcFormatc, &srcFormatParams,
-                                 &destFileName, &destFormatc, &destFormatParams
-                               };
+char **paramsValue[paramsNo] = {&prgHelp, &srcFileName, &srcFormatc, &srcFormatParams,
+                                &destFileName, &destFormatc, &destFormatParams};
 
 void printStatus()
 {
@@ -120,13 +117,13 @@ void printStatus()
     for (int i = 0; i < paramsNo; i++)
         cout << "--Name='" << paramsName[i]
              << "' Present=" << ((*paramsPresent[i]) ? "true" : "false")
-             << " Value='" << *paramsValue[i]  << "'" <<  endl;
+             << " Value='" << *paramsValue[i] << "'" << endl;
 }
 
 void printUsage()
 {
-    char* fileNameSrc = "test.bmp";
-    char* fileNameDest = "test.tiff";
+    char *fileNameSrc = "test.bmp";
+    char *fileNameDest = "test.tiff";
 
     cout << "defconv v 0.1 - RasDaMan Data Exchange Format Convertor Utility" << endl;
     cout << "Description: Returns " << EXIT_SUCCESS << " for succes, otherwise " << EXIT_FAILURE << endl;
@@ -148,12 +145,11 @@ void printUsage()
     cout << "        " << paramPrgHelp << "             ... this help" << endl;
     cout << "For example:" << endl;
     cout << "defconv " << paramSrcFileName << " " << fileNameSrc << " " << paramSrcFormat << " " << format_name_bmp << " "
-         << paramDestFileName << " " << fileNameDest  << " " << paramDestFormat << " " << format_name_tiff << endl;
+         << paramDestFileName << " " << fileNameDest << " " << paramDestFormat << " " << format_name_tiff << endl;
     cout << "Report bugs to liviu.coman@active�knowledge.com" << endl;
-
 }
 
-int checkParam(int& paramIndex, char** param)
+int checkParam(int &paramIndex, char **param)
 {
     int i = 0;
     while (i < paramsNo)
@@ -192,7 +188,7 @@ int checkParam(int& paramIndex, char** param)
     return EXIT_SUCCESS;
 }
 
-int parseParams(int argc, char** argv)
+int parseParams(int argc, char **argv)
 {
     int argIndex = 0;
     if (argc == 1)
@@ -234,32 +230,31 @@ int parseParams(int argc, char** argv)
 
 int validateParams()
 {
-
-//check srcformat
+    //check srcformat
     if (defSrcFormat)
     {
         srcFormat = get_data_format_from_name(srcFormatc);
         if ((srcFormat != r_Array) &&
-                (!r_Convertor_Factory::is_supported(srcFormat)))
+            (!r_Convertor_Factory::is_supported(srcFormat)))
         {
             cout << "convertDEFs(...) conversion " << srcFormatc << " not supported" << endl;
             return EXIT_FAILURE;
         }
     }
 
-//check destformat
+    //check destformat
     if (defDestFormat)
     {
         destFormat = get_data_format_from_name(destFormatc);
         if ((destFormat != r_Array) &&
-                (!r_Convertor_Factory::is_supported(destFormat)))
+            (!r_Convertor_Factory::is_supported(destFormat)))
         {
             cout << "convertDEFs(...) conversion " << destFormatc << " not supported" << endl;
             return EXIT_FAILURE;
         }
     }
 
-//check srcFormatParams if srcFormat=r_Array
+    //check srcFormatParams if srcFormat=r_Array
     if (srcFormat == r_Array)
     {
         if (!defSrcFormatParams)
@@ -268,7 +263,7 @@ int validateParams()
             return EXIT_FAILURE;
         }
 
-        if (parseArrayParams((const char*)srcFormatParams, fpDomain, fpType, srcIvc, srcTypec) != EXIT_SUCCESS)
+        if (parseArrayParams((const char *)srcFormatParams, fpDomain, fpType, srcIvc, srcTypec) != EXIT_SUCCESS)
         {
             return EXIT_FAILURE;
         }
@@ -284,7 +279,7 @@ int validateParams()
         }
     }
 
-//check destFormatParams if destFormat=r_Array
+    //check destFormatParams if destFormat=r_Array
     if (destFormat == r_Array)
     {
         if (!defDestFormatParams)
@@ -293,7 +288,7 @@ int validateParams()
             return EXIT_FAILURE;
         }
 
-        if (parseArrayParams((const char*)destFormatParams, fpDomain, fpType, destIvc, destTypec) != EXIT_SUCCESS)
+        if (parseArrayParams((const char *)destFormatParams, fpDomain, fpType, destIvc, destTypec) != EXIT_SUCCESS)
         {
             return EXIT_FAILURE;
         }
@@ -310,10 +305,10 @@ int validateParams()
     }
 }
 
-int setCell(const char* srcCell,
-            const r_Type* srcType,
-            const r_Type* destType,
-            char* destCell,
+int setCell(const char *srcCell,
+            const r_Type *srcType,
+            const r_Type *destType,
+            char *destCell,
             bool rescale = false)
 {
     r_Double srcTypeMin = 0., srcTypeMax = 0.;
@@ -343,20 +338,20 @@ int setCell(const char* srcCell,
 
     try
     {
-        srcVal = ((r_Primitive_Type*)srcType)->get_value(srcCell);
+        srcVal = ((r_Primitive_Type *)srcType)->get_value(srcCell);
         if (rescale)
         {
-            ((r_Primitive_Type*)srcType)->get_limits(srcTypeMin, srcTypeMax);
-            ((r_Primitive_Type*)destType)->get_limits(destTypeMin, destTypeMax);
+            ((r_Primitive_Type *)srcType)->get_limits(srcTypeMin, srcTypeMax);
+            ((r_Primitive_Type *)destType)->get_limits(destTypeMin, destTypeMax);
             destVal = srcVal * destTypeMax / srcTypeMax;
         }
         else
         {
             destVal = srcVal;
         }
-        ((r_Primitive_Type*)destType)->set_value(destCell, destVal);
+        ((r_Primitive_Type *)destType)->set_value(destCell, destVal);
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << "setCell(...) error while setting value to dest from src" << endl;
         cout << "Error " << err.get_errorno() << " : " << err.what() << endl;
@@ -365,12 +360,12 @@ int setCell(const char* srcCell,
 
     return EXIT_SUCCESS;
 }
-int convertData(const r_convDesc& descSrc, r_convDesc& descDest)
+int convertData(const r_convDesc &descSrc, r_convDesc &descDest)
 {
     r_Minterval srcIv, destIv, commonIv;
 
     r_Bytes srcTypeSize = 0, destTypeSize = 0;
-    char* srcBuffer = NULL, *destBuffer = NULL;
+    char *srcBuffer = NULL, *destBuffer = NULL;
 
     if (!descSrc.dest)
     {
@@ -396,13 +391,13 @@ int convertData(const r_convDesc& descSrc, r_convDesc& descDest)
         return EXIT_FAILURE;
     }
 
-//translate every interval to zero
+    //translate every interval to zero
     try
     {
         srcIv = descSrc.destInterv.create_reverse_translation(descSrc.destInterv.get_origin());
         destIv = descDest.destInterv.create_reverse_translation(descDest.destInterv.get_origin());
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << "convertData(...) error while translating to zero the following intervals:" << endl;
         cout << "descSrc.destInterv=" << descSrc.destInterv << endl;
@@ -411,12 +406,12 @@ int convertData(const r_convDesc& descSrc, r_convDesc& descDest)
         return EXIT_FAILURE;
     }
 
-//check intersection
+    //check intersection
     try
     {
         commonIv.intersection_of(srcIv, destIv);
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << "convertData(...) error while doing the intersection of the following intervals:" << endl;
         cout << "descSrc.destInterv=" << descSrc.destInterv << endl;
@@ -425,11 +420,11 @@ int convertData(const r_convDesc& descSrc, r_convDesc& descDest)
         return EXIT_FAILURE;
     }
 
-//get type size
-    srcTypeSize = ((r_Base_Type*)descSrc.destType)->size();
-    destTypeSize = ((r_Base_Type*)descDest.destType)->size();
+    //get type size
+    srcTypeSize = ((r_Base_Type *)descSrc.destType)->size();
+    destTypeSize = ((r_Base_Type *)descDest.destType)->size();
 
-//allocate data
+    //allocate data
     srcBuffer = new char[srcTypeSize];
     if (!srcBuffer)
     {
@@ -444,7 +439,7 @@ int convertData(const r_convDesc& descSrc, r_convDesc& descDest)
         srcBuffer = NULL;
         return EXIT_FAILURE;
     }
-    descDest.dest = new char[descDest.destInterv.cell_count()*destTypeSize];
+    descDest.dest = new char[descDest.destInterv.cell_count() * destTypeSize];
     if (!descDest.dest)
     {
         cout << "convertData(...) unable to claim memory for descDest.dest" << endl;
@@ -454,7 +449,7 @@ int convertData(const r_convDesc& descSrc, r_convDesc& descDest)
         destBuffer = NULL;
         return EXIT_FAILURE;
     }
-    memset(descDest.dest, 0, descDest.destInterv.cell_count()*destTypeSize);
+    memset(descDest.dest, 0, descDest.destInterv.cell_count() * destTypeSize);
 
     r_Miter srcIter(&commonIv, &srcIv, srcTypeSize, descSrc.dest);
     r_Miter destIter(&commonIv, &destIv, destTypeSize, descDest.dest);
@@ -469,13 +464,13 @@ int convertData(const r_convDesc& descSrc, r_convDesc& descDest)
         memcpy(destIter.nextCell(), destBuffer, destTypeSize);
     }
 
-//clean up
+    //clean up
     delete[] srcBuffer;
     srcBuffer = NULL;
     delete[] destBuffer;
     destBuffer = NULL;
 
-//check algorithm
+    //check algorithm
     if (!srcIter.isDone() || !destIter.isDone())
     {
         cout << "convertData(...) error in algorithm" << endl;
@@ -485,18 +480,16 @@ int convertData(const r_convDesc& descSrc, r_convDesc& descDest)
     return EXIT_SUCCESS;
 }
 
-
-
 int convertDEFs()
 {
-    char* dataSrc = NULL, *dataDest = NULL;
+    char *dataSrc = NULL, *dataDest = NULL;
     r_ULong dataSrcSize = 0, dataDestSize = 0;
     r_convDesc descSrc, descDest;
 
     initConvDesc(descSrc);
     initConvDesc(descDest);
 
-//read the source file
+    //read the source file
     if (readFile(srcFileName, &dataSrc, dataSrcSize) != EXIT_SUCCESS)
     {
         return EXIT_FAILURE;
@@ -506,17 +499,17 @@ int convertDEFs()
     {
         cout << "convertDEFs() size of file " << srcFileName << " is zero" << endl;
         //clean up
-        delete [] dataSrc;
+        delete[] dataSrc;
         dataSrc = NULL;
         return EXIT_FAILURE;
     }
 
-//what is the input format?
+    //what is the input format?
     if (srcFormat != r_Array)
     {
         //it is safe to use srcType, srcIv because the srcFormat is not r_Array
         srcType = r_Convertor::get_external_type(r_Convertor::ctype_char);
-        srcIv  = r_Minterval(1);
+        srcIv = r_Minterval(1);
         srcIv << r_Sinterval((r_Long)0, (r_Long)(dataSrcSize - 1));
 
         //did conversion work?
@@ -524,7 +517,7 @@ int convertDEFs()
                         srcIv, srcType, descSrc) != EXIT_SUCCESS)
         {
             //clean up
-            delete [] dataSrc;
+            delete[] dataSrc;
             dataSrc = NULL;
             return EXIT_FAILURE;
         }
@@ -536,7 +529,7 @@ int convertDEFs()
         descSrc.destType = srcType;
     }
 
-//what is the output format?
+    //what is the output format?
     if (destFormat != r_Array)
     {
         if (convertTo(destFormat, destFormatParams, descSrc.dest, descSrc.destInterv, descSrc.destType, descDest) != EXIT_SUCCESS)
@@ -547,7 +540,7 @@ int convertDEFs()
         }
         //prepare the data for writing
         dataDest = descDest.dest;
-        dataDestSize = descDest.destInterv.cell_count() * ((r_Base_Type*)descDest.destType)->size();
+        dataDestSize = descDest.destInterv.cell_count() * ((r_Base_Type *)descDest.destType)->size();
     }
     else
     {
@@ -568,21 +561,18 @@ int convertDEFs()
 
             //prepare the data for writing
             dataDest = descDest.dest;
-            dataDestSize = descDest.destInterv.cell_count() * ((r_Base_Type*)descDest.destType)->size();
+            dataDestSize = descDest.destInterv.cell_count() * ((r_Base_Type *)descDest.destType)->size();
         }
         else
         {
             //we store the data as it is
             dataDest = descSrc.dest;
-            dataDestSize = descSrc.destInterv.cell_count() * ((r_Base_Type*)descSrc.destType)->size();
+            dataDestSize = descSrc.destInterv.cell_count() * ((r_Base_Type *)descSrc.destType)->size();
         }
-
     }
 
-
-
-//write data into destFileName
-    if (writeFile(destFileName, (const char**)&dataDest, dataDestSize) != EXIT_SUCCESS)
+    //write data into destFileName
+    if (writeFile(destFileName, (const char **)&dataDest, dataDestSize) != EXIT_SUCCESS)
     {
         //clean up
         cleanConvDesc(descSrc);
@@ -590,7 +580,7 @@ int convertDEFs()
         return EXIT_FAILURE;
     }
 
-//clean up
+    //clean up
     cleanConvDesc(descSrc);
     cleanConvDesc(descDest);
 
@@ -606,7 +596,7 @@ int processRequest()
     return convertDEFs();
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     if (parseParams(argc, argv) != EXIT_SUCCESS)
     {

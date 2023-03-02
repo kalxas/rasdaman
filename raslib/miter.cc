@@ -39,9 +39,9 @@ r_Miter::r_Miter(const r_Minterval *newAreaIter,
       firstCell(newFirstCell), cellSize(newCellSize), done(false)
 {
     // the following initializes incArrIter and calculates the first offset
-    size_t tIncIter = 1;     // total increment for current dimension
-    size_t prevTIncIter = 1; // total increment for previous dimension
-    size_t incIter = cellSize; // current increment
+    size_t tIncIter = 1;        // total increment for current dimension
+    size_t prevTIncIter = 1;    // total increment for previous dimension
+    size_t incIter = cellSize;  // current increment
     size_t firstOff = 0;
 
     //LTRACE << "area for iteration: " << *newAreaIter;
@@ -82,11 +82,10 @@ r_Miter::r_Miter(const r_Minterval *newAreaIter,
 
 r_Miter::~r_Miter()
 {
-    delete [] incArrIter;
+    delete[] incArrIter;
 }
 
-void
-r_Miter::reset()
+void r_Miter::reset()
 {
     currCell = const_cast<char *>(firstCell);
     done = false;

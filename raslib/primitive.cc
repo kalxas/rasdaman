@@ -57,12 +57,11 @@ r_Primitive::r_Primitive(const r_Primitive &obj)
 
 r_Primitive::~r_Primitive()
 {
-     delete[] valueBuffer;
-     valueBuffer = NULL;
+    delete[] valueBuffer;
+    valueBuffer = NULL;
 }
 
-bool
-r_Primitive::isPrimitive() const
+bool r_Primitive::isPrimitive() const
 {
     return true;
 }
@@ -158,56 +157,47 @@ r_Primitive::get_double() const
     return static_cast<r_Primitive_Type *>(valueType)->get_double(valueBuffer);
 }
 
-void
-r_Primitive::set_boolean(r_Boolean val)
+void r_Primitive::set_boolean(r_Boolean val)
 {
     checkBufferAndType(r_Type::BOOL);
     memmove(valueBuffer, &val, valueType->size());
 }
-void
-r_Primitive::set_char(r_Char val)
+void r_Primitive::set_char(r_Char val)
 {
     checkBufferAndType(r_Type::CHAR);
     memmove(valueBuffer, &val, valueType->size());
 }
-void
-r_Primitive::set_octet(r_Octet val)
+void r_Primitive::set_octet(r_Octet val)
 {
     checkBufferAndType(r_Type::OCTET);
     memmove(valueBuffer, &val, valueType->size());
 }
-void
-r_Primitive::set_short(r_Short val)
+void r_Primitive::set_short(r_Short val)
 {
     checkBufferAndType(r_Type::SHORT);
     memmove(valueBuffer, &val, valueType->size());
 }
-void
-r_Primitive::set_ushort(r_UShort val)
+void r_Primitive::set_ushort(r_UShort val)
 {
     checkBufferAndType(r_Type::USHORT);
     memmove(valueBuffer, &val, valueType->size());
 }
-void
-r_Primitive::set_long(r_Long val)
+void r_Primitive::set_long(r_Long val)
 {
     checkBufferAndType(r_Type::LONG);
     memmove(valueBuffer, &val, valueType->size());
 }
-void
-r_Primitive::set_ulong(r_ULong val)
+void r_Primitive::set_ulong(r_ULong val)
 {
     checkBufferAndType(r_Type::ULONG);
     memmove(valueBuffer, &val, valueType->size());
 }
-void
-r_Primitive::set_float(r_Float val)
+void r_Primitive::set_float(r_Float val)
 {
     checkBufferAndType(r_Type::FLOAT);
     memmove(valueBuffer, &val, valueType->size());
 }
-void
-r_Primitive::set_double(r_Double val)
+void r_Primitive::set_double(r_Double val)
 {
     checkBufferAndType(r_Type::DOUBLE);
     memmove(valueBuffer, &val, valueType->size());
@@ -250,8 +240,7 @@ std::ostream &operator<<(std::ostream &s, const r_Primitive &obj)
     return s;
 }
 
-void
-r_Primitive::print_status(std::ostream &s) const
+void r_Primitive::print_status(std::ostream &s) const
 {
     if (valueType && valueBuffer)
         valueType->print_value(valueBuffer, s);

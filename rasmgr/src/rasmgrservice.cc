@@ -32,7 +32,8 @@ namespace rasmgr
 
 RasmgrService::RasmgrService(std::shared_ptr<ClientManager> m)
     : clientManager(m)
-{}
+{
+}
 
 grpc::Status RasmgrService::TryGetRemoteServer(
     __attribute__((unused)) grpc::ServerContext *context,
@@ -64,7 +65,7 @@ grpc::Status RasmgrService::TryGetRemoteServer(
     catch (std::exception &ex)
     {
         LERROR << "Connect request failed: " << ex.what();
-        status  = common::GrpcUtils::convertExceptionToStatus(ex);
+        status = common::GrpcUtils::convertExceptionToStatus(ex);
     }
     catch (...)
     {
@@ -102,4 +103,4 @@ grpc::Status RasmgrService::ReleaseServer(
 
     return status;
 }
-}
+}  // namespace rasmgr

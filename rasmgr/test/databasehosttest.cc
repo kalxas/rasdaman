@@ -33,18 +33,20 @@ namespace rasmgr
 {
 namespace test
 {
-using rasmgr::DatabaseHost;
 using rasmgr::Database;
+using rasmgr::DatabaseHost;
 
-class DatabaseHostTest: public ::testing::Test
+class DatabaseHostTest : public ::testing::Test
 {
 protected:
-    DatabaseHostTest(): hostName("hostName"), connectString("connectString"), dbName("dbName"),
-        dbh(hostName, connectString), db(new Database(dbName))
-    {}
+    DatabaseHostTest()
+        : hostName("hostName"), connectString("connectString"), dbName("dbName"),
+          dbh(hostName, connectString), db(new Database(dbName))
+    {
+    }
 
     std::string hostName;
-    std::string connectString ;
+    std::string connectString;
     std::string dbName;
     DatabaseHost dbh;
     std::shared_ptr<Database> db;
@@ -197,5 +199,5 @@ TEST_F(DatabaseHostTest, removeDbFromHost)
     //The database will now be removed
     ASSERT_FALSE(dbh.ownsDatabase(db->getDbName()));
 }
-}
-}
+}  // namespace test
+}  // namespace rasmgr

@@ -28,7 +28,6 @@ rasdaman GmbH.
 //forward declaration
 class QtCollection;
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:

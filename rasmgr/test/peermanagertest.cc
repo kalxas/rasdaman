@@ -10,10 +10,11 @@ namespace rasmgr
 {
 namespace test
 {
-class PeerManagerTest: public ::testing::Test
+class PeerManagerTest : public ::testing::Test
 {
 protected:
-    PeerManagerTest() : peerHost("127.0.0.1"), peerPort(35000)
+    PeerManagerTest()
+        : peerHost("127.0.0.1"), peerPort(35000)
     {
         this->service = std::make_shared<DummyRasmgrService>();
         this->healthService = std::make_shared<common::HealthServiceImpl>();
@@ -21,7 +22,7 @@ protected:
 
     std::unique_ptr<grpc::Server> createAndInitServer()
     {
-        std::string serverAddress = common::GrpcUtils::constructAddressString("127.0.0.1",  this->peerPort);
+        std::string serverAddress = common::GrpcUtils::constructAddressString("127.0.0.1", this->peerPort);
 
         grpc::ServerBuilder builder;
         builder.RegisterService(healthService.get());
@@ -33,7 +34,6 @@ protected:
         // Finally assemble the server.
         return builder.BuildAndStart();
     }
-
 
     PeerManager peerManager;
     std::string peerHost;
@@ -83,7 +83,6 @@ TEST_F(PeerManagerTest, defineOutPeer_FailBecauseDuplicate)
 
     ASSERT_ANY_THROW(this->peerManager.defineOutPeer(this->peerHost, this->peerPort));
 }
-
 
 TEST_F(PeerManagerTest, removeOutPeer_Success)
 {
@@ -161,5 +160,5 @@ TEST_F(PeerManagerTest, releaseServer)
 
     server->Shutdown();
 }
-}
-}
+}  // namespace test
+}  // namespace rasmgr

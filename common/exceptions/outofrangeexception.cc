@@ -23,11 +23,12 @@ rasdaman GmbH.
 
 #include "outofrangeexception.hh"
 
-namespace common {
+namespace common
+{
 OutOfRangeException::OutOfRangeException() = default;
 
-OutOfRangeException::OutOfRangeException(const std::string &message) 
-  : Exception(message) {}
+OutOfRangeException::OutOfRangeException(const std::string &message)
+    : Exception(message) {}
 
 OutOfRangeException::~OutOfRangeException() = default;
-}
+}  // namespace common

@@ -34,7 +34,6 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 */
 #endif
 
-
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #ifdef __GNUG__
@@ -46,13 +45,13 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <cstdio>
 #include <cctype>
 
-using std::vector;
 using std::iterator;
+using std::vector;
 
 #if defined(SOLARIS)
-#   include <strings.h>
+#include <strings.h>
 #else
-#   include <cstring>
+#include <cstring>
 #endif
 
 #include "mymalloc/mymalloc.h"
@@ -60,42 +59,39 @@ using std::iterator;
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
 
-
 // global variables and default settings
 // -------------------------------------
 
 r_Database db;
 r_Transaction ta;
 
-const char* server          = DEFAULT_SERV;
-unsigned int port           = DEFAULT_PORT;
-const char* database        = DEFAULT_DB;
-const char* user            = DEFAULT_USER;
-const char* passwd          = DEFAULT_PASSWD;
+const char *server = DEFAULT_SERV;
+unsigned int port = DEFAULT_PORT;
+const char *database = DEFAULT_DB;
+const char *user = DEFAULT_USER;
+const char *passwd = DEFAULT_PASSWD;
 
-
-void
-openDatabase()
+void openDatabase()
 {
     ENTER("openDatabase");
 
-    if (! dbIsOpen)
+    if (!dbIsOpen)
     {
-        cout << "Opening database " <<  database  << " at " << server << ":" << port << "..." << flush;
+        cout << "Opening database " << database << " at " << server << ":" << port << "..." << flush;
         db.set_servername(server, port);
         db.set_useridentification(user, passwd);
-        TALK("database was closed, opening database=" <<  database  << ", server=" << server << ", port=" << port << ", user=" <<  user << ", passwd=" << passwd << "...");
+        TALK("database was closed, opening database=" << database << ", server=" << server << ", port=" << port << ", user=" << user << ", passwd=" << passwd << "...");
         db.open(database);
         TALK("done");
         dbIsOpen = true;
-        cout << "ok" << endl << flush;
+        cout << "ok" << endl
+             << flush;
     }
 
     LEAVE("openDatabase");
 }
 
-void
-closeDatabase()
+void closeDatabase()
 {
     ENTER("closeDatabase");
 
@@ -110,10 +106,9 @@ closeDatabase()
     return;
 }
 
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    SET_OUTPUT(false);          // inhibit unconditional debug output, await cmd line evaluation
+    SET_OUTPUT(false);  // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_FAILURE;
 
@@ -127,12 +122,12 @@ int main(int argc, char** argv)
 
         retval = EXIT_SUCCESS;
     }
-    catch (ExportError& e)
+    catch (ExportError &e)
     {
         cout << argv[0] << ": " << e.what() << endl;
         retval = EXIT_FAILURE;
     }
-    catch (const r_Error& e)
+    catch (const r_Error &e)
     {
         cout << argv[0] << ": rasdaman error " << e.get_errorno() << ": " << e.what() << endl;
         retval = EXIT_FAILURE;
@@ -147,4 +142,3 @@ int main(int argc, char** argv)
 
     return retval;
 }
-

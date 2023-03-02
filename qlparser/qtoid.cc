@@ -34,13 +34,10 @@ rasdaman GmbH.
 
 const QtNode::QtNodeType QtOId::nodeType = QtNode::QT_OID;
 
-
 QtOId::QtOId(QtVariable *newInput)
     : QtUnaryOperation(newInput)
 {
 }
-
-
 
 QtData *
 QtOId::evaluate(QtDataList *inputList)
@@ -70,7 +67,7 @@ QtOId::evaluate(QtDataList *inputList)
         }
 #endif
 
-        QtMDD  *qtMDD  = static_cast<QtMDD *>(operand);
+        QtMDD *qtMDD = static_cast<QtMDD *>(operand);
         MDDObj *mddObj = qtMDD->getMDDObject();
 
         if (mddObj->isPersistent())
@@ -128,20 +125,14 @@ QtOId::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
-void
-QtOId::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtOId::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtOId Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtOId::printAlgebraicExpression(std::ostream &s)
+void QtOId::printAlgebraicExpression(std::ostream &s)
 {
     s << "oid(" << std::flush;
 
@@ -157,8 +148,6 @@ QtOId::printAlgebraicExpression(std::ostream &s)
     s << ")";
 }
 
-
-
 const QtTypeElement &
 QtOId::checkType(QtTypeTuple *typeTuple)
 {
@@ -167,7 +156,6 @@ QtOId::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input)
     {
-
         // get input type
         const QtTypeElement &inputType = input->checkType(typeTuple);
 

@@ -46,9 +46,8 @@ rasdaman GmbH.
 #include "raslib/rminit.hh"
 #include "relcatalogif/typefactory.hh"
 
-
 // global variable for AdminIf because of O2 d_Session::begin()
-extern char* myExecArgv0 = "";
+extern char *myExecArgv0 = "";
 
 RMINITGLOBALS('C')
 
@@ -57,7 +56,7 @@ static char O2BenchSchemaName[] = "RasDaSchema";
 
 static void testOperations(DatabaseIf myDB);
 
-BaseType* myType;
+BaseType *myType;
 static long myCell = 0;
 
 /*************************************************************
@@ -70,8 +69,7 @@ static long myCell = 0;
  * Description...: none
  ************************************************************/
 
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // variables representing O2 database, ta and session
     DatabaseIf database;
@@ -80,7 +78,7 @@ main(int argc, char** argv)
     // don't forget to initialize before using AdminIf!
     myExecArgv0 = argv[0];
 
-    AdminIf* myAdmin = AdminIf::instance();
+    AdminIf *myAdmin = AdminIf::instance();
 
     // only possible after AdminIf::instance on Sun!
     myType = TypeFactory::mapType("ULong");
@@ -97,13 +95,12 @@ main(int argc, char** argv)
     delete myAdmin;
 }
 
-void
-printAllTiles(const MDDObj* mdd)
+void printAllTiles(const MDDObj *mdd)
 {
     // contains all tiles of MDD
-    vector<Tile*>* allTiles;
+    vector<Tile *> *allTiles;
     // iterator
-    vector<Tile*>::iterator tileIt;
+    vector<Tile *>::iterator tileIt;
     // domains of a  tile
     r_Minterval tileDom;
 
@@ -116,7 +113,7 @@ printAllTiles(const MDDObj* mdd)
 
     // and iterate over them
     tileIt = allTiles->begin();
-    while (tileIt !=  allTiles->end())
+    while (tileIt != allTiles->end())
     {
         tileDom = (*tileIt)->getDomain();
         cout << "Domain of Tile: ";
@@ -141,19 +138,19 @@ printAllTiles(const MDDObj* mdd)
  *                 in root collection.
  ************************************************************/
 
-MDDObj*
+MDDObj *
 execBinaryOp(Ops::OpType op,
-             const MDDObj* op1, const r_Minterval& areaOp1,
-             const MDDObj* op2, const r_Minterval& areaOp2)
+             const MDDObj *op1, const r_Minterval &areaOp1,
+             const MDDObj *op2, const r_Minterval &areaOp2)
 {
     // contains all tiles of op1
-    vector<Tile*>* allTilesOp1;
+    vector<Tile *> *allTilesOp1;
     // contains all tiles of op2 which intersect a given op1 Tile
     // in the relevant area.
-    vector<Tile*>* intersectTilesOp2;
+    vector<Tile *> *intersectTilesOp2;
     // iterators for tiles of the MDDs
-    vector<Tile*>::iterator tileOp1It;
-    vector<Tile*>::iterator intersectTileOp2It;
+    vector<Tile *>::iterator tileOp1It;
+    vector<Tile *>::iterator intersectTileOp2It;
     // domain of tile of Op1
     r_Minterval tileOp1Dom;
     // domain of tile of Op2
@@ -161,9 +158,9 @@ execBinaryOp(Ops::OpType op,
     // intersection of domains in relevant area.
     r_Minterval intersectDom;
     // pointer to generated result tile
-    PersTile* resTile;
+    PersTile *resTile;
     // MDDObj for result
-    PersMDDObj* mddres;
+    PersMDDObj *mddres;
     // translations between the two areas
     r_Point offset12(areaOp1.dimension());
     r_Point offset21(areaOp1.dimension());
@@ -188,7 +185,7 @@ execBinaryOp(Ops::OpType op,
 
     // and iterate over them
     tileOp1It = allTilesOp1->begin();
-    while (tileOp1It !=  allTilesOp1->end())
+    while (tileOp1It != allTilesOp1->end())
     {
         // domain of the op1 tile
         tileOp1Dom = (*tileOp1It)->getDomain();
@@ -199,14 +196,14 @@ execBinaryOp(Ops::OpType op,
 
         // iterate over intersecting tiles
         intersectTileOp2It = intersectTilesOp2->begin();
-        while (intersectTileOp2It !=  intersectTilesOp2->end())
+        while (intersectTileOp2It != intersectTilesOp2->end())
         {
             tileOp2Dom = (*intersectTileOp2It)->getDomain();
 
             // the relevant domain is the intersection of the
             // domains of the two tiles with the relevant area.
             intersectDom = tileOp1Dom.create_intersection(
-                               tileOp2Dom.create_translation(offset21));
+                tileOp2Dom.create_translation(offset21));
             intersectDom.intersection_with(areaOp1);
 
             // Creating tile for result. Type should later come from
@@ -242,9 +239,9 @@ execBinaryOp(Ops::OpType op,
 
 // function for creating demo tiles
 
-Tile*
+Tile *
 create2DTile(long xmin, long xmax, long ymin, long ymax,
-             BaseType* type)
+             BaseType *type)
 {
     // is copied anyway in constructor
     unsigned long cell = 0x10000L;
@@ -256,15 +253,15 @@ create2DTile(long xmin, long xmax, long ymin, long ymax,
     cout << "  Domain of Tile ";
     dom.print_status();
     cout << endl;
-    return new PersTile(dom, type, (char*)&cell);
+    return new PersTile(dom, type, (char *)&cell);
 }
 
 static void testOperations(DatabaseIf myDB)
 {
-    Tile* aTile;
+    Tile *aTile;
     ULongType ulongtype;
-    BaseType* type = &ulongtype;
-    MDDObj* res;
+    BaseType *type = &ulongtype;
+    MDDObj *res;
 
     r_Sinterval limits1(1l, 10l);
     r_Sinterval limits2(1l, 10l);
@@ -289,7 +286,7 @@ static void testOperations(DatabaseIf myDB)
     // create MDD Object for 1st operand
     cout << "MDD Op1" << endl;
 
-    PersMDDObj* mddop1 = new PersMDDObj(dom, "ULong");
+    PersMDDObj *mddop1 = new PersMDDObj(dom, "ULong");
 
     cout << "  Tile 1 [ 1:5, 1:10 ] " << endl;
     aTile = create2DTile(1, 5, 1, 10, type);
@@ -308,7 +305,7 @@ static void testOperations(DatabaseIf myDB)
     // create MDD Object for 2nd operand
     cout << "MDD Op2" << endl;
 
-    PersMDDObj* mddop2 = new PersMDDObj(dom2, "ULong");
+    PersMDDObj *mddop2 = new PersMDDObj(dom2, "ULong");
 
     cout << "  Tile 1 [ 11:17, 11:15 ] " << endl;
     aTile = create2DTile(11, 17, 11, 15, type);
@@ -327,7 +324,6 @@ static void testOperations(DatabaseIf myDB)
     res = execBinaryOp(Ops::OP_PLUS, mddop1, opdom, mddop2, opdom2);
 
     // output result (cast should not be necessary!)
-    ((PersMDDObj*)res)->printStatus();
+    ((PersMDDObj *)res)->printStatus();
     printAllTiles(res);
-
 }

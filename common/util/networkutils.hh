@@ -46,9 +46,6 @@ std::string getLocalHostName();
  */
 bool isAddressValid(const std::string &hostName, std::int32_t port);
 
-}
+}  // namespace networkutils
 
-
-
-#endif  /* NETWORKUTILS_HH */
-
+#endif /* NETWORKUTILS_HH */

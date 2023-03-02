@@ -32,7 +32,7 @@ namespace rasmgr
  *  It reports errors that arise because a user tries to create a database with the same identiefier as an existing one
  * on the same database host.
  */
-class DatabaseAlreadyExistsException: public common::LogicException
+class DatabaseAlreadyExistsException : public common::LogicException
 {
 public:
     /**
@@ -40,10 +40,10 @@ public:
      * @param dbName Name of the database
      * @param dbHostName Name of the database host
      */
-    DatabaseAlreadyExistsException(const std::string& dbName, const std::string& dbHostName);
+    DatabaseAlreadyExistsException(const std::string &dbName, const std::string &dbHostName);
 
     virtual ~DatabaseAlreadyExistsException() noexcept;
 };
-}
+}  // namespace rasmgr
 
-#endif // DATABASEALREADYEXISTSEXCEPTION_HH
+#endif  // DATABASEALREADYEXISTSEXCEPTION_HH

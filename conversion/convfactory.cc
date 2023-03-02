@@ -49,7 +49,6 @@ rasdaman GmbH.
 #include "jpeg.hh"
 #include "png.hh"
 
-
 bool r_Convertor_Factory::is_supported(r_Data_Format fmt)
 {
     bool retval = false;
@@ -76,9 +75,9 @@ bool r_Convertor_Factory::is_supported(r_Data_Format fmt)
     return retval;
 }
 
-r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, const r_Minterval& interv, const r_Type* tp)
+r_Convertor *r_Convertor_Factory::create(r_Data_Format fmt, const char *src, const r_Minterval &interv, const r_Type *tp)
 {
-    r_Convertor* result = NULL;
+    r_Convertor *result = NULL;
 
     switch (fmt)
     {
@@ -116,20 +115,19 @@ r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, con
         result = new r_Conv_HDF(src, interv, tp);
         break;
     default:
-      {
+    {
         std::stringstream s;
         s << "unsupported conversion format " << fmt;
         throw r_Error(r_Error::r_Error_Conversion, s.str());
-      }
+    }
     }
 
     return result;
 }
 
-
-r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, const r_Minterval& interv, int type)
+r_Convertor *r_Convertor_Factory::create(r_Data_Format fmt, const char *src, const r_Minterval &interv, int type)
 {
-    r_Convertor* result = NULL;
+    r_Convertor *result = NULL;
 
     switch (fmt)
     {
@@ -174,4 +172,3 @@ r_Convertor* r_Convertor_Factory::create(r_Data_Format fmt, const char* src, con
 
     return result;
 }
-

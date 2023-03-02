@@ -40,20 +40,18 @@ rasdaman GmbH.
 class r_MimeTypes
 {
 public:
-
     /**
      * Check if a string is a mimetype.
      */
-    static bool isMimeType(const std::string& mimeType);
+    static bool isMimeType(const std::string &mimeType);
 
     /**
      * Return the GDAL format name for a given mime type string.
      * Return empty string if the mimeType is not recognized.
      */
-    static std::string getFormatName(const std::string& mimeType);
+    static std::string getFormatName(const std::string &mimeType);
 
 private:
-
     static std::map<std::string, std::string> initMimeTypeToFormatNameMap();
 
     static std::map<std::string, std::string> mimeTypeToFormatName;

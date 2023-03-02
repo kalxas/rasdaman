@@ -31,17 +31,16 @@ rasdaman GmbH.
  *
 */
 
-
 #include "mddcolliter.hh"
 #include "mddcoll.hh"            // for MDDColl
 #include "relmddif/dbmddset.hh"  // for DBMDDSet
 #include "relmddif/dbmddobj.hh"  // for DBMDDObj
 #include "relmddif/mddid.hh"
-#include "reladminif/dbref.hh"   // for DBRef
+#include "reladminif/dbref.hh"  // for DBRef
 #include "reladminif/dbobjectiditerator.hh"
-#include "logging.hh"          // for LTRACE
+#include "logging.hh"  // for LTRACE
 
-#include <iostream>            // for operator<<, ostream
+#include <iostream>  // for operator<<, ostream
 
 MDDCollIter::MDDCollIter(MDDColl *targetColl)
     : dbIter(nullptr), persColl(targetColl)
@@ -102,4 +101,3 @@ MDDCollIter::~MDDCollIter()
     delete dbIter;
     dbIter = nullptr;
 }
-

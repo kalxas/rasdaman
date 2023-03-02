@@ -26,8 +26,8 @@
 #include <string>
 #include <iosfwd>
 
-using std::string;
 using std::ostream;
+using std::string;
 
 #include "mymalloc/mymalloc.h"
 #include "import_error.hh"
@@ -35,9 +35,9 @@ using std::ostream;
 class HexCodec
 {
 public:
-    static string convertTo(const string& figureStr);
-    static string convertFrom(const string& hexaStr);
-    void printStatus(ostream& s);
+    static string convertTo(const string &figureStr);
+    static string convertFrom(const string &hexaStr);
+    void printStatus(ostream &s);
 
 private:
     //class members
@@ -45,11 +45,10 @@ private:
     static const string hexFig;
     static const string hexId;
     static const string emptyStr;
-    static const char   hexBase;
-    static const char   hexPerByte;
+    static const char hexBase;
+    static const char hexPerByte;
     static string hexStr;
     static string figStr;
-
 };
 
 #endif

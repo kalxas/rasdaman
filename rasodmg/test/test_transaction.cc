@@ -41,11 +41,9 @@ rasdaman GmbH.
 #include "rasodmg/set.hh"
 #include "rasodmg/oqlquery.hh"
 
+#define STRINGSIZE 256
 
-#define STRINGSIZE  256
-
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     char dbname[STRINGSIZE] = "";
     char servername[STRINGSIZE] = "";
@@ -95,7 +93,7 @@ int main(int argc, char* argv[])
         db.open(dbname);
         cout << "OK" << endl;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << "failed." << endl;
         cerr << err.what();
@@ -115,7 +113,7 @@ int main(int argc, char* argv[])
         ta.commit();
         cout << " created." << endl;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         ta.abort();
         cout << " not created: " << err.what() << endl;
@@ -126,7 +124,7 @@ int main(int argc, char* argv[])
         r_Sinterval siv = r_Sinterval(range_low, range_high);
         r_Minterval interv(2);
         interv << siv << siv;
-        r_Ref<r_Marray<char>> mddPtr = new("GreyImage") r_Marray<char>(interv);
+        r_Ref<r_Marray<char>> mddPtr = new ("GreyImage") r_Marray<char>(interv);
         memset(mddPtr->get_array(), 0, interv.cell_count());
 
         ta.begin();
@@ -138,13 +136,14 @@ int main(int argc, char* argv[])
         query << (*mddPtr);
         r_oql_execute(query, &ta);
 
-        while (fgetc(stdin) == EOF) ;
+        while (fgetc(stdin) == EOF)
+            ;
 
         ta.commit();
 
         cout << "Write transaction successful." << endl;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cerr << "Write transaction failed: " << err.what() << endl;
         ta.abort();

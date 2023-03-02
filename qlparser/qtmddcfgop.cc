@@ -21,31 +21,28 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
 #include "qlparser/qtmddcfgop.hh"
 #include "qlparser/qtconst.hh"
 #include "qlparser/qtmddconfig.hh"
 #include <iostream>
 #include <string>
-#include<fstream>
+#include <fstream>
 
 #include <logging.hh>
 
 using namespace std;
 
-
 QtMddCfgOp::QtMddCfgOp()
-    :  QtOperation(),
-       mddCfgObj(NULL),
-       input(NULL)
+    : QtOperation(),
+      mddCfgObj(NULL),
+      input(NULL)
 {
 }
 
-
 QtMddCfgOp::QtMddCfgOp(QtOperation *inputInit)
-    :  QtOperation(),
-       mddCfgObj(NULL),
-       input(inputInit)
+    : QtOperation(),
+      mddCfgObj(NULL),
+      input(inputInit)
 {
     if (input)
     {
@@ -56,28 +53,25 @@ QtMddCfgOp::QtMddCfgOp(QtOperation *inputInit)
 QtMddCfgOp::QtMddCfgOp(int tilingType, int tileSize, int borderThreshold,
                        double interestThreshold, QtOperation *tileCfg, QtNode::QtOperationList *box, std::vector<r_Dir_Decompose> *dDecomp,
                        int indexType)
-    :  QtOperation(),
-       input(NULL)
+    : QtOperation(),
+      input(NULL)
 {
     mddCfgObj = new QtMDDConfig(tilingType, tileSize, borderThreshold, interestThreshold, tileCfg, box, dDecomp, indexType);
-
 }
 
 QtMddCfgOp::QtMddCfgOp(int tilingType, int tileSize, int borderThreshold,
                        double interestThreshold, QtOperation *tileCfg, QtNode::QtOperationList *box, std::vector<r_Dir_Decompose> *dDecomp)
-    :  QtOperation(),
-       input(NULL)
+    : QtOperation(),
+      input(NULL)
 {
     mddCfgObj = new QtMDDConfig(tilingType, tileSize, borderThreshold, interestThreshold, tileCfg, box, dDecomp, QtMDDConfig::r_DEFAULT_INDEX);
-
 }
 
 QtMddCfgOp::QtMddCfgOp(int index)
-    :  QtOperation(),
-       input(NULL)
+    : QtOperation(),
+      input(NULL)
 {
     mddCfgObj = new QtMDDConfig(QtMDDConfig::r_DEFAULT_TLG, -1, -1, -1, NULL, NULL, NULL, index);
-
 }
 
 QtMddCfgOp::~QtMddCfgOp()
@@ -94,9 +88,7 @@ QtMddCfgOp::~QtMddCfgOp()
     }
 }
 
-
-void
-QtMddCfgOp::optimizeLoad(QtTrimList *trimList)
+void QtMddCfgOp::optimizeLoad(QtTrimList *trimList)
 {
     // by default, pass load domain to the input
     if (input)
@@ -114,7 +106,7 @@ QtMDDConfig *
 QtMddCfgOp::evaluate(QtDataList *inputList)
 {
     QtMDDConfig *retvalue = NULL;
-    for (unsigned int i = 0 ; i < inputList->size() ; i++)
+    for (unsigned int i = 0; i < inputList->size(); i++)
     {
         retvalue = static_cast<QtMDDConfig *>(inputList->at(i));
     }

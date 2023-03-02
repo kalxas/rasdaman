@@ -36,7 +36,7 @@ namespace rascontrol
 /**
  * @brief The ControlRasMgrRasnet class Implementation of the ControlRasMgrComm that uses the rasnet protocol.
  */
-class ControlRasMgrRasnet: public ControlRasMgrComm
+class ControlRasMgrRasnet : public ControlRasMgrComm
 {
 public:
     ControlRasMgrRasnet(const rascontrol::UserCredentials &userCredentials, rascontrol::RasControlConfig &config);

@@ -59,32 +59,26 @@ rasdaman GmbH.
 
 #include <iostream>
 #include <string>
-#include <functional> // for equal_to
+#include <functional>  // for equal_to
 #include <vector>
 
 using namespace std;
-
 
 // --- QtShift --------------------------------------------------
 
 const QtNode::QtNodeType QtShift::nodeType = QT_SHIFT;
 
 QtShift::QtShift(QtOperation *mddOp, QtOperation *pointOp)
-    :  QtBinaryOperation(mddOp, pointOp)
+    : QtBinaryOperation(mddOp, pointOp)
 {
     skipCopy = mddOp->getNodeType() == QtNode::QT_CONVERSION ||
                mddOp->getNodeType() == QtNode::QT_DECODE;
 }
 
-
-
-bool
-QtShift::isCommutative() const
+bool QtShift::isCommutative() const
 {
-    return false; // NOT commutative
+    return false;  // NOT commutative
 }
-
-
 
 QtData *
 QtShift::evaluate(QtDataList *inputList)
@@ -99,9 +93,10 @@ QtShift::evaluate(QtDataList *inputList)
     if (getOperands(inputList, operand1, operand2))
     {
         const auto cleanupOnMethodExit = common::make_scope_guard(
-            [operand1,operand2]() noexcept {                                 
-              if (operand1) operand1->deleteRef();
-              if (operand2) operand2->deleteRef();
+            [operand1, operand2]() noexcept
+            {
+                if (operand1) operand1->deleteRef();
+                if (operand2) operand2->deleteRef();
             });
         //
         // This implementation simply creates a new transient MDD object with the new
@@ -118,13 +113,13 @@ QtShift::evaluate(QtDataList *inputList)
         }
         else
         {
-            const BaseType *baseType = ((QtScalarData *) operand2)->getValueType();
-            const char *data = ((QtScalarData *) operand2)->getValueBuffer();
+            const BaseType *baseType = ((QtScalarData *)operand2)->getValueType();
+            const char *data = ((QtScalarData *)operand2)->getValueBuffer();
             r_Long dataScalar = 0;
             transPoint << *baseType->convertToCLong(data, &dataScalar);
         }
 
-        MDDObj        *currentMDDObj     = qtMDDObj->getMDDObject();
+        MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
 
         if (transPoint.dimension() != qtMDDObj->getLoadDomain().dimension())
         {
@@ -185,20 +180,14 @@ QtShift::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
-void
-QtShift::printTree(int tab, ostream &s, QtChildType mode)
+void QtShift::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtShift Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtShift::printAlgebraicExpression(ostream &s)
+void QtShift::printAlgebraicExpression(ostream &s)
 {
     s << "shift(";
 
@@ -225,10 +214,7 @@ QtShift::printAlgebraicExpression(ostream &s)
     s << ")";
 }
 
-
-
-void
-QtShift::optimizeLoad(QtTrimList *trimList)
+void QtShift::optimizeLoad(QtTrimList *trimList)
 {
     QtNode::QtTrimList *list1 = NULL, *list2 = NULL;
 
@@ -276,7 +262,7 @@ QtShift::optimizeLoad(QtTrimList *trimList)
             delete trimList;
             trimList = NULL;
 
-            LERROR <<  "Error: QtShift::optimizeLoad() - second operand of shift function must be a constant expression.";
+            LERROR << "Error: QtShift::optimizeLoad() - second operand of shift function must be a constant expression.";
             parseInfo.setErrorNo(SHIFT_CONSTEXPREQUIRED);
             throw parseInfo;
         }
@@ -311,7 +297,7 @@ QtShift::optimizeLoad(QtTrimList *trimList)
 
                 if (elem->dimension <= transPoint.dimension())
                 {
-                    elem->interval.set_interval(elem->interval.low()  - transPoint[elem->dimension], elem->interval.high() - transPoint[elem->dimension]);
+                    elem->interval.set_interval(elem->interval.low() - transPoint[elem->dimension], elem->interval.high() - transPoint[elem->dimension]);
                 }
             }
         }
@@ -324,7 +310,7 @@ QtShift::optimizeLoad(QtTrimList *trimList)
             for (iter = trimList->begin(); iter != trimList->end(); iter++)
             {
                 QtTrimElement *elem = *iter;
-                elem->interval.set_interval(elem->interval.low()  - transPoint, elem->interval.high() - transPoint);
+                elem->interval.set_interval(elem->interval.low() - transPoint, elem->interval.high() - transPoint);
             }
         }
 
@@ -346,8 +332,6 @@ QtShift::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-
-
 const QtTypeElement &
 QtShift::checkType(QtTypeTuple *typeTuple)
 {
@@ -356,7 +340,6 @@ QtShift::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input1 && input2)
     {
-
         // get input types
         const QtTypeElement &inputType1 = input1->checkType(typeTuple);
         const QtTypeElement &inputType2 = input2->checkType(typeTuple);
@@ -389,53 +372,48 @@ QtShift::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-
 // --- QtExtend --------------------------------------------------
 
 const QtNode::QtNodeType QtExtend::nodeType = QT_EXTEND;
 
 QtExtend::QtExtend(QtOperation *mddOp, QtOperation *mintervalOp)
-    :  QtBinaryOperation(mddOp, mintervalOp)
+    : QtBinaryOperation(mddOp, mintervalOp)
 {
 }
 
-
-
-bool
-QtExtend::isCommutative() const
+bool QtExtend::isCommutative() const
 {
-    return false; // NOT commutative
+    return false;  // NOT commutative
 }
-
-
 
 QtData *
 QtExtend::evaluate(QtDataList *inputList)
 {
     startTimer("QtExtend");
 
-    QtData *returnValue = NULL; // operation result
-    QtData *operand1 = NULL;    // 1st operand: MDD expression
-    QtData *operand2 = NULL;    // 2nd operand: Minterval expression
-    vector<Tile *> completeAreaList; // list of tiles comprising the whole area (possibly with holes); needed for 1-code below
+    QtData *returnValue = NULL;       // operation result
+    QtData *operand1 = NULL;          // 1st operand: MDD expression
+    QtData *operand2 = NULL;          // 2nd operand: Minterval expression
+    vector<Tile *> completeAreaList;  // list of tiles comprising the whole area (possibly with holes); needed for 1-code below
 
     if (getOperands(inputList, operand1, operand2))
     {
         const auto cleanupOnMethodExit = common::make_scope_guard(
-            [operand1,operand2]() noexcept {                                 
-              if (operand1) operand1->deleteRef();
-              if (operand2) operand2->deleteRef();
+            [operand1, operand2]() noexcept
+            {
+                if (operand1) operand1->deleteRef();
+                if (operand2) operand2->deleteRef();
             });
-        
+
         //
         // This implementation simply creates a single new transient MDD object with the new
         // domain while copying the data.
         // FIXME: create a tiled object
         //
 
-        QtMDD      *qtMDDObj      = static_cast<QtMDD *>(operand1);                  // object to be extended
-        r_Minterval targetDomain  = (static_cast<QtMintervalData *>(operand2))->getMintervalData();  // new domain of extended object
-        MDDObj     *currentMDDObj = qtMDDObj->getMDDObject();
+        QtMDD *qtMDDObj = static_cast<QtMDD *>(operand1);                                           // object to be extended
+        r_Minterval targetDomain = (static_cast<QtMintervalData *>(operand2))->getMintervalData();  // new domain of extended object
+        MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
 
         // precondition checks (we call the MDD C and the Minterval M):
         // - dim(C) == dim(M)
@@ -447,7 +425,7 @@ QtExtend::evaluate(QtDataList *inputList)
         }
 
         // - M does not contain open bounds (i.e., "*")
-        if (! targetDomain.is_origin_fixed() || ! targetDomain.is_high_fixed())
+        if (!targetDomain.is_origin_fixed() || !targetDomain.is_high_fixed())
         {
             LERROR << "Error: QtExtend::evaluate( QtDataList* ) - target domain must not have open bounds.";
             parseInfo.setErrorNo(EXTEND_OPENBOUNDSNOTSUPPORTED);
@@ -456,12 +434,12 @@ QtExtend::evaluate(QtDataList *inputList)
         // - M.subset( sdom(C) ); can we relieve this?
         // yes, commented out the below, all seems to work perfectly fine and
         // I can't think of a good reason for this limitation -- DM 2013-feb-27
-//        if( ! targetDomain.covers( qtMDDObj->getLoadDomain() ) )
-//        {
-//            LERROR << "Error: QtExtend::evaluate( QtDataList* ) - new interval does not cover MDD to be extended.";
-//            parseInfo.setErrorNo(EXTEND_TARGETINTERVALINVALID);
-//            throw parseInfo;
-//        }
+        //        if( ! targetDomain.covers( qtMDDObj->getLoadDomain() ) )
+        //        {
+        //            LERROR << "Error: QtExtend::evaluate( QtDataList* ) - new interval does not cover MDD to be extended.";
+        //            parseInfo.setErrorNo(EXTEND_TARGETINTERVALINVALID);
+        //            throw parseInfo;
+        //        }
 
         // LINFO << "QtExtend::evaluate( QtDataList* ) - extending MDD with basetype " << currentMDDObj->getMDDBaseType() << " and load domain " << qtMDDObj->getLoadDomain() << " to domain " << targetDomain;
 
@@ -485,15 +463,16 @@ QtExtend::evaluate(QtDataList *inputList)
             // LINFO << "QtExtend::evaluate( QtDataList* ) - adding source part " << sourceTileDomain << " of tile " << (*tileIter)->getDomain();
             newTransTile->copyTile(sourceTileDomain, tileIter->get(), sourceTileDomain);
 
-            resultMDD->insertTile(newTransTile);   // needed for 2-code below
+            resultMDD->insertTile(newTransTile);  // needed for 2-code below
             // completeAreaList.push_back( newTransTile ); // needed for 1-code below
         }
 
         // --- 2: fill up new space with null values -----------------------------
 
-#if 0   // this 1-code does the same thing as the 2-code, but easier & more efficiently -- PB 2005-jun-24
-        // INCOMPLETE!
-        // create minimal (1x1) tiles at origin and high end, but only if the source domain isn't there
+// this 1-code does the same thing as the 2-code, but easier & more efficiently -- PB 2005-jun-24
+#if 0  
+       // INCOMPLETE!
+       // create minimal (1x1) tiles at origin and high end, but only if the source domain isn't there
         if (targetDomain.get_origin() != qtMDDObj->getLoadDomain().get_origin())
         {
             LINFO << "QtExtend::evaluate( QtDataList* ) - adding aux tile at origin.";
@@ -512,8 +491,8 @@ QtExtend::evaluate(QtDataList *inputList)
         delete[] extendDomainList;
         resultMDD->insertTile(completeTile);
         delete completeTile;
-
-#else   // 2-code; unused -- PB 2005-jun-24
+#else
+        // 2-code; unused -- PB 2005-jun-24
         // the part below does the trick explicitly, leading to a larger number of result tiles.
         // establish list of domains
         vector<r_Minterval> extendDomainList;
@@ -553,10 +532,10 @@ QtExtend::evaluate(QtDataList *inputList)
 
         // create tiles for all domains found
         // LINFO << "QtExtend::evaluate( QtDataList* ): - creating " << extendDomainList.size() << " tiles...";
-        
+
         const auto *nullValues = currentMDDObj->getNullValues();
         bool hasNullValues = nullValues != NULL && !nullValues->getNullvalues().empty();
-        
+
         for (auto domainIter = extendDomainList.begin(); domainIter != extendDomainList.end(); domainIter++)
         {
             // LINFO << "QtExtend::evaluate( QtDataList* ): creating tile for domain " << (*domainIter);
@@ -568,7 +547,7 @@ QtExtend::evaluate(QtDataList *inputList)
                 resultMDD->fillTileWithNullvalues(newTransTile->getContents(), domainIter->cell_count());
             }
         }
-#endif // 0
+#endif  // 0
 
         // --- 3: package into MDD object & finalize -----------------------------
 
@@ -591,18 +570,17 @@ QtExtend::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-#if 1 // needed for 1-code above -- PB 2005-jun-24
+#if 1  // needed for 1-code above -- PB 2005-jun-24
 /**
 aux function for QtExtend::evaluate(): build up (recursing the dimension) a list of all spatial domains that sit in the corners between outerDomain and innerDomain; at the recursion bottom the resulting domain is added to the cornerList.
 **/
 
-void
-QtExtend::extendGetCornerTiles(r_Minterval outerDomain, r_Minterval innerDomain, const r_Dimension currentDim, const r_Dimension maxDim, r_Minterval currentInterval, vector<r_Minterval> *cornerList)
+void QtExtend::extendGetCornerTiles(r_Minterval outerDomain, r_Minterval innerDomain, const r_Dimension currentDim, const r_Dimension maxDim, r_Minterval currentInterval, vector<r_Minterval> *cornerList)
 {
     // LINFO << "QtExtend::extendGetCornerTiles( " << outerDomain << ", " << innerDomain << ", " << currentDim << ", " << maxDim << ", " << currentInterval << ", _  ) start";
 
     // not yet addressed all dimensions in the current coordinate?
-// note: what about 1D? 0D?
+    // note: what about 1D? 0D?
     if (currentDim < maxDim)
     {
         // add domain's lower end, continue building up the minterval
@@ -634,7 +612,7 @@ QtExtend::extendGetCornerTiles(r_Minterval outerDomain, r_Minterval innerDomain,
         // this is an error, see preconditions
         LERROR << "QtExtend::extendGetCornerTiles(): error: dimension overflow.";
     }
-    else    // then we've reached currentDim==maxDim
+    else  // then we've reached currentDim==maxDim
     {
         // add this minterval to the tile domain list
         cornerList->push_back(currentInterval);
@@ -643,20 +621,16 @@ QtExtend::extendGetCornerTiles(r_Minterval outerDomain, r_Minterval innerDomain,
 
     // LINFO << "QtExtend::extendGetCornerTiles() done.";
 }
-#endif // 1
+#endif  // 1
 
-void
-QtExtend::printTree(int tab, ostream &s, QtChildType mode)
+void QtExtend::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtExtend Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtExtend::printAlgebraicExpression(ostream &s)
+void QtExtend::printAlgebraicExpression(ostream &s)
 {
     s << "extend(";
 
@@ -683,17 +657,14 @@ QtExtend::printAlgebraicExpression(ostream &s)
     s << ")";
 }
 
-
-
-void
-QtExtend::optimizeLoad(QtTrimList *trimList)
+void QtExtend::optimizeLoad(QtTrimList *trimList)
 {
     QtNode::QtTrimList *list1 = NULL, *list2 = NULL;
 
     if (input1 && input2)
     {
-#if 0 // not yet sure what to do -- PB 2005-06-18
-
+#if 0
+// not yet sure what to do -- PB 2005-06-18
         QtNode::QtTrimList::iterator iter;
 
         //
@@ -779,7 +750,7 @@ QtExtend::optimizeLoad(QtTrimList *trimList)
 
         // point is not needed anymore
         operand->deleteRef();
-#endif // 0 not yet sure what to do -- PB 2005-06-18
+#endif  // 0 not yet sure what to do -- PB 2005-06-18
 
         input1->optimizeLoad(trimList);
     }
@@ -796,8 +767,6 @@ QtExtend::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-
-
 const QtTypeElement &
 QtExtend::checkType(QtTypeTuple *typeTuple)
 {
@@ -806,7 +775,6 @@ QtExtend::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input1 && input2)
     {
-
         // get input types
         const QtTypeElement &inputType1 = input1->checkType(typeTuple);
         const QtTypeElement &inputType2 = input2->checkType(typeTuple);
@@ -836,23 +804,18 @@ QtExtend::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-
-
 // --- QtScale --------------------------------------------------
 
 const QtNode::QtNodeType QtScale::nodeType = QT_SCALE;
 
 QtScale::QtScale(QtOperation *mddOp, QtOperation *pointOp)
-    :  QtBinaryOperation(mddOp, pointOp)
+    : QtBinaryOperation(mddOp, pointOp)
 {
 }
 
-
-
-bool
-QtScale::isCommutative() const
+bool QtScale::isCommutative() const
 {
-    return false; // NOT commutative
+    return false;  // NOT commutative
 }
 
 #include <iomanip>
@@ -875,13 +838,14 @@ QtScale::evaluate(QtDataList *inputList)
 
     if (!getOperands(inputList, operand1, operand2))
         return returnValue;
-    
+
     const auto cleanupOnMethodExit = common::make_scope_guard(
-        [operand1,operand2]() noexcept {                                 
-          if (operand1) operand1->deleteRef();
-          if (operand2) operand2->deleteRef();
+        [operand1, operand2]() noexcept
+        {
+            if (operand1) operand1->deleteRef();
+            if (operand2) operand2->deleteRef();
         });
-    
+
     QtMDD *qtMDDObj = static_cast<QtMDD *>(operand1);
     vector<r_Double> scaleVector(qtMDDObj->getLoadDomain().dimension());
 
@@ -956,7 +920,7 @@ QtScale::evaluate(QtDataList *inputList)
             {
                 scaleVector[i] = targetRange / sourceRange;
                 auto f = scaleVector[i];
-                
+
                 const auto slow = sourceDomain[i].low();
                 const auto shigh = sourceDomain[i].high();
                 auto low = FLOOR(f * slow);
@@ -973,12 +937,12 @@ QtScale::evaluate(QtDataList *inputList)
                         low = high;
                 }
 
-                LTRACE << "Scale dimension " << i << ":" 
+                LTRACE << "Scale dimension " << i << ":"
                        << "\nbefore f=" << setprecision(12) << f
-                       << "\nprecalculated low/high: " << low << ':' << high << " <--> wished low/high: " 
-                                                       << wishedTargetDomain[i].low() << ':' << wishedTargetDomain[i].high()
+                       << "\nprecalculated low/high: " << low << ':' << high << " <--> wished low/high: "
+                       << wishedTargetDomain[i].low() << ':' << wishedTargetDomain[i].high()
                        << "\npro memoria: " << static_cast<r_Range>(f * (shigh + 1)) << ", raw: " << (f * (shigh + 1))
-                                            << ", floor: " << floor(f * (shigh + 1)) << ", ceil: " << ceil(f * (shigh + 1));
+                       << ", floor: " << floor(f * (shigh + 1)) << ", ceil: " << ceil(f * (shigh + 1));
 
                 if (!std::equal_to<r_Double>()((high - low + 1), targetRange))
                 {
@@ -996,23 +960,23 @@ QtScale::evaluate(QtDataList *inputList)
                         else
                             low = high;
                     }
-                    
+
                     LTRACE << "low/high correction necessary, new values: " << low << ':' << high << ", f=" << setprecision(12) << f;
                 }
             }
             else
             {
-                scaleVector[i] = 0; //exception? it can't happen, this error is filtered long before reaching this point
+                scaleVector[i] = 0;  //exception? it can't happen, this error is filtered long before reaching this point
             }
         }
     }
     break;
     default:
-        LDEBUG << "bad type for operand2 in scale " <<  operand2->getDataType();
+        LDEBUG << "bad type for operand2 in scale " << operand2->getDataType();
         break;
     }
 
-// -----------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
 
     // scale domain
     r_Minterval targetDomain;
@@ -1022,8 +986,7 @@ QtScale::evaluate(QtDataList *inputList)
         parseInfo.setErrorNo(DOMAINSCALEFAILED);
         throw parseInfo;
     }
-    
-    
+
     r_Point translation;
     if (isWishedTargetSet)
     {
@@ -1036,7 +999,7 @@ QtScale::evaluate(QtDataList *inputList)
     MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
     MDDObj *resultMDD = new MDDObj(currentMDDObj->getMDDBaseType(), targetDomain, currentMDDObj->getNullValues());
 
-    auto sourceDomainOrigin = r_Point{r_Dimension(scaleVector.size())}; // all zero!!
+    auto sourceDomainOrigin = r_Point{r_Dimension(scaleVector.size())};  // all zero!!
 
     // get all tiles
     auto *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
@@ -1047,7 +1010,8 @@ QtScale::evaluate(QtDataList *inputList)
         tmpTiles->push_back(t);
     }
     Tile *sourceTile = new Tile(tmpTiles);
-    delete tmpTiles; tmpTiles = NULL;
+    delete tmpTiles;
+    tmpTiles = NULL;
 
     // get relevant area of source tile
     auto sourceTileDomain = qtMDDObj->getLoadDomain().create_intersection(sourceTile->getDomain());
@@ -1100,7 +1064,7 @@ void QtScale::translateTargetDomain(r_Minterval &dst, const r_Minterval &src, r_
             correctedTranslation[i] = s.low() - d.low();
         else if (d.low() > s.high())
             correctedTranslation[i] = s.high() - d.low();
-        
+
         if (d.high() > s.high())
             correctedTranslation[i] = s.high() - d.high();
         else if (d.high() < s.low())
@@ -1110,19 +1074,14 @@ void QtScale::translateTargetDomain(r_Minterval &dst, const r_Minterval &src, r_
     translation = translation + correctedTranslation;
 }
 
-
-void
-QtScale::printTree(int tab, ostream &s, QtChildType mode)
+void QtScale::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtScale Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtScale::printAlgebraicExpression(ostream &s)
+void QtScale::printAlgebraicExpression(ostream &s)
 {
     s << "scale(";
 
@@ -1149,10 +1108,7 @@ QtScale::printAlgebraicExpression(ostream &s)
     s << ")";
 }
 
-
-
-void
-QtScale::optimizeLoad(QtTrimList *trimList)
+void QtScale::optimizeLoad(QtTrimList *trimList)
 {
     // Don't forward the load domain to the underlying node,
     // as the domain of the input is not known at this step, and thus
@@ -1173,8 +1129,6 @@ QtScale::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-
-
 const QtTypeElement &
 QtScale::checkType(QtTypeTuple *typeTuple)
 {
@@ -1183,7 +1137,6 @@ QtScale::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input1 && input2)
     {
-
         // get input types
         const QtTypeElement &inputType1 = input1->checkType(typeTuple);
         const QtTypeElement &inputType2 = input2->checkType(typeTuple);
@@ -1195,9 +1148,9 @@ QtScale::checkType(QtTypeTuple *typeTuple)
             throw parseInfo;
         }
 
-        if (inputType2.getDataType() != QT_POINT  && inputType2.getDataType() != QT_MINTERVAL  &&
-                inputType2.getDataType() != QT_FLOAT  && inputType2.getDataType() != QT_DOUBLE &&
-                !inputType2.isInteger())
+        if (inputType2.getDataType() != QT_POINT && inputType2.getDataType() != QT_MINTERVAL &&
+            inputType2.getDataType() != QT_FLOAT && inputType2.getDataType() != QT_DOUBLE &&
+            !inputType2.isInteger())
         {
             LERROR << "Error: QtScale::checkType() - second operand must be either of type Point, Integer or Float.";
             parseInfo.setErrorNo(SCALE_INDICATORINVALID);
@@ -1215,7 +1168,6 @@ QtScale::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-
 int QtScale::scaleDomain(const r_Minterval &areaOp,
                          const vector<double> &scaleFactors,
                          r_Minterval &areaScaled)
@@ -1228,7 +1180,7 @@ int QtScale::scaleDomain(const r_Minterval &areaOp,
     {
         //error scaling
         std::string scaleStr{};
-        for (const auto &f : scaleFactors)
+        for (const auto &f: scaleFactors)
         {
             if (!scaleStr.empty())
             {
@@ -1265,4 +1217,3 @@ int QtScale::scaleDomain(const r_Minterval &areaOp, const r_Point &origin1, cons
 
     return 1;
 }
-

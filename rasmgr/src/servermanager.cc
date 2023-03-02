@@ -44,7 +44,7 @@ namespace rasmgr
 {
 
 ServerManager::ServerManager(const ServerManagerConfig &config1, std::shared_ptr<ServerGroupFactory> sgf)
-  : serverGroupFactory(sgf), config(config1), isWorkerThreadRunning(true), isRestartServersThreadRunning(false)
+    : serverGroupFactory(sgf), config(config1), isWorkerThreadRunning(true), isRestartServersThreadRunning(false)
 {
     this->workerCleanup.reset(new std::thread(&ServerManager::workerCleanupRunner, this));
 }
@@ -88,10 +88,10 @@ bool ServerManager::tryGetAvailableServer(const std::string &databaseName, std::
 }
 
 void ServerManager::registerServer(const std::string &serverId)
-{    
+{
     bool registered = false;
     boost::shared_lock<boost::shared_mutex> lockMutexGroups(this->serverGroupMutex);
-    
+
     for (const auto &sg: this->serverGroupList)
     {
         if (!sg->isStopped() && sg->tryRegisterServer(serverId))
@@ -117,7 +117,7 @@ void ServerManager::defineServerGroup(const ServerGroupConfigProto &serverGroupC
             throw ServerGroupDuplicateException(sg->getGroupName());
         }
     }
-    
+
     boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
     auto sg = this->serverGroupFactory->createServerGroup(serverGroupConfig);
     this->serverGroupList.push_back(sg);
@@ -184,7 +184,7 @@ void ServerManager::removeServerGroup(const std::string &serverGroupName)
 void ServerManager::startServerGroup(const StartServerGroup &startGroup)
 {
     boost::shared_lock<boost::shared_mutex> lockMutexGroups(this->serverGroupMutex);
-    
+
     if (startGroup.has_group_name())
     {
         // up srv N1
@@ -318,9 +318,9 @@ void ServerManager::restartServersRunner()
 {
     LDEBUG << "restarting servers, wait for " << this->config.getRestartDelay() << " seconds.";
     // wait before proceeding with restarting servers
-//    sleep(this->config.getRestartDelay());
+    //    sleep(this->config.getRestartDelay());
     LDEBUG << "restarting servers, waiting finished.";
-    
+
     {
         boost::shared_lock<boost::shared_mutex> lock(this->serverGroupMutex);
         for (const auto &sg: this->serverGroupList)
@@ -352,7 +352,7 @@ bool ServerManager::hasRunningServers()
 std::shared_ptr<Server> ServerManager::getServer(const std::string &serverId)
 {
     boost::shared_lock<boost::shared_mutex> lockMutexGroups(this->serverGroupMutex);
-    
+
     for (const auto &sg: this->serverGroupList)
     {
         auto ret = sg->getServer(serverId);
@@ -361,7 +361,7 @@ std::shared_ptr<Server> ServerManager::getServer(const std::string &serverId)
             return ret;
         }
     }
-  
+
     throw InexistentServerGroupException(serverId, "cannot get server");
 }
 

@@ -104,7 +104,6 @@ protected:
     unsigned int *offsets;
 };
 
-
 //@ManMemo: Module {\bf raslib}
 
 //@Doc: write the status of a flat base type to a stream

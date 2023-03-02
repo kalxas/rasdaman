@@ -21,7 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
 #include "config.h"
 
 #include "qlparser/qtsort.hh"
@@ -52,7 +51,7 @@ const QtNode::QtNodeType QtSort::nodeType = QtNode::QT_SORT;
 
 QtSort::QtSort(QtOperation *MDDtoSortInput, r_Dimension axis)
     : QtOperation(),
-    MDDtoSort(MDDtoSortInput), sortAsc(false), sortAxis(axis), applyRankings(false)
+      MDDtoSort(MDDtoSortInput), sortAsc(false), sortAxis(axis), applyRankings(false)
 {
     if (MDDtoSort)
     {
@@ -62,7 +61,7 @@ QtSort::QtSort(QtOperation *MDDtoSortInput, r_Dimension axis)
 
 QtSort::QtSort(QtOperation *MDDtoSortInput, const std::string &axis)
     : QtOperation(),
-    MDDtoSort(MDDtoSortInput), sortAsc(false), namedAxisFlag(true), axisName(axis), applyRankings(false)
+      MDDtoSort(MDDtoSortInput), sortAsc(false), namedAxisFlag(true), axisName(axis), applyRankings(false)
 {
     if (MDDtoSort)
     {
@@ -72,7 +71,7 @@ QtSort::QtSort(QtOperation *MDDtoSortInput, const std::string &axis)
 
 QtSort::QtSort(QtOperation *MDDtoSortInput, r_Dimension axis, bool order, QtOperation *ranksInput)
     : QtOperation(),
-    MDDtoSort(MDDtoSortInput), ranks(ranksInput), sortAsc(order), sortAxis(axis), applyRankings(true)
+      MDDtoSort(MDDtoSortInput), ranks(ranksInput), sortAsc(order), sortAxis(axis), applyRankings(true)
 {
     if (MDDtoSort)
     {
@@ -87,7 +86,7 @@ QtSort::QtSort(QtOperation *MDDtoSortInput, r_Dimension axis, bool order, QtOper
 
 QtSort::QtSort(QtOperation *MDDtoSortInput, const std::string &axis, bool order, QtOperation *ranksInput)
     : QtOperation(),
-    MDDtoSort(MDDtoSortInput), ranks(ranksInput), sortAsc(order), namedAxisFlag(true), axisName(axis), applyRankings(true)
+      MDDtoSort(MDDtoSortInput), ranks(ranksInput), sortAsc(order), namedAxisFlag(true), axisName(axis), applyRankings(true)
 {
     if (MDDtoSort)
     {
@@ -115,8 +114,7 @@ QtSort::~QtSort()
     }
 }
 
-void
-QtSort::simplify()
+void QtSort::simplify()
 {
     // In order to work bottom up, first inspect the descendants
     QtNode::simplify();
@@ -125,7 +123,7 @@ QtSort::simplify()
     if (MDDtoSort)
     {
         // Test, if operand is of const type.
-        if (MDDtoSort->getNodeType() ==  QT_CONST)
+        if (MDDtoSort->getNodeType() == QT_CONST)
         {
             // evaluate the self node with no input list
             QtData *newConst = this->evaluate(NULL);
@@ -185,15 +183,14 @@ QtSort::getAreaType()
     return (MDDtoSort->getAreaType());
 }
 
-bool
-QtSort::equalMeaning(QtNode *node)
+bool QtSort::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     if (nodeType == node->getNodeType())
     {
         QtSort *sortNode;
-        sortNode = static_cast<QtSort *>(node); // by force
+        sortNode = static_cast<QtSort *>(node);  // by force
 
         result = MDDtoSort->equalMeaning(sortNode->getMDDtoSort()) &&
                  ranks->equalMeaning(sortNode->getRanks());
@@ -201,42 +198,40 @@ QtSort::equalMeaning(QtNode *node)
     return (result);
 }
 
-void
-QtSort::sort()
+void QtSort::sort()
 {
     //as per std::list documentation slicesList is always initialized by the default empty constructor
     //this function returns nothing, it only reorders the elements of the list.
-    if(this->sortAsc)
-    {//sort ascending <
-        slicesList.sort([this](sliceTuple& a, sliceTuple& b)
-        {
-            return accessSliceRank(a) < accessSliceRank(b);
-        });
+    if (this->sortAsc)
+    {  //sort ascending <
+        slicesList.sort([this](sliceTuple &a, sliceTuple &b)
+                        {
+                            return accessSliceRank(a) < accessSliceRank(b);
+                        });
     }
     else
-    {//sort descending >
-        slicesList.sort([this](sliceTuple& a, sliceTuple& b)
-        {
-            return accessSliceRank(a) > accessSliceRank(b);
-        });
+    {  //sort descending >
+        slicesList.sort([this](sliceTuple &a, sliceTuple &b)
+                        {
+                            return accessSliceRank(a) > accessSliceRank(b);
+                        });
     }
 }
 
-void
-QtSort::appendSlice( sliceMDD *sliceInput, sliceRank rank)
+void QtSort::appendSlice(sliceMDD *sliceInput, sliceRank rank)
 {
     //add tuple to slice_List
     slicesList.push_back(std::make_tuple(sliceInput, rank));
 }
 
-sliceMDD*
+sliceMDD *
 QtSort::accessSliceMDD(sliceTuple &sT)
 {
     //getter and setter
     return std::get<0>(sT);
 }
 
-sliceRank&
+sliceRank &
 QtSort::accessSliceRank(sliceTuple &sT)
 {
     //getter and setter
@@ -249,24 +244,23 @@ QtSort::toString()
     std::string stateString = "";
     std::string str1, str2;
     auto it = slicesList.begin();
-    for(it; it != slicesList.end(); ++it)
+    for (it; it != slicesList.end(); ++it)
     {
         QtMDD *qtMDDObj = static_cast<QtMDD *>(accessSliceMDD(*it));
         MDDObj *temp = qtMDDObj->getMDDObject();
 
         //using separate variables to avoid manipulating the data since the access methods can read and write.
         str1 = temp->getArrayInfo(common::PrintTiles::EMBEDDED);
-        str2 = std::to_string( accessSliceRank(*it) );
+        str2 = std::to_string(accessSliceRank(*it));
 
         stateString = stateString +
-        "slice: "  + str1 +"\t" +
-        "rank: "   + str2 +"\n" ;
+                      "slice: " + str1 + "\t" +
+                      "rank: " + str2 + "\n";
     }
     return stateString;
 }
 
-void
-QtSort::optimizeLoad(QtTrimList *trimList)
+void QtSort::optimizeLoad(QtTrimList *trimList)
 {
     QtNode::QtTrimList *list1 = NULL;
 
@@ -292,26 +286,25 @@ QtSort::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-void
-QtSort::getAxisFromName()
+void QtSort::getAxisFromName()
 {
     bool found = false;
     std::vector<std::string> axisNamesVector = *axisNamesCorrect;
     std::vector<std::string>::iterator axisNamesVectorIt;
 
-    r_Dimension count = 0;// loop through all axes names in the array.
-    for(axisNamesVectorIt = axisNamesVector.begin(); axisNamesVectorIt != axisNamesVector.end(); axisNamesVectorIt++, count++)
+    r_Dimension count = 0;  // loop through all axes names in the array.
+    for (axisNamesVectorIt = axisNamesVector.begin(); axisNamesVectorIt != axisNamesVector.end(); axisNamesVectorIt++, count++)
     {
-        if( (*axisNamesVectorIt).compare(axisName) == 0 )//if the name matches one of the names in the vector, take that axis
+        if ((*axisNamesVectorIt).compare(axisName) == 0)  //if the name matches one of the names in the vector, take that axis
         {
             sortAxis = count;
             found = true;
             break;
         }
     }
-    if(!found)// in case the name does not correspond to any axis
+    if (!found)  // in case the name does not correspond to any axis
     {
-        LERROR <<"Error: QtSort::getAxisFromName() - Name of the axis doesn't correspond with any defined axis name of the type.";
+        LERROR << "Error: QtSort::getAxisFromName() - Name of the axis doesn't correspond with any defined axis name of the type.";
         ALONGClauseParseInfo.setErrorNo(347);
         throw ALONGClauseParseInfo;
     }
@@ -323,7 +316,7 @@ QtSort::checkType(QtTypeTuple *typeTuple)
     dataStreamType.setDataType(QT_MDD);
 
     // check operand branches
-    if(MDDtoSort)
+    if (MDDtoSort)
     {
         // get input type
         const QtTypeElement &inputType1 = MDDtoSort->checkType(typeTuple);
@@ -337,7 +330,7 @@ QtSort::checkType(QtTypeTuple *typeTuple)
         dataStreamType.setType(inputType1.getType());
 
         // if axis name given, get actual axes names of array to be sorted.
-        if(namedAxisFlag)
+        if (namedAxisFlag)
         {
             r_Minterval domainDef = *((static_cast<MDDDomainType *>(const_cast<Type *>(inputType1.getType())))->getDomain());
             std::vector<std::string> axisDef = (&domainDef)->get_axis_names();
@@ -352,7 +345,7 @@ QtSort::checkType(QtTypeTuple *typeTuple)
         LERROR << "QtSort::checkType() - MDDtoSort branch invalid.";
     }
 
-    if(ranks)
+    if (ranks)
     {
         const QtTypeElement &inputType2 = ranks->checkType(typeTuple);
 
@@ -367,10 +360,10 @@ QtSort::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-QtData*
+QtData *
 QtSort::slice(QtData *myMDD, r_Minterval myMinterval)
 {
-    bool dynamicMintervalExpression = true;//always true for sort
+    bool dynamicMintervalExpression = true;  //always true for sort
     QtData *returnValue = NULL;
     //
     // Trimming/Projection to an MDD object
@@ -380,8 +373,8 @@ QtSort::slice(QtData *myMDD, r_Minterval myMinterval)
     newMint = new QtMintervalData(myMinterval);
 
     // get minterval data
-    std::vector<bool>  *trimFlags = new std::vector<bool>(*((newMint)->getTrimFlags()));
-    r_Minterval    domain    = myMinterval;
+    std::vector<bool> *trimFlags = new std::vector<bool>(*((newMint)->getTrimFlags()));
+    r_Minterval domain = myMinterval;
     LDEBUG << "Evaluate subset " << domain;
 
     //
@@ -401,9 +394,9 @@ QtSort::slice(QtData *myMDD, r_Minterval myMinterval)
             // create a new element
             QtTrimElement *elem = new QtTrimElement;
 
-            elem->interval     = domain[i];
+            elem->interval = domain[i];
             elem->intervalFlag = (*trimFlags)[i];
-            elem->dimension    = i;
+            elem->dimension = i;
 
             // and add it to the list
             trimList->push_back(elem);
@@ -413,7 +406,7 @@ QtSort::slice(QtData *myMDD, r_Minterval myMinterval)
 
         if (MDDtoSort->getNodeType() == QT_DOMAIN_OPERATION)
         {
-            static_cast<QtDomainOperation*>(MDDtoSort)->optimizeLoad(trimList, intervals);
+            static_cast<QtDomainOperation *>(MDDtoSort)->optimizeLoad(trimList, intervals);
         }
         else
         {
@@ -423,14 +416,14 @@ QtSort::slice(QtData *myMDD, r_Minterval myMinterval)
 
     // resolve positionnaly independent axes by reording them according to the type definiton
 
-    QtMDD  *qtMDD         = static_cast<QtMDD *>(myMDD);
+    QtMDD *qtMDD = static_cast<QtMDD *>(myMDD);
     MDDObj *currentMDDObj = qtMDD->getMDDObject();
     r_Nullvalues *nullValues = NULL;
 
     if (currentMDDObj)
     {
         r_Minterval currentDomain = currentMDDObj->getCurrentDomain();
-        for (std::vector<r_Minterval>::reverse_iterator it = intervals->rbegin();it != intervals->rend(); ++it)
+        for (std::vector<r_Minterval>::reverse_iterator it = intervals->rbegin(); it != intervals->rend(); ++it)
         {
             if (it == intervals->rbegin())
             {
@@ -452,17 +445,17 @@ QtSort::slice(QtData *myMDD, r_Minterval myMinterval)
             }
             else
             {
-                if (!it->inside_of(*(it-1)))
+                if (!it->inside_of(*(it - 1)))
                 {
-                    if (!it->intersects_with(*(it-1)))
+                    if (!it->intersects_with(*(it - 1)))
                     {
-                        LERROR << "Subset domain " << *it << " does not intersect with the previous subset of MDD" << *(it-1);
+                        LERROR << "Subset domain " << *it << " does not intersect with the previous subset of MDD" << *(it - 1);
                         parseInfo.setErrorNo(356);
                         throw parseInfo;
                     }
                     else
                     {
-                        LERROR << "Subset domain " << *it << " extends outside of the previous subset of MDD" << *(it-1);
+                        LERROR << "Subset domain " << *it << " extends outside of the previous subset of MDD" << *(it - 1);
                         parseInfo.setErrorNo(344);
                         throw parseInfo;
                     }
@@ -470,7 +463,7 @@ QtSort::slice(QtData *myMDD, r_Minterval myMinterval)
             }
         }
 
-        bool trimming   = false;
+        bool trimming = false;
         bool projection = false;
         nullValues = currentMDDObj->getNullValues();
         // reset loadDomain to intersection of domain and loadDomain
@@ -524,7 +517,7 @@ QtSort::slice(QtData *myMDD, r_Minterval myMinterval)
                 MDDObj *resultMDD = new MDDObj(currentMDDObj->getMDDBaseType(), projectedDom, currentMDDObj->getNullValues());
 
                 // and iterate over them
-                for (auto tileIt = relevantTiles->begin(); tileIt !=  relevantTiles->end(); tileIt++)
+                for (auto tileIt = relevantTiles->begin(); tileIt != relevantTiles->end(); tileIt++)
                 {
                     // domain of the actual tile
                     r_Minterval tileDom = (*tileIt)->getDomain();
@@ -544,7 +537,6 @@ QtSort::slice(QtData *myMDD, r_Minterval myMinterval)
                 // create a new QtMDD object as carrier object for the transient MDD object
                 returnValue = new QtMDD(static_cast<MDDObj *>(resultMDD));
                 returnValue->setNullValues(nullValues);
-
 
                 // delete the tile vector
                 delete relevantTiles;
@@ -570,43 +562,42 @@ QtSort::slice(QtData *myMDD, r_Minterval myMinterval)
                 returnValue = new QtMDD(static_cast<MDDObj *>(resultMDD));
             }
 
-        } // if(trimming || projection)
+        }  // if(trimming || projection)
         else
-            // operand is passed through
+        // operand is passed through
         {
             returnValue = myMDD;
         }
 
-    } // if( currentMDDObj )
+    }  // if( currentMDDObj )
 
     return returnValue;
 }
 
-void
-QtSort::processOperand(unsigned int i, QtMDD *qtMDDObj, MDDObj *resultMDD,
-                              const BaseType *baseType, const std::vector<r_Point> &tVector)
+void QtSort::processOperand(unsigned int i, QtMDD *qtMDDObj, MDDObj *resultMDD,
+                            const BaseType *baseType, const std::vector<r_Point> &tVector)
 {
-  MDDObj *mddOp = qtMDDObj->getMDDObject();
-  const auto &mddOpDomain = qtMDDObj->getLoadDomain();
+    MDDObj *mddOp = qtMDDObj->getMDDObject();
+    const auto &mddOpDomain = qtMDDObj->getLoadDomain();
 
-  // get intersecting tiles
-  auto opTiles = std::unique_ptr<std::vector<std::shared_ptr<Tile>>>(mddOp->intersect(mddOpDomain));
+    // get intersecting tiles
+    auto opTiles = std::unique_ptr<std::vector<std::shared_ptr<Tile>>>(mddOp->intersect(mddOpDomain));
 
-  // iterate over source tiles
-  for (const auto &opTile: *opTiles)
-  {
-      // get relevant area of source tile
-      r_Minterval srcTileDomain = mddOpDomain.create_intersection(opTile->getDomain());
-      // compute translated tile domain
-      r_Minterval dstTileDomain = i == 0 ? srcTileDomain
-                                         : srcTileDomain.create_translation(tVector[i]);
-      // create a new transient tile, copy the transient data, and insert it into the mdd object
-      Tile *newTransTile = new Tile(dstTileDomain, baseType);
-      auto myOp = std::unique_ptr<UnaryOp>(Ops::getUnaryOp(
-          Ops::OP_IDENTITY, baseType, mddOp->getCellType(), 0, 0));
-      newTransTile->execUnaryOp(myOp.get(), dstTileDomain, opTile.get(), srcTileDomain);
-      resultMDD->insertTile(newTransTile);
-  }
+    // iterate over source tiles
+    for (const auto &opTile: *opTiles)
+    {
+        // get relevant area of source tile
+        r_Minterval srcTileDomain = mddOpDomain.create_intersection(opTile->getDomain());
+        // compute translated tile domain
+        r_Minterval dstTileDomain = i == 0 ? srcTileDomain
+                                           : srcTileDomain.create_translation(tVector[i]);
+        // create a new transient tile, copy the transient data, and insert it into the mdd object
+        Tile *newTransTile = new Tile(dstTileDomain, baseType);
+        auto myOp = std::unique_ptr<UnaryOp>(Ops::getUnaryOp(
+            Ops::OP_IDENTITY, baseType, mddOp->getCellType(), 0, 0));
+        newTransTile->execUnaryOp(myOp.get(), dstTileDomain, opTile.get(), srcTileDomain);
+        resultMDD->insertTile(newTransTile);
+    }
 }
 
 QtData *
@@ -619,13 +610,13 @@ QtSort::concatenate(unsigned int dimension)
     const BaseType *baseType = resultMDDType->getBaseType();
 
     // compute the result domain
-    std::vector<r_Point> tVector(slicesList.size()); // save the translating vectors for all arrays except the first
+    std::vector<r_Point> tVector(slicesList.size());  // save the translating vectors for all arrays except the first
     r_Minterval destinationDomain;
     unsigned int i = 0;
     //iterate over all slices
     for (auto iter = slicesList.begin(); iter != slicesList.end(); iter++, i++)
     {
-        QtMDD *qtMDDObj = static_cast<QtMDD *>( accessSliceMDD(*iter) );
+        QtMDD *qtMDDObj = static_cast<QtMDD *>(accessSliceMDD(*iter));
         if (iter == slicesList.begin())
         {
             destinationDomain = qtMDDObj->getLoadDomain();
@@ -666,7 +657,7 @@ QtSort::concatenate(unsigned int dimension)
     i = 0;
     for (auto iter = slicesList.begin(); iter != slicesList.end(); iter++, i++)
     {
-        QtMDD *qtMDDObj = static_cast<QtMDD *>( accessSliceMDD(*iter) );
+        QtMDD *qtMDDObj = static_cast<QtMDD *>(accessSliceMDD(*iter));
         MDDObj *mddOp = qtMDDObj->getMDDObject();
 
         processOperand(i, qtMDDObj, resultMDD, baseType, tVector);
@@ -674,7 +665,7 @@ QtSort::concatenate(unsigned int dimension)
         auto *tempValues = mddOp->getNullValues();
         if (tempValues != NULL)
         {
-            for (const auto &p : tempValues->getNullvalues())
+            for (const auto &p: tempValues->getNullvalues())
                 nullvalues.push_back(p);
         }
     }
@@ -697,20 +688,19 @@ QtSort::concatenate(unsigned int dimension)
     return returnValue;
 }
 
-void
-QtSort::extractRanks(QtData* ranksOperand)
+void QtSort::extractRanks(QtData *ranksOperand)
 {
-    QtMDD  *qtMDD         = static_cast<QtMDD *>(ranksOperand);
+    QtMDD *qtMDD = static_cast<QtMDD *>(ranksOperand);
     MDDObj *currentMDDObj = qtMDD->getMDDObject();
 
     r_Minterval currentDomain = currentMDDObj->getCurrentDomain();
-    r_Sinterval::BoundType ranksExtent = (r_Sinterval::BoundType) currentDomain[0].get_extent();// number of ranks in a 1D ranksOperand
+    r_Sinterval::BoundType ranksExtent = (r_Sinterval::BoundType)currentDomain[0].get_extent();  // number of ranks in a 1D ranksOperand
 
     // make sure the number of ranks == number of slices
-    if(sortAxisExtent != ranksExtent)
+    if (sortAxisExtent != ranksExtent)
     {
-         LERROR << "Internal error in QtSort::extractRanks() - "
-                   << "Number of ranks generated must match the number of slices at the sort axis.";
+        LERROR << "Internal error in QtSort::extractRanks() - "
+               << "Number of ranks generated must match the number of slices at the sort axis.";
 
         BYClauseParseInfo.setErrorNo(SORT_NUMBEROFRANKSMISMATCH);
         throw BYClauseParseInfo;
@@ -724,12 +714,12 @@ QtSort::extractRanks(QtData* ranksOperand)
     sourceTile = new Tile(tiles, qtMDD->getLoadDomain(), currentMDDObj);
 
     // get the ranksOperand values
-    double *ranksArray = (double*) sourceTile->getContents();
+    double *ranksArray = (double *)sourceTile->getContents();
 
     // iterate over all slices in list, update the Ranks
     auto it = slicesList.begin();
-    int i=0;
-    for(it; it != slicesList.end(); ++it)
+    int i = 0;
+    for (it; it != slicesList.end(); ++it)
     {
         // update rank in the relevant tuple for the slice
         accessSliceRank(*it) = (double)ranksArray[i];
@@ -740,45 +730,45 @@ QtSort::extractRanks(QtData* ranksOperand)
 QtData *
 QtSort::evaluate(QtDataList *inputList)
 {
-    QtData *returnValue = NULL;      // output array
-    QtData *MDDtoSortOperand = NULL; // array to be sorted
-    QtData *ranksOperand = NULL;     // ranks array
+    QtData *returnValue = NULL;       // output array
+    QtData *MDDtoSortOperand = NULL;  // array to be sorted
+    QtData *ranksOperand = NULL;      // ranks array
 
     MDDtoSortOperand = MDDtoSort->evaluate(inputList);
 
-    if(applyRankings)
+    if (applyRankings)
         ranksOperand = ranks->evaluate(inputList);
 
     // get QtMDD and MDDObj
-    QtMDD  *qtMDD         = static_cast<QtMDD *>(MDDtoSortOperand);
+    QtMDD *qtMDD = static_cast<QtMDD *>(MDDtoSortOperand);
     MDDObj *currentMDDObj = qtMDD->getMDDObject();
 
     // get extent of the sortAxis dimension, this is the number of slices created
     r_Minterval currentDomain = currentMDDObj->getCurrentDomain();
 
     // check that sortAxis is within bounds - cannot ever be parsed as negative.
-    if(sortAxis>= currentDomain.dimension())
+    if (sortAxis >= currentDomain.dimension())
     {
         LERROR << "Internal error in QtSort::evaluate() - "
-                   << "The axis is outside the array's spatial domain.";
+               << "The axis is outside the array's spatial domain.";
 
         ALONGClauseParseInfo.setErrorNo(AXIS_OUTOFBOUNDS);
         throw ALONGClauseParseInfo;
     }
 
-    sortAxisExtent = (r_Sinterval::BoundType) currentDomain[sortAxis].get_extent();
+    sortAxisExtent = (r_Sinterval::BoundType)currentDomain[sortAxis].get_extent();
 
-    if(currentMDDObj)
+    if (currentMDDObj)
     {
-        r_Minterval sliceDom = currentDomain;// domain for each slicing iteration changes
+        r_Minterval sliceDom = currentDomain;  // domain for each slicing iteration changes
 
         // slice array at sortAxis, and save slices into list.
         // this will slice the array, and save the slices in their original order into the list.
-        for(r_Range i=0; i<sortAxisExtent; i++)
+        for (r_Range i = 0; i < sortAxisExtent; i++)
         {
             // set the spatial domain of the slice,
             // make interval = 'i' iterator at the sortAxis
-            sliceDom[sortAxis] = r_Sinterval((r_Range) i);
+            sliceDom[sortAxis] = r_Sinterval((r_Range)i);
             // reset MDD domain
             qtMDD->setLoadDomain(currentDomain);
             // do slicing and append slice to list (sliceMDD, placeholder rank)
@@ -789,28 +779,27 @@ QtSort::evaluate(QtDataList *inputList)
         }
 
         // evaluate ranks array and extract the ranks
-        if(applyRankings)
+        if (applyRankings)
             this->extractRanks(ranksOperand);
 
         // sort the slices
         this->sort();
 
         // concatenate all slices into output array
-        returnValue = this->concatenate((unsigned int) sortAxis);
+        returnValue = this->concatenate((unsigned int)sortAxis);
 
         // clear slicesList, important when multiple objects are in 1 collection, which are sorted at the same time.
         auto it = slicesList.begin();
-        for(it; it != slicesList.end(); ++it)
-        {   //delete pointers
+        for (it; it != slicesList.end(); ++it)
+        {  //delete pointers
             delete accessSliceMDD(*it);
         }
         slicesList.clear();
     }
-    return returnValue;// has to be a QtMDD
+    return returnValue;  // has to be a QtMDD
 }
 
-void
-QtSort::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtSort::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtSort Object: type " << std::flush;
     dataStreamType.printStatus(s);
@@ -821,22 +810,20 @@ QtSort::printTree(int tab, std::ostream &s, QtChildType mode)
         if (MDDtoSort)
         {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input: " << std::endl;
-            MDDtoSort->printTree(tab+2, s, mode);
+            MDDtoSort->printTree(tab + 2, s, mode);
         }
         else
         {
             s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no input" << std::endl;
         }
     }
-
 }
 
-void
-QtSort::printAlgebraicExpression(std::ostream &s)
+void QtSort::printAlgebraicExpression(std::ostream &s)
 {
     s << "MDD<";
 
-    if(MDDtoSort)
+    if (MDDtoSort)
     {
         MDDtoSort->printAlgebraicExpression(s);
     }
@@ -847,13 +834,13 @@ QtSort::printAlgebraicExpression(std::ostream &s)
 
     s << ",";
 
-    if(ranks)
+    if (ranks)
     {
         ranks->printAlgebraicExpression(s);
     }
     else
     {
-        s <<"no ranks";
+        s << "no ranks";
     }
 
     s << ">";

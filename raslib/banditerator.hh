@@ -31,7 +31,6 @@ class r_Base_Type;
 
 //@ManMemo: Module: {\bf raslib}
 
-
 /**
   This class abstracts away iteration over the cells of a (multi-band) array.
   Bands in pixel-interleaved and channel-interleaved linearizations are 
@@ -52,88 +51,93 @@ public:
     /// @param _size number of cells in the array
     /// @param _band the band to be iterated
     /// @param _bandLinearization the band interleaving (pixel/channel)
-    r_Band_Iterator(const char* _data, const r_Base_Type* _type, r_Bytes _size,
-                   unsigned int _band, r_Band_Linearization _bandLinearization);
+    r_Band_Iterator(const char *_data, const r_Base_Type *_type, r_Bytes _size,
+                    unsigned int _band, r_Band_Linearization _bandLinearization);
 
     /// destructor
     virtual ~r_Band_Iterator() = default;
-    
+
     /// @return true if all band cells have been iterated. If this method
     /// returns true, then calling `advance()` or `get()` is undefined behavior.
-    bool done() const {
-      return currCell == dataEnd;
+    bool done() const
+    {
+        return currCell == dataEnd;
     }
-    
+
     /// Move to the next band cell. Calling this method when `done()` returns
     /// true leads to undefined behaviour.
-    void advance() {
-      assert(currCell != dataEnd);
-      currCell += cellSize;
+    void advance()
+    {
+        assert(currCell != dataEnd);
+        currCell += cellSize;
     }
-    
+
     /// Move by cellCount cells in the band. cellCount must be less than the
     /// remaining number of cells in this band.
-    void advance(r_Bytes cellCount) {
-      assert(currCell + (cellSize * cellCount) <= dataEnd);
-      currCell += (cellSize * cellCount);
+    void advance(r_Bytes cellCount)
+    {
+        assert(currCell + (cellSize * cellCount) <= dataEnd);
+        currCell += (cellSize * cellCount);
     }
-    
+
     /// @return a pointer to the current cell.
     /// No check is performed on whether the returned pointer is at the end
     /// of the array, so before calling make sure to check with a call to `done()`.
-    const char *get() {
-      assert(currCell != dataEnd);
-      return currCell;
+    const char *get()
+    {
+        assert(currCell != dataEnd);
+        return currCell;
     }
-    
+
     /// @return a pointer to the targetCell in the band.
     /// targetCell must be less than the total number of cells in the array,
     /// otherwise this method will lead to undefined behavior.
-    const char *get(r_Bytes targetCell) {
-      assert(targetCell < size);
-      return (data + bandOffset) + (targetCell * cellSize);
+    const char *get(r_Bytes targetCell)
+    {
+        assert(targetCell < size);
+        return (data + bandOffset) + (targetCell * cellSize);
     }
-    
-    void reset() {
-      currCell = data + bandOffset;
+
+    void reset()
+    {
+        currCell = data + bandOffset;
     }
-    
+
     /// Copy the band data to the given dst pointer; dst must not be null, and
     /// must be sufficiently large (use `getBandSize()` to determine the size).
-    void copyBand(char* __restrict__ dst);
-    
+    void copyBand(char *__restrict__ dst);
+
     /// Return the size of band data in bytes.
     r_Bytes getBandSize() const;
 
 protected:
-    
     /// array data
-    const char* data{NULL};
-    
+    const char *data{NULL};
+
     /// current cell in the array to be returned by dereferencing the iterator
-    const char* currCell{NULL};
-    
+    const char *currCell{NULL};
+
     /// end of data = data + (size * cellSize)
-    const char* dataEnd{NULL};
-    
+    const char *dataEnd{NULL};
+
     /// array cell type
     const r_Base_Type *type{NULL};
-    
+
     /// array size in number of cells
     r_Bytes size{};
-    
+
     /// offset in bytes to the first cell in data of the iterated band
     r_Bytes bandOffset{};
-    
+
     /// the band to be iterated
     unsigned int band{};
-    
+
     /// size of the band component of one cell in bytes
     unsigned int cellBandSize{};
-    
+
     /// full cell size in bytes
     unsigned int cellSize{1};
-    
+
     /// band linearization (pixel/channel)
     r_Band_Linearization bandLinearization{r_Band_Linearization::PixelInterleaved};
 };

@@ -21,16 +21,16 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "basetype.hh"                           // for BaseType
-#include "mdddomaintype.hh"                      // for MDDDomainType
-#include "mdddimensiontype.hh"                   // for MDDDimensionType
-#include "mddbasetype.hh"                        // for MDDBaseType
-#include "mddtype.hh"                            // for MDDType, MDDType::MD...
-#include "type.hh"                               // for Type (ptr only), ost...
-#include "raslib/mddtypes.hh"                    // for r_Dimension, r_Bytes
-#include "raslib/minterval.hh"                   // for r_Minterval
-#include "relcatalogif/typefactory.hh"             // for TypeFactory
-#include <logging.hh>                            // for Writer, CTRACE, LTRACE
+#include "basetype.hh"                  // for BaseType
+#include "mdddomaintype.hh"             // for MDDDomainType
+#include "mdddimensiontype.hh"          // for MDDDimensionType
+#include "mddbasetype.hh"               // for MDDBaseType
+#include "mddtype.hh"                   // for MDDType, MDDType::MD...
+#include "type.hh"                      // for Type (ptr only), ost...
+#include "raslib/mddtypes.hh"           // for r_Dimension, r_Bytes
+#include "raslib/minterval.hh"          // for r_Minterval
+#include "relcatalogif/typefactory.hh"  // for TypeFactory
+#include <logging.hh>                   // for Writer, CTRACE, LTRACE
 
 #include <boost/algorithm/string/predicate.hpp>  // for starts_with
 #include <stdio.h>                               // for sprintf
@@ -68,7 +68,7 @@ std::string MDDDimensionType::getTypeStructure() const
     auto dimStr = std::to_string(myDimension);
     auto baseType = myBaseType->getTypeStructure();
     auto resultLen = 12 + baseType.size() + dimStr.size();
-    
+
     std::string ret;
     ret.reserve(resultLen);
     ret += "marray <";
@@ -76,7 +76,7 @@ std::string MDDDimensionType::getTypeStructure() const
     ret += ",";
     ret += dimStr;
     ret += ">";
-    
+
     return ret;
 }
 
@@ -90,7 +90,7 @@ std::string MDDDimensionType::getNewTypeStructure() const
 
     std::string ret;
     ret.reserve(baseType.size() + 11 + (myDimension * 3));
-    
+
     ret += baseType;
     ret += " MDARRAY [";
     for (r_Dimension i = 1; i <= myDimension; ++i)
@@ -151,4 +151,3 @@ r_Bytes MDDDimensionType::getMemorySize() const
 {
     return MDDBaseType::getMemorySize() + sizeof(r_Dimension);
 }
-

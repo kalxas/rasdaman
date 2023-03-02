@@ -54,5 +54,4 @@ bool isAddressValid(const std::string &hostName, int32_t port)
     return ret == 0;
 }
 
-}
-
+}  // namespace networkutils

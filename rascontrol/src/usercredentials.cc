@@ -39,8 +39,8 @@
 namespace rascontrol
 {
 
-UserCredentials::UserCredentials(const std::string &userNameArg, const std::string &userPasswordArg):
-    userName(userNameArg)
+UserCredentials::UserCredentials(const std::string &userNameArg, const std::string &userPasswordArg)
+    : userName(userNameArg)
 {
     this->userPassword = common::Crypto::messageDigest(userPasswordArg, DEFAULT_DIGEST);
 }
@@ -86,7 +86,7 @@ void UserCredentials::environmentLogin()
         throw std::runtime_error("RASLOGIN environment variable is not set.");
     }
 
-    for (i = 0; i < rascontrol::MAX_USERNAME_LENGTH - 1u && *s != ':' && *s ; i++, s++)
+    for (i = 0; i < rascontrol::MAX_USERNAME_LENGTH - 1u && *s != ':' && *s; i++, s++)
     {
         auxUserName[i] = *s;
     }
@@ -113,4 +113,4 @@ std::string UserCredentials::getUserPassword() const
 {
     return this->userPassword;
 }
-}
+}  // namespace rascontrol

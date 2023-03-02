@@ -33,7 +33,6 @@ rasdaman GmbH.
 class MDDColl;
 class MDDCollIter;
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -47,7 +46,6 @@ element.
 class QtMDDAccess : public QtONCStream
 {
 public:
-
     /// constructor getting the collection name if no iterator name is specified
     QtMDDAccess(const QtCollection &collection);
 
@@ -60,13 +58,13 @@ public:
     //@Man: Operations of the ONC protocol
     //@{
     ///
-    void        open();
+    void open();
     ///
     QtDataList *next();
     ///
-    void        close();
+    void close();
     ///
-    void        reset();
+    void reset();
     //@}
 
     /// prints the tree
@@ -85,7 +83,6 @@ public:
     virtual const QtTypeTuple &checkType();
 
 private:
-
     /// QtCollection class
     QtCollection collection;
 
@@ -105,4 +102,3 @@ private:
 #include "qlparser/qtmddaccess.icc"
 
 #endif
-

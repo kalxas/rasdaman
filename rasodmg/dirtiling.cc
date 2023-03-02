@@ -41,15 +41,14 @@ rasdaman GmbH.
 #include <cstdlib>
 
 const char *
-r_Dir_Tiling::description = "dimensions, decomposision patterns, tile size(in bytes) and subtiling [SUBTILING|NOSUBTILING] (ex: \"3;[0,2,4,5],[*],[0,10,15];100;NOSUBTILING\")";
+    r_Dir_Tiling::description = "dimensions, decomposision patterns, tile size(in bytes) and subtiling [SUBTILING|NOSUBTILING] (ex: \"3;[0,2,4,5],[*],[0,10,15];100;NOSUBTILING\")";
 
 const char *r_Dir_Tiling::subtiling_name_withoutsubtiling = "NOSUBTILING";
-const char *r_Dir_Tiling::subtiling_name_withsubtiling    = "SUBTILING";
+const char *r_Dir_Tiling::subtiling_name_withsubtiling = "SUBTILING";
 const char *r_Dir_Tiling::all_subtiling_names[r_Dir_Tiling::NUMBER] =
-{
-    subtiling_name_withoutsubtiling,
-    subtiling_name_withsubtiling
-};
+    {
+        subtiling_name_withoutsubtiling,
+        subtiling_name_withsubtiling};
 
 r_Dir_Tiling::SubTiling
 r_Dir_Tiling::get_subtiling_from_name(const char *name)
@@ -81,47 +80,48 @@ r_Dir_Tiling::get_name_from_subtiling(SubTiling tsl)
 }
 
 r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
-    :   r_Dimension_Tiling(0, 0)
+    : r_Dimension_Tiling(0, 0)
 {
     check_nonempty_tiling(encoded);
 
-//initialisation
+    //initialisation
     const char *pStart = encoded;
     const char *pTemp = pStart;
     const char *pEnd = pTemp + strlen(pStart);
 
-//deal with dimension
+    //deal with dimension
     const char *pRes = advance_to_next_char(pTemp, TCOLON);
     {
         auto pToConvertPtr = copy_buffer(pTemp, static_cast<r_Bytes>(pRes - pTemp));
         dimension = parse_unsigned(pToConvertPtr.get());
     }
     std::vector<r_Dir_Decompose> vectDirDecomp(dimension);
-    
+
     check_premature_stream_end(pRes, pEnd);
     pRes++;
     pTemp = pRes;
 
-//deal with directional decompose
+    //deal with directional decompose
     pRes = advance_to_next_char(pTemp, TCOLON);
     auto pToConvertPtr = copy_buffer(pTemp, static_cast<size_t>(pRes - pTemp));
     const char *pToConvertEnd = pToConvertPtr.get() + strlen(pToConvertPtr.get());
     const char *pDirTemp = pToConvertPtr.get();
-    
+
     // helper for multiple checks below
-#define CHECK_PARAM(cond) \
-    if (cond) { \
+#define CHECK_PARAM(cond)                                                                                                              \
+    if (cond)                                                                                                                          \
+    {                                                                                                                                  \
         LERROR << "Error decoding directional decompose for dimension " << dirIndex + 1 << " from \"" << pToConvertPtr.get() << "\"."; \
-        throw r_Error(TILINGPARAMETERNOTCORRECT); \
+        throw r_Error(TILINGPARAMETERNOTCORRECT);                                                                                      \
     }
-    
+
     r_Dimension dirIndex = 0;
     while (dirIndex < dimension)
     {
         const char *pDirRes = strstr(pDirTemp, LSQRBRA);
         CHECK_PARAM(!pDirRes)
         const char *pDirStart = pDirRes;
-        
+
         pDirRes = strstr(pDirTemp, RSQRBRA);
         CHECK_PARAM(!pDirRes)
         const char *pDirEnd = pDirRes;
@@ -131,7 +131,7 @@ r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
 
         auto pDirToConvertPtr = copy_buffer(pDirStart + 1, lenDirToConvert - 1);
         char *pDirToConvert = pDirToConvertPtr.get();
-        
+
         pDirTemp = pDirToConvert;
         pDirStart = pDirEnd;
         pDirEnd = pDirToConvert + strlen(pDirToConvert);
@@ -174,21 +174,21 @@ r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
         }
     }
 
-//skip COLON & free buffer
+    //skip COLON & free buffer
     check_premature_stream_end(pRes, pEnd);
     pRes++;
     pTemp = pRes;
 
-//deal with tilesize
+    //deal with tilesize
     pRes = advance_to_next_char(pTemp, TCOLON);
     pToConvertPtr = copy_buffer(pTemp, static_cast<size_t>(pRes - pTemp));
     tile_size = parse_unsigned(pToConvertPtr.get());
 
-//skip COLON & free buffer
+    //skip COLON & free buffer
     check_premature_stream_end(pRes, pEnd);
     pRes++;
     pTemp = pRes;
-//deal with subtilig
+    //deal with subtilig
     auto subTiling = r_Dir_Tiling::get_subtiling_from_name(pTemp);
     if (subTiling == r_Dir_Tiling::NUMBER)
     {
@@ -200,14 +200,14 @@ r_Dir_Tiling::r_Dir_Tiling(const char *encoded)
 }
 
 r_Dir_Tiling::r_Dir_Tiling(r_Dimension dims, const std::vector<r_Dir_Decompose> &decomp, r_Bytes ts, SubTiling sub)
-    :   r_Dimension_Tiling(dims, ts),
-        dim_decomp(decomp),
-        sub_tile(sub)
+    : r_Dimension_Tiling(dims, ts),
+      dim_decomp(decomp),
+      sub_tile(sub)
 {
     if (dim_decomp.size() != dimension)
     {
-        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << dims << ", " << ts 
-               << ", " << static_cast<int>(sub) << ") number of dimensions (" << dimension 
+        LERROR << "r_Dir_Tiling::r_Dir_Tiling(" << dims << ", " << ts
+               << ", " << static_cast<int>(sub) << ") number of dimensions (" << dimension
                << ") does not match number of decomposition entries (" << decomp.size() << ")";
         throw r_Edim_mismatch(dimension, static_cast<r_Dimension>(dim_decomp.size()));
     }
@@ -230,7 +230,6 @@ void r_Dir_Tiling::print_status(std::ostream &os) const
     for (r_Dimension i = 0; i < dim_decomp.size(); i++)
         os << "dim #" << i << " : " << dim_decomp[i] << " ";
     os << "} ";
-
 }
 
 std::vector<r_Minterval>
@@ -239,12 +238,12 @@ r_Dir_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
     // Check dims
     if (dimension != domain.dimension())
     {
-        LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen 
-               << ") dimensions of domain (" << domain.dimension() 
+        LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen
+               << ") dimensions of domain (" << domain.dimension()
                << ") do not match dimensions of tiling strategy (" << dimension << ")";
         throw r_Edim_mismatch(dimension, domain.dimension());
     }
-    
+
     // The result
     std::vector<r_Minterval> decomp_result;
     // An alias to result
@@ -267,9 +266,9 @@ r_Dir_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
             auto lim2 = temp_dim_decomp[i].get_partition(temp_dim_decomp[i].get_num_intervals() - 1);
             if (lim1 != lim2)
             {
-                LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen 
-                       << ") upper limit of domain (" << domain.dimension() 
-                       << ") at dimension " << i << " (" << domain[i] << ") does not partition " 
+                LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen
+                       << ") upper limit of domain (" << domain.dimension()
+                       << ") at dimension " << i << " (" << domain[i] << ") does not partition "
                        << temp_dim_decomp[i].get_partition(temp_dim_decomp[i].get_num_intervals() - 1);
                 throw r_Elimits_mismatch(lim1, lim2);
             }
@@ -278,14 +277,14 @@ r_Dir_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
             lim2 = temp_dim_decomp[i].get_partition(0);
             if (lim1 != lim2)
             {
-                LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen 
-                       << ") lower limit of domain (" << domain.dimension() 
-                       << ") at dimension " << i << " (" << domain[i] << ") does not partition " 
+                LERROR << "r_Dir_Tiling::compute_tiles(" << domain << ", " << typelen
+                       << ") lower limit of domain (" << domain.dimension()
+                       << ") at dimension " << i << " (" << domain[i] << ") does not partition "
                        << temp_dim_decomp[i].get_partition(0);
                 throw r_Elimits_mismatch(lim1, lim2);
             }
         }
-        else                                               // Restric not defined
+        else  // Restric not defined
         {
             // Dim unspecified
             undef_dim[i] = true;
@@ -389,8 +388,7 @@ r_Dir_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
     return result;
 }
 
-bool
-r_Dir_Tiling::is_compatible(const r_Minterval &domain, r_Bytes type_len) const
+bool r_Dir_Tiling::is_compatible(const r_Minterval &domain, r_Bytes type_len) const
 {
     if (!r_Dimension_Tiling::is_compatible(domain, type_len))
     {
@@ -413,4 +411,3 @@ r_Dir_Tiling::is_compatible(const r_Minterval &domain, r_Bytes type_len) const
     }
     return true;
 }
-

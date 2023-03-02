@@ -25,7 +25,7 @@ rasdaman GmbH.
 #include "reladminif/dbobject.hh"
 #include "indexmgr/hierindexds.hh"
 #include "relcatalogif/inlineminterval.hh"
-#include <memory> // for unique_ptr
+#include <memory>  // for unique_ptr
 
 //@ManMemo: Module: {\bf relindexif}
 /*@Doc:
@@ -187,22 +187,22 @@ protected:
     */
 
     DBHierIndex(const OId &id);
-    
+
     void insertInDb() override;
     void readFromDb() override;
     void updateInDb() override;
     void deleteFromDb() override;
-    
+
     /// write index entries information to a blob buffer; the result can be
     /// read back with readFromBlobBuffer
-    std::unique_ptr<char[]> 
+    std::unique_ptr<char[]>
     writeToBlobBuffer(int &completeSize, long long &parentid);
-    
+
     /// read index entries from a blob buffer; the result of a subsequent
     /// writeToBlobBuffer would equal the given blobBuffer.
-    void readFromBlobBuffer(r_Bytes numEntries, r_Dimension dimension, 
-                        long long parentOid, const char *blobBuffer, 
-                        r_Bytes blobSize);
+    void readFromBlobBuffer(r_Bytes numEntries, r_Dimension dimension,
+                            long long parentOid, const char *blobBuffer,
+                            r_Bytes blobSize);
 
     void extendCoveredDomain(const r_Minterval &newTilesExtents);
     /*@Doc:
@@ -239,7 +239,7 @@ protected:
         keeps the number of rows currently taken up in the db by
         this instance
     */
-    
+
     // old format, contains 13 in first byte
     static const int BLOB_FORMAT_V1;
     static const int BLOB_FORMAT_V1_HEADER_SIZE;
@@ -252,5 +252,4 @@ protected:
     static const int BLOB_FORMAT_V3;
     static const int BLOB_FORMAT_V3_HEADER_SIZE;
     static const long long BLOB_FORMAT_V3_HEADER_MAGIC;
-    
 };

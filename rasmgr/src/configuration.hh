@@ -60,17 +60,16 @@ private:
     static const std::uint32_t MAXMSGOUTBUFF;
 
     //interface program
-    CommandLineParser    &cmlInter;
+    CommandLineParser &cmlInter;
     CommandLineParameter &cmlHelp, &cmlHostName, &cmlPort;
     CommandLineParameter &cmlName, &cmlQuiet, &cmlLog;
 
     bool quiet;
-    std::string name; /*!< symbolic name of this rasmgr  */
-    std::string hostName;/*!< the advertized host name (master only, default: same as UNIX command 'hostname')" */
-    std::uint32_t port;/*!< Port number */
-    std::string logFile;/*!< The file to which to output the log */
-
+    std::string name;     /*!< symbolic name of this rasmgr  */
+    std::string hostName; /*!< the advertized host name (master only, default: same as UNIX command 'hostname')" */
+    std::uint32_t port;   /*!< Port number */
+    std::string logFile;  /*!< The file to which to output the log */
 };
-}
+}  // namespace rasmgr
 
-#endif // CONFIGURATION_HH
+#endif  // CONFIGURATION_HH

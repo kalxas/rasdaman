@@ -7,17 +7,17 @@ namespace rasserver
 {
 namespace test
 {
-TEST(ClientQueryStreamedResultTest, streamSmallSize) {
-
+TEST(ClientQueryStreamedResultTest, streamSmallSize)
+{
     std::uint64_t dataSize = 100;
 
-    char* data = new char[dataSize];
+    char *data = new char[dataSize];
     for (size_t i = 0; i < dataSize; ++i)
     {
         data[i] = (char)i;
     }
 
-    ClientQueryStreamedResult* result = new ClientQueryStreamedResult(data, dataSize, 1);
+    ClientQueryStreamedResult *result = new ClientQueryStreamedResult(data, dataSize, 1);
     DataChunk nextChunk = result->getNextChunk();
     ASSERT_EQ(nextChunk.length, dataSize);
     ASSERT_EQ(result->getRemainingBytesLength(), 0);
@@ -28,17 +28,17 @@ TEST(ClientQueryStreamedResultTest, streamSmallSize) {
 
 TEST(ClientQueryStreamedResultTest, streamBigSize)
 {
-    std::uint64_t dataSize = ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE / 2; // 2.5 chunks
+    std::uint64_t dataSize = ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE + ClientQueryStreamedResult::CHUNK_SIZE / 2;  // 2.5 chunks
 
-    char* data = new char[dataSize];
-    char* newData = new char[dataSize];
+    char *data = new char[dataSize];
+    char *newData = new char[dataSize];
 
     for (size_t i = 0; i < dataSize; ++i)
     {
         data[i] = (char)i;
     }
 
-    ClientQueryStreamedResult* result = new ClientQueryStreamedResult(data, dataSize, 1);
+    ClientQueryStreamedResult *result = new ClientQueryStreamedResult(data, dataSize, 1);
     DataChunk nextChunk = result->getNextChunk();
     ASSERT_EQ(nextChunk.length, ClientQueryStreamedResult::CHUNK_SIZE);
     ASSERT_EQ(result->getRemainingBytesLength(), dataSize - ClientQueryStreamedResult::CHUNK_SIZE);
@@ -64,9 +64,9 @@ TEST(ClientQueryStreamedResultTest, testZeroSize)
 {
     std::uint64_t dataSize = 0;
 
-    char* data = new char[dataSize];
+    char *data = new char[dataSize];
 
-    ClientQueryStreamedResult* result = new ClientQueryStreamedResult(data, dataSize, 1);
+    ClientQueryStreamedResult *result = new ClientQueryStreamedResult(data, dataSize, 1);
     DataChunk nextChunk = result->getNextChunk();
     ASSERT_EQ(nextChunk.length, 0);
     ASSERT_EQ(data, nextChunk.bytes);
@@ -74,5 +74,5 @@ TEST(ClientQueryStreamedResultTest, testZeroSize)
     delete result;
 }
 
-}
-}
+}  // namespace test
+}  // namespace rasserver

@@ -46,7 +46,7 @@ TEST(UserAdminRightsTest, serializeToProto)
     rights.setServerAdminRights(adminRights);
     rights.setSystemConfigRights(configRights);
 
-    UserAdminRightsProto proto =  UserAdminRights::serializeToProto(rights);
+    UserAdminRightsProto proto = UserAdminRights::serializeToProto(rights);
 
     ASSERT_EQ(controlRights, proto.access_control_rights());
     ASSERT_EQ(infoRights, proto.info_rights());
@@ -79,5 +79,5 @@ TEST(UserAdminRightsTest, parseFromProto)
     ASSERT_EQ(configRights, rights.hasSystemConfigRights());
 }
 
-}
-}
+}  // namespace test
+}  // namespace rasmgr

@@ -61,6 +61,6 @@ private:
     std::string userName;
     std::string userPassword;
 };
-}
+}  // namespace rascontrol
 
-#endif // USERCREDENTIALS_HH
+#endif  // USERCREDENTIALS_HH

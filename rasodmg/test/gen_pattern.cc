@@ -71,32 +71,31 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include "raslib/sinterval.hh"
 
-
 using namespace std;
 
 const int BUF_SIZE = 200;
 
-char* in_filename;
-char* out_filename;
+char *in_filename;
+char *out_filename;
 int total_patterns;
 int dim;
-int* delta;
-r_Minterval* domain;
+int *delta;
+r_Minterval *domain;
 
 struct IArea
 {
     r_Minterval iarea;
     double percent;
 
-    IArea(r_Minterval& area, double percentage)
+    IArea(r_Minterval &area, double percentage)
         : iarea(area), percent(percentage)
     {
     }
 };
 
-vector<IArea*> IAreas;
+vector<IArea *> IAreas;
 
-void parse(int argc, char** argv)
+void parse(int argc, char **argv)
 {
     if ((argc == 1) || ((argc == 2) && (strcmp(argv[1], "-h") == 0)))
     {
@@ -148,7 +147,8 @@ void get_specification()
         exit(0);
     }
 
-    cout << endl << "Patterns: " << total_patterns << endl;
+    cout << endl
+         << "Patterns: " << total_patterns << endl;
     cout << "Domain: " << *domain << endl;
     cout << "Dimension: " << dim << "  (";
 
@@ -170,7 +170,7 @@ void get_specification()
         if (!is.bad() && sscanf(buf, "%s", buf2) == 1)
         {
             r_Minterval area(buf2);
-            IArea* ia = new IArea(area, perc);
+            IArea *ia = new IArea(area, perc);
             IAreas.push_back(ia);
 
             cout << "*";
@@ -188,10 +188,9 @@ void get_specification()
 
 void generate_patterns()
 {
-    srand((unsigned int) time(NULL));
+    srand((unsigned int)time(NULL));
 
-
-    vector<IArea*>::iterator it = IAreas.begin();
+    vector<IArea *>::iterator it = IAreas.begin();
 
     ofstream os(out_filename);
     if (!os)
@@ -202,7 +201,7 @@ void generate_patterns()
 
     while (it != IAreas.end())
     {
-        IArea* ia = *it;
+        IArea *ia = *it;
         ++it;
 
         int total = (int)(ia->percent * total_patterns);
@@ -256,11 +255,11 @@ void generate_patterns()
         }
     }
 
-    delete [] delta;
+    delete[] delta;
     delete domain;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     parse(argc, argv);
     get_specification();

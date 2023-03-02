@@ -42,15 +42,13 @@ char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
 
 class MDDColl;
-MDDColl *mddConstants = 0; // used in QtMDD
+MDDColl *mddConstants = 0;  // used in QtMDD
 
 INITIALIZE_EASYLOGGINGPP
 
 class TestBlobFSTransactionLock
 {
-
 public:
-
     void testLockFile()
     {
         string lockFilePath("/tmp/rasdata/test.lock");
@@ -82,7 +80,7 @@ public:
         EXPECT_FALSE(lockFile.isLocked());
         EXPECT_FALSE(lockFile.unlock());
     }
-    
+
     void testBlobFileStorageTransactionLock()
     {
         string trDir = "/tmp/rasdata";
@@ -95,7 +93,7 @@ public:
         DirWrapper::createDirectory(trDir);
         DirWrapper::createDirectory(transactionPath);
 
-        BlobFSTransactionLock* transactionLock = 
+        BlobFSTransactionLock *transactionLock =
             new BlobFSTransactionLock(transactionPath, "/tmp/rasdata");
 
         EXPECT_FALSE(BlobFile::fileExists(trLockPath));
@@ -140,20 +138,20 @@ public:
         string transactionPath("/tmp/rasdata/insert.12345678/");
         DirWrapper::createDirectory(transactionPath);
 
-        BlobFSTransactionLock* transactionLock = new BlobFSTransactionLock(transactionPath, "");
+        BlobFSTransactionLock *transactionLock = new BlobFSTransactionLock(transactionPath, "");
 
         EXPECT_TRUE(transactionLock->lock(TransactionLockType::General));
         EXPECT_TRUE(transactionLock->isLocked(TransactionLockType::General));
-        
+
         DirWrapper::removeDirectory(transactionPath);
         EXPECT_FALSE(DirWrapper::directoryExists(transactionPath.c_str()));
-        
+
         EXPECT_EQ(DirWrapper::getBasename("/path/to/dir/file"), "file");
         EXPECT_EQ(DirWrapper::getBasename("/path/to/dir/"), "dir");
         EXPECT_EQ(DirWrapper::getBasename("/path/to/dir///"), "dir");
         EXPECT_EQ(DirWrapper::getBasename("file"), "file");
         EXPECT_EQ(DirWrapper::getBasename("file/"), "file");
-        
+
         delete transactionLock;
     }
 
@@ -167,10 +165,9 @@ public:
     {
         system("rm -rf /tmp/rasdata");
     }
-
 };
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 #ifndef BASEDB_SQLITE
     cerr << "testsuite runs only on SQLite / Filestorage rasdaman." << endl;

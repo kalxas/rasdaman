@@ -10,18 +10,18 @@ namespace rasmgr
 {
 namespace test
 {
-class UserManagerMock: public rasmgr::UserManager
+class UserManagerMock : public rasmgr::UserManager
 {
 public:
-    MOCK_METHOD1(defineUser, void(const rasmgr::UserProto&));
-    MOCK_METHOD2(changeUser, void(const std::string&, const rasmgr::UserProto&));
-    MOCK_METHOD1(removeUser, void(const std::string&));
-    MOCK_METHOD3(tryGetUser, bool(const std::string&, const std::string&, std::shared_ptr<rasmgr::User>&));
+    MOCK_METHOD1(defineUser, void(const rasmgr::UserProto &));
+    MOCK_METHOD2(changeUser, void(const std::string &, const rasmgr::UserProto &));
+    MOCK_METHOD1(removeUser, void(const std::string &));
+    MOCK_METHOD3(tryGetUser, bool(const std::string &, const std::string &, std::shared_ptr<rasmgr::User> &));
     MOCK_METHOD1(saveUserInformation, void(bool));
     MOCK_METHOD0(loadUserInformation, void(void));
     MOCK_METHOD0(serializeToProto, rasmgr::UserMgrProto(void));
 };
-}
-}
+}  // namespace test
+}  // namespace rasmgr
 
-#endif // RASMGR_X_TEST_MOCKS_USERMANAGERMOCK_HH
+#endif  // RASMGR_X_TEST_MOCKS_USERMANAGERMOCK_HH

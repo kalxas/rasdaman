@@ -21,20 +21,19 @@
 */
 
 #include "dirwrapper.hh"
-#include "blobfscommon.hh"      // for IO_ERROR_RC, IO_SUCCESS_RC
-#include "raslib/error.hh"      // for r_Error, FILEDATADIR_NOTWRITABLE
+#include "blobfscommon.hh"  // for IO_ERROR_RC, IO_SUCCESS_RC
+#include "raslib/error.hh"  // for r_Error, FILEDATADIR_NOTWRITABLE
 #include <logging.hh>
 
-#include <errno.h>              // for errno, ENOENT
-#include <ftw.h>                // for nftw, FTW_DEPTH, FTW_PHYS
-#include <stdio.h>              // for remove
-#include <string.h>             // for strerror, strcmp
-#include <sys/stat.h>           // for stat, fstatat, mkdir, S_ISDIR
-#include <dirent.h>             // for DIR
+#include <errno.h>     // for errno, ENOENT
+#include <ftw.h>       // for nftw, FTW_DEPTH, FTW_PHYS
+#include <stdio.h>     // for remove
+#include <string.h>    // for strerror, strcmp
+#include <sys/stat.h>  // for stat, fstatat, mkdir, S_ISDIR
+#include <dirent.h>    // for DIR
 #include <cassert>
 
 using std::string;
-
 
 // -----------------------------------------------------------------------------
 //                               DirWrapper
@@ -50,7 +49,7 @@ void DirWrapper::createDirectory(const char *dirPath)
     {
         if (mkdir(dirPath, 0770) == IO_ERROR_RC)
         {
-            LERROR << "failed creating directory - " << dirPath 
+            LERROR << "failed creating directory - " << dirPath
                    << ", reason: " << strerror(errno);
             throw r_Error(static_cast<unsigned int>(FILEDATADIR_NOTWRITABLE));
         }
@@ -62,7 +61,7 @@ int removePath(const char *fpath, const struct stat *, int, struct FTW *)
     int ret = remove(fpath);
     if (ret == IO_ERROR_RC)
     {
-        LWARNING << "failed deleting path from disk - " << fpath 
+        LWARNING << "failed deleting path from disk - " << fpath
                  << ", reason: " << strerror(errno);
     }
     return ret;
@@ -74,7 +73,7 @@ void DirWrapper::removeDirectory(const string &dirPath)
     {
         if (errno != ENOENT)
         {
-            LWARNING << "failed deleting directory from disk - " << dirPath 
+            LWARNING << "failed deleting directory from disk - " << dirPath
                      << ", reason: " << strerror(errno);
         }
     }
@@ -89,7 +88,8 @@ bool DirWrapper::directoryExists(const char *dirPath)
     {
         if (!S_ISDIR(status.st_mode))
             LWARNING << "found a non-directory while checking "
-                        "if a directory exists: " << dirPath;
+                        "if a directory exists: "
+                     << dirPath;
         return true;
     }
 }
@@ -97,15 +97,15 @@ bool DirWrapper::directoryExists(const char *dirPath)
 string DirWrapper::toCanonicalPath(const string &dirPath)
 {
     return !dirPath.empty() && dirPath.back() != '/'
-           ? dirPath + '/'
-           : dirPath;
+               ? dirPath + '/'
+               : dirPath;
 }
 
 string DirWrapper::fromCanonicalPath(const string &dirPath)
 {
     return !dirPath.empty() && dirPath.back() == '/'
-           ? dirPath.substr(0, dirPath.size() - 1)
-           : dirPath;
+               ? dirPath.substr(0, dirPath.size() - 1)
+               : dirPath;
 }
 
 string DirWrapper::getDirname(const std::string &filePath)
@@ -113,17 +113,18 @@ string DirWrapper::getDirname(const std::string &filePath)
     assert(!filePath.empty());
     auto index = filePath.find_last_of("/");
     return index != string::npos
-           ? filePath.substr(0, index) : "";
+               ? filePath.substr(0, index)
+               : "";
 }
 
 string DirWrapper::getBasename(const std::string &path)
 {
     if (path.empty())
-      return "";
-    
+        return "";
+
     auto endPos = path.size() - 1;
     while (endPos >= 1 && path[endPos] == '/')
-      --endPos;
+        --endPos;
     auto startPos = path.find_last_of("/", endPos);
     startPos = startPos == string::npos ? 0 : startPos + 1;
     auto len = endPos - startPos + 1;
@@ -136,7 +137,8 @@ string DirWrapper::getBasename(const std::string &path)
 
 DirEntryIterator::DirEntryIterator(const string &dirPathArg, bool files)
     : dirPath(DirWrapper::toCanonicalPath(dirPathArg)), filesOnly(files)
-{}
+{
+}
 
 DirEntryIterator::~DirEntryIterator()
 {
@@ -151,7 +153,7 @@ bool DirEntryIterator::open()
     }
     else
     {
-//        LWARNING << "error opening directory " << dirPath << ": " << strerror(errno);
+        //        LWARNING << "error opening directory " << dirPath << ": " << strerror(errno);
         LDEBUG << "error opening directory " << dirPath << ": " << strerror(errno);
         errno = 0;
         return false;
@@ -175,12 +177,12 @@ string DirEntryIterator::next()
             if (fstatat(dirfd(dirStream), d_name, &st, 0) == IO_ERROR_RC)
             {
                 if (errno == ENOENT)
-                {   
-                    return next(); // skip if curr dir name is not found
+                {
+                    return next();  // skip if curr dir name is not found
                 }
                 else
                 {
-                    LWARNING << "failed reading directory " << d_name 
+                    LWARNING << "failed reading directory " << d_name
                              << ": " << strerror(errno);
                     errno = 0;
                 }

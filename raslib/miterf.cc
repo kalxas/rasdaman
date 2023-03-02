@@ -32,18 +32,18 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include <ostream>
 
-const int     r_FixedPointNumber::FIXPREC  = 30;
+const int r_FixedPointNumber::FIXPREC = 30;
 const r_Range r_FixedPointNumber::carryPos = 1 << FIXPREC;
 const r_Range r_FixedPointNumber::fracMask = carryPos - 1;
-const double  r_FixedPointNumber::fixOne   = pow(2, static_cast<double>(FIXPREC));
+const double r_FixedPointNumber::fixOne = pow(2, static_cast<double>(FIXPREC));
 
-r_MiterFloat::r_MiterFloat(r_Bytes srcCellSize, const char* srcTile,
+r_MiterFloat::r_MiterFloat(r_Bytes srcCellSize, const char *srcTile,
                            const r_Minterval &tileDomain,
                            const r_Minterval &srcDomain, const r_Minterval &destDomain)
 {
     dim = srcDomain.dimension();
     iterDesc = new iter_desc[dim];
-    firstCell        = srcTile;
+    firstCell = srcTile;
 
     auto step = static_cast<r_Range>(srcCellSize);
     auto *id = iterDesc + dim - 1;
@@ -53,13 +53,13 @@ r_MiterFloat::r_MiterFloat(r_Bytes srcCellSize, const char* srcTile,
         const auto i = static_cast<r_Dimension>(j);
         const auto srcLow = static_cast<double>(srcDomain[i].low());
         const auto destExtent = destDomain[i].high() - destDomain[i].low() + 1;
-        id->min       = srcLow;
-        id->step      = (srcDomain[i].high() - srcLow + 1) / destExtent;
-        id->maxSteps  = destExtent;
-        id->dimStep   = step;
+        id->min = srcLow;
+        id->step = (srcDomain[i].high() - srcLow + 1) / destExtent;
+        id->maxSteps = destExtent;
+        id->dimStep = step;
         id->scaleStep = step * id->step.getIntPart();
-        firstCell     += step * (srcDomain[i].low() - tileDomain[i].low());
-        step          *= tileDomain[i].high() - tileDomain[i].low() + 1;
+        firstCell += step * (srcDomain[i].low() - tileDomain[i].low());
+        step *= tileDomain[i].high() - tileDomain[i].low() + 1;
     }
     reset();
 }
@@ -74,13 +74,12 @@ void r_MiterFloat::reset()
 {
     for (r_Dimension i = 0; i < dim; i++)
     {
-        iterDesc[i].pos  = iterDesc[i].min;
+        iterDesc[i].pos = iterDesc[i].min;
         iterDesc[i].cell = const_cast<char *>(firstCell);
         iterDesc[i].countSteps = iterDesc[i].maxSteps;
     }
     done = false;
 }
-
 
 r_FixedPointNumber::r_FixedPointNumber(const double &d)
 {

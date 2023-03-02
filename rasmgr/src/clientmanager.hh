@@ -20,7 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-
 #ifndef RASMGR_X_SRC_CLIENTMANAGER_HH_
 #define RASMGR_X_SRC_CLIENTMANAGER_HH_
 
@@ -56,22 +55,23 @@ class CpuScheduler;
  * `cv.notify()` when the client is assigned a session. The mutex mut is used
  * for synchronizing cv.
  */
-struct WaitingClient {
-  WaitingClient(const std::shared_ptr<Client> &c, const std::string &db)
-    : client(c), serverSession(), dbName(db), assigned(false) {}
-  ~WaitingClient() = default;
-  /// openDB will wait on this to be notified when a server is assigned
-  std::condition_variable cv;
-  /// mutex for the condition variable
-  std::mutex mut;
-  /// the client waiting to be assigned a server
-  std::shared_ptr<Client> client;
-  /// the assigne server session
-  ClientServerSession serverSession;
-  /// database name to open
-  std::string dbName;
-  /// true if a server session was assigned
-  bool assigned;
+struct WaitingClient
+{
+    WaitingClient(const std::shared_ptr<Client> &c, const std::string &db)
+        : client(c), serverSession(), dbName(db), assigned(false) {}
+    ~WaitingClient() = default;
+    /// openDB will wait on this to be notified when a server is assigned
+    std::condition_variable cv;
+    /// mutex for the condition variable
+    std::mutex mut;
+    /// the client waiting to be assigned a server
+    std::shared_ptr<Client> client;
+    /// the assigne server session
+    ClientServerSession serverSession;
+    /// database name to open
+    std::string dbName;
+    /// true if a server session was assigned
+    bool assigned;
 };
 
 /**
@@ -211,42 +211,42 @@ private:
     std::mutex serverManagerMutex; /*!< Mutex used to prevent a free server being assigned to two different clients when tryGetFreeLocalServer is called*/
     std::shared_ptr<PeerManager> peerManager;
     std::shared_ptr<CpuScheduler> cpuScheduler;
-    
+
     // -------------------------------------------------------------------------
     // manage all clients
     std::map<std::uint32_t, std::shared_ptr<Client>> clients; /*!< Map of clientId -> active client */
-    boost::shared_mutex clientsMutex; /*!< Mutex used to synchronize access to the clients object*/
+    boost::shared_mutex clientsMutex;                         /*!< Mutex used to synchronize access to the clients object*/
 
     std::unique_ptr<std::thread> checkAssignedClientsThread; /*!< Thread used to manage the list of clients and remove dead ones */
-    std::mutex checkAssignedClientsMutex;/*!< Mutex used to safely stop the worker thread */
-    std::condition_variable checkAssignedClientsCondition; /*!< Condition variable used to stop the worker thread */
-    bool isCheckAssignedClientsThreadRunning; /*!< Flag used to stop the worker thread */
+    std::mutex checkAssignedClientsMutex;                    /*!< Mutex used to safely stop the worker thread */
+    std::condition_variable checkAssignedClientsCondition;   /*!< Condition variable used to stop the worker thread */
+    bool isCheckAssignedClientsThreadRunning;                /*!< Flag used to stop the worker thread */
     // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
     // manage waiting clients
-    std::queue<WaitingClient*> waitingClients;
+    std::queue<WaitingClient *> waitingClients;
     boost::shared_mutex waitingClientsMutex; /*!< Mutex used to synchronize access to the waitingClients object*/
-    
+
     std::unique_ptr<std::thread> checkWaitingClientsThread; /*!< Thread used to check the queue of waiting clients */
-    std::mutex checkWaitingClientsMutex;/*!< Mutex used with the checkWaitingClientsThreadCondition */
-    std::condition_variable checkWaitingClientsCondition; /*!< Condition variable used to trigger waiting client checking thread */
-    bool isCheckWaitingClientsThreadRunning; /*!< Flag used to stop the waiting client checking thread */
+    std::mutex checkWaitingClientsMutex;                    /*!< Mutex used with the checkWaitingClientsThreadCondition */
+    std::condition_variable checkWaitingClientsCondition;   /*!< Condition variable used to trigger waiting client checking thread */
+    bool isCheckWaitingClientsThreadRunning;                /*!< Flag used to stop the waiting client checking thread */
     std::atomic<bool> isCheckWaitingClientsConditionWaiting{false};
     // -------------------------------------------------------------------------
 
     /// Evaluate the list of clients assigned to a server and remove the ones that have died.
     void evaluateAssignedClients();
-    
+
     /// Evaluate the list of clients waiting to be assigned to a server.
     void evaluateWaitingClients();
-    
+
     /// Notify the thread to check the queue of waiting clients
     void notifyWaitingClientsThread();
     std::mutex notifyWaitingClientsThreadMutex;
-    
+
     std::atomic<std::uint32_t> nextClientId{};
-    
+
     /**
      * Open a DB session for the client and return a unique session id.
      * @param client the client to be assigned
@@ -260,7 +260,6 @@ private:
     virtual bool tryGetFreeServer(const std::shared_ptr<Client> &client,
                                   const std::string &dbName,
                                   ClientServerSession &out_serverSession);
-    
 
     /// Try up to 3 times to acquire a free server for the client.
     bool tryGetFreeLocalServer(std::shared_ptr<Client> client,

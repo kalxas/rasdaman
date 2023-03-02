@@ -55,5 +55,5 @@ protected:
     std::uint32_t port;
 };
 
-}
-#endif // ABSTRACTNETWORKFACTORY_HH
+}  // namespace common
+#endif  // ABSTRACTNETWORKFACTORY_HH

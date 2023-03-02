@@ -44,11 +44,11 @@ class QtCondenseOp : public QtBinaryOperation
 {
 public:
     /// constructor getting iterator, minterval exp, cell exp, and cell condition exp (optional)
-    QtCondenseOp(Ops::OpType   newOperation,
+    QtCondenseOp(Ops::OpType newOperation,
                  const std::string &initIteratorName,
-                 QtOperation  *mintervalExp,
-                 QtOperation  *cellExp,
-                 QtOperation  *condExp = NULL);
+                 QtOperation *mintervalExp,
+                 QtOperation *cellExp,
+                 QtOperation *condExp = NULL);
 
     /// virtual destructor
     ~QtCondenseOp();
@@ -104,12 +104,11 @@ public:
     void checkOp();
 
 private:
-
     ///method for evaluating scalar returning condesnsers
     QtData *evaluateScalarOp(QtDataList *inputList, const BaseType *cellType, BinaryOp *cellBinOp, r_Minterval domain);
 
     ///method for evaluating array returning condensers (induced)
-    QtData *evaluateInducedOp(QtDataList *inputList, Ops::OpType op, const BaseType *resBaseType, 
+    QtData *evaluateInducedOp(QtDataList *inputList, Ops::OpType op, const BaseType *resBaseType,
                               const BaseType *cellBaseType, r_Minterval domain);
 
     /// attribute for identification of nodes
@@ -125,8 +124,6 @@ private:
     Ops::OpType operation;
 };
 
-
 #include "qlparser/qtcondenseop.icc"
 
 #endif
-

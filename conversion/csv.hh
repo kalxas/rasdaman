@@ -51,27 +51,26 @@ class r_Conv_CSV : public r_Convertor
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_CSV(const char* src, const r_Minterval& interv, const r_Type* tp);
+    r_Conv_CSV(const char *src, const r_Minterval &interv, const r_Type *tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_CSV(const char* src, const r_Minterval& interv, int tp);
+    r_Conv_CSV(const char *src, const r_Minterval &interv, int tp);
     /// destructor
     ~r_Conv_CSV(void) override = default;
 
     /// convert to CSV
-    r_Conv_Desc& convertTo(const char* options = NULL,
-                           const r_Range* nullVal = NULL) override;
+    r_Conv_Desc &convertTo(const char *options = NULL,
+                           const r_Range *nullVal = NULL) override;
     /// convert from CSV
-    r_Conv_Desc& convertFrom(const char* options = NULL) override;
+    r_Conv_Desc &convertFrom(const char *options = NULL) override;
     /// convert data in a specific format to array
-    r_Conv_Desc& convertFrom(r_Format_Params options) override;
+    r_Conv_Desc &convertFrom(r_Format_Params options) override;
     /// cloning
-    r_Convertor* clone(void) const override;
+    r_Convertor *clone(void) const override;
     /// identification
-    const char* get_name(void) const override;
+    const char *get_name(void) const override;
     r_Data_Format get_data_format(void) const override;
 
 protected:
-
     std::string trueValue{"t"};
     std::string falseValue{"f"};
     std::string nullValue{""};
@@ -95,25 +94,25 @@ private:
 
     /// init CSV class
     void initCSV(void);
-    
+
     /// logic for serializing nested arrays
     /// @param dims - array describing how many elements are in each dimension
     /// @param offsets - array describing memory offset between values in each dimension
     /// @param dim - number of dimensions
-    void printArray(std::stringstream& f, long* dims, size_t* offsets, int dim,
-                    const char* val, const r_Base_Type& type);
+    void printArray(std::stringstream &f, long *dims, size_t *offsets, int dim,
+                    const char *val, const r_Base_Type &type);
 
-    /// logic for serializing values. each method has argument "val" - pointer 
+    /// logic for serializing values. each method has argument "val" - pointer
     /// to the beginning of the record and returns pointer to the end of the read record
-    const char* printValue(std::stringstream& f, const r_Base_Type& type, const char* val, size_t band);
-    const char* printStructValue(std::stringstream& f, const char* val);
-    const char* printComplexValue(std::stringstream& f, const r_Base_Type& type, const char* val, size_t band);
-    const char* printPrimitiveValue(std::stringstream& f, const r_Base_Type& type, const char* val, size_t band);
-    
-    void processEncodeOptions(const std::string& options);
-    bool processBoolOption(const std::string& optionKey, const std::string& optionValue) const;
-    void processDecodeOptions(const std::string& options);
-    
+    const char *printValue(std::stringstream &f, const r_Base_Type &type, const char *val, size_t band);
+    const char *printStructValue(std::stringstream &f, const char *val);
+    const char *printComplexValue(std::stringstream &f, const r_Base_Type &type, const char *val, size_t band);
+    const char *printPrimitiveValue(std::stringstream &f, const r_Base_Type &type, const char *val, size_t band);
+
+    void processEncodeOptions(const std::string &options);
+    bool processBoolOption(const std::string &optionKey, const std::string &optionValue) const;
+    void processDecodeOptions(const std::string &options);
+
     /// checks the type and fills in componentTypes and componentSizes
     void validateType(const r_Type *type);
 
@@ -124,15 +123,15 @@ private:
     /// Construct desc.dest
     /// @param type - type of the elements in the csv file.
     /// @param numElem - number of values that will be read from the csv file.
-    void parseData(const r_Base_Type& type, unsigned int numElem);
+    void parseData(const r_Base_Type &type, unsigned int numElem);
 
-    Order order{r_Conv_CSV::OUTER_INNER}; /// serialization order
+    Order order{r_Conv_CSV::OUTER_INNER};  /// serialization order
     std::string basetype;
     std::string domain;
     std::vector<r_Type::r_Type_Id> componentTypes;
     std::vector<size_t> componentSizes;
     // null masks for each channel; only relevant if hasNullMasks == true
-    std::vector<const bool*> srcMasks;
+    std::vector<const bool *> srcMasks;
     bool hasNullMasks{false};
 
     static const std::string ORDER_INNER_OUTER;
@@ -145,11 +144,11 @@ private:
 /// @param dest - points to desc.dest.
 /// @param src - the content of the csv file.
 /// @param numElem - number of elements that will be read from the csv file.
-template<class T>
-void parsePrimitive(char* dest, const char* src, unsigned int numElem, size_t srcSize);
+template <class T>
+void parsePrimitive(char *dest, const char *src, unsigned int numElem, size_t srcSize);
 
 bool isValidCharacter(char c);
-size_t skipToValueBegin(const char* src, size_t srcSize, size_t srcIndex);
-size_t skipToValueEnd(const char* src, size_t srcSize, size_t srcIndex);
+size_t skipToValueBegin(const char *src, size_t srcSize, size_t srcIndex);
+size_t skipToValueEnd(const char *src, size_t srcSize, size_t srcIndex);
 
 #endif

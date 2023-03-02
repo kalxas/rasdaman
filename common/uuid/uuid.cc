@@ -37,7 +37,8 @@
 
 #include "uuid.hh"
 
-namespace common {
+namespace common
+{
 
 boost::uuids::random_generator UUID::generator;
 
@@ -50,18 +51,19 @@ std::string UUID::generateUUID()
 
 const size_t UUID::UUID_LENGTH = 36;
 
-std::string UUID::generate() {
-  auto uuid = generator();
-  return boost::lexical_cast<std::string>(uuid);
+std::string UUID::generate()
+{
+    auto uuid = generator();
+    return boost::lexical_cast<std::string>(uuid);
 }
 
 int UUID::generateIntId()
 {
-  static int counter = 0;
-  int timeNow = time(NULL);
-  int result = (timeNow & 0xFFFFFF) + (counter << 24);
-  counter = (counter + 1) & 0x7F;
-  return result;
+    static int counter = 0;
+    int timeNow = time(NULL);
+    int result = (timeNow & 0xFFFFFF) + (counter << 24);
+    counter = (counter + 1) & 0x7F;
+    return result;
 }
 
-}
+}  // namespace common

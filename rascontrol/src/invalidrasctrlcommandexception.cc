@@ -20,7 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-
 #include "invalidrasctrlcommandexception.hh"
 
 namespace rascontrol
@@ -28,9 +27,11 @@ namespace rascontrol
 
 InvalidRasctrlCommandException::InvalidRasctrlCommandException()
     : common::Exception("The given rascontrol command is invalid.")
-{}
+{
+}
 
 InvalidRasctrlCommandException::~InvalidRasctrlCommandException() noexcept
-{}
-
+{
 }
+
+}  // namespace rascontrol

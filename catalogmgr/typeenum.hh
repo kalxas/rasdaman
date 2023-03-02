@@ -35,6 +35,8 @@ rasdaman GmbH.
 #ifndef TYPEENUM_HH
 #define TYPEENUM_HH
 
+// clang-format off
+
 //@Man: TypeEnum
 //@Type: typedef
 //@Memo: Module: {\bf catalogif}.
@@ -215,5 +217,6 @@ inline const char* typeToString(TypeEnum type)
     default:       { codeDefault break; } \
     }
 
+// clang-format on
 
 #endif

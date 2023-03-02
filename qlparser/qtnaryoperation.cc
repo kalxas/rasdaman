@@ -75,7 +75,6 @@ QtNaryOperation::~QtNaryOperation()
         delete operationList;
         operationList = NULL;
     }
-
 }
 
 void QtNaryOperation::simplify()
@@ -118,7 +117,7 @@ bool QtNaryOperation::equalMeaning(QtNode *node)
 
     if (node && getNodeType() == node->getNodeType())
     {
-        QtNaryOperation *naryNode = static_cast<QtNaryOperation *>(node); // by force
+        QtNaryOperation *naryNode = static_cast<QtNaryOperation *>(node);  // by force
 
         // get 2nd operation list
         QtOperationList *operationList2 = naryNode->getInputs();
@@ -179,16 +178,19 @@ bool QtNaryOperation::getOperands(QtDataList *inputList, QtDataList *&operandLis
         return false;
     }
     if (std::any_of(operationList->begin(), operationList->begin(),
-                    [](QtOperation * op) { return op == NULL; }))
+                    [](QtOperation *op)
+                    {
+                        return op == NULL;
+                    }))
     {
         LERROR << "At least one operand branch is invalid.";
         return false;
     }
 
-    operandList = NULL; // make sure it's NULL in case of error
+    operandList = NULL;  // make sure it's NULL in case of error
 
     auto *tmpOperandList = new QtDataList(operationList->size());
-    QtDataListDeleter tmpOperandListDel{tmpOperandList}; // cleanup in case of error
+    QtDataListDeleter tmpOperandListDel{tmpOperandList};  // cleanup in case of error
 
     unsigned int pos = 0;
     for (auto iter = operationList->begin(); iter != operationList->end(); iter++)
@@ -202,7 +204,7 @@ bool QtNaryOperation::getOperands(QtDataList *inputList, QtDataList *&operandLis
         pos++;
     }
     operandList = tmpOperandList;
-    tmpOperandListDel.obj = NULL; // reset so that operandList is not deleted
+    tmpOperandListDel.obj = NULL;  // reset so that operandList is not deleted
     return true;
 }
 
@@ -336,6 +338,3 @@ void QtNaryOperation::printAlgebraicExpression(ostream &s)
 
     s << ")";
 }
-
-
-

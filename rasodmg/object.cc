@@ -42,15 +42,12 @@ rasdaman GmbH.
 #include <logging.hh>
 #include <iostream>
 
-
 // At the beginning, next and last object types/status are not specified.
-r_Object::ObjectStatus r_Object::next_object_status    = r_Object::no_status;
-r_Object::ObjectType   r_Object::next_object_type      = r_Object::no_object;
-char                  *r_Object::next_object_type_name = 0;
-r_OId                  r_Object::next_object_oid       = r_OId();
-r_Object::ObjectType   r_Object::last_object_type      = r_Object::no_object;
-
-
+r_Object::ObjectStatus r_Object::next_object_status = r_Object::no_status;
+r_Object::ObjectType r_Object::next_object_type = r_Object::no_object;
+char *r_Object::next_object_type_name = 0;
+r_OId r_Object::next_object_oid = r_OId();
+r_Object::ObjectType r_Object::last_object_type = r_Object::no_object;
 
 r_Object::r_Object(r_Transaction *transactionArg)
     : transaction{transactionArg},
@@ -76,13 +73,11 @@ r_Object::r_Object(r_Transaction *transactionArg)
     internal_obj_type = 0;
 
     // reset next object type/status
-    r_Object::next_object_type      = no_object;
-    r_Object::next_object_status    = no_status;
+    r_Object::next_object_type = no_object;
+    r_Object::next_object_status = no_status;
     r_Object::next_object_type_name = 0;
-    r_Object::next_object_oid       = r_OId();
+    r_Object::next_object_oid = r_OId();
 }
-
-
 
 r_Object::r_Object(unsigned short objType, r_Transaction *transactionArg)
     : transaction{transactionArg},
@@ -131,7 +126,6 @@ r_Object::r_Object(unsigned short objType, r_Transaction *transactionArg)
         {
             transaction->add_object_list(r_Ref<r_Object>(this));
         }
-
     }
     else
     {
@@ -141,12 +135,11 @@ r_Object::r_Object(unsigned short objType, r_Transaction *transactionArg)
     internal_obj_type = objType;
 
     // reset next object type/status
-    r_Object::next_object_type      = no_object;
-    r_Object::next_object_status    = no_status;
+    r_Object::next_object_type = no_object;
+    r_Object::next_object_status = no_status;
     r_Object::next_object_type_name = 0;
-    r_Object::next_object_oid       = r_OId();
+    r_Object::next_object_oid = r_OId();
 }
-
 
 r_Object::r_Object(const r_Object &obj, unsigned short objType, r_Transaction *transactionArg)
     : transaction{transactionArg},
@@ -204,10 +197,10 @@ r_Object::r_Object(const r_Object &obj, unsigned short objType, r_Transaction *t
     internal_obj_type = objType;
 
     // reset next object type/status
-    r_Object::next_object_type      = no_object;
-    r_Object::next_object_status    = no_status;
+    r_Object::next_object_type = no_object;
+    r_Object::next_object_status = no_status;
     r_Object::next_object_type_name = 0;
-    r_Object::next_object_oid       = r_OId();
+    r_Object::next_object_oid = r_OId();
 
     if (obj.object_name)
     {
@@ -226,8 +219,7 @@ r_Object::r_Object(const r_Object &obj, unsigned short objType, r_Transaction *t
     }
 }
 
-void
-r_Object::set_type_schema(const r_Type *tyy)
+void r_Object::set_type_schema(const r_Type *tyy)
 {
     if (type_schema)
     {
@@ -252,8 +244,7 @@ r_Object::~r_Object()
     r_Object::last_object_type = object_type;
 }
 
-void
-r_Object::r_deactivate()
+void r_Object::r_deactivate()
 {
     if (type_schema)
     {
@@ -272,12 +263,10 @@ r_Object::r_deactivate()
     }
     if (type_structure)
     {
-        delete [] type_structure;
+        delete[] type_structure;
         type_structure = 0;
     }
 }
-
-
 
 /*************************************************************
  * Method name...: operator new( size_t size )
@@ -290,18 +279,16 @@ r_Object::r_deactivate()
  *                 allocates memory for the object.
  ************************************************************/
 void *
-r_Object::operator new (size_t size)
+r_Object::operator new(size_t size)
 {
-    r_Object::next_object_type      = transient_object;
-    r_Object::next_object_status    = created;
+    r_Object::next_object_type = transient_object;
+    r_Object::next_object_status = created;
     r_Object::next_object_type_name = 0;
-    r_Object::next_object_oid       = r_OId();
+    r_Object::next_object_oid = r_OId();
 
     void *a = mymalloc(size);
     return a;
 }
-
-
 
 /*************************************************************
  * Method name...: operator new( size_t size,
@@ -316,32 +303,28 @@ r_Object::operator new (size_t size)
  *                 allocates memory for the object.
  ************************************************************/
 void *
-r_Object::operator new (size_t size, r_Database * /*database*/, const char *type_name)
+r_Object::operator new(size_t size, r_Database * /*database*/, const char *type_name)
 {
-    r_Object::next_object_type      = persistent_object;
-    r_Object::next_object_status    = created;
+    r_Object::next_object_type = persistent_object;
+    r_Object::next_object_status = created;
     r_Object::next_object_type_name = const_cast<char *>(type_name);
-    r_Object::next_object_oid       = r_OId();
+    r_Object::next_object_oid = r_OId();
 
     void *a = mymalloc(size);
     return a;
 }
-
-
 
 void *
-r_Object::operator new (size_t size, const char *type_name)
+r_Object::operator new(size_t size, const char *type_name)
 {
-    r_Object::next_object_type      = transient_object;
-    r_Object::next_object_status    = created;
+    r_Object::next_object_type = transient_object;
+    r_Object::next_object_status = created;
     r_Object::next_object_type_name = const_cast<char *>(type_name);
-    r_Object::next_object_oid       = r_OId();
+    r_Object::next_object_oid = r_OId();
 
     void *a = mymalloc(size);
     return a;
 }
-
-
 
 /*************************************************************
  * Method name...: operator delete( void* obj_ptr )
@@ -358,8 +341,7 @@ r_Object::operator new (size_t size, const char *type_name)
  *                 an exception. Main memory is freed after the transaction
  *                 commits.
  ************************************************************/
-void
-r_Object::operator delete (void *obj_ptr)
+void r_Object::operator delete(void *obj_ptr)
 {
     if (r_Object::last_object_type == transient_object && obj_ptr)
     {
@@ -370,13 +352,11 @@ r_Object::operator delete (void *obj_ptr)
     r_Object::last_object_type = no_object;
 }
 
-bool
-r_Object::test_status(ObjectStatus status)
+bool r_Object::test_status(ObjectStatus status)
 {
     return status == object_status;
 }
-bool
-r_Object::test_type(ObjectType type)
+bool r_Object::test_type(ObjectType type)
 {
     return type == object_type;
 }
@@ -395,12 +375,12 @@ r_Object::test_type(ObjectType type)
  *   given status. Memory for the object is allocated.
  ************************************************************/
 void *
-r_Object::operator new (size_t size, r_Database * /*database*/, ObjectStatus status, const r_OId &oid)
+r_Object::operator new(size_t size, r_Database * /*database*/, ObjectStatus status, const r_OId &oid)
 {
-    r_Object::next_object_type      = persistent_object;
-    r_Object::next_object_status    = status;
+    r_Object::next_object_type = persistent_object;
+    r_Object::next_object_status = status;
     r_Object::next_object_type_name = 0;
-    r_Object::next_object_oid       = oid;
+    r_Object::next_object_oid = oid;
 
     void *a = mymalloc(size);
     return a;
@@ -452,20 +432,17 @@ r_Object::get_type_schema()
     return type_schema;
 }
 
-void
-r_Object::update_obj_in_db()
+void r_Object::update_obj_in_db()
 {
     LWARNING << "dummy implementation";
 }
 
-void
-r_Object::load_obj_from_db()
+void r_Object::load_obj_from_db()
 {
     LWARNING << "dummy implementation";
 }
 
-void
-r_Object::delete_obj_from_db()
+void r_Object::delete_obj_from_db()
 {
     if (object_name && strlen(object_name))
     {
@@ -484,8 +461,7 @@ r_Object::delete_obj_from_db()
     }
 }
 
-void
-r_Object::initialize_oid(const r_OId &initOId)
+void r_Object::initialize_oid(const r_OId &initOId)
 {
     oid = initOId;
 }
@@ -503,19 +479,16 @@ r_Transaction *r_Object::get_transaction() const
     return transaction != NULL ? transaction : r_Transaction::actual_transaction;
 }
 
-
-void
-r_Object::mark_modified()
+void r_Object::mark_modified()
 {
     if (object_status == no_status ||
-            object_status == read)
+        object_status == read)
     {
         object_status = modified;
     }
 }
 
-void
-r_Object::set_object_name(const char *name)
+void r_Object::set_object_name(const char *name)
 {
     if (!name)
     {
@@ -530,9 +503,9 @@ r_Object::set_object_name(const char *name)
     while (*cptr)
     {
         if (((*cptr >= 'a') && (*cptr <= 'z')) ||
-                ((*cptr >= 'A') && (*cptr <= 'Z')) ||
-                ((*cptr >= '0') && (*cptr <= '9')) ||
-                (*cptr == '_'))
+            ((*cptr >= 'A') && (*cptr <= 'Z')) ||
+            ((*cptr >= '0') && (*cptr <= '9')) ||
+            (*cptr == '_'))
         {
             cptr++;
         }
@@ -557,14 +530,13 @@ r_Object::set_object_name(const char *name)
     object_name = strdup(name);
 }
 
-void
-r_Object::set_type_by_name(const char *name)
+void r_Object::set_type_by_name(const char *name)
 {
     if (!name)
     {
         //null pointer
         LERROR << "r_Object::set_type_by_name(name) name is null!";
-        throw r_Error(r_Error:: r_Error_NameInvalid);
+        throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
     if (type_name)
@@ -575,19 +547,18 @@ r_Object::set_type_by_name(const char *name)
     type_name = strdup(name);
 }
 
-void
-r_Object::set_type_structure(const char *name)
+void r_Object::set_type_structure(const char *name)
 {
     if (!name)
     {
         //null pointer
         LERROR << "r_Object::type_structure(name) name is null!";
-        throw r_Error(r_Error:: r_Error_NameInvalid);
+        throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
     if (type_structure)
     {
-        delete [] type_structure;
+        delete[] type_structure;
     }
 
     type_structure = new char[strlen(name) + 1];

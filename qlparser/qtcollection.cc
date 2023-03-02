@@ -35,19 +35,21 @@ rasdaman GmbH.
 #include <iostream>
 #include <string>
 
-QtCollection::QtCollection(const QtCollection &collection):
-    hostname(collection.getHostname()), port(collection.getPort()), collectionName(collection.getCollectionName())
-{}
+QtCollection::QtCollection(const QtCollection &collection)
+    : hostname(collection.getHostname()), port(collection.getPort()), collectionName(collection.getCollectionName())
+{
+}
 
-QtCollection::QtCollection(const std::string &collectionNameNew):
-    hostname(""), port(0), collectionName(collectionNameNew)
-{}
+QtCollection::QtCollection(const std::string &collectionNameNew)
+    : hostname(""), port(0), collectionName(collectionNameNew)
+{
+}
 
-QtCollection::QtCollection
-(const std::string &hostnameNew, int portNew, const std::string &collectionNameNew):
-    hostname(hostnameNew), port(portNew), collectionName(collectionNameNew)
-{}
+QtCollection::QtCollection(const std::string &hostnameNew, int portNew, const std::string &collectionNameNew)
+    : hostname(hostnameNew), port(portNew), collectionName(collectionNameNew)
+{
+}
 
 QtCollection::~QtCollection()
-{}
-
+{
+}

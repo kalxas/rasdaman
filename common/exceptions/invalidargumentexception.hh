@@ -28,7 +28,8 @@ rasdaman GmbH.
 
 #include "logicexception.hh"
 
-namespace common {
+namespace common
+{
 
 /**
  * @brief The InvalidArgumentException class defines a type of object to be
@@ -36,18 +37,19 @@ namespace common {
  *  It reports errors that arise because an argument value has not been
  * accepted.
  */
-class InvalidArgumentException : public LogicException {
- public:
-  InvalidArgumentException();
+class InvalidArgumentException : public LogicException
+{
+public:
+    InvalidArgumentException();
 
-  /**
+    /**
    * @brief InvalidArgumentException
    * @param message Message that details the cause of the exception.
    */
-  InvalidArgumentException(const std::string& message);
+    InvalidArgumentException(const std::string &message);
 
-  ~InvalidArgumentException() noexcept override;
+    ~InvalidArgumentException() noexcept override;
 };
-} // namespace common
+}  // namespace common
 
 #endif

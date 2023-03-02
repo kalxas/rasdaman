@@ -64,5 +64,5 @@ private:
     std::shared_ptr<ControlRasMgrComm> communication; /*!< Communication object used to forward messages to the server and receive replies */
 };
 
-}
-#endif // COMMANDEXECUTOR_HH
+}  // namespace rascontrol
+#endif  // COMMANDEXECUTOR_HH

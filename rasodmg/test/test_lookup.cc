@@ -47,7 +47,7 @@ rasdaman GmbH.
 #ifdef __VISUALC__
 #define __EXECUTABLE__
 #include "include/basictypes.hh"
-#undef  __EXECUTABLE__
+#undef __EXECUTABLE__
 #else
 #include "include/basictypes.hh"
 #endif
@@ -62,7 +62,7 @@ enum prg_mode
 
 using namespace std;
 
-int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
+int checkArguments(int argc, char **argv, const char *searchText, int &optionValueIndex)
 {
     int found = 0;
     int i = 1;
@@ -84,9 +84,7 @@ int checkArguments(int argc, char** argv, const char* searchText, int& optionVal
     return found;
 }
 
-
-
-void printColl(r_Ref<r_Set<r_Ref<r_GMarray>>>& image_set, int output, int rgbOutput, int hexOutput)
+void printColl(r_Ref<r_Set<r_Ref<r_GMarray>>> &image_set, int output, int rgbOutput, int hexOutput)
 {
     std::cout << "Collection" << std::endl;
     std::cout << "  Oid...................: " << image_set->get_oid() << std::endl;
@@ -121,7 +119,7 @@ void printColl(r_Ref<r_Set<r_Ref<r_GMarray>>>& image_set, int output, int rgbOut
 
         std::cout << std::endl;
 
-        for (int i = 1 ; iter.not_done(); iter++, i++)
+        for (int i = 1; iter.not_done(); iter++, i++)
         {
             std::cout << "Image " << i << std::endl;
 
@@ -132,7 +130,7 @@ void printColl(r_Ref<r_Set<r_Ref<r_GMarray>>>& image_set, int output, int rgbOut
             else
             {
                 RGBImage image(**iter);
-                r_Point  pt(0, 0);
+                r_Point pt(0, 0);
 
                 std::cout << "[0,0] = {" << (int)image[pt].red << ","
                           << (int)image[pt].green << ","
@@ -145,12 +143,14 @@ void printColl(r_Ref<r_Set<r_Ref<r_GMarray>>>& image_set, int output, int rgbOut
     }
 }
 
-void
-printUsage(char* name)
+void printUsage(char *name)
 {
-    std::cout << name << "v1.1 systemtest lookup utility " << std::endl << std::endl;
-    std::cout << "Description: Systemtest lookup utility for retrival of set / marray from RasDaMan " << std::endl << std::endl;
-    std::cout << "Usage:   " << name << " [options]" << std::endl << std::endl;
+    std::cout << name << "v1.1 systemtest lookup utility " << std::endl
+              << std::endl;
+    std::cout << "Description: Systemtest lookup utility for retrival of set / marray from RasDaMan " << std::endl
+              << std::endl;
+    std::cout << "Usage:   " << name << " [options]" << std::endl
+              << std::endl;
     std::cout << "Options: -h                                      ... this help" << std::endl;
     std::cout << "         -server                 <srvname>       ... name of server.(mandatory)" << std::endl;
     std::cout << "         -port                   <nnnn>          ... port of server.(default " << DEFAULT_PORT << ")" << std::endl;
@@ -169,39 +169,40 @@ printUsage(char* name)
     std::cout << "         -nooutput                               ... no output of MDD content.(default on)" << std::endl;
     std::cout << "         -testbed                                ... turn on output for testbed.(default off)" << std::endl;
 
-    std::cout << std::endl  << std::endl;
+    std::cout << std::endl
+              << std::endl;
 
     std::cout << "Report bugs to <support@active�knowledge.com>" << std::endl;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    int  interactive = 0;
-    int  output = 0;
-    int  optionValueIndex = 0;
+    int interactive = 0;
+    int output = 0;
+    int optionValueIndex = 0;
     char key = 'a';
-    int  hexOutput = 0;
-    int  rgbOutput = 0;
+    int hexOutput = 0;
+    int rgbOutput = 0;
     prg_mode mode = USE_INVALID;
-    int  testbed = 0;
+    int testbed = 0;
 
     r_Data_Format transferFormat = r_Array;
-    char* transferFormatParams = NULL;
+    char *transferFormatParams = NULL;
     r_Data_Format storageFormat = r_Array;
-    char* storageFormatParams = NULL;
+    char *storageFormatParams = NULL;
 
-    char* serverName = "";
+    char *serverName = "";
     r_ULong serverPort = DEFAULT_PORT;
-    char* baseName = "";
+    char *baseName = "";
 
-    char* collName = "";
-    char* oidString = "";
+    char *collName = "";
+    char *oidString = "";
 
-    char* userName = DEFAULT_USER;
-    char* userPasswd = DEFAULT_PASSWD;
+    char *userName = DEFAULT_USER;
+    char *userPasswd = DEFAULT_PASSWD;
 
 #ifdef TEST_LOOKUP
-    r_GMarray*       transImage = 0;
+    r_GMarray *transImage = 0;
     r_Ref<r_GMarray> transImageRef = 0;
 #endif
 
@@ -240,8 +241,8 @@ int main(int argc, char** argv)
     }
 
     if (!strcmp(serverName, "") ||
-            !strcmp(baseName,   "") ||
-            (mode == USE_INVALID))
+        !strcmp(baseName, "") ||
+        (mode == USE_INVALID))
     {
         std::cerr << "Mandatory parameters are missing!" << std::endl;
         printUsage(argv[0]);
@@ -250,7 +251,7 @@ int main(int argc, char** argv)
 
     if (checkArguments(argc, argv, "-port", optionValueIndex) && optionValueIndex)
     {
-        serverPort = strtoul(argv[optionValueIndex], (char**)NULL, 10) ;
+        serverPort = strtoul(argv[optionValueIndex], (char **)NULL, 10);
     }
 
     if (checkArguments(argc, argv, "-user", optionValueIndex) && optionValueIndex)
@@ -275,7 +276,7 @@ int main(int argc, char** argv)
 
     if (checkArguments(argc, argv, "-transferformatparams", optionValueIndex) && optionValueIndex)
     {
-        transferFormatParams = argv[optionValueIndex] ;
+        transferFormatParams = argv[optionValueIndex];
     }
 
     if (checkArguments(argc, argv, "-storageformat", optionValueIndex) && optionValueIndex)
@@ -290,23 +291,23 @@ int main(int argc, char** argv)
 
     if (checkArguments(argc, argv, "-storageformatparams", optionValueIndex) && optionValueIndex)
     {
-        storageFormatParams = argv[optionValueIndex] ;
+        storageFormatParams = argv[optionValueIndex];
     }
 
-    interactive =  checkArguments(argc, argv, "-ia", optionValueIndex);
-    output      = !checkArguments(argc, argv, "-nooutput", optionValueIndex);
-    hexOutput   =  checkArguments(argc, argv, "-hex", optionValueIndex);
-    rgbOutput   =  checkArguments(argc, argv, "-rgb", optionValueIndex);
-    testbed     =  checkArguments(argc, argv, "-testbed", optionValueIndex);
+    interactive = checkArguments(argc, argv, "-ia", optionValueIndex);
+    output = !checkArguments(argc, argv, "-nooutput", optionValueIndex);
+    hexOutput = checkArguments(argc, argv, "-hex", optionValueIndex);
+    rgbOutput = checkArguments(argc, argv, "-rgb", optionValueIndex);
+    testbed = checkArguments(argc, argv, "-testbed", optionValueIndex);
 
-    std::cout << std::endl << std::endl;
+    std::cout << std::endl
+              << std::endl;
     std::cout << "ODMG conformant lookup of Marrays" << std::endl;
-    std::cout << "=================================" << std::endl << std::endl;
+    std::cout << "=================================" << std::endl
+              << std::endl;
 
     r_Database db;
     r_Transaction ta;
-
-
 
     try
     {
@@ -325,7 +326,7 @@ int main(int argc, char** argv)
 
             if (mode == USE_COLLNAME)
             {
-                r_Ref<r_Set<r_Ref<r_GMarray>>>  image_set;
+                r_Ref<r_Set<r_Ref<r_GMarray>>> image_set;
 
                 std::cout << "Looking up collection by name " << collName << " ..." << std::flush;
                 image_set = db.lookup_object(collName);
@@ -336,7 +337,7 @@ int main(int argc, char** argv)
             else
             {
                 r_Ref<r_Object> persObject;
-                r_OId           oid(oidString);
+                r_OId oid(oidString);
 
                 std::cout << "Looking up object by oid " << oid << " ..." << std::flush;
                 persObject = db.lookup_object(oid);
@@ -346,13 +347,13 @@ int main(int argc, char** argv)
 
                 if (strstr(persObject->get_type_structure(), "set"))
                 {
-                    r_Ref<r_Set<r_Ref<r_GMarray>>>  image_set = (r_Ref_Any) persObject;
+                    r_Ref<r_Set<r_Ref<r_GMarray>>> image_set = (r_Ref_Any)persObject;
 
                     printColl(image_set, output, rgbOutput, hexOutput);
                 }
                 else
                 {
-                    r_Ref<r_GMarray> marray = (r_Ref_Any) persObject;
+                    r_Ref<r_GMarray> marray = (r_Ref_Any)persObject;
 
                     std::cout << "MDD object with domain " << marray->spatial_domain()
                               << " and type " << marray->get_type_name() << std::endl;
@@ -364,8 +365,8 @@ int main(int argc, char** argv)
 
 #ifdef TEST_LOOKUP
                     // make a copy for use after ta
-                    transImage    = new r_GMarray((const r_GMarray&)*marray);
-                    transImageRef = new("type") r_GMarray((const r_GMarray&)*marray);
+                    transImage = new r_GMarray((const r_GMarray &)*marray);
+                    transImageRef = new ("type") r_GMarray((const r_GMarray &)*marray);
 #endif
                 }
 
@@ -385,15 +386,13 @@ int main(int argc, char** argv)
             {
                 key = 'q';
             }
-
         }
 
         std::cout << "Closing Database ... " << std::flush;
         db.close();
         std::cout << "OK" << std::endl;
-
     }
-    catch (r_Error& errorObj)
+    catch (r_Error &errorObj)
     {
         ta.abort();
         db.close();
@@ -425,4 +424,3 @@ int main(int argc, char** argv)
 
     return EXIT_SUCCESS;
 }
-

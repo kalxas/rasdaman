@@ -23,7 +23,8 @@ rasdaman GmbH.
 
 #include "raslib/metaobject.hh"
 
-r_Meta_Object::r_Meta_Object(const char *newTypeName): typeName{newTypeName}
+r_Meta_Object::r_Meta_Object(const char *newTypeName)
+    : typeName{newTypeName}
 {
 }
 

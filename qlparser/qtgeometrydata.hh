@@ -47,12 +47,12 @@ public:
 
     enum QtGeometryFlag
     {
-        NONE, //no flag
-        DISCRETEPATH, //discrete linestring extrapolation
-        SPLINE //interpret using spline conventions
+        NONE,          //no flag
+        DISCRETEPATH,  //discrete linestring extrapolation
+        SPLINE         //interpret using spline conventions
     };
 
-    QtGeometryData(const vector< vector< QtMShapeData * >> &geomDataArg, const QtGeometryType geomTypeArg, QtGeometryFlag geomFlagArg = NONE);
+    QtGeometryData(const vector<vector<QtMShapeData *>> &geomDataArg, const QtGeometryType geomTypeArg, QtGeometryFlag geomFlagArg = NONE);
     virtual ~QtGeometryData();
 
     QtDataType getDataType() const;
@@ -61,9 +61,9 @@ public:
     std::string getSpelling() const;
 
     QtMShapeData *getProjections();
-    vector< QtMShapeData * > getLinestrings();
-    vector< vector< QtMShapeData * >> getPolygons();
-    vector< vector< QtMShapeData * >> getData();
+    vector<QtMShapeData *> getLinestrings();
+    vector<vector<QtMShapeData *>> getPolygons();
+    vector<vector<QtMShapeData *>> getData();
     QtGeometryData::QtGeometryType getGeometryType();
 
     inline QtGeometryFlag getGeomFlag()
@@ -84,11 +84,11 @@ private:
     //projection data
     QtMShapeData *projectionData;
     //linestring data
-    vector< QtMShapeData * > multiLinestringData;
+    vector<QtMShapeData *> multiLinestringData;
     //polygon data
-    vector< vector< QtMShapeData * >> multiPolygonData;
+    vector<vector<QtMShapeData *>> multiPolygonData;
     //all data
-    vector< vector< QtMShapeData * >> geomData;
+    vector<vector<QtMShapeData *>> geomData;
     //geometry type
     const QtGeometryType geomType;
     //declares discretization (i.e. skip extrapolation in mask-building or extraction methods)
@@ -96,4 +96,3 @@ private:
 };
 
 #endif /* QTGEOMETRYDATA_HH */
-

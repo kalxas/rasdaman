@@ -53,11 +53,10 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include "rasodmg/alignedtiling.hh"
 #ifdef __VISUALC__
-#undef  __EXECUTABLE__
+#undef __EXECUTABLE__
 #endif
 
-
-int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
+int checkArguments(int argc, char **argv, const char *searchText, int &optionValueIndex)
 {
     int found = 0;
     int i = 1;
@@ -79,21 +78,20 @@ int checkArguments(int argc, char** argv, const char* searchText, int& optionVal
     return found;
 }
 
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-
-    int  optionValueIndex;
+    int optionValueIndex;
     if (argc < 5 || checkArguments(argc, argv, "-h", optionValueIndex))
     {
-        cout << "Usage:   test_alignedtiling tile_config tile_size  cell_size domain" << endl << endl;
+        cout << "Usage:   test_alignedtiling tile_config tile_size  cell_size domain" << endl
+             << endl;
         cout << "Options: -h  ... this help" << endl;
         cout << endl;
         return 0;
     }
 
-    r_Minterval* tile_config = 0;
-    r_Minterval* domain = 0;
+    r_Minterval *tile_config = 0;
+    r_Minterval *domain = 0;
 
     try
     {
@@ -105,8 +103,8 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    unsigned cell_size = strtoul(argv[3], (char**)NULL, 10);
-    unsigned long tile_size = strtoul(argv[2], (char**)NULL, 10);
+    unsigned cell_size = strtoul(argv[3], (char **)NULL, 10);
+    unsigned long tile_size = strtoul(argv[2], (char **)NULL, 10);
 
     cout << "Tile Config " << *tile_config << endl;
     r_Aligned_Tiling storeOptions(*tile_config, tile_size);
@@ -117,7 +115,6 @@ int main(int argc, char** argv)
          << ", tc - " << storeOptions.get_tile_config() << endl;
 
     cout << "Object domain : " << *domain << ", cell size " << cell_size << endl;
-
 
     r_Aligned_Tiling newSL(storeOptions);
 
@@ -132,10 +129,8 @@ int main(int argc, char** argv)
 
     cout << "Tiling Options resulting tile :" << result_tile << endl;
 
-
     delete domain;
     delete tile_config;
 
     return 0;
 }
-

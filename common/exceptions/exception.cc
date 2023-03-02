@@ -23,9 +23,14 @@ rasdaman GmbH.
 
 #include "exception.hh"
 
-namespace common {
+namespace common
+{
 
-Exception::Exception(const std::string &what1) : msg{what1} {}
+Exception::Exception(const std::string &what1)
+    : msg{what1} {}
 
-const std::string &Exception::what() const { return msg; }
-} // namespace common
+const std::string &Exception::what() const
+{
+    return msg;
+}
+}  // namespace common

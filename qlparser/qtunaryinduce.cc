@@ -49,7 +49,7 @@ using namespace std;
 const QtNode::QtNodeType QtUnaryInduce::nodeType = QtNode::QT_UNARY_INDUCE;
 
 QtUnaryInduce::QtUnaryInduce(QtOperation *initInput)
-    :  QtUnaryOperation(initInput)
+    : QtUnaryOperation(initInput)
 {
 }
 
@@ -66,10 +66,13 @@ const QtTypeElement &QtUnaryInduce::checkOperandType(Ops::OpType optype, QtTypeT
         if (baseType != nullptr)
         {
             const BaseType *resultBaseType;
-            try {
+            try
+            {
                 resultBaseType = Ops::getResultType(optype, baseType);
                 if (!resultBaseType) throw r_Error(UNARY_INDUCE_BASETYPENOTSUPPORTED);
-            } catch (r_Error &e) {
+            }
+            catch (r_Error &e)
+            {
                 LERROR << "operation not applicable on operand of the given type.";
                 parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
                 throw parseInfo;
@@ -99,10 +102,7 @@ const QtTypeElement &QtUnaryInduce::checkOperandType(Ops::OpType optype, QtTypeT
     return dataStreamType;
 }
 
-
-
-bool
-QtUnaryInduce::getOperand(QtDataList *inputList, QtData *&operand)
+bool QtUnaryInduce::getOperand(QtDataList *inputList, QtData *&operand)
 {
     bool success = false;
 
@@ -118,8 +118,6 @@ QtUnaryInduce::getOperand(QtDataList *inputList, QtData *&operand)
     return success;
 }
 
-
-
 QtData *
 QtUnaryInduce::computeOp(QtData *operand, Ops::OpType operation, double param)
 {
@@ -130,17 +128,20 @@ QtUnaryInduce::computeOp(QtData *operand, Ops::OpType operation, double param)
         operandBaseType = static_cast<QtScalarData *>(operand)->getValueType();
     else
         throw r_Error(OPERANDTYPENOTSUPPORTED);
-    
+
     const BaseType *resultBaseType;
-    try {
+    try
+    {
         resultBaseType = Ops::getResultType(operation, operandBaseType);
         if (!resultBaseType) throw r_Error(OPERANDTYPENOTSUPPORTED);
-    } catch (r_Error &e) {
+    }
+    catch (r_Error &e)
+    {
         LERROR << "Unary induced operation not applicable on operand of the given type.";
         parseInfo.setErrorNo(static_cast<int>(e.get_errorno()));
         throw parseInfo;
     }
-    
+
     QtData *returnValue = NULL;
     if (operand->getDataType() == QT_MDD)
     {
@@ -156,8 +157,6 @@ QtUnaryInduce::computeOp(QtData *operand, Ops::OpType operation, double param)
 
     return returnValue;
 }
-
-
 
 QtData *
 QtUnaryInduce::computeUnaryMDDOp(QtMDD *operand, const BaseType *resultBaseType,
@@ -187,8 +186,7 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD *operand, const BaseType *resultBaseType,
     }
     if (!myOp)
     {
-        LERROR << "could not get operation for result type " <<
-               resultBaseType->getName() << " argument type " << (*tileIt)->getType() << " operation " << static_cast<int>(operation);
+        LERROR << "could not get operation for result type " << resultBaseType->getName() << " argument type " << (*tileIt)->getType() << " operation " << static_cast<int>(operation);
         parseInfo.setErrorNo(UNARY_INDUCE_BASETYPENOTSUPPORTED);
         throw parseInfo;
     }
@@ -213,7 +211,7 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD *operand, const BaseType *resultBaseType,
         // and iterate over them
         try
         {
-            for (; tileIt !=  allTiles->end(); tileIt++)
+            for (; tileIt != allTiles->end(); tileIt++)
             {
                 // domain of the actual tile
                 const r_Minterval &tileDom = (*tileIt)->getDomain();
@@ -252,7 +250,6 @@ QtUnaryInduce::computeUnaryMDDOp(QtMDD *operand, const BaseType *resultBaseType,
     return returnValue;
 }
 
-
 QtData *
 QtUnaryInduce::computeUnaryOp(QtScalarData *operand, const BaseType *resultBaseType,
                               Ops::OpType operation, unsigned int operandOffset, double param)
@@ -261,7 +258,7 @@ QtUnaryInduce::computeUnaryOp(QtScalarData *operand, const BaseType *resultBaseT
     auto *nullValues = operand->getNullValues();
 
     // allocate memory for the result
-    char *resultBuffer = new char[ resultBaseType->getSize() ];
+    char *resultBuffer = new char[resultBaseType->getSize()];
 
 #ifdef DEBUG
     LTRACE << "Operand value ";
@@ -272,7 +269,7 @@ QtUnaryInduce::computeUnaryOp(QtScalarData *operand, const BaseType *resultBaseT
 
     try
     {
-        if ((operation == Ops::OP_IDENTITY))   // || ( operation == Ops::OP_SQRT ))
+        if ((operation == Ops::OP_IDENTITY))  // || ( operation == Ops::OP_SQRT ))
         {
             // operand type is the same as result type
             myOp = Ops::getUnaryOp(operation, resultBaseType, resultBaseType, 0, operandOffset);
@@ -318,7 +315,6 @@ QtUnaryInduce::computeUnaryOp(QtScalarData *operand, const BaseType *resultBaseT
         throw;
     }
 
-
 #ifdef DEBUG
     LTRACE << "Result value ";
     resultBaseType->printCell(RMInit::dbgOut, resultBuffer);
@@ -345,14 +341,12 @@ QtUnaryInduce::computeUnaryOp(QtScalarData *operand, const BaseType *resultBaseT
     return scalarDataObj;
 }
 
-
 const QtNode::QtNodeType QtNot::nodeType = QtNode::QT_NOT;
 
 QtNot::QtNot(QtOperation *initInput)
-    :  QtUnaryInduce(initInput)
+    : QtUnaryInduce(initInput)
 {
 }
-
 
 QtData *
 QtNot::evaluate(QtDataList *inputList)
@@ -377,20 +371,14 @@ QtNot::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
-void
-QtNot::printTree(int tab, ostream &s, QtChildType mode)
+void QtNot::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtNot Object" << getEvaluationTime() << endl;
 
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
 
-
-
-void
-QtNot::printAlgebraicExpression(ostream &s)
+void QtNot::printAlgebraicExpression(ostream &s)
 {
     s << "not(";
 
@@ -406,23 +394,18 @@ QtNot::printAlgebraicExpression(ostream &s)
     s << ")";
 }
 
-
-
 const QtTypeElement &
 QtNot::checkType(QtTypeTuple *typeTuple)
 {
     return checkOperandType(Ops::OP_NOT, typeTuple);
 }
 
-
-
 const QtNode::QtNodeType QtIsNull::nodeType = QtNode::QT_IS_NULL;
 
 QtIsNull::QtIsNull(QtOperation *initInput)
-    :  QtUnaryInduce(initInput)
+    : QtUnaryInduce(initInput)
 {
 }
-
 
 QtData *
 QtIsNull::evaluate(QtDataList *inputList)
@@ -447,20 +430,14 @@ QtIsNull::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
-void
-QtIsNull::printTree(int tab, ostream &s, QtChildType mode)
+void QtIsNull::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIsNull Object" << getEvaluationTime() << endl;
 
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
 
-
-
-void
-QtIsNull::printAlgebraicExpression(ostream &s)
+void QtIsNull::printAlgebraicExpression(ostream &s)
 {
     s << "isnull(";
 
@@ -476,50 +453,39 @@ QtIsNull::printAlgebraicExpression(ostream &s)
     s << ")";
 }
 
-
-
 const QtTypeElement &
 QtIsNull::checkType(QtTypeTuple *typeTuple)
 {
     return checkOperandType(Ops::OP_IS_NULL, typeTuple);
 }
 
-
-
 const QtNode::QtNodeType QtDot::nodeType = QtNode::QT_DOT;
 
-
-
 QtDot::QtDot(const string &initElementName)
-    :  QtUnaryInduce(NULL),
-       elementName(initElementName),
-       elementNo(-1)
+    : QtUnaryInduce(NULL),
+      elementName(initElementName),
+      elementNo(-1)
 {
 }
-
-
 
 QtDot::QtDot(unsigned initElementNo)
-    :  QtUnaryInduce(NULL),
-       elementNo(static_cast<int>(initElementNo))
+    : QtUnaryInduce(NULL),
+      elementNo(static_cast<int>(initElementNo))
 {
 }
 
-
-
-bool
-QtDot::equalMeaning(QtNode *node)
+bool QtDot::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     if (nodeType == node->getNodeType())
     {
-        QtDot *dotNode = static_cast<QtDot *>(node); // by force
+        QtDot *dotNode = static_cast<QtDot *>(node);  // by force
 
         // In future, elementName have to be converted to elementNo
         // and then just the numbers are compared.
-        if ((elementNo != -1 && elementNo == dotNode->elementNo)     ||
-                (elementNo == -1 && elementName == dotNode->elementName))
+        if ((elementNo != -1 && elementNo == dotNode->elementNo) ||
+            (elementNo == -1 && elementName == dotNode->elementName))
         {
             result = input->equalMeaning(dotNode->getInput());
         }
@@ -528,13 +494,12 @@ QtDot::equalMeaning(QtNode *node)
     return result;
 }
 
-
 string
 QtDot::getSpelling()
 {
     char tempStr[20];
     sprintf(tempStr, "%lud", static_cast<unsigned long>(getNodeType()));
-    string result  = string(tempStr);
+    string result = string(tempStr);
 
     if (elementNo == -1)
     {
@@ -554,7 +519,6 @@ QtDot::getSpelling()
 
     return result;
 }
-
 
 QtData *
 QtDot::evaluate(QtDataList *inputList)
@@ -587,9 +551,9 @@ QtDot::evaluate(QtDataList *inputList)
             }
 #endif
 
-            StructType  *operandType    = static_cast<StructType *>(mdd->getCellType());
+            StructType *operandType = static_cast<StructType *>(mdd->getCellType());
             unsigned int operandOffset;
-            const BaseType    *resultCellType = NULL;
+            const BaseType *resultCellType = NULL;
 
             if (elementNo == -1)
             {
@@ -651,9 +615,9 @@ QtDot::evaluate(QtDataList *inputList)
             }
 #endif
 
-            StructType  *operandType    = static_cast<StructType *>(const_cast<BaseType *>(scalar->getValueType()));
+            StructType *operandType = static_cast<StructType *>(const_cast<BaseType *>(scalar->getValueType()));
             unsigned int operandOffset;
-            const BaseType    *resultCellType = NULL;
+            const BaseType *resultCellType = NULL;
 
             if (elementNo == -1)
             {
@@ -712,10 +676,7 @@ QtDot::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
-void
-QtDot::printTree(int tab, ostream &s, QtChildType mode)
+void QtDot::printTree(int tab, ostream &s, QtChildType mode)
 {
     if (elementNo == -1)
     {
@@ -729,8 +690,7 @@ QtDot::printTree(int tab, ostream &s, QtChildType mode)
     QtUnaryInduce::printTree(tab + 2, s, mode);
 }
 
-void
-QtDot::printAlgebraicExpression(ostream &s)
+void QtDot::printAlgebraicExpression(ostream &s)
 {
     s << "(";
 
@@ -791,14 +751,14 @@ QtDot::checkType(QtTypeTuple *typeTuple)
             resultBaseType = structType->getElemType(elementName.c_str());
         else
             resultBaseType = structType->getElemType(static_cast<unsigned int>(elementNo));
-        
+
         if (resultBaseType == nullptr)
         {
             LERROR << "struct selector is not valid.";
             parseInfo.setErrorNo(UNARY_INDUCE_STRUCTSELECTORINVALID);
             throw parseInfo;
         }
-        
+
         if (inputType.getDataType() == QT_MDD)
         {
             MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -823,10 +783,11 @@ QtDot::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtCast::nodeType = QtNode::QT_CAST;
 
-QtCast::QtCast(QtOperation *initInput, cast_types t):
-    QtUnaryInduce(initInput), castType(t) {}
+QtCast::QtCast(QtOperation *initInput, cast_types t)
+    : QtUnaryInduce(initInput), castType(t) {}
 
-QtCast::QtCast(QtOperation *input2, const char *typeName2): QtUnaryInduce(input2)
+QtCast::QtCast(QtOperation *input2, const char *typeName2)
+    : QtUnaryInduce(input2)
 {
     static std::map<string, cast_types> baseCastTypes;
     baseCastTypes.emplace(SyntaxType::BOOL_NAME, t_bool);
@@ -889,10 +850,9 @@ QtData *QtCast::evaluate(QtDataList *inputList)
 void QtCast::printTree(int tab, ostream &s, QtChildType mode)
 {
     const char *type_name[] =
-    {
-        "bool", "octet", "char", "short", "ushort",
-        "long", "ulong", "float", "double"
-    };
+        {
+            "bool", "octet", "char", "short", "ushort",
+            "long", "ulong", "float", "double"};
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCastObject "
       << static_cast<int>(getNodeType())
       << "<" << (typeName.empty() ? type_name[castType] : typeName.c_str()) << ">" << getEvaluationTime()
@@ -903,10 +863,9 @@ void QtCast::printTree(int tab, ostream &s, QtChildType mode)
 void QtCast::printAlgebraicExpression(ostream &s)
 {
     const char *type_name[] =
-    {
-        "bool", "octet", "char", "short", "ushort",
-        "long", "ulong", "float", "double"
-    };
+        {
+            "bool", "octet", "char", "short", "ushort",
+            "long", "ulong", "float", "double"};
     s << "cast<" << (typeName.empty() ? type_name[castType] : typeName.c_str()) << ">(";
     if (input)
         input->printAlgebraicExpression(s);
@@ -924,7 +883,7 @@ const QtTypeElement &QtCast::checkType(QtTypeTuple *typeTuple)
     else
     {
         dataStreamType.setDataType(QT_TYPE_UNKNOWN);
-   
+
         if (input)
         {
             const QtTypeElement &inputType = input->checkType(typeTuple);
@@ -932,7 +891,7 @@ const QtTypeElement &QtCast::checkType(QtTypeTuple *typeTuple)
             if (baseType != nullptr)
             {
                 const BaseType *resultBaseType = TypeFactory::mapType(typeName.c_str());
-                
+
                 if (inputType.getDataType() == QT_MDD)
                 {
                     MDDBaseType *resultMDDType = new MDDBaseType("tmp", resultBaseType);
@@ -956,10 +915,8 @@ const QtTypeElement &QtCast::checkType(QtTypeTuple *typeTuple)
             LERROR << "operand branch invalid.";
         }
         return dataStreamType;
-
     }
 }
-
 
 //--------------------------------------------
 //  QtRealPartOp
@@ -967,7 +924,8 @@ const QtTypeElement &QtCast::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtRealPartOp::nodeType = QtNode::QT_REALPART;
 
-QtRealPartOp::QtRealPartOp(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtRealPartOp::QtRealPartOp(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 
 QtData *QtRealPartOp::evaluate(QtDataList *inputList)
 {
@@ -1014,7 +972,8 @@ const QtTypeElement &QtRealPartOp::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtImaginarPartOp::nodeType = QtNode::QT_IMAGINARPART;
 
-QtImaginarPartOp::QtImaginarPartOp(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtImaginarPartOp::QtImaginarPartOp(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 
 QtData *QtImaginarPartOp::evaluate(QtDataList *inputList)
 {

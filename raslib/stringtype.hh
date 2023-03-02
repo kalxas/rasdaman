@@ -64,4 +64,3 @@ public:
 extern std::ostream &operator<<(std::ostream &str, const r_String_Type &type);
 
 #endif
-

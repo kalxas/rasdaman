@@ -49,7 +49,7 @@ public:
     QtPolygonClipping();
 
     // just returns the 2D mask on the full domain, computed using the Bresenham approach above.
-    virtual vector< vector<char>> generateMask(bool toFill);
+    virtual vector<vector<char>> generateMask(bool toFill);
 
     inline void setDomain(const r_Minterval &arg)
     {
@@ -67,9 +67,9 @@ private:
     r_Minterval domain;
 
     /// the vector of vertices
-    vector< r_Point> polygonVertices;
+    vector<r_Point> polygonVertices;
 };
-#endif  /* QTPOLYGONCLIPPING_HH */
+#endif /* QTPOLYGONCLIPPING_HH */
 
 #ifndef QTPOSITIVEGENUSCLIPPING_HH
 #define QTPOSITIVEGENUSCLIPPING_HH
@@ -79,10 +79,10 @@ class QtPositiveGenusClipping : public QtPolygonClipping
 public:
     QtPositiveGenusClipping(const r_Minterval &areaOp, const std::vector<QtMShapeData *> &polygonArgs);
 
-    virtual vector< vector<char>> generateMask(bool toFill) override;
+    virtual vector<vector<char>> generateMask(bool toFill) override;
 
 private:
-    std::vector< QtPolygonClipping > interiorPolygons;
+    std::vector<QtPolygonClipping> interiorPolygons;
 };
 
 #endif

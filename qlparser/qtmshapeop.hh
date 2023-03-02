@@ -28,7 +28,6 @@ rasdaman GmbH.
 #include "qlparser/qtmshapedata.hh"
 #include <deque>
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -65,7 +64,7 @@ public:
 
     // 1. checks each group of three vertices if they fail in either the colinear
     //    or convex test.
-    int isLeftTurn(const std::deque< r_Point *> &);
+    int isLeftTurn(const std::deque<r_Point *> &);
 
     // 2. The mshape/polygon created must be concave and with no colinear vertices
     bool isValidSetOfPoints(const std::vector<r_Point> &);
@@ -79,8 +78,6 @@ private:
     std::vector<r_Point> points;
 };
 
-
 #include "qlparser/qtmshapeop.icc"
 
 #endif
-

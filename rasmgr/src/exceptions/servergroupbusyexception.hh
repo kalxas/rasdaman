@@ -35,7 +35,7 @@ namespace rasmgr
 class ServerGroupBusyException : public common::ResourceBusyException
 {
 public:
-    ServerGroupBusyException(const std::string& serverGroupName);
+    ServerGroupBusyException(const std::string &serverGroupName);
 
     virtual ~ServerGroupBusyException() noexcept;
 };

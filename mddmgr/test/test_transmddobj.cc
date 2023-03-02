@@ -36,13 +36,13 @@ rasdaman GmbH.
 
 #include <stdlib.h>
 #include <iostream>
-#include <vector.h>                  // STL
+#include <vector.h>  // STL
 #include "mddmgr/transtile.hh"
 #include "mddmgr/transmddobj.hh"
 
 #include "relcatalogif/typefactory.hh"
-#include "ulongtype.hh"              // from catalogif
-#include "mddbasetype.hh"            //  from catalogif
+#include "ulongtype.hh"    // from catalogif
+#include "mddbasetype.hh"  //  from catalogif
 
 #include "raslib/minterval.hh"
 #include "mddmgr/transmddcoll.hh"
@@ -58,13 +58,12 @@ RMINITGLOBALS('C')
 
 // Needed by Adminif. Adminif has to be instantiated because
 // of cell base types.
-extern char* myExecArgv0 = "";
+extern char *myExecArgv0 = "";
 
 void testConstruction();
 void testRemovetile();
 void testIntersection();
 void printMemInfo();
-
 
 /*************************************************************
  * Function name.: int main( int argc, char** argv)
@@ -76,11 +75,10 @@ void printMemInfo();
  * Description...: none
  ************************************************************/
 
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     myExecArgv0 = argv[0];
-    AdminIf* myAdmin = AdminIf::instance();
+    AdminIf *myAdmin = AdminIf::instance();
     TransactionIf ta;
     char O2DBName[] = "BaseTestTransMDDObj";
 
@@ -92,7 +90,7 @@ main(int argc, char** argv)
     int errorDBOpen;
     try
     {
-        errorDBOpen =  database.open(O2DBName);
+        errorDBOpen = database.open(O2DBName);
     }
     catch (...)
     {
@@ -109,7 +107,7 @@ main(int argc, char** argv)
              << "..." << endl;
         try
         {
-            errorDBOpen =  database.open(O2DBName);
+            errorDBOpen = database.open(O2DBName);
         }
         catch (...)
         {
@@ -141,7 +139,6 @@ main(int argc, char** argv)
     cout << "Testing intersection - end " << endl;
     printMemInfo();
 
-
     /*
     cout << "---------- ";
     cout << "Testing removeTile from TransMDDObj: " << endl;
@@ -154,7 +151,6 @@ main(int argc, char** argv)
     database.close();
 
     delete myAdmin;
-
 }
 
 void testConstruction()
@@ -163,37 +159,35 @@ void testConstruction()
     r_Sinterval domSinterval;
     cout << "here 1" << endl;
     ULongType ult;
-    BaseType* anyType = new((d_Database*)(d_Database::transient_memory)) ULongType;   //  anyType;
+    BaseType *anyType = new ((d_Database *)(d_Database::transient_memory)) ULongType;  //  anyType;
 
     cout << "here 2" << endl;
-    const MDDBaseType* anyBaseType =
-        new((d_Database*)(d_Database::transient_memory)) MDDBaseType("AnyType", &ult/* anyType */);
+    const MDDBaseType *anyBaseType =
+        new ((d_Database *)(d_Database::transient_memory)) MDDBaseType("AnyType", &ult /* anyType */);
 
     // const MDDBaseType anyBaseType( "AnyType", &ult );
 
     char anyCell[4];
     int j;
-    MDDObj* testMDDObj;
-
+    MDDObj *testMDDObj;
 
     cout << "Creating transient tiles for the MDD object ... " << endl;
-    vector<TransTile*> tilesVect(numTilesObj);
-
+    vector<TransTile *> tilesVect(numTilesObj);
 
     // initialize array of tiles
-    for (j = 0; j < numTilesObj ; j++)
+    for (j = 0; j < numTilesObj; j++)
     {
         r_Minterval dom(2);
-        TransTile* tt;
+        TransTile *tt;
 
         domSinterval.set_interval(r_Range(j * 10), r_Range((j + 1) * 10 - 1));
-        dom <<  domSinterval << domSinterval;
+        dom << domSinterval << domSinterval;
         cout << "Newly created tile domain : " << dom << "  " << endl;
         // printMemInfo();
         tt = new TransTile(dom, anyType, anyCell);
         cout << "Tile created " << endl;
         // printMemInfo();
-        tilesVect[j] = tt ;
+        tilesVect[j] = tt;
     }
 
     // Test trans tiles part - BEGIN
@@ -205,7 +199,6 @@ void testConstruction()
     // release (tilesVect.begin( ), tilesVect.end( ) );
 
     // Test trans tiles part - END
-
 
     cout << "Creating the transient MDD object ... " << endl;
 
@@ -227,55 +220,49 @@ void testConstruction()
     cout << "Deleting the created object ... " << endl;
     delete testMDDObj;
     // printMemInfo();
-
-
 }
-
 
 void testIntersection()
 {
     const int numTilesObj = 20;
     r_Sinterval domSinterval;
 
-    const BaseType* ulongTypeObj = TypeFactory::mapType("ULong");
+    const BaseType *ulongTypeObj = TypeFactory::mapType("ULong");
 
     char uLongCell[] = {0, 1, 2, 3};
 
-    const MDDBaseType* anyBaseType =
-        new MDDBaseType("AnyType1", (BaseType*) ulongTypeObj);
+    const MDDBaseType *anyBaseType =
+        new MDDBaseType("AnyType1", (BaseType *)ulongTypeObj);
 
-    TypeFactory::addTempType((Type*) anyBaseType);
+    TypeFactory::addTempType((Type *)anyBaseType);
 
-    BaseType* bt = ((MDDBaseType*) anyBaseType)->getBaseType();
-    cout << "Base type size " <<  bt->getSize() << endl;
-
+    BaseType *bt = ((MDDBaseType *)anyBaseType)->getBaseType();
+    cout << "Base type size " << bt->getSize() << endl;
 
     int j;
-    MDDObj* testMDDObj;
-
+    MDDObj *testMDDObj;
 
     cout << "Creating transient tiles for the MDD object ... " << endl;
-    vector<TransTile*> tilesVect(numTilesObj);
-
+    vector<TransTile *> tilesVect(numTilesObj);
 
     // initialize array of tiles
-    for (j = 0; j < numTilesObj ; j++)
+    for (j = 0; j < numTilesObj; j++)
     {
         r_Minterval dom(2);
-        TransTile* tt;
+        TransTile *tt;
 
         domSinterval.set_interval(r_Range(j * 10), r_Range((j + 1) * 10 - 1));
-        dom <<  domSinterval << domSinterval;
+        dom << domSinterval << domSinterval;
         cout << "Newly created tile domain : " << dom << "  " << endl;
         // printMemInfo();
-        tt = new TransTile(dom, (BaseType*) ulongTypeObj, uLongCell);
+        tt = new TransTile(dom, (BaseType *)ulongTypeObj, uLongCell);
         cout << "Tile created " << endl;
         if (!j)
         {
             tt->printStatus();
         }
         // printMemInfo();
-        tilesVect[j] = tt ;
+        tilesVect[j] = tt;
     }
 
     // Test trans tiles part - BEGIN
@@ -288,14 +275,13 @@ void testIntersection()
 
     // Test trans tiles part - END
 
-
     cout << "Creating the transient MDD object ... " << endl;
 
     r_Minterval dom(2);
     domSinterval.set_interval(r_Range(0), r_Range(100));
     domSinterval.set_low('*');
     dom << domSinterval << domSinterval;
-    testMDDObj = new  TransMDDObj(anyBaseType, dom);
+    testMDDObj = new TransMDDObj(anyBaseType, dom);
     for (j = 0; j < numTilesObj; j++)
     {
         testMDDObj->insertTile(tilesVect[j]);
@@ -307,20 +293,20 @@ void testIntersection()
 
     r_Minterval searchInterval(2);
     domSinterval.set_interval(r_Range(4), r_Range(96));
-    searchInterval << domSinterval ;
+    searchInterval << domSinterval;
     domSinterval.set_interval(r_Range(22), r_Range(84));
-    searchInterval << domSinterval ;
-    cout << "Intersection with " << searchInterval << " :" << endl ;
+    searchInterval << domSinterval;
+    cout << "Intersection with " << searchInterval << " :" << endl;
 
-    vector<Tile*>* intersectResult =
+    vector<Tile *> *intersectResult =
         (testMDDObj)->intersect(searchInterval);
     cout << "Result of intersection:" << endl;
     cout << "Intersect result size " << intersectResult->size() << endl;
-    for (int tilesIter = 0; tilesIter < intersectResult->size() ; tilesIter++)
+    for (int tilesIter = 0; tilesIter < intersectResult->size(); tilesIter++)
     {
-        Tile* currTile;
+        Tile *currTile;
         currTile = (*intersectResult)[tilesIter];
-        cout << "Tile " << tilesIter << " domain : " ;
+        cout << "Tile " << tilesIter << " domain : ";
         cout << currTile->getDomain() << endl;
     }
 
@@ -333,44 +319,43 @@ void testIntersection()
     // printMemInfo();
 
     cout << "Testing point query " << endl;
-    r_Point pnt1(r_Range(2) , r_Range(3));
-    unsigned long* c1 = (unsigned long*) testMDDObj->pointQuery(pnt1);
+    r_Point pnt1(r_Range(2), r_Range(3));
+    unsigned long *c1 = (unsigned long *)testMDDObj->pointQuery(pnt1);
     // char* c1 = testMDDObj->pointQuery( pnt1 );
     cout << "1. Result " << pnt1 << ": " << *c1 << endl;
 
-    r_Point pnt2(r_Range(20) , r_Range(30));
-    unsigned long* c2 = (unsigned long*) testMDDObj->pointQuery(pnt2);
+    r_Point pnt2(r_Range(20), r_Range(30));
+    unsigned long *c2 = (unsigned long *)testMDDObj->pointQuery(pnt2);
     // char* c2 = testMDDObj->pointQuery( pnt2 );
-    cout << "2. Result " << pnt2 << ": " <<  c2 << endl;
+    cout << "2. Result " << pnt2 << ": " << c2 << endl;
 
     cout << "Deleting the created object ... " << endl;
     delete testMDDObj;
     printMemInfo();
 }
 
-
 void testRemovetile()
 {
     const int numTilesObj = 20;
     r_Sinterval domSinterval;
-    BaseType* anyType = new((d_Database*)(d_Database::transient_memory))  ULongType;   //  ULongType anyType;
+    BaseType *anyType = new ((d_Database *)(d_Database::transient_memory)) ULongType;  //  ULongType anyType;
     char anyCell[4] = {'a', 'b', 'c', '\0'};
     int j, i;
-    TransMDDObj* testMDDObj;
-    vector<Tile*>* allTilesObj;
-    vector<Tile*> tilesToDelete;
-    const MDDBaseType* anyBaseType =
-        new((d_Database*)(d_Database::transient_memory))  MDDBaseType("AnyType", anyType);
+    TransMDDObj *testMDDObj;
+    vector<Tile *> *allTilesObj;
+    vector<Tile *> tilesToDelete;
+    const MDDBaseType *anyBaseType =
+        new ((d_Database *)(d_Database::transient_memory)) MDDBaseType("AnyType", anyType);
 
     cout << "Creating transient tiles for the MDD object ... " << endl;
-    vector<TransTile*> tilesVect;
+    vector<TransTile *> tilesVect;
 
     // initialize array of tiles
-    for (j = 0; j < numTilesObj ; j++)
+    for (j = 0; j < numTilesObj; j++)
     {
         r_Minterval dom(2);
         domSinterval.set_interval(r_Range(j * 10), r_Range((j + 1) * 10 - 1));
-        dom <<  domSinterval << domSinterval;
+        dom << domSinterval << domSinterval;
         cout << "New TransTile " << endl;
         tilesVect.push_back(new TransTile(dom, anyType, anyCell));
         // printMemInfo( );
@@ -385,8 +370,8 @@ void testRemovetile()
     testMDDObj = new TransMDDObj(anyBaseType, dom);
     for (j = 0; j < numTilesObj; j++)
     {
-        cout << "InsertTile " << endl ;
-        testMDDObj->insertTile((Tile*) tilesVect[j]);
+        cout << "InsertTile " << endl;
+        testMDDObj->insertTile((Tile *)tilesVect[j]);
         // printMemInfo( );
     }
 
@@ -409,7 +394,9 @@ void testRemovetile()
     {
         cout << " Tile is going to be removed " << endl;
         testMDDObj->removeTile(tilesToDelete[i]);
-        cout << endl << " Value of  pointer to tile : " << tilesToDelete[i] << endl << endl;
+        cout << endl
+             << " Value of  pointer to tile : " << tilesToDelete[i] << endl
+             << endl;
         // printMemInfo();
     }
     testMDDObj->printStatus();
@@ -420,18 +407,15 @@ void testRemovetile()
     cout << "Already deleted " << endl;
     // printMemInfo( );
 
-    delete  allTilesObj;
+    delete allTilesObj;
 }
-
 
 void printMemInfo()
 {
-
-
     // allows to store values in the program
     struct mallinfo meminfo = mallinfo();
 
-    cout << "   Memory Usage Information :  " ;
+    cout << "   Memory Usage Information :  ";
     cout << endl;
 
     cout << "      space in arena                 : " << meminfo.arena << endl;
@@ -441,7 +425,4 @@ void printMemInfo()
     cout << "      space in used ordinary blocks  : " << meminfo.uordblks << endl;
 
     // cout << "additional space from last call: " << meminfo.uordblks - memUsed << endl;
-
 }
-
-

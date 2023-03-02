@@ -61,13 +61,14 @@ public:
     r_Minterval nextArea();
     /// returns TRUE if iteration is finished.
     bool isDone();
+
 protected:
     // structure storing information on iteration for each dimension
     // (perhaps add dimension for reordering later)
     struct incArrElem
     {
-        int repeat; // total number of repeats
-        int curr;   // current repeat
+        int repeat;  // total number of repeats
+        int curr;    // current repeat
     };
     /// This is used for the return value in nextArea()
     r_Minterval retVal;

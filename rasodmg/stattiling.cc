@@ -30,15 +30,14 @@ rasdaman GmbH.
 #include <cstdlib>
 
 const char *
-r_Stat_Tiling::description = "dimensions, access patterns, border threshold, interesting threshold, tile size (in bytes) (ex: \"2;[0:9,0:9],3;[100:109,0:9],2;2;0.3;100\")";
+    r_Stat_Tiling::description = "dimensions, access patterns, border threshold, interesting threshold, tile size (in bytes) (ex: \"2;[0:9,0:9],3;[100:109,0:9],2;2;0.3;100\")";
 
-const
-r_Area r_Stat_Tiling::DEF_BORDER_THR = 50L;
+const r_Area r_Stat_Tiling::DEF_BORDER_THR = 50L;
 const r_Double
-r_Stat_Tiling::DEF_INTERESTING_THR  = 0.20;
+    r_Stat_Tiling::DEF_INTERESTING_THR = 0.20;
 
 r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
-    :   r_Dimension_Tiling(0, 0)
+    : r_Dimension_Tiling(0, 0)
 {
     check_nonempty_tiling(encoded);
 
@@ -47,18 +46,18 @@ r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
     const char *pTemp = pStart;
     const char *pRes = advance_to_next_char(pTemp, TCOLON);
 
-//deal with dimension
+    //deal with dimension
     auto pToConvertPtr = copy_buffer(pTemp, static_cast<r_Bytes>(pRes - pTemp));
     dimension = parse_unsigned(pToConvertPtr.get());
 
-//skip COLON && free buffer
+    //skip COLON && free buffer
     check_premature_stream_end(pRes, pEnd);
     pRes++;
 
-//deal with access informations
+    //deal with access informations
     pTemp = pRes;
     pRes = advance_to_next_char(pTemp, TCOLON);
-    
+
     while (pRes)
     {
         //is access info?
@@ -72,9 +71,9 @@ r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
         const char *pInEnd = pToConvertPtr.get() + strlen(pToConvertPtr.get());
         const char *pInRes = advance_to_next_char(pToConvertPtr.get(), RSQRBRA);
 
-        auto lenInToConvert = static_cast<r_Bytes>(pInRes - pToConvertPtr.get() + 1); //1 for ]
+        auto lenInToConvert = static_cast<r_Bytes>(pInRes - pToConvertPtr.get() + 1);  //1 for ]
         auto pInToConvertPtr = copy_buffer(pToConvertPtr.get(), lenInToConvert);
-        
+
         r_Minterval accessInterv;
         try
         {
@@ -82,16 +81,16 @@ r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
         }
         catch (r_Error &err)
         {
-            LERROR << "Error decoding access interval \"" << pInToConvertPtr.get() << "\" from \"" 
+            LERROR << "Error decoding access interval \"" << pInToConvertPtr.get() << "\" from \""
                    << pToConvertPtr.get() << "\", error " << err.get_errorno() << " : " << err.what();
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
-        
+
         //deal with access Times
         pInRes = advance_to_next_char(pInRes, TCOMMA);
         check_premature_stream_end(pInRes, pEnd);
         pInRes++;
-        
+
         auto accessTimes = parse_long(pInRes);
         stat_info.push_back(r_Access(accessInterv, accessTimes));
 
@@ -110,19 +109,19 @@ r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-//deal with borderTH
+    //deal with borderTH
     pToConvertPtr = copy_buffer(pTemp, static_cast<r_Bytes>(pRes - pTemp));
     border_thr = parse_unsigned_long(pToConvertPtr.get());
 
-//skip COLON && free buffer
+    //skip COLON && free buffer
     check_premature_stream_end(pRes, pEnd);
     pRes++;
 
-//deal with interestTH
+    //deal with interestTH
     pTemp = pRes;
     pRes = advance_to_next_char(pTemp, TCOLON);
 
-//copy substring into buffer
+    //copy substring into buffer
     pToConvertPtr = copy_buffer(pTemp, static_cast<r_Bytes>(pRes - pTemp));
     const auto *pToConvert = pToConvertPtr.get();
 
@@ -143,22 +142,21 @@ r_Stat_Tiling::r_Stat_Tiling(const char *encoded)
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
 
-//skip COLON && free buffer
+    //skip COLON && free buffer
     check_premature_stream_end(pRes, pEnd);
     pRes++;
 
-//deal with tilesize
+    //deal with tilesize
     pTemp = pRes;
     tile_size = parse_unsigned(pTemp);
 }
 
-
-r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access> &stat_info2, 
+r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access> &stat_info2,
                              r_Bytes ts, r_Area border_threshold, r_Double interesting_threshold)
-    :   r_Dimension_Tiling(dim, ts),
-        interesting_thr(interesting_threshold),
-        border_thr(border_threshold),
-        stat_info(stat_info2)
+    : r_Dimension_Tiling(dim, ts),
+      interesting_thr(interesting_threshold),
+      border_thr(border_threshold),
+      stat_info(stat_info2)
 {
     // Filter accesses all areas have the same dimension if successfull else exception
     filter(stat_info);
@@ -187,8 +185,8 @@ r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access> &stat_
     iareas.clear();
     for (auto areas_it = stat_info.begin(); areas_it != stat_info.end(); areas_it++)
     {
-        if ((*areas_it).get_times() >= critical_accesses) // Threshold exceeded or equal
-            iareas.push_back(areas_it->get_pattern());           // count this area in
+        if ((*areas_it).get_times() >= critical_accesses)  // Threshold exceeded or equal
+            iareas.push_back(areas_it->get_pattern());     // count this area in
     }
 }
 
@@ -235,7 +233,7 @@ r_Stat_Tiling::merge(const std::vector<r_Access> &patterns) const
     for (; it != patterns.end(); it++)
         result.merge_with(*it);
 
-    return result;                                     // Return the result
+    return result;  // Return the result
 }
 
 void r_Stat_Tiling::filter(std::vector<r_Access> &patterns) const
@@ -278,26 +276,26 @@ void r_Stat_Tiling::filter(std::vector<r_Access> &patterns) const
 std::vector<r_Minterval>
 r_Stat_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
 {
-    auto num_dims = domain.dimension();                   // Dimensionality of dom
+    auto num_dims = domain.dimension();  // Dimensionality of dom
     if (domain.dimension() != dimension)
     {
-        LERROR << "r_Stat_Tiling::compute_tiles(" << domain << ", " << typelen 
+        LERROR << "r_Stat_Tiling::compute_tiles(" << domain << ", " << typelen
                << ") dimension (" << dimension << ") does not match dimension of object to tile (" << num_dims << ")";
         throw r_Edim_mismatch(dimension, num_dims);
     }
     if (typelen > tile_size)
     {
-        LERROR << "r_Stat_Tiling::compute_tiles(" << domain << ", " << typelen 
+        LERROR << "r_Stat_Tiling::compute_tiles(" << domain << ", " << typelen
                << ") tile size (" << tile_size << ") is smaller than type length (" << typelen << ")";
         throw r_Error(TILESIZETOOSMALL);
     }
 
-    if (iareas.empty())                               // No interest areas
+    if (iareas.empty())  // No interest areas
     {
         // Perform regular tiling
         return r_Size_Tiling::compute_tiles(domain, typelen);
     }
-    else                                              // We have interest areas
+    else  // We have interest areas
     {
         // Use interest areas for tiling the domain
         r_Interest_Tiling tiling(dimension, iareas, get_tile_size(), r_Interest_Tiling::SUB_TILING);
@@ -307,8 +305,8 @@ r_Stat_Tiling::compute_tiles(const r_Minterval &domain, r_Bytes typelen) const
 
 //***************************************************************************
 
-r_Access::r_Access(const r_Minterval &pattern, r_ULong accesses) :
-    interval(pattern), times(accesses)
+r_Access::r_Access(const r_Minterval &pattern, r_ULong accesses)
+    : interval(pattern), times(accesses)
 {
 }
 const r_Minterval &r_Access::get_pattern() const
@@ -334,7 +332,7 @@ bool r_Access::is_near(const r_Access &other, r_ULong border_threshold) const
     const auto num_dims = interval.dimension();
     if (num_dims != b.dimension())
     {
-        LERROR << "r_Access::is_near(" << other << ", " << border_threshold 
+        LERROR << "r_Access::is_near(" << other << ", " << border_threshold
                << ") parameter 1 does not match my dimension (" << num_dims << ")";
         throw r_Edim_mismatch(num_dims, b.dimension());
     }

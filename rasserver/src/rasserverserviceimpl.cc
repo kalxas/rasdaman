@@ -34,16 +34,16 @@ using namespace rasnet::service;
 namespace rasserver
 {
 RasServerServiceImpl::RasServerServiceImpl(std::shared_ptr<rasserver::ClientManager> clientManagerArg)
-  : clientManager{clientManagerArg}
+    : clientManager{clientManagerArg}
 {
 }
 
 grpc::Status rasserver::RasServerServiceImpl::AllocateClient(
-    UNUSED ServerContext* context, const AllocateClientReq* req, UNUSED Void* resp)
+    UNUSED ServerContext *context, const AllocateClientReq *req, UNUSED Void *resp)
 {
     grpc::Status result = grpc::Status::OK;
     LDEBUG << "Allocating client " << req->clientid();
-    
+
     if (!clientManager->allocateClient(req->clientid(), req->sessionid()))
     {
         result = grpc::Status(grpc::StatusCode::ALREADY_EXISTS,
@@ -67,7 +67,7 @@ grpc::Status rasserver::RasServerServiceImpl::AllocateClient(
 }
 
 grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(
-    UNUSED ServerContext* context, const DeallocateClientReq* request, UNUSED Void* response)
+    UNUSED ServerContext *context, const DeallocateClientReq *request, UNUSED Void *response)
 {
     this->clientManager->deallocateClient(request->clientid(), request->sessionid());
     RasServerEntry::getInstance().disconnectClient();
@@ -75,7 +75,7 @@ grpc::Status rasserver::RasServerServiceImpl::DeallocateClient(
 }
 
 grpc::Status rasserver::RasServerServiceImpl::Close(
-    UNUSED ServerContext* context, UNUSED const CloseServerReq* request, UNUSED Void* response)
+    UNUSED ServerContext *context, UNUSED const CloseServerReq *request, UNUSED Void *response)
 {
     // We need to do the exit in a thread a bit after the response has been returned
     // back to rasmgr, otherwise rasmgr will think there's an error
@@ -89,27 +89,26 @@ void RasServerServiceImpl::shutdownRunner()
     // wait 10ms for the response to network request Close to be returned, for
     // upto 10s in total
     LDEBUG << "starting shutdown process...";
-    RasServerEntry& rasserver = RasServerEntry::getInstance();
+    RasServerEntry &rasserver = RasServerEntry::getInstance();
     size_t waited = 0;
-    static const size_t maxWait = 10*1000; // 10 s
-    
+    static const size_t maxWait = 10 * 1000;  // 10 s
+
     do
     {
-      usleep(10*1000);
-      waited += 10;
-    }
-    while (rasserver.isOpenTA() && waited < maxWait);
-    
+        usleep(10 * 1000);
+        waited += 10;
+    } while (rasserver.isOpenTA() && waited < maxWait);
+
     if (waited >= maxWait)
-      LINFO << "shutting down rasserver with a transaction still in progress after waiting for 10 seconds.";
+        LINFO << "shutting down rasserver with a transaction still in progress after waiting for 10 seconds.";
     else
-      LINFO << "shutting down rasserver.";
-  
+        LINFO << "shutting down rasserver.";
+
     exit(EXIT_SUCCESS);
 }
 
 grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(
-    UNUSED ServerContext* context, const ClientStatusReq* request, ClientStatusRepl* response)
+    UNUSED ServerContext *context, const ClientStatusReq *request, ClientStatusRepl *response)
 {
     LTRACE << "Starting GetClientStatus " << request->clientid();
 
@@ -124,9 +123,9 @@ grpc::Status rasserver::RasServerServiceImpl::GetClientStatus(
 }
 
 grpc::Status rasserver::RasServerServiceImpl::GetServerStatus(
-    UNUSED ServerContext* context, UNUSED const ServerStatusReq* request, ServerStatusRepl* response)
+    UNUSED ServerContext *context, UNUSED const ServerStatusReq *request, ServerStatusRepl *response)
 {
     response->set_hasclients(this->clientManager->hasClients());
     return grpc::Status::OK;
 }
-}
+}  // namespace rasserver

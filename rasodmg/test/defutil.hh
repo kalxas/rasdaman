@@ -27,7 +27,6 @@ rasdaman GmbH.
  *  Common functions used by defxxx programs
 */
 
-
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -43,9 +42,9 @@ using std::endl;
 #include "conversion/convfactory.hh"
 
 //--I/O file
-int readFile(const char* fileName, char** data, r_ULong& dataSize)
+int readFile(const char *fileName, char **data, r_ULong &dataSize)
 {
-    FILE* pFile = NULL;
+    FILE *pFile = NULL;
 
     if (fileName == NULL)
     {
@@ -84,9 +83,9 @@ int readFile(const char* fileName, char** data, r_ULong& dataSize)
     return EXIT_SUCCESS;
 }
 
-int writeFile(const char* fileName, const char** data, r_ULong& dataSize)
+int writeFile(const char *fileName, const char **data, r_ULong &dataSize)
 {
-    FILE* pFile = NULL;
+    FILE *pFile = NULL;
 
     if (fileName == NULL)
     {
@@ -122,12 +121,12 @@ int writeFile(const char* fileName, const char** data, r_ULong& dataSize)
 }
 
 //ConvertFrom/To r_Array data
-int convertFrom(r_Data_Format fmt, const char* fmtParams,
-                const char* data, const r_Minterval& dataDom,
-                const r_Type* dataType, r_convDesc& desc)
+int convertFrom(r_Data_Format fmt, const char *fmtParams,
+                const char *data, const r_Minterval &dataDom,
+                const r_Type *dataType, r_convDesc &desc)
 {
     r_Storage_Man_CPP mySM;
-    r_Convertor* conv = NULL;
+    r_Convertor *conv = NULL;
 
     if (data == NULL)
     {
@@ -146,10 +145,10 @@ int convertFrom(r_Data_Format fmt, const char* fmtParams,
         conv = r_Convertor_Factory::create(fmt, data, dataDom, dataType);
         conv->set_storage_handler(mySM);
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << "convertFrom(...) request for convertor " << fmt << " failed" << endl
-             << "Error " << err.get_errorno() << " : "  << err.what() << endl;
+             << "Error " << err.get_errorno() << " : " << err.what() << endl;
         return EXIT_FAILURE;
     }
 
@@ -157,10 +156,10 @@ int convertFrom(r_Data_Format fmt, const char* fmtParams,
     {
         desc = conv->convertFrom(fmtParams);
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << "convertFrom(...) conversion from " << fmt << " format to r_Array format failed! " << endl
-             << "Error " << err.get_errorno() << " : "  << err.what() << endl;
+             << "Error " << err.get_errorno() << " : " << err.what() << endl;
         if (conv)
         {
             delete conv;
@@ -172,12 +171,12 @@ int convertFrom(r_Data_Format fmt, const char* fmtParams,
     return EXIT_SUCCESS;
 }
 
-int convertTo(r_Data_Format fmt, const char* fmtParams,
-              const char* data, const r_Minterval& dataDom,
-              const r_Type* dataType, r_convDesc& desc)
+int convertTo(r_Data_Format fmt, const char *fmtParams,
+              const char *data, const r_Minterval &dataDom,
+              const r_Type *dataType, r_convDesc &desc)
 {
     r_Storage_Man_CPP mySM;
-    r_Convertor* conv = NULL;
+    r_Convertor *conv = NULL;
 
     if (data == NULL)
     {
@@ -196,10 +195,10 @@ int convertTo(r_Data_Format fmt, const char* fmtParams,
         conv = r_Convertor_Factory::create(fmt, data, dataDom, dataType);
         conv->set_storage_handler(mySM);
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << "convertTo(...) request for convertor " << fmt << " failed! " << endl
-             << "Error " << err.get_errorno() << " : "  << err.what() << endl;
+             << "Error " << err.get_errorno() << " : " << err.what() << endl;
         return EXIT_FAILURE;
     }
 
@@ -207,10 +206,10 @@ int convertTo(r_Data_Format fmt, const char* fmtParams,
     {
         desc = conv->convertTo(fmtParams);
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << "convertTo(...) conversion from " << fmt << " format to r_Array format failed! " << endl
-             << "Error " << err.get_errorno() << " : "  << err.what() << endl;
+             << "Error " << err.get_errorno() << " : " << err.what() << endl;
         if (conv)
         {
             delete conv;
@@ -222,15 +221,14 @@ int convertTo(r_Data_Format fmt, const char* fmtParams,
     return EXIT_SUCCESS;
 }
 
-
 //init/deinit ConvDesc
-void cleanConvDesc(r_convDesc& desc)
+void cleanConvDesc(r_convDesc &desc)
 {
     desc.src = NULL;
     desc.srcType = NULL;
     if (desc.dest != NULL)
     {
-        delete []desc.dest;
+        delete[] desc.dest;
         desc.dest = NULL;
     }
     if (desc.destType != NULL)
@@ -241,7 +239,7 @@ void cleanConvDesc(r_convDesc& desc)
     desc.baseType = r_Convertor::ctype_void;
 }
 
-void initConvDesc(r_convDesc& desc)
+void initConvDesc(r_convDesc &desc)
 {
     desc.dest = NULL;
     desc.src = NULL;
@@ -251,7 +249,7 @@ void initConvDesc(r_convDesc& desc)
 }
 
 //decode a minterval from a string
-int decodeMinterval(const char* src, r_Minterval& srcIv)
+int decodeMinterval(const char *src, r_Minterval &srcIv)
 {
     if (!src)
     {
@@ -263,7 +261,7 @@ int decodeMinterval(const char* src, r_Minterval& srcIv)
     {
         srcIv = r_Minterval(src);
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << "decodeMinterval(...) error while constructing the minterval from " << src << endl;
         cout << "Error " << err.get_errorno() << ":" << err.what() << endl;
@@ -274,7 +272,7 @@ int decodeMinterval(const char* src, r_Minterval& srcIv)
 }
 
 //decode a type from a string
-int decodeType(const char* src, r_Type*& srcType)
+int decodeType(const char *src, r_Type *&srcType)
 {
     if (!src)
     {
@@ -292,7 +290,7 @@ int decodeType(const char* src, r_Type*& srcType)
     {
         srcType = r_Type::get_any_type(src);
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << "decodeType(...) error while constructing the type from " << src << endl;
         cout << "Error " << err.get_errorno() << ":" << err.what() << endl;
@@ -315,16 +313,16 @@ int decodeType(const char* src, r_Type*& srcType)
 }
 
 //parse r_Array params 'domain=<domain_str>,type=<type_str>'
-int parseArrayParams(const char* formatparams,
-                     const char* fpDomain,
-                     const char* fpType,
-                     char*& domain,
-                     char*& type)
+int parseArrayParams(const char *formatparams,
+                     const char *fpDomain,
+                     const char *fpType,
+                     char *&domain,
+                     char *&type)
 {
     const int fpNo = 2;
     r_Parse_Params params(fpNo);
 
-//parameter validation
+    //parameter validation
     if (formatparams == NULL)
     {
         cout << "parseArrayParams(...) formatparams is null" << endl;
@@ -364,7 +362,7 @@ int parseArrayParams(const char* formatparams,
 }
 
 //compare 2 structure type
-int compareStructure(r_Structure_Type* src, r_Structure_Type* dest)
+int compareStructure(r_Structure_Type *src, r_Structure_Type *dest)
 {
     r_Structure_Type::attribute_iterator iterSrc, iterDest;
 
@@ -396,8 +394,8 @@ int compareStructure(r_Structure_Type* src, r_Structure_Type* dest)
         }
 
         if ((typeSrcId == r_Type::STRUCTURETYPE) &&
-                (compareStructure((r_Structure_Type*)(&((*iterSrc).type_of())),
-                                  (r_Structure_Type*)(&((*iterDest).type_of()))) != EXIT_SUCCESS))
+            (compareStructure((r_Structure_Type *)(&((*iterSrc).type_of())),
+                              (r_Structure_Type *)(&((*iterDest).type_of()))) != EXIT_SUCCESS))
         {
             return EXIT_FAILURE;
         }
@@ -406,7 +404,7 @@ int compareStructure(r_Structure_Type* src, r_Structure_Type* dest)
         iterDest++;
     }
     if ((iterSrc == src->defines_attribute_end()) &&
-            (iterDest == dest->defines_attribute_end()))
+        (iterDest == dest->defines_attribute_end()))
     {
         return EXIT_SUCCESS;
     }

@@ -87,28 +87,28 @@ public:
     r_Boolean get_boolean(const char *cell) const;
 
     ///
-    r_Char    get_char(const char *cell)    const;
+    r_Char get_char(const char *cell) const;
 
     ///
-    r_Octet   get_octet(const char *cell)   const;
+    r_Octet get_octet(const char *cell) const;
 
     ///
-    r_Short   get_short(const char *cell)   const;
+    r_Short get_short(const char *cell) const;
 
     ///
-    r_UShort  get_ushort(const char *cell)  const;
+    r_UShort get_ushort(const char *cell) const;
 
     ///
-    r_Long    get_long(const char *cell)    const;
+    r_Long get_long(const char *cell) const;
 
     ///
-    r_ULong   get_ulong(const char *cell)   const;
+    r_ULong get_ulong(const char *cell) const;
 
     ///
-    r_Float   get_float(const char *cell)   const;
+    r_Float get_float(const char *cell) const;
 
     ///
-    r_Double  get_double(const char *cell)  const;
+    r_Double get_double(const char *cell) const;
 
     ///
     //@}

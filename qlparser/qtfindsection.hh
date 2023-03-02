@@ -21,8 +21,6 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
-
 /*
  * File:   qtFindSection.hh
  * Author: bbell
@@ -70,7 +68,7 @@ class FindSection
 {
 public:
     //constructor
-    FindSection(const std::vector< std::pair< r_PointDouble, double >> &linEqnArg, const std::vector<r_Dimension> &keptDimsArg);
+    FindSection(const std::vector<std::pair<r_PointDouble, double>> &linEqnArg, const std::vector<r_Dimension> &keptDimsArg);
 
     void prepareSection();
 
@@ -93,7 +91,7 @@ private:
     //initialized as args of constructor
 
     //linEqn.first = LHS (A); linEqn.second = RHS (b)
-    std::pair< std::vector< std::vector<double>>, std::vector<double>> linEqn; //Ax = b
+    std::pair<std::vector<std::vector<double>>, std::vector<double>> linEqn;  //Ax = b
     //the dimensions projected onto
     std::vector<r_Dimension> keptDims;
 
@@ -112,8 +110,7 @@ private:
 
     //for applying the function quickly
     std::vector<double> op1;
-    std::vector< std::vector<double>> op2;
+    std::vector<std::vector<double>> op2;
 };
 
-#endif  /* QTFINDSECTION_HH */
-
+#endif /* QTFINDSECTION_HH */

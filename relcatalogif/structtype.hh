@@ -104,7 +104,7 @@ public:
     int contains(const StructType *aStruct) const;
 
     int compatibleWith(const Type *aType) const override;
-    
+
     bool operator==(const Type &o) const override;
 
     r_Bytes getMemorySize() const override;

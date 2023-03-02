@@ -46,7 +46,7 @@ rasdaman GmbH.
 
 using namespace std;
 
-const char* connectionName = "testConn";
+const char *connectionName = "testConn";
 
 /**
  * Function which tries to lock a tile exclusively and then it checks if the locking was done or not.
@@ -60,7 +60,7 @@ const char* connectionName = "testConn";
  * @param state
  *     bool value which represents if the test is a positive or negative test (check for locked or not locked)
  */
-void lockTestTileExclusive(ECPG_LockManager* pecpg_lockmanager, char* pTestServerId, long long pTest_tileID, bool state)
+void lockTestTileExclusive(ECPG_LockManager *pecpg_lockmanager, char *pTestServerId, long long pTest_tileID, bool state)
 {
     pecpg_lockmanager->lockTileExclusive(connectionName, pTestServerId, pTest_tileID);
     if (pecpg_lockmanager->isTileLockedExclusive(connectionName, pTestServerId, pTest_tileID))
@@ -99,7 +99,7 @@ void lockTestTileExclusive(ECPG_LockManager* pecpg_lockmanager, char* pTestServe
  * @param state
  *     bool value which represents if the test is a positive or negative test (check for locked or not locked)
  */
-void lockTestTileShared(ECPG_LockManager* pecpg_lockmanager, char* pTestServerId, long long pTest_tileID, bool state)
+void lockTestTileShared(ECPG_LockManager *pecpg_lockmanager, char *pTestServerId, long long pTest_tileID, bool state)
 {
     pecpg_lockmanager->lockTileShared(connectionName, pTestServerId, pTest_tileID);
     if (pecpg_lockmanager->isTileLockedShared(connectionName, pTestServerId, pTest_tileID))
@@ -136,7 +136,7 @@ void lockTestTileShared(ECPG_LockManager* pecpg_lockmanager, char* pTestServerId
  * @param pTest_tileID
  *     id of the tile to be unlocked
  */
-void unlockTestTile(ECPG_LockManager* pecpg_lockmanager, char* pTestServerId, long long pTest_tileID)
+void unlockTestTile(ECPG_LockManager *pecpg_lockmanager, char *pTestServerId, long long pTest_tileID)
 {
     pecpg_lockmanager->unlockTile(connectionName, pTestServerId, pTest_tileID);
     if (!pecpg_lockmanager->isTileLocked(connectionName, pTestServerId, pTest_tileID))
@@ -156,10 +156,10 @@ void unlockTestTile(ECPG_LockManager* pecpg_lockmanager, char* pTestServerId, lo
 void test_createDeleteExclusiveLock()
 {
     std::cout << "test_createDeleteExclusiveLock: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // create an exclusive lock
     long long test_tileID = -1;
-    char* testServerId = (char*)"test_rasServer";
+    char *testServerId = (char *)"test_rasServer";
     ecpg_lockmanager->beginTransaction(connectionName);
     lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
@@ -180,10 +180,10 @@ void test_createDeleteExclusiveLock()
 void test_createDeleteSharedLock()
 {
     std::cout << "test_createDeleteSharedLock: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // create a shared lock
     long long test_tileID = -2;
-    char* testServerId = (char*)"test_rasServer";
+    char *testServerId = (char *)"test_rasServer";
     ecpg_lockmanager->beginTransaction(connectionName);
     lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
@@ -206,12 +206,12 @@ void test_createDeleteSharedLock()
 void test_createDelete2ExclusiveLocks()
 {
     std::cout << "test_createDelete2ExclusiveLocks: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // create two exclusive locks
     // first lock
     long long test_tileID = -1;
-    char* testServerId = (char*)"test_rasServer";
-    char* testServerId2 = (char*)"test_rasServer2";
+    char *testServerId = (char *)"test_rasServer";
+    char *testServerId2 = (char *)"test_rasServer2";
     lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     // second lock
@@ -241,12 +241,12 @@ void test_createDelete2ExclusiveLocks()
 void test_createDelete2SharedLocks()
 {
     std::cout << "test_createDelete2SharedLocks: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // create two shared locks
     // first lock
     long long test_tileID = -2;
-    char* testServerId = (char*)"test_rasServer";
-    char* testServerId2 = (char*)"test_rasServer2";
+    char *testServerId = (char *)"test_rasServer";
+    char *testServerId2 = (char *)"test_rasServer2";
     ecpg_lockmanager->beginTransaction(connectionName);
     lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
@@ -308,12 +308,12 @@ void test_createDelete5SharedLocks()
 void test_createDeleteSharedExclusiveLock()
 {
     std::cout << "test_createDeleteSharedExclusiveLock: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // create one shared lock by a server and try to get an exclusive one by another server
     // shared lock
     long long test_tileID = -2;
-    char* testServerId = (char*)"test_rasServer";
-    char* testServerId2 = (char*)"test_rasServer2";
+    char *testServerId = (char *)"test_rasServer";
+    char *testServerId2 = (char *)"test_rasServer2";
     ecpg_lockmanager->beginTransaction(connectionName);
     lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
@@ -345,12 +345,12 @@ void test_createDeleteSharedExclusiveLock()
 void test_createDeleteExclusiveSharedLock()
 {
     std::cout << "test_createDeleteExclusiveSharedLock: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // create one exclusive lock by a server and try to get a shared one by another server
     // exclusive lock
     long long test_tileID = -2;
-    char* testServerId = (char*)"test_rasServer";
-    char* testServerId2 = (char*)"test_rasServer2";
+    char *testServerId = (char *)"test_rasServer";
+    char *testServerId2 = (char *)"test_rasServer2";
     ecpg_lockmanager->beginTransaction(connectionName);
     lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
@@ -382,11 +382,11 @@ void test_createDeleteExclusiveSharedLock()
 void test_createDeleteSharedExclusiveLockSameServer()
 {
     std::cout << "test_createDeleteSharedExclusiveLockSameServer: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // create one shared lock by a server and try to get an exclusive one by same server
     // shared lock
     long long test_tileID = -2;
-    char* testServerId = (char*)"test_rasServer";
+    char *testServerId = (char *)"test_rasServer";
     ecpg_lockmanager->beginTransaction(connectionName);
     lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
@@ -414,11 +414,11 @@ void test_createDeleteSharedExclusiveLockSameServer()
 void test_createDeleteExclusiveSharedLockSameServer()
 {
     std::cout << "test_createDeleteExclusiveSharedLockSameServer: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // create one exclusive lock by a server and try to get a shared one by same server
     // exclusive lock
     long long test_tileID = -2;
-    char* testServerId = (char*)"test_rasServer";
+    char *testServerId = (char *)"test_rasServer";
     ecpg_lockmanager->beginTransaction(connectionName);
     lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
@@ -445,11 +445,11 @@ void test_createDeleteExclusiveSharedLockSameServer()
 void test_createDelete2ExclusiveLocksSameServer()
 {
     std::cout << "test_createDelete2ExclusiveLocksSameServer: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // create two exclusive locks from the same server
     // first lock
     long long test_tileID = -1;
-    char* testServerId = (char*)"test_rasServer";
+    char *testServerId = (char *)"test_rasServer";
     lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     // second lock
@@ -475,11 +475,11 @@ void test_createDelete2ExclusiveLocksSameServer()
 void test_createDelete2SharedLocksSameServer()
 {
     std::cout << "test_createDelete2SharedLocksSameServer: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // create two shared locks from the same server
     // first lock
     long long test_tileID = -2;
-    char* testServerId = (char*)"test_rasServer";
+    char *testServerId = (char *)"test_rasServer";
     ecpg_lockmanager->beginTransaction(connectionName);
     lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
@@ -507,8 +507,8 @@ void test_createDelete2SharedLocksSameServer()
 void test_otherDatabaseConnection()
 {
     std::cout << "test_otherDatabaseConnection: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
-    bool connect_ok = ecpg_lockmanager->connect(DEFAULT_DBNAME":5432", "otherConn", (const char*)NULL, (const char*)NULL);
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
+    bool connect_ok = ecpg_lockmanager->connect(DEFAULT_DBNAME ":5432", "otherConn", (const char *)NULL, (const char *)NULL);
     if (!connect_ok)
     {
         std::cout << "Error: Connect to database via connection otherConn not successful." << endl;
@@ -536,9 +536,9 @@ void test_otherDatabaseConnection()
 void test_areLockedShared()
 {
     std::cout << "test_areLockedShared: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     ecpg_lockmanager->beginTransaction(connectionName);
-    char* testServerId = (char*)"test_rasServer";
+    char *testServerId = (char *)"test_rasServer";
     int i;
     for (i = 1; i <= 5; i++)
     {
@@ -569,9 +569,9 @@ void test_areLockedShared()
 void test_areLockedExclusive()
 {
     std::cout << "test_areLockedExclusive: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     ecpg_lockmanager->beginTransaction(connectionName);
-    char* testServerId = (char*)"test_rasServer";
+    char *testServerId = (char *)"test_rasServer";
     int i;
     for (i = 1; i <= 5; i++)
     {
@@ -603,9 +603,9 @@ void test_areLockedExclusive()
 void test_intervalShared()
 {
     std::cout << "test_intervalShared: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     ecpg_lockmanager->beginTransaction(connectionName);
-    char* testServerId = (char*)"test_rasServer11";
+    char *testServerId = (char *)"test_rasServer11";
     long long beginId = 1;
     long long endId = 10000;
     ecpg_lockmanager->lockTilesShared(connectionName, testServerId, beginId, endId);
@@ -636,9 +636,9 @@ void test_intervalShared()
 void test_intervalExclusive()
 {
     std::cout << "test_intervalExclusive: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     ecpg_lockmanager->beginTransaction(connectionName);
-    char* testServerId = (char*)"test_rasServer11";
+    char *testServerId = (char *)"test_rasServer11";
     long long beginId = 1;
     long long endId = 10000;
     ecpg_lockmanager->lockTilesExclusive(connectionName, testServerId, beginId, endId);
@@ -668,9 +668,9 @@ void test_intervalExclusive()
 void test_intervalSharedLoop()
 {
     std::cout << "test_intervalSharedLoop: begin" << endl;
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     ecpg_lockmanager->beginTransaction(connectionName);
-    char* testServerId = (char*)"test_rasServer11";
+    char *testServerId = (char *)"test_rasServer11";
     long long beginId = 1;
     long long endId = 100;
     long long i;
@@ -721,14 +721,14 @@ void test_allCases()
     test_intervalExclusive();
 }
 
-int main(int ac, char** av)
+int main(int ac, char **av)
 {
     // connect to database using user and password
     //bool connect_ok = database_connect(DEFAULT_DBNAME":5432", "rasdaman", "rasdaman");
 
-    ECPG_LockManager* ecpg_lockmanager = ECPG_LockManager::Instance();
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // connect to the database without user and password
-    bool connect_ok = ecpg_lockmanager->connect(DEFAULT_DBNAME":5432", connectionName, (const char*)NULL, (const char*)NULL);
+    bool connect_ok = ecpg_lockmanager->connect(DEFAULT_DBNAME ":5432", connectionName, (const char *)NULL, (const char *)NULL);
     if (!connect_ok)
     {
         std::cout << "Error: Connect to database not successful." << endl;

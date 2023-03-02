@@ -27,11 +27,12 @@ namespace rasmgr
 
 InPeer::InPeer(const std::string &hostNameArg)
     : hostName(hostNameArg)
-{}
+{
+}
 
 std::string InPeer::getHostName() const
 {
     return hostName;
 }
 
-}
+}  // namespace rasmgr

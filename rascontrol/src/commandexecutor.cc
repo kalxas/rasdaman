@@ -48,4 +48,4 @@ void CommandExecutor::executeLogin(std::string &reply)
 {
     reply = this->communication->processCommand("login");
 }
-}
+}  // namespace rascontrol

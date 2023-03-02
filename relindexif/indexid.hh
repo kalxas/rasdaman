@@ -22,7 +22,6 @@ rasdaman GmbH.
 */
 #pragma once
 
-
 class DBHierIndex;
 class DBTCIndex;
 // class DBIndexDS;

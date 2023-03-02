@@ -22,12 +22,12 @@ rasdaman GmbH.
 */
 #pragma once
 
-#include "reladminif/dbobject.hh"     // for DBObject
-#include "raslib/mddtypes.hh"   // for r_Bytes, r_Data_Format
-#include "raslib/minterval.hh"  // for r_Minterval
+#include "reladminif/dbobject.hh"  // for DBObject
+#include "raslib/mddtypes.hh"      // for r_Bytes, r_Data_Format
+#include "raslib/minterval.hh"     // for r_Minterval
 #include "tileid.hh"
 
-#include <iosfwd>                 // for ostream, cout
+#include <iosfwd>  // for ostream, cout
 
 class r_Error;
 class OId;

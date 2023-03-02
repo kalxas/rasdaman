@@ -75,20 +75,21 @@ public:
      * @throws InexistentDatabaseException
      */
     void removeDatabase(const std::string &databaseHostName, const std::string &databaseName);
-    
+
     const std::list<std::shared_ptr<Database>> &getDatabases() const;
-    
+
     const std::shared_ptr<DatabaseHostManager> &getDbHostManager() const;
 
     /**
      * Serialize the information this object holds in a snapshot.
      */
     DatabaseMgrProto serializeToProto();
+
 private:
     std::shared_ptr<DatabaseHostManager> dbHostManager; /*!< Reference to the database host manager*/
     std::list<std::shared_ptr<Database>> databases;
 
-    std::mutex mut;  /*!< Mutex used to synchronize access to this object.*/
+    std::mutex mut; /*!< Mutex used to synchronize access to this object.*/
 };
 
 } /* namespace rasmgr */

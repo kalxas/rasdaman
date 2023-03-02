@@ -33,11 +33,11 @@ rasdaman GmbH.
 #include "raslib/miterd.hh"
 #include "raslib/minterval.hh"
 
-r_MiterDirect::r_MiterDirect(const void *data, const r_Minterval &total, const r_Minterval &iter, 
+r_MiterDirect::r_MiterDirect(const void *data, const r_Minterval &total, const r_Minterval &iter,
                              r_Bytes tlen, unsigned int step)
-    :   baseAddress(data),
-        length(step),
-        dim(total.dimension())
+    : baseAddress(data),
+      length(step),
+      dim(total.dimension())
 {
     r_Range s = r_Range(tlen);
     r_Range offset = 0;
@@ -59,13 +59,13 @@ r_MiterDirect::r_MiterDirect(const void *data, const r_Minterval &total, const r
     for (int i = 0; i < int(dim); i++)
     {
         id[i].data = static_cast<const void *>(
-                      static_cast<const char *>(data) + offset);
+            static_cast<const char *>(data) + offset);
     }
 }
 
 r_MiterDirect::~r_MiterDirect(void)
 {
-    delete [] id;
+    delete[] id;
 }
 
 void r_MiterDirect::reset(void)
@@ -79,13 +79,12 @@ void r_MiterDirect::reset(void)
     for (r_Dimension i = 0; i < dim; i++)
     {
         id[i].data = static_cast<const void *>(
-                      static_cast<const char *>(baseAddress) + offset);
+            static_cast<const char *>(baseAddress) + offset);
     }
     done = false;
 }
 
-void
-r_MiterDirect::print_pos(std::ostream &str) const
+void r_MiterDirect::print_pos(std::ostream &str) const
 {
     str << '[' << id[0].pos;
     for (r_Dimension i = 1; i < dim; i++)

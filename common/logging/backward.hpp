@@ -27,6 +27,8 @@ DIAGNOSTIC_PUSH
 IGNORE_WARNING("-Wsign-conversion")
 IGNORE_WARNING("-Wswitch-default")
 
+// clang-format off
+
 #ifndef H_6B9572DA_A64B_49E6_B234_051480991C89
 #define H_6B9572DA_A64B_49E6_B234_051480991C89
 
@@ -2297,6 +2299,7 @@ public:
 
 } // namespace backward
 
+// clang-format on
 
 DIAGNOSTIC_POP
 

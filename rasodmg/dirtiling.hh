@@ -46,7 +46,6 @@ class r_Dir_Tiling : public r_Dimension_Tiling
     // ******************* PUBLIC SECTION *******************
 
 public:
-
     /// Constants that specify if subtiling will occur inside the blocks
     enum SubTiling
     {
@@ -99,8 +98,7 @@ public:
 
     static const char *description;
 
-protected: // data
-
+protected:  // data
     /// The decomposition to be used
     std::vector<r_Dir_Decompose> dim_decomp;
 
@@ -122,4 +120,3 @@ protected: // data
 };
 
 #endif
-

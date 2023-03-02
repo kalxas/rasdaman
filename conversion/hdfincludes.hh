@@ -42,7 +42,6 @@
 #pragma GCC diagnostic ignored "-Wredundant-decls"
 #pragma GCC diagnostic ignored "-Wshadow"
 
-
 /* Definition clashed for type int8, defined in both
  * /usr/include/hdf.h and in /usr/include/tiff.h
  */
@@ -72,4 +71,4 @@
 
 #endif
 
-#endif  /* HDFINCLUDES_H */
+#endif /* HDFINCLUDES_H */

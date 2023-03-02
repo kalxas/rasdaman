@@ -55,19 +55,17 @@ rasdaman GmbH.
 class FastCollectionCreator
 {
 public:
-    FastCollectionCreator(const char* collName, const char* collTypeName);
+    FastCollectionCreator(const char *collName, const char *collTypeName);
 
     r_OId createCollection();
 
 private:
     // allow only [A-Z,a-z,_]
-    void verifyName(const char* name);
+    void verifyName(const char *name);
 
-    const char* collectionName;
-    const char* collectionTypeName;
-
+    const char *collectionName;
+    const char *collectionTypeName;
 };
-
 
 /**
   * \ingroup Servers
@@ -78,19 +76,20 @@ public:
     FastMDDCreator();
     ~FastMDDCreator();
 
-    void  setCollectionName(const char* collName);
-    void  setMDDTypeName(const char* mddTypeName);
+    void setCollectionName(const char *collName);
+    void setMDDTypeName(const char *mddTypeName);
 
-    r_OId createMDD(const char* domain);
-    r_OId createRCxMDD(const char* domain, const char* tileDomain);
+    r_OId createMDD(const char *domain);
+    r_OId createRCxMDD(const char *domain, const char *tileDomain);
 
-    void addStripe(r_OId mddOId, const char* stripeDomain, const char* tileDomain);
+    void addStripe(r_OId mddOId, const char *stripeDomain, const char *tileDomain);
 
-    std::vector<r_Minterval> getTileDomains(r_OId mddOId, const char* stripeDomain);
+    std::vector<r_Minterval> getTileDomains(r_OId mddOId, const char *stripeDomain);
+
 private:
-    void verifyCompatibility(MDDColl* collection);
+    void verifyCompatibility(MDDColl *collection);
 
-    void createCompressedTileData(r_Minterval&, const BaseType* baseType);
+    void createCompressedTileData(r_Minterval &, const BaseType *baseType);
 
     std::string collectionName;
     std::string mddTypeName;
@@ -98,15 +97,15 @@ private:
     r_Minterval definitionInterval;
 
     r_Data_Format storageFormat;
-    const char* formatParams;
+    const char *formatParams;
 
     r_OId mddOId;
-    int   cellSize;
+    int cellSize;
 
-    char* comprData;
-    int   comprDataSize;
+    char *comprData;
+    int comprDataSize;
 
-    MDDObj*      mymdd;
+    MDDObj *mymdd;
 };
 
 #endif

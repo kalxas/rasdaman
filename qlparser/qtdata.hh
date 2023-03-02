@@ -69,9 +69,6 @@ enum QtDataType
     QT_NULLVALUES
 };
 
-
-
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -160,7 +157,7 @@ public:
     /// increases the reference counter by one
     inline void incRef();
     /// deletes one reference and the object if it was the last one
-    inline int  deleteRef();
+    inline int deleteRef();
     /**
        In case the object is deleted, 1 is returned, 0 otherwise.
     */
@@ -168,7 +165,7 @@ public:
     ///
     inline ParseInfo getParseInfo();
     ///
-    inline void      setParseInfo(const ParseInfo &info);
+    inline void setParseInfo(const ParseInfo &info);
 
     ///
     //@}
@@ -201,4 +198,3 @@ private:
 #include "qlparser/qtdata.icc"
 
 #endif
-

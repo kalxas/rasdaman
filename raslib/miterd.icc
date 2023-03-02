@@ -63,7 +63,7 @@ r_MiterDirect::operator++(void)
         const auto i = static_cast<r_Dimension>(d);
         id[i].pos += length;
         id[i].data = static_cast<const void *>(
-                      static_cast<const char *>(id[i].data) + id[i].step);
+            static_cast<const char *>(id[i].data) + id[i].step);
         if (id[i].pos <= id[i].high)
             break;
         id[i].pos = id[i].low;
@@ -78,7 +78,7 @@ r_MiterDirect::operator++(void)
     {
         done = true;
     }
-    
+
     return *this;
 }
 
@@ -92,7 +92,7 @@ r_MiterDirect::iterateUserOrder(const unsigned int *order, const int *step)
         r_miter_direct_data *idp = id + order[d];
         idp->pos += step[d];
         idp->data = static_cast<const void *>(
-                     static_cast<const char *>(idp->data) + step[d] * idp->baseStep);
+            static_cast<const char *>(idp->data) + step[d] * idp->baseStep);
         if (idp->pos <= idp->high)
             break;
         idp->pos = idp->low;
@@ -108,7 +108,7 @@ r_MiterDirect::iterateUserOrder(const unsigned int *order, const int *step)
     {
         done = true;
     }
-    
+
     return *this;
 }
 
@@ -122,7 +122,7 @@ r_MiterDirect::iterateUserOrder(const r_Dimension *order, const unsigned int *st
         r_miter_direct_data *idp = id + order[d];
         idp->pos += step[d];
         idp->data = static_cast<const void *>(
-                     static_cast<const char *>(idp->data) + step[d] * idp->baseStep);
+            static_cast<const char *>(idp->data) + step[d] * idp->baseStep);
         if (step[d] > 0)
         {
             if (idp->pos <= idp->high)
@@ -151,7 +151,6 @@ r_MiterDirect::iterateUserOrder(const r_Dimension *order, const unsigned int *st
     return *this;
 }
 
-
 inline void
 r_MiterDirect::posChanged(void)
 {
@@ -160,5 +159,5 @@ r_MiterDirect::posChanged(void)
         offset += id[i].step * (id[i].pos - id[i].origin);
     for (r_Dimension i = 0; i < dim; i++)
         id[i].data = static_cast<const void *>(
-                      static_cast<const char *>(baseAddress) + offset);
+            static_cast<const char *>(baseAddress) + offset);
 }

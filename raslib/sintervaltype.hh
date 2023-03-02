@@ -63,6 +63,3 @@ public:
 extern std::ostream &operator<<(std::ostream &str, const r_Sinterval_Type &type);
 
 #endif
-
-
-

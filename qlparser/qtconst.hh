@@ -30,7 +30,6 @@ rasdaman GmbH.
 
 #include <string>
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -105,4 +104,3 @@ private:
 #include "qlparser/qtconst.icc"
 
 #endif
-

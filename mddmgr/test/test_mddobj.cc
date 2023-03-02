@@ -41,7 +41,6 @@ rasdaman GmbH.
 #include "mddmgr/mddcoll.hh"
 #include "mddmgr/mddcolliter.hh"
 
-
 #include "raslib/rminit.hh"
 RMINITGLOBALS('C')
 
@@ -50,17 +49,16 @@ RMINITGLOBALS('C')
 #include "raslib/sinterval.hh"
 
 // perhaps used later
-static char O2BenchDBName[]  = "PaulaRasDaBase";
+static char O2BenchDBName[] = "PaulaRasDaBase";
 static char O2BenchSchemaName[] = "SMRasDaSchema";
 
-static void ClearDB(d_Database& DB);
+static void ClearDB(d_Database &DB);
 static void testAccessing();
 static void testConstructors();
 static void testSearch();
 static void testGetFunctions();
-static void printInterval(r_Minterval* inter);
+static void printInterval(r_Minterval *inter);
 void printMemInfo();
-
 
 /*************************************************************
  * Function name.: int main( int argc, char** argv)
@@ -71,14 +69,12 @@ void printMemInfo();
  * Return value..: exit status
  * Description...: none
  ************************************************************/
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // variables representing O2 database, ta and session
-    d_Session  session;
+    d_Session session;
     d_Database database;
     d_Transaction ta;
-
 
     // initialize the O2 session
     cout << "Initializing O2 session..." << endl;
@@ -175,15 +171,15 @@ static void testConstructors()
     r_Sinterval limits2Obj1(20l, 24l);
     r_Minterval dom(2);
     dom << limits1Obj1 << limits2Obj1;
-    PersTile* tile1Obj1 = new PersTile(dom, &anyType, (const char*) anyCell);
+    PersTile *tile1Obj1 = new PersTile(dom, &anyType, (const char *)anyCell);
     MDDObj1sz += tile1Obj1->getSize();
-    PersMDDObj* MDDObj1 = new PersMDDObj(dom, "ULong");
+    PersMDDObj *MDDObj1 = new PersMDDObj(dom, "ULong");
     MDDObj1->insertTile(tile1Obj1);
 
     cout << "       tile 2 = nil, 0-400, 22-24 " << endl;
     dom[0].set_interval(0l, 400l);
     dom[1].set_interval(22l, 24l);
-    PersTile* tile2Obj1 = new PersTile(dom, &anyType, (const char*) anyCell);
+    PersTile *tile2Obj1 = new PersTile(dom, &anyType, (const char *)anyCell);
 
     MDDObj1sz += tile1Obj1->getSize();
     // MDDObj1->insertTile(tile2Obj1);
@@ -191,11 +187,11 @@ static void testConstructors()
     cout << "       tile 3 = nil, 0-600, 10-1000 " << endl;
     dom[0].set_interval(0l, 600l);
     dom[1].set_interval(10l, 1000l);
-    PersTile*  tile3Obj1 = new PersTile(dom, &anyType, (const char*) anyCell);
+    PersTile *tile3Obj1 = new PersTile(dom, &anyType, (const char *)anyCell);
     MDDObj1sz += tile3Obj1->getSize();
     // MDDObj1->insertTile(tile3Obj1);
 
-    vector<Tile*>* newTiles = new vector<Tile*>;
+    vector<Tile *> *newTiles = new vector<Tile *>;
     newTiles->push_back(tile2Obj1);
     newTiles->push_back(tile3Obj1);
     MDDObj1->insertTiles(*newTiles);
@@ -208,8 +204,8 @@ static void testConstructors()
     cout << "Delete MDDObj1 ..........." << endl;
     delete MDDObj1;
     printMemInfo();
-    cout << endl << endl;
-
+    cout << endl
+         << endl;
 
     unsigned long MDDObj2sz = 0;
     cout << "    mddObj2 " << endl;
@@ -219,16 +215,16 @@ static void testConstructors()
     r_Sinterval limits3Obj2(30l, 59l);
     r_Minterval dom2(3);
     dom2 << limits1Obj2 << limits2Obj2 << limits3Obj2;
-    PersTile* tile1Obj2 = new PersTile(dom2, &anyType, (const char*) anyCell);
+    PersTile *tile1Obj2 = new PersTile(dom2, &anyType, (const char *)anyCell);
     MDDObj2sz += tile1Obj2->getSize();
-    PersMDDObj* MDDObj2 = new PersMDDObj(dom2, "ULong");
+    PersMDDObj *MDDObj2 = new PersMDDObj(dom2, "ULong");
     MDDObj2->insertTile(tile1Obj2);
 
     cout << "       tile 2 = nil, 20-39, 60-79, 60-89 " << endl;
     dom2[0].set_interval(20l, 39l);
     dom2[1].set_interval(60l, 79l);
     dom2[2].set_interval(60l, 89l);
-    PersTile* tile2Obj2 = new PersTile(dom2, &anyType, (const char*) anyCell);
+    PersTile *tile2Obj2 = new PersTile(dom2, &anyType, (const char *)anyCell);
     MDDObj2sz += tile2Obj2->getSize();
 
     MDDObj2->insertTile(tile2Obj2);
@@ -240,7 +236,8 @@ static void testConstructors()
     cout << "Delete MDDObj2 ..........." << endl;
     delete MDDObj2;
     printMemInfo();
-    cout << endl << endl;
+    cout << endl
+         << endl;
 }
 
 /*************************************************************
@@ -262,14 +259,13 @@ static void testAccessing()
     // used for iterating
     d_Iterator<DBMDDObjId> objsIt = objsList.create_iterator();
 
-    for (int i = 1 ; objsIt.not_done(); i++, objsIt.advance())
+    for (int i = 1; objsIt.not_done(); i++, objsIt.advance())
     {
         accessedObj = objsIt.get_element();
         cout << "    --" << i << ". MDD object in list:" << endl;
         accessedObj->printStatus();
         cout << "    -- CellTypeName: " << accessedObj->getCellTypeName() << endl;
     }
-
 }
 
 /*************************************************************
@@ -282,11 +278,9 @@ static void testAccessing()
 
 static void testSearch()
 {
-
     PersMDDColl mddObjsColl("TestMDDObjContainer");
-    MDDObj* accessedObj;
-    MDDCollIter* objsIt = mddObjsColl.createIterator();
-
+    MDDObj *accessedObj;
+    MDDCollIter *objsIt = mddObjsColl.createIterator();
 
     /*
       DBMDDObjId accessedObj;
@@ -300,14 +294,13 @@ static void testSearch()
 
     */
 
-    for (int i = 0 ; objsIt->notDone(); i++, objsIt->advance())
+    for (int i = 0; objsIt->notDone(); i++, objsIt->advance())
     {
-
         accessedObj = objsIt->getElement();
 
         if (i == 0 || i == 1)
         {
-            vector<Tile*>* entriesList = 0;
+            vector<Tile *> *entriesList = 0;
 
             r_Minterval searchInt1(2);
             r_Minterval searchInt2(3);
@@ -337,9 +330,9 @@ static void testSearch()
             printMemInfo();
 
             cout << "    -- Search result: " << endl;
-            vector<Tile*>::iterator entryIt = entriesList->begin();
+            vector<Tile *>::iterator entryIt = entriesList->begin();
 
-            while (entryIt !=  entriesList->end())
+            while (entryIt != entriesList->end())
             {
                 // (*entryIt)->printStatus();
                 r_Minterval tileInterval = (*entryIt)->getDomain();
@@ -351,8 +344,9 @@ static void testSearch()
                 {
                     cout << tileInterval[i].low() << "-" << tileInterval[i].high() << ", ";
                 }
-                cout << endl << "   Access contents " ;
-                char* tileContents = (*entryIt)->getContents();
+                cout << endl
+                     << "   Access contents ";
+                char *tileContents = (*entryIt)->getContents();
 
                 cout << endl;
 
@@ -378,18 +372,17 @@ static void testSearch()
 
 static void testGetFunctions()
 {
-
-    MDDObj* accessedObj;
+    MDDObj *accessedObj;
     PersMDDColl persMDDObjsColl("TestMDDObjContainer");
-    MDDColl* mddObjsColl = &persMDDObjsColl;
+    MDDColl *mddObjsColl = &persMDDObjsColl;
 
-    MDDCollIter* objsIt = mddObjsColl->createIterator();
+    MDDCollIter *objsIt = mddObjsColl->createIterator();
 
-    vector<Tile*>* entriesList;
+    vector<Tile *> *entriesList;
 
     cout << "....testGetTiles" << endl;
 
-    for (int i = 0 ; objsIt->notDone(); i++, objsIt->advance())
+    for (int i = 0; objsIt->notDone(); i++, objsIt->advance())
     {
         r_Minterval currDom;
         r_Minterval defDom;
@@ -409,9 +402,9 @@ static void testGetFunctions()
 
         entriesList = accessedObj->getTiles();
         cout << "    -- GetTiles result: " << endl;
-        vector<Tile*>::iterator entryIt = entriesList->begin();
+        vector<Tile *>::iterator entryIt = entriesList->begin();
 
-        while (entryIt !=  entriesList->end())
+        while (entryIt != entriesList->end())
         {
             // (*entryIt)->printStatus();
             r_Minterval tileInterval = (*entryIt)->getDomain();
@@ -440,7 +433,7 @@ static void testGetFunctions()
  * Description...:
  ************************************************************/
 
-static void printInterval(r_Minterval* inter)
+static void printInterval(r_Minterval *inter)
 {
     for (int i = 0; i < inter->dimension(); i++)
     {
@@ -461,22 +454,17 @@ static void printInterval(r_Minterval* inter)
 
 void printMemInfo()
 {
-
-
     // allows to store values in the program
     struct mallinfo meminfo = mallinfo();
 
-    cout << "   Memory Usage Information :  bytes - Kbytes" ;
+    cout << "   Memory Usage Information :  bytes - Kbytes";
     cout << endl;
 
     cout << "      space in arena                 : " << meminfo.arena << " -  " << meminfo.arena / 1024 << endl;
-    cout << "      number of small blocks         : " << meminfo.smblks << " -  " << meminfo.smblks / 1024  << endl;
-    cout << "      number of ordinary blocks      : " << meminfo.ordblks  << " -  " << meminfo.ordblks / 1024 << endl;
-    cout << "      space in free ordinary blocks  : " << meminfo.fordblks  << " -  " << meminfo.fordblks / 1024 << endl;
-    cout << "      space in used ordinary blocks  : " << meminfo.uordblks  << " -  " << meminfo.uordblks / 1024 << endl;
+    cout << "      number of small blocks         : " << meminfo.smblks << " -  " << meminfo.smblks / 1024 << endl;
+    cout << "      number of ordinary blocks      : " << meminfo.ordblks << " -  " << meminfo.ordblks / 1024 << endl;
+    cout << "      space in free ordinary blocks  : " << meminfo.fordblks << " -  " << meminfo.fordblks / 1024 << endl;
+    cout << "      space in used ordinary blocks  : " << meminfo.uordblks << " -  " << meminfo.uordblks / 1024 << endl;
 
     // cout << "additional space from last call: " << meminfo.uordblks - memUsed < < endl;
-
 }
-
-

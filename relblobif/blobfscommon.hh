@@ -37,24 +37,23 @@ class BlobFSConfig
 public:
     /// Path where tiles are stored = $RASDATA
     std::string rootPath;
-    
+
     /// Path where tiles are stored = $RASDATA/TILES
     std::string tilesPath;
-    
+
     /// Path where transactions are stored = $RASDATA/TRANSACTIONS
     std::string transactionsPath;
-    
+
     /// Path where transaction locks are stored = /tmp/rasdaman_transaction_locks
     std::string transactionLocksPath;
 
     inline BlobFSConfig(const std::string &rootPathArg,
                         const std::string &tilesPathArg,
                         const std::string &transactionsPathArg,
-                        const std::string &transactionLocksPathArg
-                        )
+                        const std::string &transactionLocksPathArg)
         : rootPath(rootPathArg), tilesPath(tilesPathArg),
           transactionsPath(transactionsPathArg),
           transactionLocksPath(transactionLocksPathArg)
-    {}
+    {
+    }
 };
-

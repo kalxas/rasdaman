@@ -40,7 +40,6 @@ rasdaman GmbH.
 
 //#include "qlparser/qtpointdata.hh"
 
-
 //#include <sstream>
 #include <string>
 
@@ -52,9 +51,8 @@ rasdaman GmbH.
 #include "relcatalogif/mdddimensiontype.hh"
 
 QtPolygonClipping::QtPolygonClipping(const r_Minterval &areaOp, const std::vector<r_Point> &vertices)
-    :  domain(areaOp), polygonVertices(vertices)
+    : domain(areaOp), polygonVertices(vertices)
 {
-
 }
 
 QtPolygonClipping::QtPolygonClipping()
@@ -62,12 +60,12 @@ QtPolygonClipping::QtPolygonClipping()
     //initialize domain & polygonVertices for use by QtPositiveGenusClipping
 }
 
-vector< vector<char>>
-                   QtPolygonClipping::generateMask(bool toFill)
+vector<vector<char>>
+QtPolygonClipping::generateMask(bool toFill)
 {
     //2-D array of type char "mask" for marking which cells are in the polygon and which are outside
-    vector< vector<char>> mask(static_cast<long unsigned int>(domain[0].get_extent()),
-                               vector<char>(static_cast<long unsigned int>(domain[1].get_extent()), 2));
+    vector<vector<char>> mask(static_cast<long unsigned int>(domain[0].get_extent()),
+                              vector<char>(static_cast<long unsigned int>(domain[1].get_extent()), 2));
 
     //translate polygon vertices into mask coordinates
     for (unsigned int i = 0; i < polygonVertices.size(); i++)
@@ -123,12 +121,11 @@ QtPositiveGenusClipping::QtPositiveGenusClipping(const r_Minterval &areaOp, cons
     }
 }
 
-
-vector< vector<char>>
-                   QtPositiveGenusClipping::generateMask(bool toFill)
+vector<vector<char>>
+QtPositiveGenusClipping::generateMask(bool toFill)
 {
     //2-D array of type char "mask", initialized to the mask of the outer polygon
-    vector< vector<char>> mask = QtPolygonClipping::generateMask(toFill);
+    vector<vector<char>> mask = QtPolygonClipping::generateMask(toFill);
 
     //make the data contiguous
     r_Minterval thisDomain = getDomain();
@@ -150,7 +147,7 @@ vector< vector<char>>
         //then, we drill polygonally-shaped holes in the polygon
         if (thisDomain.covers(iter->getDomain()))
         {
-            vector< vector<char>> polygonMask = iter->generateMask(toFill);
+            vector<vector<char>> polygonMask = iter->generateMask(toFill);
             r_Minterval interiorDomain = iter->getDomain();
             r_Miter resultMaskIter(&interiorDomain, &thisDomain, sizeof(char), resultMaskPtr);
             for (size_t m = 0; m < polygonMask.size(); m++)

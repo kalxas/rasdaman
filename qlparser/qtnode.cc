@@ -39,121 +39,118 @@ const int QtNode::QtNodes = QT_LAST_NODE_TYPE;
 const QtNode::QtNodeType QtNode::QtRoot = QT_UNDEFINED_NODE;
 
 const QtNode::QtNodeType QtNode::QtInheritance[][2] =
-{
-    {QT_UNDEFINED_NODE, QT_EXECUTE},
-    {QT_EXECUTE, QT_COMMAND},
-    {QT_EXECUTE, QT_DELETE},
-    {QT_EXECUTE, QT_INSERT},
-    {QT_EXECUTE, QT_PYRAMID},
-    {QT_EXECUTE, QT_UPDATE},
-    {QT_UNDEFINED_NODE, QT_ONC_STREAM},
-    {QT_ONC_STREAM, QT_ITERATOR},
-    {QT_ONC_STREAM, QT_EMPTY_STREAM},
-    {QT_ITERATOR, QT_JOIN_ITERATOR},
-    {QT_ITERATOR, QT_OPERATION_ITERATOR},
-    {QT_ITERATOR, QT_SELECTION_ITERATOR},
-    {QT_ONC_STREAM, QT_MDD_ACCESS},
-    {QT_UNDEFINED_NODE, QT_OPERATION},
-    {QT_OPERATION, QT_BINARY_OPERATION},
-    {QT_BINARY_OPERATION, QT_BINARY_INDUCE},
-    {QT_BINARY_INDUCE, QT_AND},
-    {QT_BINARY_INDUCE, QT_BIT},
-    {QT_BINARY_INDUCE, QT_DIV},
-    {QT_BINARY_INDUCE, QT_INTDIV},
-    {QT_BINARY_INDUCE, QT_MOD},
-    {QT_BINARY_INDUCE, QT_EQUAL},
-    {QT_BINARY_INDUCE, QT_IS},
-    {QT_BINARY_INDUCE, QT_LESS},
-    {QT_BINARY_INDUCE, QT_LESS_EQUAL},
-    {QT_BINARY_INDUCE, QT_MINUS},
-    {QT_BINARY_INDUCE, QT_MULT},
-    {QT_BINARY_INDUCE, QT_NOT_EQUAL},
-    {QT_BINARY_INDUCE, QT_OR},
-    {QT_BINARY_INDUCE, QT_OVERLAY},
-    {QT_BINARY_INDUCE, QT_PLUS},
-    {QT_BINARY_INDUCE, QT_MAX_BINARY},
-    {QT_BINARY_INDUCE, QT_MIN_BINARY},
-    {QT_BINARY_INDUCE, QT_XOR},
-    {QT_BINARY_INDUCE, QT_CONSTRUCT_COMPLEX},
-    {QT_BINARY_OPERATION, QT_CONDENSEOP},
-    {QT_BINARY_OPERATION, QT_EXTEND},
-    {QT_BINARY_OPERATION, QT_INTERVALOP},
-    {QT_BINARY_OPERATION, QT_MARRAYOP},
-    {QT_BINARY_OPERATION, QT_SCALE},
-    {QT_BINARY_OPERATION, QT_SHIFT},
-    {QT_BINARY_OPERATION, QT_CLIPPING},
-    {QT_BINARY_OPERATION, QT_ADD_NULLVALUES},
-    {QT_OPERATION, QT_CONST},
-    {QT_OPERATION, QT_GROUP_ITERATOR},
-    {QT_OPERATION, QT_IDENT},
-    {QT_OPERATION, QT_MDD_STREAM},
-    {QT_OPERATION, QT_NARY_OPERATION},
-    {QT_NARY_OPERATION, QT_MINTERVALOP},
-    {QT_NARY_OPERATION, QT_NULLVALUESOP},
-    {QT_NARY_OPERATION, QT_POINTOP},
-    {QT_NARY_OPERATION, QT_CONCAT},
-    {QT_NARY_OPERATION, QT_RANGE_CONSTRUCTOR},
-    {QT_NARY_OPERATION, QT_CASEOP},
-    {QT_NARY_OPERATION, QT_MSHAPEOP},
-    {QT_NARY_OPERATION, QT_GEOMETRYOP},
-    {QT_OPERATION, QT_UNARY_OPERATION},
-    {QT_UNARY_OPERATION, QT_CONDENSE},
-    {QT_OPERATION, QT_SORT},
-    {QT_CONDENSE, QT_ADDCELLS},
-    {QT_CONDENSE, QT_ALL},
-    {QT_CONDENSE, QT_AVGCELLS},
-    {QT_CONDENSE, QT_COUNTCELLS},
-    {QT_CONDENSE, QT_MAXCELLS},
-    {QT_CONDENSE, QT_MINCELLS},
-    {QT_CONDENSE, QT_SOME},
-    {QT_CONDENSE, QT_VARPOP},
-    {QT_CONDENSE, QT_VARSAMP},
-    {QT_CONDENSE, QT_STDDEVPOP},
-    {QT_CONDENSE, QT_STDDEVSAMP},
-    {QT_UNARY_OPERATION, QT_CONVERSION},
-    {QT_UNARY_OPERATION, QT_CSE_ROOT},
-    {QT_UNARY_OPERATION, QT_DOMAIN_OPERATION},
-    {QT_UNARY_OPERATION, QT_HI},
-    {QT_UNARY_OPERATION, QT_LO},
-    {QT_UNARY_OPERATION, QT_OID},
-    {QT_UNARY_OPERATION, QT_SDOM},
-    {QT_UNARY_OPERATION, QT_AXISSDOM},
-    {QT_UNARY_OPERATION, QT_UNARY_INDUCE},
-    {QT_UNARY_OPERATION, QT_PROJECT},
-    {QT_UNARY_OPERATION, QT_ENCODE},
-    {QT_UNARY_OPERATION, QT_DECODE},
-    {QT_UNARY_OPERATION, QT_INFO},
-    {QT_UNARY_INDUCE, QT_CAST},
-    {QT_UNARY_INDUCE, QT_DOT},
-    {QT_UNARY_INDUCE, QT_IMAGINARPART},
-    {QT_UNARY_INDUCE, QT_NOT},
-    {QT_UNARY_INDUCE, QT_IS_NULL},
-    {QT_UNARY_INDUCE, QT_REALPART},
-    {QT_UNARY_INDUCE, QT_ABS},
-    {QT_UNARY_INDUCE, QT_SQRT},
-    {QT_UNARY_INDUCE, QT_EXP},
-    {QT_UNARY_INDUCE, QT_LOG},
-    {QT_UNARY_INDUCE, QT_LN},
-    {QT_UNARY_INDUCE, QT_SIN},
-    {QT_UNARY_INDUCE, QT_COS},
-    {QT_UNARY_INDUCE, QT_TAN},
-    {QT_UNARY_INDUCE, QT_SINH},
-    {QT_UNARY_INDUCE, QT_COSH},
-    {QT_UNARY_INDUCE, QT_TANH},
-    {QT_UNARY_INDUCE, QT_ARCSIN},
-    {QT_UNARY_INDUCE, QT_ARCCOS},
-    {QT_UNARY_INDUCE, QT_ARCTAN},
-    {QT_UNARY_INDUCE, QT_POW},
-    {QT_OPERATION, QT_MDD_VAR},
-    {QT_EXECUTE, QT_CREATE_CELL_TYPE},
-    {QT_EXECUTE, QT_CREATE_MDD_TYPE},
-    {QT_EXECUTE, QT_CREATE_SET_TYPE},
-    {QT_EXECUTE, QT_DROP_TYPE},
-    {QT_OPERATION, QT_CELL_TYPE_ATTRIBUTES},
-    {QT_UNDEFINED_NODE, QT_LAST_NODE_TYPE}
-};
-
-
+    {
+        {QT_UNDEFINED_NODE, QT_EXECUTE},
+        {QT_EXECUTE, QT_COMMAND},
+        {QT_EXECUTE, QT_DELETE},
+        {QT_EXECUTE, QT_INSERT},
+        {QT_EXECUTE, QT_PYRAMID},
+        {QT_EXECUTE, QT_UPDATE},
+        {QT_UNDEFINED_NODE, QT_ONC_STREAM},
+        {QT_ONC_STREAM, QT_ITERATOR},
+        {QT_ONC_STREAM, QT_EMPTY_STREAM},
+        {QT_ITERATOR, QT_JOIN_ITERATOR},
+        {QT_ITERATOR, QT_OPERATION_ITERATOR},
+        {QT_ITERATOR, QT_SELECTION_ITERATOR},
+        {QT_ONC_STREAM, QT_MDD_ACCESS},
+        {QT_UNDEFINED_NODE, QT_OPERATION},
+        {QT_OPERATION, QT_BINARY_OPERATION},
+        {QT_BINARY_OPERATION, QT_BINARY_INDUCE},
+        {QT_BINARY_INDUCE, QT_AND},
+        {QT_BINARY_INDUCE, QT_BIT},
+        {QT_BINARY_INDUCE, QT_DIV},
+        {QT_BINARY_INDUCE, QT_INTDIV},
+        {QT_BINARY_INDUCE, QT_MOD},
+        {QT_BINARY_INDUCE, QT_EQUAL},
+        {QT_BINARY_INDUCE, QT_IS},
+        {QT_BINARY_INDUCE, QT_LESS},
+        {QT_BINARY_INDUCE, QT_LESS_EQUAL},
+        {QT_BINARY_INDUCE, QT_MINUS},
+        {QT_BINARY_INDUCE, QT_MULT},
+        {QT_BINARY_INDUCE, QT_NOT_EQUAL},
+        {QT_BINARY_INDUCE, QT_OR},
+        {QT_BINARY_INDUCE, QT_OVERLAY},
+        {QT_BINARY_INDUCE, QT_PLUS},
+        {QT_BINARY_INDUCE, QT_MAX_BINARY},
+        {QT_BINARY_INDUCE, QT_MIN_BINARY},
+        {QT_BINARY_INDUCE, QT_XOR},
+        {QT_BINARY_INDUCE, QT_CONSTRUCT_COMPLEX},
+        {QT_BINARY_OPERATION, QT_CONDENSEOP},
+        {QT_BINARY_OPERATION, QT_EXTEND},
+        {QT_BINARY_OPERATION, QT_INTERVALOP},
+        {QT_BINARY_OPERATION, QT_MARRAYOP},
+        {QT_BINARY_OPERATION, QT_SCALE},
+        {QT_BINARY_OPERATION, QT_SHIFT},
+        {QT_BINARY_OPERATION, QT_CLIPPING},
+        {QT_BINARY_OPERATION, QT_ADD_NULLVALUES},
+        {QT_OPERATION, QT_CONST},
+        {QT_OPERATION, QT_GROUP_ITERATOR},
+        {QT_OPERATION, QT_IDENT},
+        {QT_OPERATION, QT_MDD_STREAM},
+        {QT_OPERATION, QT_NARY_OPERATION},
+        {QT_NARY_OPERATION, QT_MINTERVALOP},
+        {QT_NARY_OPERATION, QT_NULLVALUESOP},
+        {QT_NARY_OPERATION, QT_POINTOP},
+        {QT_NARY_OPERATION, QT_CONCAT},
+        {QT_NARY_OPERATION, QT_RANGE_CONSTRUCTOR},
+        {QT_NARY_OPERATION, QT_CASEOP},
+        {QT_NARY_OPERATION, QT_MSHAPEOP},
+        {QT_NARY_OPERATION, QT_GEOMETRYOP},
+        {QT_OPERATION, QT_UNARY_OPERATION},
+        {QT_UNARY_OPERATION, QT_CONDENSE},
+        {QT_OPERATION, QT_SORT},
+        {QT_CONDENSE, QT_ADDCELLS},
+        {QT_CONDENSE, QT_ALL},
+        {QT_CONDENSE, QT_AVGCELLS},
+        {QT_CONDENSE, QT_COUNTCELLS},
+        {QT_CONDENSE, QT_MAXCELLS},
+        {QT_CONDENSE, QT_MINCELLS},
+        {QT_CONDENSE, QT_SOME},
+        {QT_CONDENSE, QT_VARPOP},
+        {QT_CONDENSE, QT_VARSAMP},
+        {QT_CONDENSE, QT_STDDEVPOP},
+        {QT_CONDENSE, QT_STDDEVSAMP},
+        {QT_UNARY_OPERATION, QT_CONVERSION},
+        {QT_UNARY_OPERATION, QT_CSE_ROOT},
+        {QT_UNARY_OPERATION, QT_DOMAIN_OPERATION},
+        {QT_UNARY_OPERATION, QT_HI},
+        {QT_UNARY_OPERATION, QT_LO},
+        {QT_UNARY_OPERATION, QT_OID},
+        {QT_UNARY_OPERATION, QT_SDOM},
+        {QT_UNARY_OPERATION, QT_AXISSDOM},
+        {QT_UNARY_OPERATION, QT_UNARY_INDUCE},
+        {QT_UNARY_OPERATION, QT_PROJECT},
+        {QT_UNARY_OPERATION, QT_ENCODE},
+        {QT_UNARY_OPERATION, QT_DECODE},
+        {QT_UNARY_OPERATION, QT_INFO},
+        {QT_UNARY_INDUCE, QT_CAST},
+        {QT_UNARY_INDUCE, QT_DOT},
+        {QT_UNARY_INDUCE, QT_IMAGINARPART},
+        {QT_UNARY_INDUCE, QT_NOT},
+        {QT_UNARY_INDUCE, QT_IS_NULL},
+        {QT_UNARY_INDUCE, QT_REALPART},
+        {QT_UNARY_INDUCE, QT_ABS},
+        {QT_UNARY_INDUCE, QT_SQRT},
+        {QT_UNARY_INDUCE, QT_EXP},
+        {QT_UNARY_INDUCE, QT_LOG},
+        {QT_UNARY_INDUCE, QT_LN},
+        {QT_UNARY_INDUCE, QT_SIN},
+        {QT_UNARY_INDUCE, QT_COS},
+        {QT_UNARY_INDUCE, QT_TAN},
+        {QT_UNARY_INDUCE, QT_SINH},
+        {QT_UNARY_INDUCE, QT_COSH},
+        {QT_UNARY_INDUCE, QT_TANH},
+        {QT_UNARY_INDUCE, QT_ARCSIN},
+        {QT_UNARY_INDUCE, QT_ARCCOS},
+        {QT_UNARY_INDUCE, QT_ARCTAN},
+        {QT_UNARY_INDUCE, QT_POW},
+        {QT_OPERATION, QT_MDD_VAR},
+        {QT_EXECUTE, QT_CREATE_CELL_TYPE},
+        {QT_EXECUTE, QT_CREATE_MDD_TYPE},
+        {QT_EXECUTE, QT_CREATE_SET_TYPE},
+        {QT_EXECUTE, QT_DROP_TYPE},
+        {QT_OPERATION, QT_CELL_TYPE_ATTRIBUTES},
+        {QT_UNDEFINED_NODE, QT_LAST_NODE_TYPE}};
 
 int QtNode::minim[QtNodes + 1];
 int QtNode::maxim[QtNodes + 1];
@@ -179,7 +176,6 @@ QtNode::QtNode()
 #endif
 }
 
-
 QtNode::QtNode(QtNode *node)
     : parent(node)
 {
@@ -194,7 +190,6 @@ QtNode::QtNode(QtNode *node)
 #endif
 }
 
-
 QtNode::~QtNode()
 {
 #ifdef RMANBENCHMARK
@@ -205,12 +200,10 @@ QtNode::~QtNode()
 #endif
 }
 
-bool
-QtNode::subtype(enum QtNodeType a, enum QtNodeType b)
+bool QtNode::subtype(enum QtNodeType a, enum QtNodeType b)
 {
     return (minim[a] <= minim[b] && maxim[b] <= maxim[a]);
 }
-
 
 QtNode::QtNodeList *
 QtNode::getChilds(QtChildType flag)
@@ -234,7 +227,6 @@ QtNode::getChilds(QtChildType flag)
     return resultList;
 }
 
-
 QtNode::QtNodeList *
 QtNode::getChild(const QtNodeType node, QtChildType flag)
 {
@@ -252,13 +244,10 @@ QtNode::getChild(const QtNodeType node, QtChildType flag)
     return resultList;
 }
 
-
-bool
-QtNode::equalMeaning(QtNode * /*node*/)
+bool QtNode::equalMeaning(QtNode * /*node*/)
 {
     return false;
 }
-
 
 std::string
 QtNode::getSpelling()
@@ -272,10 +261,7 @@ QtNode::getAreaType()
     return QT_AREA_SCALAR;
 }
 
-
-
-void
-QtNode::simplify()
+void QtNode::simplify()
 {
     // Default method for all classes that have no implementation.
     // Method is used bottom up.
@@ -304,7 +290,6 @@ QtNode::simplify()
     resultList = NULL;
 }
 
-
 QtNode::QtNodeType
 QtNode::getQtNodeTypeParent(QtNode::QtNodeType node)
 {
@@ -317,17 +302,14 @@ QtNode::getQtNodeTypeParent(QtNode::QtNodeType node)
     throw r_Error(QTNODETYPEPARENTDOESNOTEXIST);
 }
 
-
-bool
-operator<(const QtNode::QtNodePair a, const QtNode::QtNodePair b)
+bool operator<(const QtNode::QtNodePair a, const QtNode::QtNodePair b)
 {
     return (a.base < b.base);
 }
 
-void
-QtNode::num_node(const QtNodePair *arr, const enum QtNodeType x)
+void QtNode::num_node(const QtNodePair *arr, const enum QtNodeType x)
 {
-    static int ID = 0 ;
+    static int ID = 0;
     minim[x] = ID++;
     for (int i = child_range[x]; i < child_range[x + 1]; i++)
     {
@@ -336,8 +318,7 @@ QtNode::num_node(const QtNodePair *arr, const enum QtNodeType x)
     maxim[x] = ID++;
 }
 
-void
-QtNode::set_child_range(const QtNodePair *arr)
+void QtNode::set_child_range(const QtNodePair *arr)
 {
     int i;
     child_range[QtNodes] = QtNodes - 1;
@@ -354,8 +335,7 @@ QtNode::set_child_range(const QtNodePair *arr)
         }
 }
 
-void
-QtNode::SetMinMax()
+void QtNode::SetMinMax()
 {
     QtNodePair *arr = new QtNodePair[QtNodes - 1];
     for (int i = 0; i < (QtNodes - 1); i++)
@@ -368,12 +348,10 @@ QtNode::SetMinMax()
     set_child_range(arr);
     //numbering the nodes
     num_node(arr, QtRoot);
-    delete [] arr;
+    delete[] arr;
 }
 
-
-void
-QtNode::startTimer(__attribute__((unused)) const char *name)
+void QtNode::startTimer(__attribute__((unused)) const char *name)
 {
 #ifdef RMANBENCHMARK
     if (!evaluationTimer)
@@ -384,8 +362,7 @@ QtNode::startTimer(__attribute__((unused)) const char *name)
 #endif
 }
 
-void
-QtNode::stopTimer()
+void QtNode::stopTimer()
 {
 #ifdef RMANBENCHMARK
     if (evaluationTimer)
@@ -396,8 +373,7 @@ QtNode::stopTimer()
 #endif
 }
 
-void
-QtNode::pauseTimer()
+void QtNode::pauseTimer()
 {
 #ifdef RMANBENCHMARK
     if (evaluationTimer)
@@ -407,8 +383,7 @@ QtNode::pauseTimer()
 #endif
 }
 
-void
-QtNode::resumeTimer()
+void QtNode::resumeTimer()
 {
 #ifdef RMANBENCHMARK
     if (evaluationTimer)
@@ -433,7 +408,6 @@ QtNode::getEvaluationTime()
     return ret;
 }
 
-
 QtTypeElement::QtTypeElement()
     : dataType(QT_TYPE_UNKNOWN),
       type(NULL),
@@ -441,10 +415,8 @@ QtTypeElement::QtTypeElement()
 {
 }
 
-
-
 QtTypeElement::QtTypeElement(const QtDataType initDataType,
-                             const char      *initName)
+                             const char *initName)
     : dataType(QT_TYPE_UNKNOWN),
       type(NULL),
       name(NULL)
@@ -457,10 +429,8 @@ QtTypeElement::QtTypeElement(const QtDataType initDataType,
     }
 }
 
-
-
-QtTypeElement::QtTypeElement(const Type            *initType,
-                             const char      *initName)
+QtTypeElement::QtTypeElement(const Type *initType,
+                             const char *initName)
     : dataType(QT_TYPE_UNKNOWN),
       type(NULL),
       name(NULL)
@@ -473,8 +443,6 @@ QtTypeElement::QtTypeElement(const Type            *initType,
     }
 }
 
-
-
 QtTypeElement::QtTypeElement(const QtTypeElement &typeElement)
     : dataType(typeElement.dataType),
       type(typeElement.type),
@@ -486,8 +454,6 @@ QtTypeElement::QtTypeElement(const QtTypeElement &typeElement)
     }
 }
 
-
-
 QtTypeElement::~QtTypeElement()
 {
     // Note: Types are free by the type factory.
@@ -498,8 +464,6 @@ QtTypeElement::~QtTypeElement()
         name = NULL;
     }
 }
-
-
 
 const QtTypeElement &
 QtTypeElement::operator=(const QtTypeElement &obj)
@@ -513,22 +477,18 @@ QtTypeElement::operator=(const QtTypeElement &obj)
         }
 
         dataType = obj.dataType;
-        type     = obj.type;
+        type = obj.type;
 
         if (obj.name)
         {
             name = strdup(obj.name);
         }
-
     }
 
     return *this;
 }
 
-
-
-void
-QtTypeElement::printStatus(std::ostream &s) const
+void QtTypeElement::printStatus(std::ostream &s) const
 {
     if (type)
     {
@@ -569,10 +529,7 @@ QtTypeElement::printStatus(std::ostream &s) const
     }
 }
 
-
-
-void
-QtTypeElement::setDataType(const QtDataType newDataType)
+void QtTypeElement::setDataType(const QtDataType newDataType)
 {
     dataType = newDataType;
 
@@ -642,12 +599,9 @@ QtTypeElement::setDataType(const QtDataType newDataType)
     }
 }
 
-
-
-void
-QtTypeElement::setType(const Type *newType)
+void QtTypeElement::setType(const Type *newType)
 {
-    type     = NULL;
+    type = NULL;
     dataType = QT_TYPE_UNKNOWN;
 
     if (newType)
@@ -710,47 +664,36 @@ QtTypeElement::setType(const Type *newType)
     }
 }
 
-
-
 QtTypeTuple::QtTypeTuple(unsigned int length)
     : tuple(length)
 {
 }
 
-
-
-void
-QtTypeTuple::concat(const QtTypeTuple &typeTuple)
+void QtTypeTuple::concat(const QtTypeTuple &typeTuple)
 {
     // reserve space for concatenated type
     tuple.reserve(tuple.size() + typeTuple.tuple.size());
 
     // concatenate tuples
     for (std::vector<QtTypeElement>::const_iterator iter = typeTuple.tuple.begin();
-            iter != typeTuple.tuple.end(); iter++)
+         iter != typeTuple.tuple.end(); iter++)
     {
         tuple.push_back(*iter);
     }
 }
 
-
-
-void
-QtTypeTuple::concat(const QtTypeElement &typeElement)
+void QtTypeTuple::concat(const QtTypeElement &typeElement)
 {
     tuple.push_back(typeElement);
 }
 
-
-
-void
-QtTypeTuple::printStatus(std::ostream &s) const
+void QtTypeTuple::printStatus(std::ostream &s) const
 {
     s << "<" << std::flush;
 
     for (std::vector<QtTypeElement>::const_iterator iter = tuple.begin();
-            iter != tuple.end();
-            iter++)
+         iter != tuple.end();
+         iter++)
     {
         if (iter != tuple.begin())
         {
@@ -762,7 +705,3 @@ QtTypeTuple::printStatus(std::ostream &s) const
 
     s << ">" << std::flush;
 }
-
-
-
-

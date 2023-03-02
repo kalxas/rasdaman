@@ -45,33 +45,37 @@ rasdaman GmbH.
 int main()
 {
     r_Minterval domainV(1);
-    domainV << r_Sinterval((r_Range) 0, (r_Range) 100);
-    r_GMarray* v = new r_GMarray(domainV, 1);
+    domainV << r_Sinterval((r_Range)0, (r_Range)100);
+    r_GMarray *v = new r_GMarray(domainV, 1);
 
     r_Minterval domainX(1);
-    domainX << r_Sinterval((r_Range) 0, (r_Range) 200);
-    r_GMarray* x = new r_GMarray(domainX, 1);
+    domainX << r_Sinterval((r_Range)0, (r_Range)200);
+    r_GMarray *x = new r_GMarray(domainX, 1);
 
     r_Minterval domainY(1);
-    domainY << r_Sinterval((r_Range) 0, (r_Range) 300);
-    r_GMarray* y = new r_GMarray(domainY, 1);
+    domainY << r_Sinterval((r_Range)0, (r_Range)300);
+    r_GMarray *y = new r_GMarray(domainY, 1);
 
     r_Minterval domainZ(1);
-    domainZ << r_Sinterval((r_Range) 0, (r_Range) 400);
-    r_GMarray* z = new r_GMarray(domainZ, 1);
+    domainZ << r_Sinterval((r_Range)0, (r_Range)400);
+    r_GMarray *z = new r_GMarray(domainZ, 1);
 
-    r_GMarray* next = new r_GMarray();
+    r_GMarray *next = new r_GMarray();
 
-    cout << endl << endl;
+    cout << endl
+         << endl;
     cout << "Set Examples" << endl;
-    cout << "=============" << endl << endl;
+    cout << "=============" << endl
+         << endl;
 
     cout << "Creating r_Set of type int." << endl;
-    r_Set<r_GMarray*> a;
+    r_Set<r_GMarray *> a;
 
-    cout << "Cardinality of empty set 'a': " << a.cardinality() << endl << endl;
+    cout << "Cardinality of empty set 'a': " << a.cardinality() << endl
+         << endl;
 
-    cout << "Now inserting four elements:" << endl << "v = 100" << endl;
+    cout << "Now inserting four elements:" << endl
+         << "v = 100" << endl;
     a.insert_element(v);
 
     cout << "x = 200" << endl;
@@ -83,38 +87,48 @@ int main()
     cout << "z = 300" << endl;
     a.insert_element(z);
 
-    cout << "Cardinality of collection 'a' after four inserts: " << a.cardinality() << endl << endl;
+    cout << "Cardinality of collection 'a' after four inserts: " << a.cardinality() << endl
+         << endl;
 
     cout << "Does 'a' contain element '100' (1=TRUE/0=FALSE)? " << a.contains_element(x) << endl;
 
-    cout << "Does 'a' contain element '500' (1=TRUE/0=FALSE)? " << a.contains_element(next) << endl << endl;
+    cout << "Does 'a' contain element '500' (1=TRUE/0=FALSE)? " << a.contains_element(next) << endl
+         << endl;
 
     cout << "Now removing element 'x=200' from 'a'." << endl;
     a.remove_element(x);
-    cout << "Cardinality of 'a' now: " << a.cardinality() << endl << endl;
+    cout << "Cardinality of 'a' now: " << a.cardinality() << endl
+         << endl;
 
     cout << "Now removing element '100' from 'a'." << endl;
     a.remove_element(x);
-    cout << "Cardinality of 'a' now: " << a.cardinality() << endl << endl;
+    cout << "Cardinality of 'a' now: " << a.cardinality() << endl
+         << endl;
 
     cout << "Now removing (non-existing) element '500' from 'a'." << endl;
     a.remove_element(next);
-    cout << "Cardinality of 'a' now: " << a.cardinality() << endl << endl;
+    cout << "Cardinality of 'a' now: " << a.cardinality() << endl
+         << endl;
 
-    cout << "Testing assignment operator on r_Sets." << endl << "(creating r_Set 'b' that is equal to 'a'.)" << endl;
-    r_Set<r_GMarray*> b;
+    cout << "Testing assignment operator on r_Sets." << endl
+         << "(creating r_Set 'b' that is equal to 'a'.)" << endl;
+    r_Set<r_GMarray *> b;
     b = a;
-    cout << "Cardinality of 'b': " << b.cardinality() << endl << endl;
+    cout << "Cardinality of 'b': " << b.cardinality() << endl
+         << endl;
 
-    cout << "Testing copy constructor of r_Set." << endl << "(creating r_Set 'c' that is equal to 'a'.)" << endl;
-    r_Set<r_GMarray*> c(a);
-    cout << "Cardinality of 'c': " << c.cardinality() << endl << endl;
+    cout << "Testing copy constructor of r_Set." << endl
+         << "(creating r_Set 'c' that is equal to 'a'.)" << endl;
+    r_Set<r_GMarray *> c(a);
+    cout << "Cardinality of 'c': " << c.cardinality() << endl
+         << endl;
 
     cout << "Now removing all elements from 'a'." << endl;
     a.remove_all();
     cout << "Cardinality of 'a' now: " << a.cardinality() << endl;
     cout << "Cardinality of 'b' is still: " << b.cardinality() << endl;
-    cout << "Cardinality of 'c' is still: " << c.cardinality() << endl << endl;
+    cout << "Cardinality of 'c' is still: " << c.cardinality() << endl
+         << endl;
 
     return 0;
 }

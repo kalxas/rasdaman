@@ -58,11 +58,9 @@ rasdaman GmbH.
 
 #include "relstorageif/dbstoragelayout.hh"
 
-
 #include <qlparser/symtab.hh>
 #include <raslib/attribute.hh>
 #include <raslib/minterval.hh>
-
 
 #include "reladminif/dbref.hh"
 #include "reladminif/dbobjectiditerator.hh"
@@ -70,7 +68,6 @@ rasdaman GmbH.
 #include "relindexif/dbtcindex.hh"
 #include "relindexif/hierindex.hh"
 #include "relindexif/dbrcindexds.hh"
-
 
 template class DBRef<DBHierIndex>;
 template class DBRef<DBRCIndexDS>;
@@ -82,8 +79,7 @@ template class DBRef<DBMDDSet>;
 template class DBRef<DBMinterval>;
 template class DBRef<DBNullvalues>;
 template class DBRef<DBStorageLayout>;
-template bool operator< (const DBRef<DBMDDObj>&, const DBRef<DBMDDObj>&);
-
+template bool operator<(const DBRef<DBMDDObj> &, const DBRef<DBMDDObj> &);
 
 #include <rasodmg/tiling.hh>
 #include <rasodmg/stattiling.hh>
@@ -99,13 +95,13 @@ template bool operator< (const DBRef<DBMDDObj>&, const DBRef<DBMDDObj>&);
 
 template class r_Ref<r_Object>;
 template class r_Ref<r_Minterval>;
-template class r_Collection<r_Transaction::GenRefElement*>;
-template class r_Set<r_Transaction::GenRefElement*>;
-template class r_Iterator<r_GMarray*>;
+template class r_Collection<r_Transaction::GenRefElement *>;
+template class r_Set<r_Transaction::GenRefElement *>;
+template class r_Iterator<r_GMarray *>;
 template class r_Iterator<r_Ref<r_GMarray>>;
 template class r_Collection<r_Ref<r_GMarray>>;
-template class r_Collection<r_GMarray*>;
-template class r_Set<r_GMarray*>;
+template class r_Collection<r_GMarray *>;
+template class r_Set<r_GMarray *>;
 template class r_Iterator<r_Ref<r_Object>>;
 template class r_Collection<r_Ref<r_Object>>;
 template class r_Set<r_Ref<r_Object>>;
@@ -113,7 +109,7 @@ template class r_Iterator<r_Ref_Any>;
 template class r_Ref<r_GMarray>;
 template class r_Collection<r_Ref_Any>;
 template class std::vector<r_Minterval>;
-template class r_Iterator<r_Transaction::GenRefElement*>;
+template class r_Iterator<r_Transaction::GenRefElement *>;
 template class r_Set<r_Ref<r_GMarray>>;
 template class r_Ref<r_Set<r_Ref<r_GMarray>>>;
 template class r_Set<r_Ref_Any>;
@@ -133,11 +129,10 @@ template class DBRef<StructType>;
 template class DBRef<SetType>;
 template class DBRef<MDDType>;
 
-
-template std::ostream& operator << (std::ostream& os, const std::vector<r_Minterval>& list);
-template std::ostream& operator << (std::ostream& os, const std::vector<r_Dir_Decompose>& list);
-template std::ostream& operator << (std::ostream& os, const std::vector<r_Access>& list);
-template std::ostream& operator << (std::ostream& os, const std::vector<double>& list);
+template std::ostream &operator<<(std::ostream &os, const std::vector<r_Minterval> &list);
+template std::ostream &operator<<(std::ostream &os, const std::vector<r_Dir_Decompose> &list);
+template std::ostream &operator<<(std::ostream &os, const std::vector<r_Access> &list);
+template std::ostream &operator<<(std::ostream &os, const std::vector<double> &list);
 template class SymbolTable<int>;
 
 #endif

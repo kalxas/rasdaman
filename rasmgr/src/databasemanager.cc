@@ -31,8 +31,10 @@
 namespace rasmgr
 {
 
-DatabaseManager::DatabaseManager(std::shared_ptr<DatabaseHostManager> m) : dbHostManager(m)
-{}
+DatabaseManager::DatabaseManager(std::shared_ptr<DatabaseHostManager> m)
+    : dbHostManager(m)
+{
+}
 
 void DatabaseManager::defineDatabase(const std::string &dbHostName,
                                      const std::string &databaseName)
@@ -66,7 +68,7 @@ void DatabaseManager::defineDatabase(const std::string &dbHostName,
 
     //If adding to the host was successful, add it to the list of active dbs
     databases.push_back(db);
-    
+
     LDEBUG << "Added database \"" + databaseName + "\" to database host name \"" + dbHostName + "\"";
 }
 
@@ -113,14 +115,15 @@ void DatabaseManager::removeDatabase(const std::string &dbHostName, const std::s
     dbHost->decreaseServerCount();
     dbHost->removeDbFromHost(databaseName);
 
-    databases.remove_if([&databaseName](const std::shared_ptr<Database> &db) {
-      return db->getDbName() == databaseName;
-    });
-    
+    databases.remove_if([&databaseName](const std::shared_ptr<Database> &db)
+                        {
+                            return db->getDbName() == databaseName;
+                        });
+
     LDEBUG << "Removed database \"" + databaseName + "\" from database host name \"" + dbHostName + "\"";
 }
 
-const std::list<std::shared_ptr<Database> > &DatabaseManager::getDatabases() const
+const std::list<std::shared_ptr<Database>> &DatabaseManager::getDatabases() const
 {
     return databases;
 }
@@ -135,14 +138,14 @@ DatabaseMgrProto DatabaseManager::serializeToProto()
     std::lock_guard<std::mutex> lock(this->mut);
 
     auto dbhList = this->dbHostManager->getDatabaseHostList();
-    
+
     DatabaseMgrProto result;
     for (auto it = dbhList.begin(); it != dbhList.end(); ++it)
     {
         DatabaseHostProto dbhProto = DatabaseHost::serializeToProto(*(*it));
         for (int i = 0; i < dbhProto.databases_size(); i++)
         {
-            DatabaseMgrProto::DbAndDbHostPair *p =  result.add_databases();
+            DatabaseMgrProto::DbAndDbHostPair *p = result.add_databases();
             DatabaseProto *dbProto = new DatabaseProto();
             dbProto->CopyFrom(dbhProto.databases(i));
             p->set_database_host(dbhProto.host_name());

@@ -22,17 +22,16 @@
 
 #include "blobfscommon.hh"  // for INVALID_FILE_DESCRIPTOR, IO_ERROR_RC, IO_...
 #include "lockfile.hh"
-#include "logging.hh"       // for LWARNING
+#include "logging.hh"  // for LWARNING
 
-#include <errno.h>          // for errno
-#include <fcntl.h>          // for open, O_WRONLY, O_CREAT
-#include <logging.hh>       // for Writer, CWARNING
-#include <string.h>         // for strerror
-#include <sys/file.h>       // for flock, LOCK_EX, LOCK_NB, LOCK_UN
-#include <unistd.h>         // for close, unlink
+#include <errno.h>     // for errno
+#include <fcntl.h>     // for open, O_WRONLY, O_CREAT
+#include <logging.hh>  // for Writer, CWARNING
+#include <string.h>    // for strerror
+#include <sys/file.h>  // for flock, LOCK_EX, LOCK_NB, LOCK_UN
+#include <unistd.h>    // for close, unlink
 
 using namespace std;
-
 
 LockFile::LockFile(const std::string &path)
     : lockFilePath(path), fd(INVALID_FILE_DESCRIPTOR) {}
@@ -51,20 +50,21 @@ bool LockFile::lock()
         if (fd == INVALID_FILE_DESCRIPTOR)
         {
             LDEBUG << "Failed opening lock file " << lockFilePath << ": " << strerror(errno);
-//            logWarning("Failed opening lock file");
+            //            logWarning("Failed opening lock file");
         }
         else if (!(ret = (flock(fd, LOCK_EX | LOCK_NB) == IO_SUCCESS_RC)))
-        { 
+        {
             // retry locking when it fails due to lock contention
             unsigned retry = 1;
             static const unsigned maxRetries = 100;
-            while (retry++ <= maxRetries && errno == EAGAIN) {
-              errno = 0;
-              usleep(retry * 1000u);
-              ret = (flock(fd, LOCK_EX | LOCK_NB) == IO_SUCCESS_RC);
+            while (retry++ <= maxRetries && errno == EAGAIN)
+            {
+                errno = 0;
+                usleep(retry * 1000u);
+                ret = (flock(fd, LOCK_EX | LOCK_NB) == IO_SUCCESS_RC);
             }
             if (!ret)
-              logWarning("Failed locking file");
+                logWarning("Failed locking file");
         }
     }
     return ret;

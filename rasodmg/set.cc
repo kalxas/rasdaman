@@ -25,22 +25,24 @@ rasdaman GmbH.
 
 class r_GMarray;
 
-template<class T>
-r_Set<T>::r_Set() : r_Collection<T>()
+template <class T>
+r_Set<T>::r_Set()
+    : r_Collection<T>()
 {
     this->allowsDuplicates = 0;
     this->isOrdered = 0;
     this->card = 0;
 }
 
-template<class T>
-r_Set<T>::r_Set(const r_Set<T> &set) : r_Collection<T>(set)
+template <class T>
+r_Set<T>::r_Set(const r_Set<T> &set)
+    : r_Collection<T>(set)
 {
     this->allowsDuplicates = 0;
     this->isOrdered = 0;
 }
 
-template<class T>
+template <class T>
 r_Set<T> &r_Set<T>::operator=(const r_Set<T> &o)
 {
     if (this == &o)
@@ -51,9 +53,8 @@ r_Set<T> &r_Set<T>::operator=(const r_Set<T> &o)
     return *this;
 }
 
-template<class T>
-void
-r_Set<T>::insert_element(const T &element, int no_modification)
+template <class T>
+void r_Set<T>::insert_element(const T &element, int no_modification)
 {
     typename r_Collection<T>::CNode *ptr = static_cast<typename r_Collection<T>::CNode *>(this->coll);
 

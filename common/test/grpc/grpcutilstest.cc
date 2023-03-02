@@ -27,7 +27,7 @@
 //#include <stdlib.h>
 //#include <string.h>
 //#include <unistd.h>
-//#include <sys/types.h> 
+//#include <sys/types.h>
 //#include <sys/socket.h>
 //#include <netinet/in.h>
 
@@ -38,7 +38,7 @@ namespace common
 {
 namespace test
 {
-    /*Problem below:
+/*Problem below:
      
      "accept" during SetUp() hangs while it waits for a connection, so we
      need to set up multiple threads in order to properly test "isPortBusy"
@@ -47,7 +47,7 @@ namespace test
 //    // test fixture for listening over a port, for testing isPortBusy
 //    class GrpcUtilsTestWithListeningServer : public testing::Test {
 //    protected:
-//        virtual void SetUp() 
+//        virtual void SetUp()
 //        {
 //            //a few simple initializations
 //            sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -64,7 +64,7 @@ namespace test
 //            //accept connections
 //            newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &cli_len);
 //        }
-//        
+//
 //        virtual void TearDown(){
 //            //stop accepting
 //            close(newsockfd);
@@ -157,5 +157,5 @@ TEST(GrpcUtilsTest, IsPortBusyInvalidHostNameTest)
 
     ASSERT_THROW(GrpcUtils::isPortBusy(host, port), std::runtime_error);
 }
-}// namespace test
-}// namespace common
+}  // namespace test
+}  // namespace common

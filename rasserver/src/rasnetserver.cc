@@ -40,16 +40,15 @@ rasdaman GmbH.
 namespace rasserver
 {
 
-using std::shared_ptr;
-using std::unique_ptr;
 using common::GrpcUtils;
 using common::HealthServiceImpl;
+using std::shared_ptr;
+using std::unique_ptr;
 
-
-RasnetServer::RasnetServer(std::uint32_t listenPort1, const char* rasmgrHost1,
-                           std::uint32_t rasmgrPort1, const char* serverId1):
-    isRunning(false), listenPort{listenPort1},
-    rasmgrPort{rasmgrPort1}, rasmgrHost{rasmgrHost1}, serverId{serverId1}
+RasnetServer::RasnetServer(std::uint32_t listenPort1, const char *rasmgrHost1,
+                           std::uint32_t rasmgrPort1, const char *serverId1)
+    : isRunning(false), listenPort{listenPort1},
+      rasmgrPort{rasmgrPort1}, rasmgrHost{rasmgrHost1}, serverId{serverId1}
 {
     auto clientManager = std::make_shared<ClientManager>();
     rasserverService = std::make_shared<RasServerServiceImpl>(clientManager);
@@ -60,19 +59,19 @@ RasnetServer::RasnetServer(std::uint32_t listenPort1, const char* rasmgrHost1,
 
 void RasnetServer::startRasnetServer()
 {
-    RasServerEntry& rasserver = RasServerEntry::getInstance();
+    RasServerEntry &rasserver = RasServerEntry::getInstance();
     rasserver.connectToRasbase();
-    
-    std::string serverAddress = GrpcUtils::constructAddressString("0.0.0.0",  listenPort);
-    
+
+    std::string serverAddress = GrpcUtils::constructAddressString("0.0.0.0", listenPort);
+
     grpc::ServerBuilder builder;
     // Listen on the given address without any authentication mechanism.
     builder.AddListeningPort(serverAddress, grpc::InsecureServerCredentials());
     builder.RegisterService(rasserverService.get());
     builder.RegisterService(clientServerService.get());
     builder.RegisterService(healthServiceImpl.get());
-    builder.SetMaxReceiveMessageSize(std::numeric_limits<int>::max()); //unlimited -1 not working in grpc version 1.9.1
-    builder.SetMaxSendMessageSize(std::numeric_limits<int>::max()); //unlimited
+    builder.SetMaxReceiveMessageSize(std::numeric_limits<int>::max());  //unlimited -1 not working in grpc version 1.9.1
+    builder.SetMaxSendMessageSize(std::numeric_limits<int>::max());     //unlimited
 
     this->isRunning = true;
 
@@ -81,10 +80,10 @@ void RasnetServer::startRasnetServer()
 
     // Register the server
     rasmgrComm->registerServerWithRasmgr(this->serverId);
-            
+
     // Wait for the server to shutdown. Note that some other thread must be
     // responsible for shutting down the server for this call to ever return.
     this->server->Wait();
 }
 
-}
+}  // namespace rasserver

@@ -35,7 +35,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -70,10 +69,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
-
-
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -107,9 +102,6 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
-
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -153,9 +145,6 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
-
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -213,7 +202,7 @@ private:
     r_Dimension axis;
 
     /// this flag determines whether the input axis is a name or number. true if name, false if number.
-    bool namedAxisFlag  = false;
+    bool namedAxisFlag = false;
     /// user-provided axis name
     std::string axisName;
     /// actual names of the axes in the input array
@@ -226,8 +215,6 @@ private:
     void getAxisFromName();
 };
 
-
 #include "qlparser/qtunaryfunc.icc"
 
 #endif
-

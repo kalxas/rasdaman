@@ -43,8 +43,8 @@ rasdaman GmbH.
 #include "raslib/mddtypes.hh"               // for r_Bytes, r_Dimension
 #include "raslib/minterval.hh"              // for r_Minterval, operator<<
 
-#include <logging.hh>                       // for Writer, CFATAL, LERROR, CTRACE
-#include <ostream>                          // for operator<<, basic_ostream, std::endl
+#include <logging.hh>  // for Writer, CFATAL, LERROR, CTRACE
+#include <ostream>     // for operator<<, basic_ostream, std::endl
 
 DBRCIndexDS::DBRCIndexDS(const OId &id)
     : IndexDS(id),
@@ -143,7 +143,7 @@ bool DBRCIndexDS::isValid() const
 void DBRCIndexDS::printStatus(unsigned int level, std::ostream &stream) const
 {
     char *indent = new char[level * 2 + 1];
-    for (unsigned int j = 0; j < level * 2 ; j++)
+    for (unsigned int j = 0; j < level * 2; j++)
     {
         indent[j] = ' ';
     }
@@ -249,4 +249,3 @@ void DBRCIndexDS::updateInDb()
     LERROR << "DBRCIndexDS::updateInDb() update is not possible";
     throw r_Error(r_Error::r_Error_FeatureNotSupported);
 }
-

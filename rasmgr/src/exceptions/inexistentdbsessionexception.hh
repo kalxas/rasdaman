@@ -31,7 +31,7 @@ namespace rasmgr
  * @brief The InexistentDatabaseException class defines a type of object to be thrown as exception.
  *  It reports errors that arise because a user tried to operate on a database that does not exist.
  */
-class InexistentDbSessionException: public common::MissingResourceException
+class InexistentDbSessionException : public common::MissingResourceException
 {
 public:
     InexistentDbSessionException(std::uint32_t dbSession);
@@ -39,5 +39,5 @@ public:
 
     virtual ~InexistentDbSessionException() noexcept;
 };
-}
-#endif // RASMGR_X_SRC_EXCEPTIONS_INEXISTENDDATABASEEXCEPTION_HH
+}  // namespace rasmgr
+#endif  // RASMGR_X_SRC_EXCEPTIONS_INEXISTENDDATABASEEXCEPTION_HH

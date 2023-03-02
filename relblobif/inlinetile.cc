@@ -22,15 +22,15 @@ rasdaman GmbH.
 */
 
 #include "inlinetile.hh"
-#include "blobtile.hh"              // for BLOBTile
-#include "reladminif/dbobject.hh"   // for DBObject
-#include "relindexif/dbtcindex.hh"  // for DBTCIndex
-#include "relindexif/indexid.hh"    // for DBTCIndexId
-#include "storagemgr/sstoragelayout.hh" // for StorageLayout
+#include "blobtile.hh"                   // for BLOBTile
+#include "reladminif/dbobject.hh"        // for DBObject
+#include "relindexif/dbtcindex.hh"       // for DBTCIndex
+#include "relindexif/indexid.hh"         // for DBTCIndexId
+#include "storagemgr/sstoragelayout.hh"  // for StorageLayout
 
-#include "logging.hh"               // for LTRACE
-#include <cstring>                  // for memcpy
-#include <iostream>                 // for operator<<, ostream, endl
+#include "logging.hh"  // for LTRACE
+#include <cstring>     // for memcpy
+#include <iostream>    // for operator<<, ostream, endl
 
 using std::endl;
 using std::vector;
@@ -68,7 +68,8 @@ InlineTile::InlineTile(r_Bytes newSize, bool takeOwnershipOfNewCells,
     objecttype = OId::INLINETILEOID;
 }
 
-InlineTile::InlineTile(const OId &id) : BLOBTile(id)
+InlineTile::InlineTile(const OId &id)
+    : BLOBTile(id)
 {
     objecttype = OId::INLINETILEOID;
 }
@@ -121,7 +122,7 @@ bool InlineTile::isCached() const
                 retval = false;
             }
         }
-        else    // inlined
+        else  // inlined
         {
             if (getSize() < StorageLayout::DefaultPCTMax)  // size is ok
             {
@@ -203,9 +204,7 @@ char *InlineTile::insertInMemBlock(char *thecontents)
     // store the blob
     memcpy(thecontents, cells, size * sizeof(char));
     thecontents = thecontents + size * sizeof(char);
-    
+
     DBObject::updateInDb();
     return thecontents;
 }
-
-

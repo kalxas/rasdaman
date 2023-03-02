@@ -24,15 +24,15 @@
 #include "blobfile.hh"
 #include "blobfscommon.hh"
 #include "mymalloc/mymalloc.h"
-#include "raslib/error.hh"          // for FAILEDWRITINGTODISK, r_Error, BLO...
-#include "logging.hh"               // for LERROR, LWARNING
+#include "raslib/error.hh"  // for FAILEDWRITINGTODISK, r_Error, BLO...
+#include "logging.hh"       // for LERROR, LWARNING
 
-#include <errno.h>                  // for errno, ENOENT
-#include <fcntl.h>                  // for open, O_CREAT, O_WRONLY, O_RDONLY
-#include <stdio.h>                  // for rename, size_t
-#include <string.h>                 // for strerror
-#include <sys/stat.h>               // for stat
-#include <unistd.h>                 // for write, access, close, read, unlink
+#include <errno.h>     // for errno, ENOENT
+#include <fcntl.h>     // for open, O_CREAT, O_WRONLY, O_RDONLY
+#include <stdio.h>     // for rename, size_t
+#include <string.h>    // for strerror
+#include <sys/stat.h>  // for stat
+#include <unistd.h>    // for write, access, close, read, unlink
 #include <assert.h>
 
 using namespace std;
@@ -96,7 +96,7 @@ void BlobFile::readFile(char *dst, size_t size)
     if (count == IO_ERROR_RC)
         generateError("failed reading data from blob file", FAILEDREADINGFROMDISK);
     if (count < static_cast<ssize_t>(size))
-      generateError("failed reading all data from blob file", FAILEDREADINGFROMDISK);
+        generateError("failed reading all data from blob file", FAILEDREADINGFROMDISK);
 }
 void BlobFile::readFileAtOffset(char *dst, size_t size, off_t offset)
 {
@@ -114,10 +114,10 @@ void BlobFile::writeFile(char *data, size_t size)
     ssize_t written = write(fd, data, size);
     if (written == IO_ERROR_RC)
         generateError("failed writing data to blob file", FAILEDWRITINGTODISK);
-    
+
     if (written < static_cast<ssize_t>(size))
     {
-        LERROR << "written only " << written  << " out of " << size 
+        LERROR << "written only " << written << " out of " << size
                << " bytes to blob file; not enough disk space?";
         clearFileDescriptor();
         generateError("failed writing all data to blob file", FAILEDWRITINGTODISK);

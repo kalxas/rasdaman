@@ -76,8 +76,6 @@ private:
     r_Point *pt;
 };
 
-
 #include "qlparser/qtpointop.icc"
 
 #endif
-

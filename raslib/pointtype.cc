@@ -41,24 +41,20 @@ r_Point_Type::type_id() const
     return POINTTYPE;
 }
 
-void
-r_Point_Type::convertToLittleEndian(char *, r_Area) const
+void r_Point_Type::convertToLittleEndian(char *, r_Area) const
 {
 }
 
-void
-r_Point_Type::convertToBigEndian(char *, r_Area) const
+void r_Point_Type::convertToBigEndian(char *, r_Area) const
 {
 }
 
-void
-r_Point_Type::print_status(std::ostream &s) const
+void r_Point_Type::print_status(std::ostream &s) const
 {
     s << "point";
 }
 
-bool
-r_Point_Type::isPointType() const
+bool r_Point_Type::isPointType() const
 {
     return true;
 }

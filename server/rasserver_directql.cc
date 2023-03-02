@@ -60,17 +60,24 @@ rasdaman GmbH.
 using namespace std;
 
 #define SECURE_FREE_PTR(ptr) \
-    if (ptr) { \
-        free(ptr); \
-        ptr = NULL; }
+    if (ptr)                 \
+    {                        \
+        free(ptr);           \
+        ptr = NULL;          \
+    }
 #define SECURE_DELETE_PTR(ptr) \
-    if (ptr) { \
-        delete ptr; \
-        ptr = NULL; }
+    if (ptr)                   \
+    {                          \
+        delete ptr;            \
+        ptr = NULL;            \
+    }
 
 // TODO: remove this and use easylogging macros (LINFO)
 // logging mechanism that respects 'quiet' flag:
-#define INFO(a) { if (!configuration.isQuietLogOn()) std::cout << a; }
+#define INFO(a)                                            \
+    {                                                      \
+        if (!configuration.isQuietLogOn()) std::cout << a; \
+    }
 
 #define DQ_CLIENT_ID 1000000
 #define DQ_TIMEOUT 1000000
@@ -80,7 +87,7 @@ using namespace std;
 #define DQ_CAPABILITY "$I1$ERW$BRASBASE$T1:3:2008:23:39:24$NNT1$D3839d047344677ddb1ff1a24dada286e$K"
 
 // rasdaman MDD type for byte strings (default type used for file format reading)
-#define MDD_STRINGTYPE  "GreyString"
+#define MDD_STRINGTYPE "GreyString"
 
 #define STATUS_MORE_TILES 1
 #define STATUS_MORE_ELEMS 0
@@ -88,13 +95,13 @@ using namespace std;
 #define STATUS_SCALAR 1
 #define STATUS_EMPTY 2
 
-#define HELP_OUT    "<t> use display method t for cell values of result MDDs where t is one of none, file, formatted, string, hex. Implies --content"
+#define HELP_OUT "<t> use display method t for cell values of result MDDs where t is one of none, file, formatted, string, hex. Implies --content"
 #define DEFAULT_OUT OUT_NONE
-#define PARAM_OUT_FILE  "file"
+#define PARAM_OUT_FILE "file"
 #define PARAM_OUT_STRING "string"
-#define PARAM_OUT_HEX   "hex"
+#define PARAM_OUT_HEX "hex"
 #define PARAM_OUT_FORMATTED "formatted"
-#define PARAM_OUT_NONE  "none"
+#define PARAM_OUT_NONE "none"
 #define DEFAULT_OUT_STR PARAM_OUT_NONE
 
 #define DEFAULT_OUTFILE "rasql_%d"
@@ -108,13 +115,13 @@ std::string baseName;
 const int MAX_STR_LEN = 255;
 const int MAX_QUERY_LEN = 10240;
 
-const char* user = DEFAULT_USER;
-const char* passwd = DEFAULT_PASSWD;
+const char *user = DEFAULT_USER;
+const char *passwd = DEFAULT_PASSWD;
 
-const char* fileName = NULL;
-const char* queryString = NULL;
-const char* outFileMask = DEFAULT_OUTFILE;
-const char* mddTypeName = NULL;
+const char *fileName = NULL;
+const char *queryString = NULL;
+const char *outFileMask = DEFAULT_OUTFILE;
+const char *mddTypeName = NULL;
 
 r_Minterval mddDomain;
 bool mddDomainDef = false;
@@ -138,20 +145,21 @@ void openDatabase()
         baseName = configuration.getBaseName() ? configuration.getBaseName() : getDefaultDb();
         strcpy(globalConnectId, baseName.c_str());
         instance.connectToRasbase();
-        
+
         if (configuration.getUser() && strlen(configuration.getUser()) > 0)
             user = configuration.getUser();
         if (configuration.getPasswd() && strlen(configuration.getPasswd()) > 0)
             passwd = configuration.getPasswd();
-        
+
         char capability[500];
         sprintf(capability, "%s$U%s$P%s$K", DQ_CAPABILITY, user, passwd);
         instance.connectNewClient(1, capability);
-        
+
         INFO("opening database " << baseName << " at " << DQ_SERVER_NAME << "..." << flush);
         instance.openDB(baseName.c_str());
         dbIsOpen = true;
-        INFO(" ok" << endl << flush);
+        INFO(" ok" << endl
+                   << flush);
     }
 }
 
@@ -199,83 +207,83 @@ void closeTransaction(bool doCommit)
     }
 }
 
-void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
+void printScalar(char *buffer, QtData *data, unsigned int resultIndex)
 {
     INFO("  Result element " << resultIndex << ": ");
     switch (data->getDataType())
     {
     case QT_BOOL:
-        INFO((*((bool*) buffer) ? "t" : "f") << flush);
+        INFO((*((bool *)buffer) ? "t" : "f") << flush);
         break;
     case QT_CHAR:
-        INFO(static_cast<int>(*((r_Char*) buffer)) << flush);
+        INFO(static_cast<int>(*((r_Char *)buffer)) << flush);
         break;
     case QT_OCTET:
-        INFO(static_cast<int>(*((r_Octet*) buffer)) << flush);
+        INFO(static_cast<int>(*((r_Octet *)buffer)) << flush);
         break;
     case QT_SHORT:
-        INFO(*((r_Short*) buffer) << flush);
+        INFO(*((r_Short *)buffer) << flush);
         break;
     case QT_USHORT:
-        INFO(*((r_UShort*) buffer) << flush);
+        INFO(*((r_UShort *)buffer) << flush);
         break;
     case QT_LONG:
-        INFO(*((r_Long*) buffer) << flush);
+        INFO(*((r_Long *)buffer) << flush);
         break;
     case QT_ULONG:
-        INFO(*((r_ULong*) buffer) << flush);
+        INFO(*((r_ULong *)buffer) << flush);
         break;
     case QT_FLOAT:
-        INFO(std::setprecision(std::numeric_limits<float>::digits10 + 1) << *((r_Float*) buffer) << flush);
+        INFO(std::setprecision(std::numeric_limits<float>::digits10 + 1) << *((r_Float *)buffer) << flush);
         break;
     case QT_DOUBLE:
-        INFO(std::setprecision(std::numeric_limits<double>::digits10 + 1) << *((r_Double*) buffer) << flush);
+        INFO(std::setprecision(std::numeric_limits<double>::digits10 + 1) << *((r_Double *)buffer) << flush);
         break;
     case QT_COMPLEXTYPE1:
     {
-        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
-        ComplexType1* ct = static_cast<ComplexType1*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
-        auto re = *((r_Float*) (buffer + ct->getReOffset()));
-        auto im = *((r_Float*) (buffer + ct->getImOffset()));
+        QtScalarData *scalarDataObj = static_cast<QtScalarData *>(data);
+        ComplexType1 *ct = static_cast<ComplexType1 *>(const_cast<BaseType *>(scalarDataObj->getValueType()));
+        auto re = *((r_Float *)(buffer + ct->getReOffset()));
+        auto im = *((r_Float *)(buffer + ct->getImOffset()));
         INFO("(" << re << "," << im << ")" << flush)
         break;
     }
     case QT_COMPLEXTYPE2:
     {
-        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
-        ComplexType2* ct = static_cast<ComplexType2*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
-        auto re = *((r_Double*) (buffer + ct->getReOffset()));
-        auto im = *((r_Double*) (buffer + ct->getImOffset()));
+        QtScalarData *scalarDataObj = static_cast<QtScalarData *>(data);
+        ComplexType2 *ct = static_cast<ComplexType2 *>(const_cast<BaseType *>(scalarDataObj->getValueType()));
+        auto re = *((r_Double *)(buffer + ct->getReOffset()));
+        auto im = *((r_Double *)(buffer + ct->getImOffset()));
         INFO("(" << re << "," << im << ")" << flush)
         break;
     }
 
     case QT_CINT16:
     {
-        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
-        CInt16* ct = static_cast<CInt16*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
-        auto re = *((r_Short*) (buffer + ct->getReOffset()));
-        auto im = *((r_Short*) (buffer + ct->getImOffset()));
+        QtScalarData *scalarDataObj = static_cast<QtScalarData *>(data);
+        CInt16 *ct = static_cast<CInt16 *>(const_cast<BaseType *>(scalarDataObj->getValueType()));
+        auto re = *((r_Short *)(buffer + ct->getReOffset()));
+        auto im = *((r_Short *)(buffer + ct->getImOffset()));
         INFO("(" << re << "," << im << ")" << flush)
         break;
     }
     case QT_CINT32:
     {
-        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
-        CInt32* ct = static_cast<CInt32*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
-        auto re = *((r_Long*) (buffer + ct->getReOffset()));
-        auto im = *((r_Long*) (buffer + ct->getImOffset()));
+        QtScalarData *scalarDataObj = static_cast<QtScalarData *>(data);
+        CInt32 *ct = static_cast<CInt32 *>(const_cast<BaseType *>(scalarDataObj->getValueType()));
+        auto re = *((r_Long *)(buffer + ct->getReOffset()));
+        auto im = *((r_Long *)(buffer + ct->getImOffset()));
         INFO("(" << re << "," << im << ")" << flush)
         break;
     }
     case QT_COMPLEX:
     {
-        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
-        StructType* st = static_cast<StructType*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
+        QtScalarData *scalarDataObj = static_cast<QtScalarData *>(data);
+        StructType *st = static_cast<StructType *>(const_cast<BaseType *>(scalarDataObj->getValueType()));
         INFO("{ ");
         for (unsigned int i = 0; i < st->getNumElems(); i++)
         {
-            BaseType* bt = const_cast<BaseType*>(st->getElemType(i));
+            BaseType *bt = const_cast<BaseType *>(st->getElemType(i));
             if (i > 0)
                 INFO(", ");
             bt->printCell(cout, buffer);
@@ -294,12 +302,13 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
         INFO("scalar type not supported" << endl);
         break;
     }
-    INFO(endl << flush);
+    INFO(endl
+         << flush);
 }
 
-void printResult(Tile* tile, int resultIndex)
+void printResult(Tile *tile, int resultIndex)
 {
-    const char* theStuff = tile->getContents();
+    const char *theStuff = tile->getContents();
     r_Bytes numCells = tile->getSize();
     auto outputType = configuration.getOutputType();
 
@@ -331,29 +340,29 @@ void printResult(Tile* tile, int resultIndex)
     case OUT_FILE:
     {
         char defFileName[FILENAME_MAX];
-        (void) snprintf(defFileName, sizeof(defFileName) - 1, outFileMask, resultIndex);
+        (void)snprintf(defFileName, sizeof(defFileName) - 1, outFileMask, resultIndex);
         LDEBUG << "filename for #" << resultIndex << " is " << defFileName;
 
         switch (tile->getDataFormat())
         {
-        case r_TIFF:   strcat(defFileName, ".tif");  break;
-        case r_JP2:    strcat(defFileName, ".jp2");  break;
-        case r_JPEG:   strcat(defFileName, ".jpg");  break;
-        case r_HDF:    strcat(defFileName, ".hdf");  break;
-        case r_PNG:    strcat(defFileName, ".png");  break;
-        case r_BMP:    strcat(defFileName, ".bmp");  break;
-        case r_NETCDF: strcat(defFileName, ".nc");   break;
-        case r_CSV:    strcat(defFileName, ".csv");  break;
-        case r_JSON:   strcat(defFileName, ".json"); break;
-        case r_DEM:    strcat(defFileName, ".dem");  break;
-        default:       strcat(defFileName, ".unknown"); break;
+        case r_TIFF: strcat(defFileName, ".tif"); break;
+        case r_JP2: strcat(defFileName, ".jp2"); break;
+        case r_JPEG: strcat(defFileName, ".jpg"); break;
+        case r_HDF: strcat(defFileName, ".hdf"); break;
+        case r_PNG: strcat(defFileName, ".png"); break;
+        case r_BMP: strcat(defFileName, ".bmp"); break;
+        case r_NETCDF: strcat(defFileName, ".nc"); break;
+        case r_CSV: strcat(defFileName, ".csv"); break;
+        case r_JSON: strcat(defFileName, ".json"); break;
+        case r_DEM: strcat(defFileName, ".dem"); break;
+        default: strcat(defFileName, ".unknown"); break;
         }
 
         INFO("  Result object " << resultIndex << ": going into file " << defFileName << "..." << flush);
-        FILE* tfile = fopen(defFileName, "wb");
+        FILE *tfile = fopen(defFileName, "wb");
         if (tfile == NULL)
             throw RasqlError(NOFILEWRITEPERMISSION);
-        if (fwrite(static_cast<void*>(const_cast<char*>(theStuff)), 1, numCells, tfile) != numCells)
+        if (fwrite(static_cast<void *>(const_cast<char *>(theStuff)), 1, numCells, tfile) != numCells)
         {
             fclose(tfile);
             throw RasqlError(UNABLETOWRITETOFILE);
@@ -365,18 +374,18 @@ void printResult(Tile* tile, int resultIndex)
     default:
         LERROR << "Unknown output type: " << static_cast<int>(outputType);
         break;
-    } // switch(outputType)
+    }  // switch(outputType)
 
-} // printResult()
+}  // printResult()
 
-void printOutput(unsigned short status, ExecuteQueryRes* result)
+void printOutput(unsigned short status, ExecuteQueryRes *result)
 {
     switch (status)
     {
-    case STATUS_MDD:    INFO("holds MDD elements" << endl);     break;
+    case STATUS_MDD: INFO("holds MDD elements" << endl); break;
     case STATUS_SCALAR: INFO("holds non-MDD elements" << endl); break;
-    case STATUS_EMPTY:  INFO("holds no elements" << endl);      break;
-    default:                                                    break;
+    case STATUS_EMPTY: INFO("holds no elements" << endl); break;
+    default: break;
     }
 
     if (result)
@@ -387,7 +396,8 @@ void printOutput(unsigned short status, ExecuteQueryRes* result)
             INFO("Getting result..." << flush);
             if (status == STATUS_MDD)
             {
-                INFO("Getting MDD objects..." << endl << flush);
+                INFO("Getting MDD objects..." << endl
+                                              << flush);
 
                 std::string typeName;
                 std::string typeStructure;
@@ -399,7 +409,7 @@ void printOutput(unsigned short status, ExecuteQueryRes* result)
                            mddDomain, typeName, typeStructure, oid, currentFormat) == STATUS_MORE_ELEMS)
                 {
                     auto *r = instance.getClientContext();
-                    Tile* resultTile = new Tile(r->transTiles);
+                    Tile *resultTile = new Tile(r->transTiles);
                     printResult(resultTile, ++resultIndex);
                     delete resultTile;
                     ++(*r->transferDataIter);
@@ -409,21 +419,22 @@ void printOutput(unsigned short status, ExecuteQueryRes* result)
             }
             else if (status == STATUS_SCALAR)
             {
-                INFO("Getting scalars..." << endl << flush);
-                
+                INFO("Getting scalars..." << endl
+                                          << flush);
+
                 auto *r = instance.getClientContext();
                 unsigned int resultIndex = 0;
-                char* buffer;
+                char *buffer;
                 unsigned int bufferSize;
                 status = STATUS_MORE_ELEMS;
                 while (status == STATUS_MORE_ELEMS)
                 {
-                    QtData* data = (**(r->transferDataIter));
+                    QtData *data = (**(r->transferDataIter));
                     status = instance.compat_getNextElement(buffer, bufferSize);
                     printScalar(buffer, data, ++resultIndex);
                     if (buffer)
                     {
-                        delete [] buffer;
+                        delete[] buffer;
                         buffer = NULL;
                     }
                 }
@@ -439,10 +450,10 @@ void printOutput(unsigned short status, ExecuteQueryRes* result)
  * throws r_Error upon general database comm error
  * needs an open transaction
  */
-r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
+r_Marray_Type *getTypeFromDatabase(const char *mddTypeName2)
 {
     auto &instance = RasServerEntry::getInstance();
-    r_Marray_Type* retval = NULL;
+    r_Marray_Type *retval = NULL;
     std::string typeStructure;
 
     // first, try to get type structure from database using a separate r/o transaction
@@ -451,14 +462,14 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
         int typeType = ClientComm::r_MDDType_Type;
         instance.compat_GetTypeStructure(mddTypeName2, typeType, typeStructure);
 
-        // above doesn't seem to work, so at least make it work with inv_* 
+        // above doesn't seem to work, so at least make it work with inv_*
         // functions -- DM 2013-may-19
         if (typeStructure.empty())
             typeStructure = "marray<char>";
-        
+
         LDEBUG << "type structure is " << typeStructure;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         if (err.get_kind() == r_Error::r_Error_DatabaseClassUndefined)
         {
@@ -469,23 +480,23 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
             // LDEBUG <<  "using instead: " << typeStructure;
             throw RasqlError(MDDTYPEINVALID);
         }
-        else // unanticipated error
+        else  // unanticipated error
         {
-            LDEBUG << "Error during type retrieval from database: " 
+            LDEBUG << "Error during type retrieval from database: "
                    << err.get_errorno() << " " << err.what();
             throw;
         }
     }
 
     // next, find out whether it is an MDD type (and not a base or set type, eg)
-    r_Type* tempType = NULL;
+    r_Type *tempType = NULL;
     try
     {
         tempType = r_Type::get_any_type(typeStructure);
         LDEBUG << "get_any_type() for this type returns: " << tempType;
         if (tempType->isMarrayType())
         {
-            retval = (r_Marray_Type*) tempType;
+            retval = (r_Marray_Type *)tempType;
             tempType = NULL;
             LDEBUG << "found MDD type: " << retval;
         }
@@ -497,45 +508,49 @@ r_Marray_Type* getTypeFromDatabase(const char* mddTypeName2)
             throw RasqlError(MDDTYPEINVALID);
         }
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
-        LDEBUG << "Error during retrieval of MDD type structure (" 
+        LDEBUG << "Error during retrieval of MDD type structure ("
                << typeStructure << "): " << err.get_errorno() << " " << err.what();
         SECURE_DELETE_PTR(tempType);
         throw;
     }
 
     return retval;
-} // getTypeFromDatabase()
+}  // getTypeFromDatabase()
 
-void freeResult(ExecuteQueryRes* result)
+void freeResult(ExecuteQueryRes *result)
 {
     SECURE_FREE_PTR(result->typeStructure);
     SECURE_FREE_PTR(result->token);
     SECURE_FREE_PTR(result->typeName);
 }
 
-void printError(unsigned short status, ExecuteQueryRes* result)
+void printError(unsigned short status, ExecuteQueryRes *result)
 {
-    cerr << endl << "Error number: " << result->errorNo << " Token: '" << result->token 
-         << "' Line: " << result->lineNo << " Column: " << result->columnNo 
-         << " (status: " << status << ")" << endl << flush;
+    cerr << endl
+         << "Error number: " << result->errorNo << " Token: '" << result->token
+         << "' Line: " << result->lineNo << " Column: " << result->columnNo
+         << " (status: " << status << ")" << endl
+         << flush;
 }
 
-void printError(unsigned short status, ExecuteUpdateRes* result)
+void printError(unsigned short status, ExecuteUpdateRes *result)
 {
-    cerr << endl << "Error number: " << result->errorNo << " Token: '" << result->token
-         << "' Line: " << result->lineNo << " Column: " << result->columnNo 
-         << " (status: " << status << ")" << endl << flush;
+    cerr << endl
+         << "Error number: " << result->errorNo << " Token: '" << result->token
+         << "' Line: " << result->lineNo << " Column: " << result->columnNo
+         << " (status: " << status << ")" << endl
+         << flush;
 }
 
 void doStuff()
 {
     auto &instance = RasServerEntry::getInstance();
 
-    char* fileContents = NULL; // contents of file satisfying "$1" parameter in query
-    r_Marray_Type* mddType = NULL; // this MDD's type
-    RPCMarray* marray = NULL;
+    char *fileContents = NULL;      // contents of file satisfying "$1" parameter in query
+    r_Marray_Type *mddType = NULL;  // this MDD's type
+    RPCMarray *marray = NULL;
     r_Bytes baseTypeSize = 0;
 
     queryString = configuration.getQueryString();
@@ -569,7 +584,7 @@ void doStuff()
             INFO("ok" << endl);
 
             INFO("reading file " << fileName << "..." << flush);
-            FILE* fileD = fopen(fileName, "r");
+            FILE *fileD = fopen(fileName, "r");
             if (fileD == NULL)
             {
                 throw RasqlError(FILEINACCESSIBLE);
@@ -602,7 +617,7 @@ void doStuff()
                 size_t rsize = fread(fileContents, 1, static_cast<size_t>(size), fileD);
 
                 baseTypeSize = mddType->base_type().size();
-                r_GMarray* fileMDD = new r_GMarray(mddDomain, baseTypeSize, 0, NULL, false);
+                r_GMarray *fileMDD = new r_GMarray(mddDomain, baseTypeSize, 0, NULL, false);
                 fileMDD->set_type_schema(mddType);
                 fileMDD->set_array_size(baseTypeSize);
                 query << *fileMDD;
@@ -629,7 +644,7 @@ void doStuff()
 
             INFO("ok" << endl);
         }
-        
+
         openTransaction(query.is_insert_query() || query.is_update_query());
 
         if (fileContents != NULL)
@@ -640,10 +655,11 @@ void doStuff()
             instance.compat_InsertTile(false, marray);
             instance.compat_EndInsertMDD(false);
         }
-        
+
         if (query.is_insert_query())
         {
-            INFO("Executing insert query...\n" << flush);
+            INFO("Executing insert query...\n"
+                 << flush);
 
             ExecuteQueryRes result;
             result.token = NULL;
@@ -655,52 +671,56 @@ void doStuff()
                 printOutput(status, &result);
             else
                 printError(status, &result);
-            
+
             freeResult(&result);
             closeTransaction(true);
         }
         else if (query.is_update_query())
         {
-            INFO("Executing update query...\n" << flush);
+            INFO("Executing update query...\n"
+                 << flush);
 
             ExecuteUpdateRes result;
             auto status = instance.compat_ExecuteUpdateQuery(query.get_query(), result);
 
             if (status != 0 && status != 1)
                 printError(status, &result);
-            
+
             SECURE_FREE_PTR(result.token);
             closeTransaction(true);
         }
-        else // retrieval query
+        else  // retrieval query
         {
-            INFO("Executing retrieval query...\n" << flush);
+            INFO("Executing retrieval query...\n"
+                 << flush);
 
             openTransaction(false);
 
             ExecuteQueryRes result;
             auto status = instance.compat_executeQueryRpc(query.get_query(), result, false);
-            if (status <= 2) {
+            if (status <= 2)
+            {
                 printOutput(status, &result);
-            } else if (result.token != NULL) {
+            }
+            else if (result.token != NULL)
+            {
                 r_Equery_execution_failed e(
                     result.errorNo, result.lineNo, result.columnNo, result.token);
                 LERROR << "rasdaman error " << e.get_errorno() << ": " << e.what();
             }
-            
+
             freeResult(&result);
 
             closeTransaction(true);
         }
-        
-        
+
         if (fileContents != NULL)
         {
             query.reset_query();
             instance.compat_endTransfer();
         }
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         if (marray)
         {
@@ -755,5 +775,5 @@ std::string getDefaultDb()
     return string(DEFAULT_DBNAME);
 }
 
-} // directql
-} // rasserver
+}  // namespace directql
+}  // namespace rasserver

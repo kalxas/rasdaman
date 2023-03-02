@@ -39,7 +39,6 @@ rasdaman GmbH.
 #include <iostream.h>
 // #include <vector.h>
 
-
 // extern char* myExecArgv0 = "";
 
 // #include "raslib/rminit.hh"
@@ -49,14 +48,15 @@ class A
 {
 public:
     A();
-    A(A* a);
-    virtual void insertElement(A*& a);
-    virtual A* insertElementTransform();
-    static void insertElementTransformStat(A*&);
+    A(A *a);
+    virtual void insertElement(A *&a);
+    virtual A *insertElementTransform();
+    static void insertElementTransformStat(A *&);
     virtual void printStatus();
     virtual ~A();
-    int* DynAtt_A;
-    int  StatAtt_A;
+    int *DynAtt_A;
+    int StatAtt_A;
+
 protected:
     void testProtectedA();
 };
@@ -69,20 +69,20 @@ A::A()
     cout << "A Constructor" << endl;
 }
 
-A::A(A* a)
+A::A(A *a)
     : StatAtt_A(a->StatAtt_A), DynAtt_A(a->DynAtt_A)
 {
     a->DynAtt_A = 0;
 }
 
-void A::insertElement(A*& a)
+void A::insertElement(A *&a)
 {
     cout << "A::insertElement( ) ";
     printStatus();
     cout << endl;
 }
 
-A* A::insertElementTransform()
+A *A::insertElementTransform()
 {
     cout << "A::insertElementTransform( ) ";
     printStatus();
@@ -90,7 +90,7 @@ A* A::insertElementTransform()
     return this;
 }
 
-void A::insertElementTransformStat(A*& ix)
+void A::insertElementTransformStat(A *&ix)
 {
     cout << "A::insertElementTransformStat( ) ";
     ix->printStatus();
@@ -116,18 +116,18 @@ void A::testProtectedA()
     cout << "A::testProtectedA( )" << endl;
 }
 
-class B: public A
+class B : public A
 {
 public:
     B();
-    B(A* b);
-    virtual void insertElement(A*& a);
-    virtual A* insertElementTransform();
-    static void insertElementTransformStat(A*& ix);
+    B(A *b);
+    virtual void insertElement(A *&a);
+    virtual A *insertElementTransform();
+    static void insertElementTransformStat(A *&ix);
     virtual void printStatus();
     virtual ~B();
-    int* DynAtt_B;
-    int  StatAtt_B;
+    int *DynAtt_B;
+    int StatAtt_B;
     void testProtectedB();
 };
 
@@ -139,42 +139,42 @@ B::B()
     cout << "B Constructor" << endl;
 }
 
-B::B(A* b)
-    : A(b), StatAtt_B(((B*)b)->StatAtt_B), DynAtt_B(((B*)b)->DynAtt_B)
+B::B(A *b)
+    : A(b), StatAtt_B(((B *)b)->StatAtt_B), DynAtt_B(((B *)b)->DynAtt_B)
 {
     // use dynamic attributes of b, so that has to delete them
     // from origin
-    ((B*)b)->DynAtt_B = 0;
+    ((B *)b)->DynAtt_B = 0;
 }
 
-void B::insertElement(A*& a)
+void B::insertElement(A *&a)
 {
     cout << "B::insertElement( ) ";
     printStatus();
     cout << endl;
-    A* c = new A(a);
+    A *c = new A(a);
     delete a;
     a = c;
 }
 
-A* B::insertElementTransform()
+A *B::insertElementTransform()
 {
-    A* thisA = this;
+    A *thisA = this;
     cout << "B::insertElementTransform( ) ";
     printStatus();
 
-    A* a = new A(thisA);
+    A *a = new A(thisA);
     delete thisA;
     return a;
 }
 
-void B::insertElementTransformStat(A*& ix)
+void B::insertElementTransformStat(A *&ix)
 {
-    A* thisA = ix;
+    A *thisA = ix;
     cout << "B::insertElementTransformStat( ) ";
     ix->printStatus();
 
-    A* a = new A(thisA);
+    A *a = new A(thisA);
     delete thisA;
     ix = thisA;
 }
@@ -204,17 +204,17 @@ void B::testProtectedB()
     // objA.testProtectedA();
 }
 
-class C: public B
+class C : public B
 {
 public:
     C(int);
-    virtual void insertElement(A*& a);
-    virtual A* insertElementTransform();
-    static void insertElementTransformStat(A*& ix);
+    virtual void insertElement(A *&a);
+    virtual A *insertElementTransform();
+    static void insertElementTransformStat(A *&ix);
     virtual void printStatus();
     virtual ~C();
-    int* DynAtt_C;
-    int  StatAtt_C;
+    int *DynAtt_C;
+    int StatAtt_C;
 };
 
 C::C(int)
@@ -224,7 +224,7 @@ C::C(int)
     *DynAtt_C = 6;
     cout << "C Constructor " << endl;
 }
-void C::insertElement(A*& a)
+void C::insertElement(A *&a)
 {
     if (a != this)
     {
@@ -233,34 +233,31 @@ void C::insertElement(A*& a)
     cout << "C::insertElement( ) ";
     printStatus();
 
-    B* c = new B(a);
+    B *c = new B(a);
     delete a;
     a = c;
 }
 
-A* C::insertElementTransform()
+A *C::insertElementTransform()
 {
-    A* thisA = this;
+    A *thisA = this;
     cout << "C::insertElementTransform( ) ";
     printStatus();
 
-    B* b = new B(thisA);
+    B *b = new B(thisA);
     delete thisA;
     return b;
-
 }
 
-void C::insertElementTransformStat(A*& ix)
+void C::insertElementTransformStat(A *&ix)
 {
-    A* thisA = ix;
+    A *thisA = ix;
     cout << "C::insertElementTransformStat( ) ";
     ix->printStatus();
 
-
-    B* b = new B(thisA);
+    B *b = new B(thisA);
     ix = b;
     delete thisA;
-
 }
 
 void C::printStatus()
@@ -282,35 +279,44 @@ C::~C()
  *
  * Return value..: exit status
  ************************************************************/
-int
-main()
+int main()
 {
-
-    cout << endl << " ---------------------------------------------- " << endl;
-    cout << endl << " Testing insertElementTransformStat( ) -------- " << endl;
+    cout << endl
+         << " ---------------------------------------------- " << endl;
+    cout << endl
+         << " Testing insertElementTransformStat( ) -------- " << endl;
 
     int i1t = 3;
     cout << "Creating new C" << endl;
-    A* at = new C(i1t);
-    cout << endl << "Inserting 1. element in C and getting B" << endl;
+    A *at = new C(i1t);
+    cout << endl
+         << "Inserting 1. element in C and getting B" << endl;
     at->insertElementTransformStat(at);
-    cout << endl << "Inserting 2. element in B and getting A" << endl;
+    cout << endl
+         << "Inserting 2. element in B and getting A" << endl;
     at->insertElementTransformStat(at);
-    cout << endl << "Inserting 3. element in A and getting A" << endl;
+    cout << endl
+         << "Inserting 3. element in A and getting A" << endl;
     at->insertElementTransformStat(at);
-    cout << endl << "Inserting 4. element in A and getting A" << endl;
+    cout << endl
+         << "Inserting 4. element in A and getting A" << endl;
     at->insertElementTransformStat(at);
-    cout << endl << "Destroying object" << endl;
+    cout << endl
+         << "Destroying object" << endl;
     delete at;
 
-    cout << endl << " ---------------------------------------------- " << endl;
+    cout << endl
+         << " ---------------------------------------------- " << endl;
     at = new C(i1t);
-    cout << endl << "Inserting 1. element in C and getting B" << endl;
+    cout << endl
+         << "Inserting 1. element in C and getting B" << endl;
     at->insertElementTransformStat(at);
-    cout << endl << "Destroying object" << endl;
+    cout << endl
+         << "Destroying object" << endl;
     delete at;
 
-    cout << endl << " ---------------------------------------------- " << endl;
+    cout << endl
+         << " ---------------------------------------------- " << endl;
 
     exit(0);
     /*
@@ -340,8 +346,6 @@ main()
 
       cout << endl << " ---------------------------------------------- " << endl;
     */
-
-
 
     /*
       B objB;

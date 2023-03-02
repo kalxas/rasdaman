@@ -52,7 +52,6 @@ class r_Minterval;
 class r_Tiling
 {
 public:
-
     virtual ~r_Tiling() = default;
 
     /// Prints the current status of the object
@@ -91,9 +90,8 @@ public:
     static const char *RSQRBRA;
     static const int DefaultBase;
     static const r_Bytes defaultTileSize;
-    
+
 protected:
-    
     void check_nonempty_tiling(const char *encoded) const;
     void check_premature_stream_end(const char *currPos, const char *endPos) const;
     r_Minterval parse_minterval(const char *encoded) const;
@@ -103,7 +101,6 @@ protected:
     double parse_double(const char *encoded) const;
     std::unique_ptr<char[]> copy_buffer(const char *buf, size_t len) const;
     const char *advance_to_next_char(const char *p, const char *search) const;
-    
 };
 
 /**
@@ -139,47 +136,46 @@ public:
 /**
   * \ingroup Rasodmgs
   */
-class r_Size_Tiling :   public r_Tiling
+class r_Size_Tiling : public r_Tiling
 {
 public:
     /// Constructor that reads everything from a string e.g."100"
     explicit r_Size_Tiling(const char *encoded);
     r_Size_Tiling(r_Bytes ts = r_Tiling::defaultTileSize);
     virtual ~r_Size_Tiling() = default;
-    
+
     void print_status(std::ostream &os) const override;
 
     /// returns true if the cellTypeSize is smaller or equal to the tile size and obj_domain has more than 0 dimensions
     bool is_compatible(const r_Minterval &obj_domain, r_Bytes cellTypeSize) const override;
 
     std::vector<r_Minterval> compute_tiles(const r_Minterval &obj_domain, r_Bytes cellTypeSize) const override;
-    
+
     r_Bytes get_tile_size() const;
     r_Tiling *clone() const override;
     r_Tiling_Scheme get_tiling_scheme() const override;
 
     static const char *description;
+
 protected:
-    
     /// Tile size
     r_Bytes tile_size{};
 };
 
-
 /**
   * \ingroup Rasodmgs
   */
-class r_Dimension_Tiling :  public r_Size_Tiling
+class r_Dimension_Tiling : public r_Size_Tiling
 {
 public:
     /// Constructor for this object (Takes dim (no of dimension) and tile size as parameter)
     r_Dimension_Tiling(r_Dimension dim, r_Bytes ts = r_Tiling::defaultTileSize);
     virtual ~r_Dimension_Tiling() = default;
-    
+
     void print_status(std::ostream &os) const override;
     /// returns true if the cellTypeSize is smaller or equal to the tile size and the dimension fits the obj_domain
     bool is_compatible(const r_Minterval &obj_domain, r_Bytes cellTypeSize) const override;
-    
+
     r_Dimension get_dimension() const;
     std::vector<r_Minterval> compute_tiles(const r_Minterval &obj_domain, r_Bytes cellTypeSize) const override = 0;
     r_Tiling *clone() const override = 0;
@@ -188,7 +184,6 @@ protected:
     /// dimension the mdd must have
     r_Dimension dimension{};
 };
-
 
 extern std::ostream &operator<<(std::ostream &os, const r_Tiling &t);
 

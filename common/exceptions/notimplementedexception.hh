@@ -27,17 +27,18 @@ rasdaman GmbH.
 
 #include "logicexception.hh"
 
-namespace common {
+namespace common
+{
 
-class NotImplementedException : public LogicException {
- public:
-  NotImplementedException();
-  NotImplementedException(const std::string &msg);
+class NotImplementedException : public LogicException
+{
+public:
+    NotImplementedException();
+    NotImplementedException(const std::string &msg);
 
-  ~NotImplementedException() override;
+    ~NotImplementedException() override;
 };
 
 } /* namespace common */
 
 #endif
-

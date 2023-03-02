@@ -63,9 +63,7 @@ using namespace std;
 
 #include <logging.hh>
 
-
 const QtNode::QtNodeType QtDomainOperation::nodeType = QtNode::QT_DOMAIN_OPERATION;
-
 
 QtDomainOperation::QtDomainOperation(QtOperation *mintOp)
     : mintervalOp(mintOp),
@@ -79,7 +77,7 @@ QtDomainOperation::QtDomainOperation(QtOperation *mintOp)
 
 QtDomainOperation::QtDomainOperation(QtOperation *mintOp, std::vector<std::string> *axisNames2)
     : mintervalOp(mintOp),
-      dynamicMintervalExpression(true), namedAxisFlag(true),  axisNames(axisNames2)
+      dynamicMintervalExpression(true), namedAxisFlag(true), axisNames(axisNames2)
 {
     if (mintervalOp)
     {
@@ -88,17 +86,14 @@ QtDomainOperation::QtDomainOperation(QtOperation *mintOp, std::vector<std::strin
     }
 }
 
-
 QtDomainOperation::QtDomainOperation(r_Minterval domainNew, const vector<bool> *newTrimFlags)
     : dynamicMintervalExpression(false), namedAxisFlag(false)
 {
     // make a copy
-    vector<bool> *trimFlags  = new vector<bool>(*newTrimFlags);
+    vector<bool> *trimFlags = new vector<bool>(*newTrimFlags);
     mintervalOp = new QtConst(new QtMintervalData(domainNew, trimFlags));
     mintervalOp->setParent(this);
 }
-
-
 
 QtDomainOperation::~QtDomainOperation()
 {
@@ -111,8 +106,6 @@ QtDomainOperation::~QtDomainOperation()
 
     mintervalOp = NULL;
 }
-
-
 
 QtNode::QtNodeList *
 QtDomainOperation::getChilds(QtChildType flag)
@@ -147,17 +140,14 @@ QtDomainOperation::getChilds(QtChildType flag)
     return resultList;
 }
 
-
-
-bool
-QtDomainOperation::equalMeaning(QtNode *node)
+bool QtDomainOperation::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     if (nodeType == node->getNodeType())
     {
         QtDomainOperation *domainNode;
-        domainNode = static_cast<QtDomainOperation *>(node); // by force
+        domainNode = static_cast<QtDomainOperation *>(node);  // by force
 
         result = input->equalMeaning(domainNode->getInput()) &&
                  mintervalOp->equalMeaning(domainNode->getMintervalOp());
@@ -166,13 +156,12 @@ QtDomainOperation::equalMeaning(QtNode *node)
     return (result);
 }
 
-
 string
 QtDomainOperation::getSpelling()
 {
     char tempStr[20];
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
-    string result  = string(tempStr);
+    string result = string(tempStr);
     result.append(mintervalOp->getSpelling());
     result.append("(");
     result.append(input->getSpelling());
@@ -181,9 +170,7 @@ QtDomainOperation::getSpelling()
     return result;
 }
 
-
-void
-QtDomainOperation::setInput(QtOperation *inputOld, QtOperation *inputNew)
+void QtDomainOperation::setInput(QtOperation *inputOld, QtOperation *inputNew)
 {
     QtUnaryOperation::setInput(inputOld, inputNew);
 
@@ -198,10 +185,7 @@ QtDomainOperation::setInput(QtOperation *inputOld, QtOperation *inputNew)
     }
 }
 
-
-
-void
-QtDomainOperation::optimizeLoad(QtTrimList *trimList, vector<r_Minterval> *intervals)
+void QtDomainOperation::optimizeLoad(QtTrimList *trimList, vector<r_Minterval> *intervals)
 {
     //here is the only place where we have other domainsm they are dimension by dimesnion presented in newTrimList elems
     //however, they are disregarded immediately, and that causes normal execution
@@ -210,7 +194,7 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList, vector<r_Minterval> *inter
     //idea: maybe pass current domain to the function declared in input class, and check it from within
     // test, if there is already a specification for that dimension
     bool trimming = false;
-    r_Minterval   domain;
+    r_Minterval domain;
     if (mintervalOp)
     {
         // pass optimization to minterval tree
@@ -226,7 +210,7 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList, vector<r_Minterval> *inter
         {
             if (operand->getDataType() == QT_MINTERVAL)
             {
-                domain    = (static_cast<QtMintervalData *>(operand))->getMintervalData();
+                domain = (static_cast<QtMintervalData *>(operand))->getMintervalData();
 
                 if (intervals != nullptr)
                 {
@@ -244,9 +228,9 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList, vector<r_Minterval> *inter
                     // create a new element
                     QtTrimElement *elem = new QtTrimElement;
 
-                    elem->interval     = domain[i];
+                    elem->interval = domain[i];
                     elem->intervalFlag = (*trimFlags)[i];
-                    elem->dimension    = i;
+                    elem->dimension = i;
 
                     trimming &= (*trimFlags)[i];
 
@@ -287,9 +271,10 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList, vector<r_Minterval> *inter
     {
         if (input->getNodeType() == QT_DOMAIN_OPERATION)
         {
-            static_cast<QtDomainOperation*>(input)->optimizeLoad(trimList, intervals);
+            static_cast<QtDomainOperation *>(input)->optimizeLoad(trimList, intervals);
         }
-        else{
+        else
+        {
             input->optimizeLoad(trimList);
         }
     }
@@ -311,7 +296,6 @@ QtDomainOperation::optimizeLoad(QtTrimList *trimList, vector<r_Minterval> *inter
     }
 }
 
-
 QtData *
 QtDomainOperation::evaluate(QtDataList *inputList)
 {
@@ -324,7 +308,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
     case QT_MDD:
     {
         if (mintervalOp->getDataStreamType().getDataType() == QT_POINT ||
-                mintervalOp->getDataStreamType().isInteger())
+            mintervalOp->getDataStreamType().isInteger())
         {
             //
             // Projection to one cell.
@@ -339,7 +323,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 
 #ifdef QT_RUNTIME_TYPE_CHECK
             if (indexData->getDataType() != QT_POINT &&
-                    !indexData->getDataType().isInteger())
+                !indexData->getDataType().isInteger())
             {
                 LERROR << "Internal error in QtDomainOperation::evaluate() - "
                        << "runtime type checking failed (QT_POINT, INTEGER).";
@@ -363,8 +347,8 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 projPoint = r_Point{1u};
 
                 if (indexData->getDataType() == QT_SHORT ||
-                        indexData->getDataType() == QT_OCTET ||
-                        indexData->getDataType() == QT_LONG)
+                    indexData->getDataType() == QT_OCTET ||
+                    indexData->getDataType() == QT_LONG)
                 {
                     projPoint[0] = (static_cast<QtAtomicData *>(indexData))->getSignedValue();
                 }
@@ -372,7 +356,6 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 {
                     projPoint[0] = (static_cast<QtAtomicData *>(indexData))->getUnsignedValue();
                 }
-
             }
 
             //
@@ -420,20 +403,20 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 
                 // delete index and operand data
                 indexData->deleteRef();
-                operand  ->deleteRef();
+                operand->deleteRef();
 
                 return 0;
             }
 #endif
 
-            QtMDD  *qtMDD         = static_cast<QtMDD *>(operand);
+            QtMDD *qtMDD = static_cast<QtMDD *>(operand);
             MDDObj *currentMDDObj = qtMDD->getMDDObject();
             r_Nullvalues *nullValues = NULL;
 
             if (currentMDDObj)
             {
-                LTRACE << "  mdd domain: "              << currentMDDObj->getCurrentDomain();
-                LTRACE << "  mdd load domain: "         << qtMDD->getLoadDomain();
+                LTRACE << "  mdd domain: " << currentMDDObj->getCurrentDomain();
+                LTRACE << "  mdd load domain: " << qtMDD->getLoadDomain();
 
                 nullValues = currentMDDObj->getNullValues();
 
@@ -458,7 +441,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 }
 
                 // allocate cell buffer
-                char *resultBuffer = new char[ cellType->getSize() ];
+                char *resultBuffer = new char[cellType->getSize()];
                 if (resultCell == NULL)
                     memset(resultBuffer, 0, cellType->getSize());
                 else
@@ -484,9 +467,8 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 
             // delete old operand
             operand->deleteRef();
-
         }
-        else // mintervalOp->getDataStreamType() == QT_MINTERVAL
+        else  // mintervalOp->getDataStreamType() == QT_MINTERVAL
         {
             //
             // Trimming/Projection to an MDD object
@@ -512,8 +494,8 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 #endif
 
             // get minterval data
-            vector<bool>  *trimFlags = new vector<bool>(*((static_cast<QtMintervalData *>(indexData))->getTrimFlags()));
-            r_Minterval    domain    = (static_cast<QtMintervalData *>(indexData))->getMintervalData();
+            vector<bool> *trimFlags = new vector<bool>(*((static_cast<QtMintervalData *>(indexData))->getTrimFlags()));
+            r_Minterval domain = (static_cast<QtMintervalData *>(indexData))->getMintervalData();
             LDEBUG << "Evaluate subset " << domain;
 
             //
@@ -527,7 +509,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 vector<string> axisDef = *axisNamesCorrect;
                 vector<string>::iterator axisIt;
                 vector<string>::iterator axisDefIt;
-                unsigned int count1 =0, count2 = 0;
+                unsigned int count1 = 0, count2 = 0;
                 bool check = false;
 
                 if (axisNames->size() > axisNamesCorrect->size())
@@ -544,7 +526,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                     check = false;
                     for (namesIt = axisNames->begin(); namesIt != axisNames->end(); namesIt++, count2++)
                     {
-                        if ((*axisDefIt).compare(*namesIt) == 0 )
+                        if ((*axisDefIt).compare(*namesIt) == 0)
                         {
                             if (check)
                             {
@@ -555,8 +537,8 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                             if (count1 != count2)
                             {
                                 domain.swap_dimensions(count1, count2);
-                                iter_swap(namesIt,(axisNames)->begin()+count1);
-                                iter_swap(trimFlags->begin()+count1,trimFlags->begin()+count2);
+                                iter_swap(namesIt, (axisNames)->begin() + count1);
+                                iter_swap(trimFlags->begin() + count1, trimFlags->begin() + count2);
                             }
                             check = true;
                         }
@@ -568,13 +550,12 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                         if (count1 != count2)
                         {
                             domain.swap_dimensions(count1, count2);
-                            iter_swap((axisNames)->begin()+count2,(axisNames)->begin()+count1);
-                            iter_swap(trimFlags->begin()+count1,trimFlags->begin()+count2);
-
+                            iter_swap((axisNames)->begin() + count2, (axisNames)->begin() + count1);
+                            iter_swap(trimFlags->begin() + count1, trimFlags->begin() + count2);
                         }
                     }
                 }
-                if (axisNamesCorrect->size()<domain.dimension())
+                if (axisNamesCorrect->size() < domain.dimension())
                 {
                     LERROR << "Error: QtDomainOperation::evaluate() - Name of the axis doesn't correspond with any defined axis name of the type.";
                     parseInfo.setErrorNo(DOMAINOP_INVALIDAXISNAME);
@@ -594,9 +575,9 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                     // create a new element
                     QtTrimElement *elem = new QtTrimElement;
 
-                    elem->interval     = domain[i];
+                    elem->interval = domain[i];
                     elem->intervalFlag = (*trimFlags)[i];
-                    elem->dimension    = i;
+                    elem->dimension = i;
 
                     // and add it to the list
                     trimList->push_back(elem);
@@ -606,7 +587,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 
                 if (input->getNodeType() == QT_DOMAIN_OPERATION)
                 {
-                    static_cast<QtDomainOperation*>(input)->optimizeLoad(trimList, intervals);
+                    static_cast<QtDomainOperation *>(input)->optimizeLoad(trimList, intervals);
                 }
                 else
                 {
@@ -625,7 +606,6 @@ QtDomainOperation::evaluate(QtDataList *inputList)
             }
             // resolve positionnaly independent axes by reording them according to the type definiton
 
-
 #ifdef QT_RUNTIME_TYPE_CHECK
             if (operand->getDataType() != QT_MDD)
             {
@@ -633,20 +613,20 @@ QtDomainOperation::evaluate(QtDataList *inputList)
 
                 // delete index and operand data
                 indexData->deleteRef();
-                operand  ->deleteRef();
+                operand->deleteRef();
 
                 return 0;
             }
 #endif
 
-            QtMDD  *qtMDD         = static_cast<QtMDD *>(operand);
+            QtMDD *qtMDD = static_cast<QtMDD *>(operand);
             MDDObj *currentMDDObj = qtMDD->getMDDObject();
             r_Nullvalues *nullValues = NULL;
 
             if (currentMDDObj)
             {
                 r_Minterval currentDomain = currentMDDObj->getCurrentDomain();
-                for (std::vector<r_Minterval>::reverse_iterator it = intervals->rbegin();it != intervals->rend(); ++it)
+                for (std::vector<r_Minterval>::reverse_iterator it = intervals->rbegin(); it != intervals->rend(); ++it)
                 {
                     if (it == intervals->rbegin())
                     {
@@ -666,18 +646,19 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                             }
                         }
                     }
-                    else {
-                        if (!it->inside_of(*(it-1)))
+                    else
+                    {
+                        if (!it->inside_of(*(it - 1)))
                         {
-                            if (!it->intersects_with(*(it-1)))
+                            if (!it->intersects_with(*(it - 1)))
                             {
-                                LERROR << "Subset domain " << *it << " does not intersect with the previous subset of MDD" << *(it-1);
+                                LERROR << "Subset domain " << *it << " does not intersect with the previous subset of MDD" << *(it - 1);
                                 parseInfo.setErrorNo(DOMAINDOESNOTINTERSECT);
                                 throw parseInfo;
                             }
                             else
                             {
-                                LERROR << "Subset domain " << *it << " extends outside of the previous subset of MDD" << *(it-1);
+                                LERROR << "Subset domain " << *it << " extends outside of the previous subset of MDD" << *(it - 1);
                                 parseInfo.setErrorNo(DOMAINOP_SUBSETOUTOFBOUNDS);
                                 throw parseInfo;
                             }
@@ -685,7 +666,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                     }
                 }
 
-                bool trimming   = false;
+                bool trimming = false;
                 bool projection = false;
                 nullValues = currentMDDObj->getNullValues();
                 // reset loadDomain to intersection of domain and loadDomain
@@ -739,7 +720,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                         MDDObj *resultMDD = new MDDObj(currentMDDObj->getMDDBaseType(), projectedDom, currentMDDObj->getNullValues());
 
                         // and iterate over them
-                        for (auto tileIt = relevantTiles->begin(); tileIt !=  relevantTiles->end(); tileIt++)
+                        for (auto tileIt = relevantTiles->begin(); tileIt != relevantTiles->end(); tileIt++)
                         {
                             // domain of the actual tile
                             r_Minterval tileDom = (*tileIt)->getDomain();
@@ -759,7 +740,6 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                         // create a new QtMDD object as carrier object for the transient MDD object
                         returnValue = new QtMDD(static_cast<MDDObj *>(resultMDD));
                         returnValue->setNullValues(nullValues);
-
 
                         // delete the tile vector
                         delete relevantTiles;
@@ -784,27 +764,27 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                         resultMDD->insertTile(resTile);
                         returnValue = new QtMDD(static_cast<MDDObj *>(resultMDD));
 
-//                LERROR << "Error: QtDomainOperation::evaluate() - the load domain does not intersect with tiles in the current MDD.";
-//                parseInfo.setErrorNo(DOMAINDOESNOTINTERSECT);
-//
-//                // delete index and operand data
-//                indexData->deleteRef();
-//                operand  ->deleteRef();
-//
-//                throw parseInfo;
+                        //                LERROR << "Error: QtDomainOperation::evaluate() - the load domain does not intersect with tiles in the current MDD.";
+                        //                parseInfo.setErrorNo(DOMAINDOESNOTINTERSECT);
+                        //
+                        //                // delete index and operand data
+                        //                indexData->deleteRef();
+                        //                operand  ->deleteRef();
+                        //
+                        //                throw parseInfo;
                     }
 
-                } // trimming || projection
+                }  // trimming || projection
                 else
-                    // operand is passed through
+                // operand is passed through
                 {
                     returnValue = operand;
                 }
 
-            } // if( currentMDDObj )
+            }  // if( currentMDDObj )
             //If domain has to be evaluated multiple times (ex. dynamic expression), we need to restore the original axis order, so we can correctly
             //swap misplaced dimensions for every iteration
-            if (dynamicMintervalExpression  && namedAxisFlag)
+            if (dynamicMintervalExpression && namedAxisFlag)
             {
                 delete axisNames;
                 axisNames = new vector<string>(axisSaved);
@@ -816,16 +796,15 @@ QtDomainOperation::evaluate(QtDataList *inputList)
             }
             if (operand)
             {
-                operand  ->deleteRef();
+                operand->deleteRef();
             }
-
         }
         break;
     }
     case QT_MINTERVAL:
     {
         QtData *operandData = NULL;
-        QtData *indexData   = NULL;
+        QtData *indexData = NULL;
 
         operandData = input->evaluate(inputList);
         r_Nullvalues *nullValues = NULL;
@@ -850,8 +829,8 @@ QtDomainOperation::evaluate(QtDataList *inputList)
             indexData = mintervalOp->evaluate(inputList);
 
 #ifdef QT_RUNTIME_TYPE_CHECK
-            if (indexData->getDataType() != QT_POINT  && indexData->getDataType() != QT_CHAR &&
-                    indexData->getDataType() != QT_USHORT && indexData->getDataType() != QT_ULONG)
+            if (indexData->getDataType() != QT_POINT && indexData->getDataType() != QT_CHAR &&
+                indexData->getDataType() != QT_USHORT && indexData->getDataType() != QT_ULONG)
             {
                 LERROR << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed.";
                 return 0;
@@ -878,7 +857,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                     }
                     if (indexData)
                     {
-                        indexData  ->deleteRef();
+                        indexData->deleteRef();
                     }
 
                     throw parseInfo;
@@ -915,7 +894,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 }
                 if (indexData)
                 {
-                    indexData  ->deleteRef();
+                    indexData->deleteRef();
                 }
 
                 throw parseInfo;
@@ -932,7 +911,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
         }
         if (indexData)
         {
-            indexData  ->deleteRef();
+            indexData->deleteRef();
         }
         break;
     }
@@ -940,7 +919,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
     case QT_POINT:
     {
         QtData *operandData = NULL;
-        QtData *indexData   = NULL;
+        QtData *indexData = NULL;
 
         operandData = input->evaluate(inputList);
 
@@ -960,7 +939,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
             indexData = mintervalOp->evaluate(inputList);
 
 #ifdef QT_RUNTIME_TYPE_CHECK
-            if (indexData->getDataType() != QT_POINT  && indexData->getDataType() != QT_CHAR &&
+            if (indexData->getDataType() != QT_POINT && indexData->getDataType() != QT_CHAR &&
                 indexData->getDataType() != QT_USHORT && indexData->getDataType() != QT_ULONG)
             {
                 LERROR << "Internal error in QtDomainOperation::evaluate() - runtime type checking failed.";
@@ -985,7 +964,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                     if (operandData)
                         operandData->deleteRef();
                     if (indexData)
-                        indexData  ->deleteRef();
+                        indexData->deleteRef();
                     throw parseInfo;
                 }
                 indexValue = indexPoint[0];
@@ -1017,7 +996,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
                 if (operandData)
                     operandData->deleteRef();
                 if (indexData)
-                    indexData  ->deleteRef();
+                    indexData->deleteRef();
                 throw parseInfo;
             }
 
@@ -1029,7 +1008,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
         if (operandData)
             operandData->deleteRef();
         if (indexData)
-            indexData  ->deleteRef();
+            indexData->deleteRef();
         break;
     }
     default:
@@ -1045,9 +1024,7 @@ QtDomainOperation::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-void
-QtDomainOperation::printTree(int tab, ostream &s, QtChildType mode)
+void QtDomainOperation::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtDomainOperation Object: type " << flush;
     dataStreamType.printStatus(s);
@@ -1067,10 +1044,7 @@ QtDomainOperation::printTree(int tab, ostream &s, QtChildType mode)
     QtUnaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtDomainOperation::printAlgebraicExpression(ostream &s)
+void QtDomainOperation::printAlgebraicExpression(ostream &s)
 {
     s << "geo(";
 
@@ -1096,8 +1070,6 @@ QtDomainOperation::printAlgebraicExpression(ostream &s)
     s << ")";
 }
 
-
-
 const QtTypeElement &
 QtDomainOperation::checkType(QtTypeTuple *typeTuple)
 {
@@ -1119,7 +1091,6 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input && mintervalOp)
     {
-
         // 1. check input expression type
         const QtTypeElement &inputType = input->checkType(typeTuple);
 
@@ -1131,10 +1102,8 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
         {
             // check index type
             if (indexType.getDataType() != QT_MINTERVAL
-                    //        && indexType.getDataType() != QT_INTERVAL
-                    &&  indexType.getDataType() != QT_POINT
-                    && !indexType.isInteger()
-               )
+                //        && indexType.getDataType() != QT_INTERVAL
+                && indexType.getDataType() != QT_POINT && !indexType.isInteger())
             {
                 LERROR << "spatial domain expressions must be either of type minterval, point, or integer.";
                 parseInfo.setErrorNo(DOMAINOP_SPATIALOPINVALID);
@@ -1143,12 +1112,12 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
 
             // MDD
             if (indexType.getDataType() == QT_MINTERVAL /* || indexType.getDataType() == QT_INTERVAL */)
-                // pass MDD type
+            // pass MDD type
             {
                 dataStreamType = inputType;
             }
             else
-                // use MDD cell type
+            // use MDD cell type
             {
                 dataStreamType.setType((static_cast<MDDBaseType *>(const_cast<Type *>(inputType.getType())))->getBaseType());
             }
@@ -1185,7 +1154,8 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
         }
 
         if (namedAxisFlag)
-        {   r_Minterval domainDef = *((static_cast<MDDDomainType *>(const_cast<Type *>(inputType.getType())))->getDomain());
+        {
+            r_Minterval domainDef = *((static_cast<MDDDomainType *>(const_cast<Type *>(inputType.getType())))->getDomain());
             vector<string> axisDef = (&domainDef)->get_axis_names();
             axisNamesCorrect = new vector<string>(axisDef);
         }
@@ -1197,5 +1167,3 @@ QtDomainOperation::checkType(QtTypeTuple *typeTuple)
 
     return dataStreamType;
 }
-
-

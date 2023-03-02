@@ -36,18 +36,17 @@ class RasControlConfig
 public:
     enum WorkMode
     {
-        WKMINTERACTIV, //Interactive mode
-        WKMBATCH, //Batch mode
-        WKMLOGIN, //Login mode
-        WKMTESTLOGIN, //Test login mode
+        WKMINTERACTIV,  //Interactive mode
+        WKMBATCH,       //Batch mode
+        WKMLOGIN,       //Login mode
+        WKMTESTLOGIN,   //Test login mode
     };
 
     enum LoginMode
     {
-        LGIINTERACTIV, //Interactive mode. Take the login credentials from the console.
-        LGIENVIRONM //Environment login. Take the login credentials from the environment variable.
+        LGIINTERACTIV,  //Interactive mode. Take the login credentials from the console.
+        LGIENVIRONM     //Environment login. Take the login credentials from the environment variable.
     };
-
 
     /**
      * @brief RasControlConfig Initialize a new instance of the RasControlConfig class.
@@ -102,22 +101,22 @@ private:
         PROMPTFULL = 3
     };
 
-    std::string rasMgrHost;/*!< Name of the rasmgr host to which we want to connect.*/
-    std::string logConfigFile;/*!< File used to configure logging*/
-    std::uint16_t rasMgrPort;/*!< Port of the rasmgr instance to which we want to connect.*/
-    std::int32_t promptMode; /*!< Used to configure the prompt displayed to the user. */
+    std::string rasMgrHost;    /*!< Name of the rasmgr host to which we want to connect.*/
+    std::string logConfigFile; /*!< File used to configure logging*/
+    std::uint16_t rasMgrPort;  /*!< Port of the rasmgr instance to which we want to connect.*/
+    std::int32_t promptMode;   /*!< Used to configure the prompt displayed to the user. */
     LoginMode loginMode;
     WorkMode workMode;
-    bool isHistoryRequired; /*!<True if the history is required */
+    bool isHistoryRequired;      /*!<True if the history is required */
     std::string historyFileName; /*!<Name of the file in which to save the history.*/
-    bool quiet; /*!<True if rascontrol should run in the quiet mode*/
-    bool isHelpReq;/*!<True if the help is requested.*/
-    std::string prompt;/*!<String represeting the prompt*/
+    bool quiet;                  /*!<True if rascontrol should run in the quiet mode*/
+    bool isHelpReq;              /*!<True if the help is requested.*/
+    std::string prompt;          /*!<String represeting the prompt*/
 
     std::string command;
 
     //-- parameters of this program
-    CommandLineParser    &cmlInter;
+    CommandLineParser &cmlInter;
     CommandLineParameter &cmlHelp, &cmlHost, &cmlPort, &cmlLogin;
     CommandLineParameter &cmlHist, &cmlLogFile;
     CommandLineParameter &cmlPrompt, &cmlTestLogin;
@@ -129,6 +128,6 @@ private:
      */
     bool paramError();
 };
-}
+}  // namespace rascontrol
 
-#endif // RASCONTROL_X_SRC_RASCONTROLCONFIG_HH
+#endif  // RASCONTROL_X_SRC_RASCONTROLCONFIG_HH

@@ -12,17 +12,17 @@
 
 #include "rasdaman.hh"
 
-/*[38,1]*//* STRUCT -------------------------- RGBPixel */
+/*[38,1]*/ /* STRUCT -------------------------- RGBPixel */
 struct RGBPixel
 {
-    r_Char    red;
-    r_Char    green;
-    r_Char    blue;
+    r_Char red;
+    r_Char green;
+    r_Char blue;
 };
-/*[40,30]*//* TYPEDEF ------------------------- RGBCube */
-typedef r_Marray<RGBPixel>  RGBCube;
+/*[40,30]*/ /* TYPEDEF ------------------------- RGBCube */
+typedef r_Marray<RGBPixel> RGBCube;
 
-/*[41,22]*//* TYPEDEF ------------------------- RGBSet3 */
+/*[41,22]*/ /* TYPEDEF ------------------------- RGBSet3 */
 typedef r_Set<r_Ref<RGBCube>> RGBSet3;
 
 #endif

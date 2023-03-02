@@ -40,7 +40,6 @@ rasdaman GmbH.
 #include <sstream>
 #include <math.h>
 
-
 using DimType = r_Point::DimType;
 
 using namespace std;
@@ -145,7 +144,6 @@ bool r_PointDouble::operator<(const r_PointDouble &pt) const
     return false;
 }
 
-
 r_PointDouble
 r_PointDouble::operator+(const r_PointDouble &pt) const
 {
@@ -169,7 +167,6 @@ r_PointDouble::operator-(const r_PointDouble &pt) const
 {
     if (points.size() != pt.dimension())
     {
-
         throw r_Edim_mismatch(dimension(), pt.dimension());
     }
 
@@ -216,7 +213,7 @@ r_PointDouble &r_PointDouble::operator+=(const r_PointDouble &a) noexcept(false)
     if (points.size() != a.dimension())
         throw r_Edim_mismatch(dimension(), a.dimension());
     for (DimType i = 0; i < dimension(); ++i)
-      points[i] += a[i];
+        points[i] += a[i];
     return *this;
 }
 
@@ -225,7 +222,7 @@ r_PointDouble &r_PointDouble::operator-=(const r_PointDouble &a) noexcept(false)
     if (points.size() != a.dimension())
         throw r_Edim_mismatch(dimension(), a.dimension());
     for (DimType i = 0; i < dimension(); ++i)
-      points[i] -= a[i];
+        points[i] -= a[i];
     return *this;
 }
 
@@ -234,14 +231,14 @@ r_PointDouble &r_PointDouble::operator*=(const r_PointDouble &a) noexcept(false)
     if (points.size() != a.dimension())
         throw r_Edim_mismatch(dimension(), a.dimension());
     for (DimType i = 0; i < dimension(); ++i)
-      points[i] *= a[i];
+        points[i] *= a[i];
     return *this;
 }
 
 r_PointDouble &r_PointDouble::operator*=(double a) noexcept
 {
     for (DimType i = 0; i < dimension(); ++i)
-      points[i] *= a;
+        points[i] *= a;
     return *this;
 }
 

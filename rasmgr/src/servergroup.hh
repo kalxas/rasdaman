@@ -31,7 +31,6 @@
 #include <list>
 #include <boost/thread/shared_mutex.hpp>
 
-
 namespace rasmgr
 {
 
@@ -40,7 +39,8 @@ class DatabaseHostManager;
 class Server;
 class ServerFactory;
 
-enum class ServerStatus {
+enum class ServerStatus
+{
     INITIALIZING,
     RUNNING,
     STOPPING,
@@ -116,19 +116,19 @@ public:
                 std::shared_ptr<ServerFactory> serverFactory);
 
     virtual ~ServerGroup();
-    
+
     /**
      * Mark this server group as active and start the minimum number of servers
      * as specified in the server group config
      */
     virtual void start();
-    
+
     /**
      * Stop the running servers of this group and prevent any other servers
      * from being started.
      */
     virtual void stop(KillLevel level);
-    
+
     /**
      * Schedule the servers of this group for restart when they become free.
      */
@@ -170,13 +170,13 @@ public:
      */
     virtual bool tryGetAvailableServer(const std::string &dbName,
                                        std::shared_ptr<Server> &out_server);
-    
+
     /**
      * @return the server with serverId if exists, nullptr otherwise.
      * Used only from the ServerManagementService to update the server cores.
      */
     virtual std::shared_ptr<Server> getServer(const std::string &serverId);
-    
+
     /**
      * @return a copy of the ServerGroupConfig object used to create this
      * ServerGroup.
@@ -198,14 +198,14 @@ public:
 protected:
     /// Only needed for creating a Mock object in the tests.
     ServerGroup() = default;
-    
+
 private:
-    ServerGroupConfigProto config;/*!< Configuration for this group */
+    ServerGroupConfigProto config; /*!< Configuration for this group */
 
     std::shared_ptr<DatabaseHostManager> dbhManager; /*!< Reference to the DBH manager for retrieving dbh */
     std::shared_ptr<ServerFactory> serverFactory;
 
-    std::shared_ptr<Server> runningServer;    /*!< Server that is currently running */
+    std::shared_ptr<Server> runningServer; /*!< Server that is currently running */
     std::shared_ptr<common::Timer> startingServerTimer;
     std::shared_ptr<common::Timer> stoppingServerTimer;
 
@@ -215,15 +215,15 @@ private:
 
     ServerStatus serverStatus{ServerStatus::INITIALIZING};
 
-    int failedRegistrations{};/*!< number of consecutive times a server failed to register */
-    
+    int failedRegistrations{}; /*!< number of consecutive times a server failed to register */
+
     bool scheduledForRestart{false};
 
     /**
      * @return TRUE if there is a server with capacity for one more client, FALSE otherwise
      */
     bool hasAvailableServer();
-    
+
     /**
      * Restart dead servers
     */
@@ -245,15 +245,15 @@ private:
     void startServer();
 
     void stopActiveServer(KillLevel level);
-    
+
     void restartServer();
 
     void validateAndInitConfig(ServerGroupConfigProto &config);
-    
+
     /**
      * Return the server port configured for this server group in rasmgr.conf
      */
     std::int32_t getConfiguredPort() const;
 };
-}
-#endif // SERVERGROUP_HH
+}  // namespace rasmgr
+#endif  // SERVERGROUP_HH

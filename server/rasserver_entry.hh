@@ -47,15 +47,15 @@ class RasServerEntry
 {
 private:
     RasServerEntry() = default;
-    
+
     HttpServer server;
-    
-    ClientTblElt* currentClientContext;
+
+    ClientTblElt *currentClientContext;
     std::uint32_t currentClientIdx;
     bool clientConnected{false};
 
 public:
-    static RasServerEntry& getInstance();
+    static RasServerEntry &getInstance();
 
     ~RasServerEntry() = default;
 
@@ -74,20 +74,20 @@ public:
      * @param clientId the client ID
      * @param capability an authentication string provided by rasmgr.
      */
-    void connectNewClient(std::uint32_t clientId, const char* capability);
-    
+    void connectNewClient(std::uint32_t clientId, const char *capability);
+
     /**
      * @return context data for the current client.
      */
     ClientTblElt *getClientContext();
-    
+
     /**
      * Disconnect the currently connected client from the server. This should be
      * called once for each connectNewClient.
      */
     void disconnectClient();
 
-    void openDB(const char* databaseName);
+    void openDB(const char *databaseName);
     void closeDB();
 
     void beginTA(bool rw);
@@ -98,68 +98,66 @@ public:
     // provided for temporary compatibility with the encoding of the java interface.
     // resultBuffer will be allocated and its address stored in the given pointer
     // result is the length of the result
-    long compat_executeQueryHttp(const char* httpParams, int httpParamsLen, char*& resultBuffer);
+    long compat_executeQueryHttp(const char *httpParams, int httpParamsLen, char *&resultBuffer);
 
-    r_OId compat_getNewOId(unsigned short objType); // 1 - mddType, 2 -collType
+    r_OId compat_getNewOId(unsigned short objType);  // 1 - mddType, 2 -collType
 
-    int  compat_executeQueryRpc(const char* query, ExecuteQueryRes& queryResult, bool insert = false);
+    int compat_executeQueryRpc(const char *query, ExecuteQueryRes &queryResult, bool insert = false);
 
-    int  compat_getNextElement(char*& buffer, unsigned int&  bufferSize);
+    int compat_getNextElement(char *&buffer, unsigned int &bufferSize);
 
-    int  compat_endTransfer();
+    int compat_endTransfer();
 
-    int  compat_getNextMDD(r_Minterval& mddDomain, std::string &typeName, std::string &typeStructure, r_OId& oid, unsigned short& currentFormat);
+    int compat_getNextMDD(r_Minterval &mddDomain, std::string &typeName, std::string &typeStructure, r_OId &oid, unsigned short &currentFormat);
 
-    int  compat_getNextTile(RPCMarray** rpcMarray);
+    int compat_getNextTile(RPCMarray **rpcMarray);
 
-    int  compat_ExecuteUpdateQuery(const char* query, ExecuteUpdateRes& returnStructure);
+    int compat_ExecuteUpdateQuery(const char *query, ExecuteUpdateRes &returnStructure);
 
-    int  compat_ExecuteInsertQuery(const char* query, ExecuteQueryRes& queryResult);
+    int compat_ExecuteInsertQuery(const char *query, ExecuteQueryRes &queryResult);
 
-    int  compat_InitUpdate();
+    int compat_InitUpdate();
 
-    int  compat_StartInsertTransMDD(const char* domain, int typeLength, const char* typeName);
+    int compat_StartInsertTransMDD(const char *domain, int typeLength, const char *typeName);
 
-    int  compat_InsertTile(bool persistent, RPCMarray*);
+    int compat_InsertTile(bool persistent, RPCMarray *);
 
-    int  compat_EndInsertMDD(int persistent);
+    int compat_EndInsertMDD(int persistent);
 
-    int  compat_GetTypeStructure(const char* typeName, int typeType, std::string& typeStructure);
+    int compat_GetTypeStructure(const char *typeName, int typeType, std::string &typeStructure);
 
-    int  compat_StartInsertPersMDD(const char* collName, r_Minterval& mddDomain, int typeLength, const char* typeName, r_OId& oid);
+    int compat_StartInsertPersMDD(const char *collName, r_Minterval &mddDomain, int typeLength, const char *typeName, r_OId &oid);
 
-    int  compat_InsertMDD(const char* collName, RPCMarray* rpcMarray, const char* typeName, r_OId& oid);
+    int compat_InsertMDD(const char *collName, RPCMarray *rpcMarray, const char *typeName, r_OId &oid);
 
-    int  compat_InsertCollection(const char* collName, const char* typeName, r_OId& oid);
+    int compat_InsertCollection(const char *collName, const char *typeName, r_OId &oid);
 
-    int  compat_DeleteCollByName(const char* collName);
+    int compat_DeleteCollByName(const char *collName);
 
-    int  compat_DeleteObjByOId(r_OId& oid);
+    int compat_DeleteObjByOId(r_OId &oid);
 
-    int  compat_RemoveObjFromColl(const char* collName, r_OId& oid);
+    int compat_RemoveObjFromColl(const char *collName, r_OId &oid);
 
-    int  compat_GetCollectionByName(const char* collName, std::string &typeName, std::string &typeStructure, r_OId& oid);
+    int compat_GetCollectionByName(const char *collName, std::string &typeName, std::string &typeStructure, r_OId &oid);
 
-    int  compat_GetCollectionByName(r_OId oid, std::string &typeName, std::string &typeStructure, std::string &collName);
+    int compat_GetCollectionByName(r_OId oid, std::string &typeName, std::string &typeStructure, std::string &collName);
 
-    int  compat_GetCollectionOidsByName(const char* collName, std::string &typeName, std::string &typeStructure, r_OId& oid, RPCOIdEntry*& oidTable, unsigned int& oidTableSize);
+    int compat_GetCollectionOidsByName(const char *collName, std::string &typeName, std::string &typeStructure, r_OId &oid, RPCOIdEntry *&oidTable, unsigned int &oidTableSize);
 
-    int  compat_GetCollectionOidsByOId(r_OId oid, std::string &typeName, std::string &typeStructure, RPCOIdEntry*& oidTable, unsigned int& oidTableSize, std::string &collName);
+    int compat_GetCollectionOidsByOId(r_OId oid, std::string &typeName, std::string &typeStructure, RPCOIdEntry *&oidTable, unsigned int &oidTableSize, std::string &collName);
 
-    int  compat_GetObjectType(r_OId& oid, unsigned short& objType);
+    int compat_GetObjectType(r_OId &oid, unsigned short &objType);
 
-    int  compat_SetTransferFormat(int format, const char* params);
+    int compat_SetTransferFormat(int format, const char *params);
 
-    int  compat_SetStorageFormat(int format, const char* params);
+    int compat_SetStorageFormat(int format, const char *params);
 
+    r_OId createCollection(const char *collName, const char *collTypeName);
 
-    r_OId createCollection(const char* collName, const char* collTypeName);
+    r_OId createMDD(const char *collName, const char *mddTypeName, const char *definitionDomain, const char *tileDomain, bool rcindex);
 
-    r_OId createMDD(const char* collName, const char* mddTypeName, const char* definitionDomain, const char* tileDomain, bool rcindex);
+    void extendMDD(r_OId mddOId, const char *stripeDomain, const char *tileDomain);
 
-    void  extendMDD(r_OId mddOId, const char* stripeDomain, const char* tileDomain);
-
-    std::vector<r_Minterval> getTileDomains(r_OId mddOId, const char* stripeDomain);
-
+    std::vector<r_Minterval> getTileDomains(r_OId mddOId, const char *stripeDomain);
 };
 #endif

@@ -21,20 +21,21 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "mddtype.hh"                 // for MDDType, MDDType::MDDONLYTYPE
-#include "type.hh"                    // for Type, ostream
-#include "reladminif/dbnamedobject.hh"// for DBNamedObject
-#include "reladminif/oidif.hh"        // for OId, OId::MDDTYPEOID
-#include "raslib/odmgtypes.hh"        // for MDDTYPE
-#include "raslib/mddtypes.hh"         // for r_Bytes
-#include "raslib/minterval.hh"        // for operator<<, r_Minterval
+#include "mddtype.hh"                   // for MDDType, MDDType::MDDONLYTYPE
+#include "type.hh"                      // for Type, ostream
+#include "reladminif/dbnamedobject.hh"  // for DBNamedObject
+#include "reladminif/oidif.hh"          // for OId, OId::MDDTYPEOID
+#include "raslib/odmgtypes.hh"          // for MDDTYPE
+#include "raslib/mddtypes.hh"           // for r_Bytes
+#include "raslib/minterval.hh"          // for operator<<, r_Minterval
 
-#include <logging.hh>                 // for Writer, CTRACE, LTRACE
-#include <string.h>                   // for strcpy, strdup
-#include <iostream>                   // for operator<<, basic_ostream, char...
-#include <string>                     // for string
+#include <logging.hh>  // for Writer, CTRACE, LTRACE
+#include <string.h>    // for strcpy, strdup
+#include <iostream>    // for operator<<, basic_ostream, char...
+#include <string>      // for string
 
-MDDType::MDDType(const OId &id) : Type(id)
+MDDType::MDDType(const OId &id)
+    : Type(id)
 {
     if (objecttype == OId::MDDTYPEOID)
     {
@@ -44,14 +45,16 @@ MDDType::MDDType(const OId &id) : Type(id)
     myType = MDDTYPE;
 }
 
-MDDType::MDDType() : Type("unnamed mddtype")
+MDDType::MDDType()
+    : Type("unnamed mddtype")
 {
     myType = MDDTYPE;
     mySubclass = MDDONLYTYPE;
     objecttype = OId::MDDTYPEOID;
 }
 
-MDDType::MDDType(const char *newTypeName) : Type(newTypeName)
+MDDType::MDDType(const char *newTypeName)
+    : Type(newTypeName)
 {
     myType = MDDTYPE;
     mySubclass = MDDONLYTYPE;
@@ -70,7 +73,7 @@ std::string MDDType::getTypeStructure() const
 
 std::string MDDType::getNewTypeStructure() const
 {
-  return "marray <>";
+    return "marray <>";
 }
 
 void MDDType::print_status(std::ostream &s) const

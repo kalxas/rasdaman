@@ -55,9 +55,9 @@ RMINITGLOBALS('C')
 
 using namespace std;
 
-void testType(const char* stringType)
+void testType(const char *stringType)
 {
-    r_Type* type = NULL;
+    r_Type *type = NULL;
 
     cout << "Create " << stringType << endl;
 
@@ -65,9 +65,10 @@ void testType(const char* stringType)
     {
         type = r_Type::get_any_type(stringType);
     }
-    catch (r_Error& errorObj)
+    catch (r_Error &errorObj)
     {
-        cout << errorObj.what() << endl << endl;
+        cout << errorObj.what() << endl
+             << endl;
     }
 
     cout << "  Type: ";
@@ -84,7 +85,6 @@ void testType(const char* stringType)
     }
     cout << endl;
     delete type;
-
 }
 
 /*
@@ -190,7 +190,7 @@ int main()
 
     cout << "Iterating attributes of struct:" << endl;
     r_Structure_Type::attribute_iterator
-    iter(myStruct.defines_attribute_begin());
+        iter(myStruct.defines_attribute_begin());
     while (iter != myStruct.defines_attribute_end())
     {
         cout << "  Name of Attribute: " << (*iter).name() << endl;
@@ -225,7 +225,6 @@ int main()
     testType("struct{ struct{ char, char, char }, ulong }");
     testType("struct{ struct{ char elem1, char elem2, char elem3 } record, ulong value }");
 
-
     testType("marray< char >");
     testType("marray< char  green>");
     testType("marray< struct{ char red} >");
@@ -246,7 +245,8 @@ int main()
     testType("set< oid  >");
 
     /* shouldn't work */
-    cout << endl << "Testing combinations which are not allowed..." << endl;
+    cout << endl
+         << "Testing combinations which are not allowed..." << endl;
     testType("set< marray< interval > >");
     testType("set< marray< minterval > >");
     testType("set< marray< point > >");
@@ -257,10 +257,8 @@ int main()
     testType("set< marray{ char > >");
     testType("struct<char>");
 
-
-
-    r_Type* type = NULL;
-    char* stringType = "marray< char blue>";
+    r_Type *type = NULL;
+    char *stringType = "marray< char blue>";
 
     cout << "Create " << stringType << endl;
 
@@ -268,9 +266,10 @@ int main()
     {
         type = r_Type::get_any_type(stringType);
     }
-    catch (r_Error& errorObj)
+    catch (r_Error &errorObj)
     {
-        cout << errorObj.what() << endl << endl;
+        cout << errorObj.what() << endl
+             << endl;
     }
 
     cout << "  Type: ";
@@ -288,7 +287,7 @@ int main()
     //  cout << ((r_Marray_Type*)type)->getBaseType() << endl;
 
     cout << "Erzeugen einer Kopie und Ausgabe..." << endl;
-    r_Marray_Type  my_marray((r_Base_Type&) type);
+    r_Marray_Type my_marray((r_Base_Type &)type);
 
     my_marray.print_status(cout);
 
@@ -297,11 +296,11 @@ int main()
 
     delete type;
 
-    r_Type* type2 = r_Type::get_any_type("struct{ short band1, char band2 }");
+    r_Type *type2 = r_Type::get_any_type("struct{ short band1, char band2 }");
 
     if (type2->isBaseType())
     {
-        r_Base_Type* baseType2 = (r_Base_Type*)type2;
+        r_Base_Type *baseType2 = (r_Base_Type *)type2;
 
         cout << "Type: " << flush;
         baseType2->print_status();
@@ -315,9 +314,9 @@ int main()
         char band2i;
     };
 
-    structType structValue = { 1, 2 };
+    structType structValue = {1, 2};
 
-    r_Structure structObject((const char*)&structValue, (const r_Structure_Type*)type2);
+    r_Structure structObject((const char *)&structValue, (const r_Structure_Type *)type2);
 
     structObject.print_status(cout);
 
@@ -328,5 +327,3 @@ int main()
     /* testEndian(); */
     return 0;
 }
-
-

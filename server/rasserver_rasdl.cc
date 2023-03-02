@@ -6,24 +6,22 @@
 #include "rasserver_config.hh"
 #include "raslib/error.hh"
 
-
 using namespace std;
 
-AdminIf*       admin = NULL;
-DatabaseIf*    db = NULL;
-TransactionIf* ta = NULL;
+AdminIf *admin = NULL;
+DatabaseIf *db = NULL;
+TransactionIf *ta = NULL;
 
-const char* dbSchema = "";
-const char* dbVolume = "";
+const char *dbSchema = "";
+const char *dbVolume = "";
 
 namespace rasserver
 {
 namespace rasdl
 {
 
-int runRasdl(int, char* argv[])
+int runRasdl(int, char *argv[])
 {
-
     int result = EXIT_FAILURE;  // program exit code
 
     try
@@ -76,12 +74,12 @@ int runRasdl(int, char* argv[])
         }
         result = EXIT_SUCCESS;
     }
-    catch (RasqlError& e)
+    catch (RasqlError &e)
     {
         cout << argv[0] << ": " << e.what() << endl;
         result = EXIT_FAILURE;
     }
-    catch (const r_Error& e)
+    catch (const r_Error &e)
     {
         cout << ERROR_RASDAMAN << e.get_errorno() << ": " << e.what() << endl;
         result = EXIT_FAILURE;
@@ -99,11 +97,10 @@ int runRasdl(int, char* argv[])
 
     cout << "rasdl: done." << endl;
 
-    return (result); 
+    return (result);
 }
 
-void
-connectDB(const char* baseName2, bool openDb, bool openTa, bool createDb)
+void connectDB(const char *baseName2, bool openDb, bool openTa, bool createDb)
 {
     admin = AdminIf::instance(createDb);
     if (!admin)
@@ -131,9 +128,7 @@ connectDB(const char* baseName2, bool openDb, bool openTa, bool createDb)
     }
 }
 
-
-void
-disconnectDB(bool commitTa)
+void disconnectDB(bool commitTa)
 {
     if (ta)
     {
@@ -167,5 +162,5 @@ disconnectDB(bool commitTa)
     }
 }
 
-} // rasdl
-} // rasserver
+}  // namespace rasdl
+}  // namespace rasserver

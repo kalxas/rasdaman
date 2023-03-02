@@ -41,15 +41,13 @@ char globalDbUser[255] = {0};
 char globalDbPasswd[255] = {0};
 
 class MDDColl;
-MDDColl *mddConstants = 0; // used in QtMDD
+MDDColl *mddConstants = 0;  // used in QtMDD
 
 INITIALIZE_EASYLOGGINGPP
 
 class TestBlobFile
 {
-
 public:
-
     void testGetBlobId()
     {
         string filePath = "/some/test/123456";
@@ -69,7 +67,7 @@ public:
                 long long resultBlobId = blobFile.getBlobId();
                 TEST_FAIL();
             }
-            catch(...)
+            catch (...)
             {
             }
         }
@@ -80,10 +78,9 @@ public:
             EXPECT_EQ(resultBlobId, INVALID_BLOB_ID);
         }
     }
-
 };
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 #ifndef BASEDB_SQLITE
     cerr << "testsuite runs only on SQLite / Filestorage rasdaman." << endl;

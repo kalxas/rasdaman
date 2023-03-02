@@ -22,10 +22,11 @@
 
 #include "runtimeexception.hh"
 
-namespace common {
-RuntimeException::RuntimeException(const std::string& message)
+namespace common
+{
+RuntimeException::RuntimeException(const std::string &message)
     : Exception(message) {}
 
 RuntimeException::~RuntimeException() noexcept = default;
 
-} /* namespace rasmgr */
+}  // namespace common

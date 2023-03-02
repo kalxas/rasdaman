@@ -88,24 +88,24 @@ int r_TmpFile::getFileDescriptor() const
     return fd;
 }
 
-void r_TmpFile::writeData(const char* data, size_t dataSize)
+void r_TmpFile::writeData(const char *data, size_t dataSize)
 {
     if (fd != INVALID_FILE_DESCRIPTOR)
     {
         ofstream file(fileName);
-        file.write(data, (streamsize) dataSize);
+        file.write(data, (streamsize)dataSize);
         file.close();
     }
     else
     {
-      throw r_Error(r_Error::r_Error_General,
-                    "invalid temporary file '" + fileName + "'");
+        throw r_Error(r_Error::r_Error_General,
+                      "invalid temporary file '" + fileName + "'");
     }
 }
 
-char* r_TmpFile::readData(long& dataSize)
+char *r_TmpFile::readData(long &dataSize)
 {
-    char* fileContents = NULL;
+    char *fileContents = NULL;
     if (fd != INVALID_FILE_DESCRIPTOR)
     {
         struct stat fstat;
@@ -121,7 +121,7 @@ char* r_TmpFile::readData(long& dataSize)
         }
 
         ifstream file(fileName, ios::in | ios::binary);
-        fileContents = (char*) mymalloc(static_cast<size_t>(dataSize));
+        fileContents = (char *)mymalloc(static_cast<size_t>(dataSize));
         if (fileContents == NULL)
         {
             std::stringstream s;

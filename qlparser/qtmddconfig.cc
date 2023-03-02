@@ -42,8 +42,8 @@ rasdaman GmbH.
 
 using namespace std;
 
-
-QtMDDConfig::QtMDDConfig() : QtData()
+QtMDDConfig::QtMDDConfig()
+    : QtData()
 {
 }
 
@@ -162,4 +162,3 @@ void QtMDDConfig::setBorderThreshold(int threshold)
 {
     borderThreshold = threshold;
 }
-

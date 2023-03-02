@@ -34,7 +34,6 @@ namespace rasmgr
 class ClientCredentials
 {
 public:
-
     /**
      * @param userName User name
      * @param passwordHash Password hash
@@ -73,15 +72,15 @@ public:
      */
     const std::string &getToken() const;
 
-  /**
+    /**
    * Set the user name
    */
-  void setUserName(const std::string &userName);
+    void setUserName(const std::string &userName);
 
 private:
-    std::string userName;/*! User name used for authenticating the client*/
-    std::string passwordHash;/*!Password hash used for authenticating the client */
-    std::string token;/*!JWT used for authenticating the client*/
+    std::string userName;     /*! User name used for authenticating the client*/
+    std::string passwordHash; /*!Password hash used for authenticating the client */
+    std::string token;        /*!JWT used for authenticating the client*/
 };
 } /* namespace rasmgr */
 

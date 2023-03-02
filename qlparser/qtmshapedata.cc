@@ -80,9 +80,9 @@ QtMShapeData::~QtMShapeData()
         delete midPoint;
         midPoint = NULL;
     }
-//    for (auto *mshape: polytopeEdges)
-//        if (mshape)
-//            mshape->deleteRef();
+    //    for (auto *mshape: polytopeEdges)
+    //        if (mshape)
+    //            mshape->deleteRef();
 }
 
 QtDataType
@@ -122,7 +122,7 @@ QtMShapeData::getSpelling() const
     std::string result;
 
     // buffer
-    r_Dimension bufferLen = polytopePoints.size() * 50; // on the safe side for one integer per dimension, plus colon and brackets
+    r_Dimension bufferLen = polytopePoints.size() * 50;  // on the safe side for one integer per dimension, plus colon and brackets
     char *buffer = new char[bufferLen];
     ostringstream bufferStream(buffer);
 
@@ -195,7 +195,6 @@ r_PointDouble *QtMShapeData::computeMidPoint()
 
 void QtMShapeData::computeDimensionality()
 {
-
     // an affine hyperplane containing point $p$ with normal vector $n$ can be
     // expressed as the kernel of $f(x):= (p - x)\cdot n$. In case the affine
     // space is not of codimension k, k such expressions must be simultaneously
@@ -349,8 +348,8 @@ r_Minterval QtMShapeData::convexHull() const
     return result;
 }
 
-std::vector<std::pair< r_PointDouble, double>>
-        QtMShapeData::computeHyperplaneEquation()
+std::vector<std::pair<r_PointDouble, double>>
+QtMShapeData::computeHyperplaneEquation()
 {
     if (!hyperplaneEquations.empty())
     {
@@ -380,14 +379,14 @@ std::vector<std::pair< r_PointDouble, double>>
     return hyperplaneEquations;
 }
 
-std::vector< r_Dimension >
+std::vector<r_Dimension>
 QtMShapeData::computeFirstProjection()
 {
     vector<r_Dimension> retVal;
     retVal.reserve(polytopePoints.size());
     for (auto it = polytopePoints.begin(); it != polytopePoints.end(); it++)
     {
-        if (it->dimension() != 1) //ensures nonempty and meaningful
+        if (it->dimension() != 1)  //ensures nonempty and meaningful
         {
             LERROR << "Error: QtMShapeData::computeFirstProjection() - The coordinate projections must be singular values separated by commas.";
             throw r_Error(SINGLETONPROJECTIONCOORDS);

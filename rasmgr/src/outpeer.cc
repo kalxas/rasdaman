@@ -30,8 +30,8 @@ namespace rasmgr
 {
 using common::GrpcUtils;
 
-using rasnet::service::GetRemoteServerRequest;
 using rasnet::service::GetRemoteServerReply;
+using rasnet::service::GetRemoteServerRequest;
 
 OutPeer::OutPeer(const std::string &h, const uint32_t p)
     : hostName(h), port(p)
@@ -147,4 +147,4 @@ std::string OutPeer::createSessionId(const RemoteClientSession &clientSession)
     return clientSession.getClientSessionId() + ":" + clientSession.getDbSessionId();
 }
 
-}
+}  // namespace rasmgr

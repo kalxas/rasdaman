@@ -32,7 +32,6 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
-
 #include "symtab.hh"
 
 #include <logging.hh>

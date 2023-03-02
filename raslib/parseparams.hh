@@ -39,7 +39,6 @@ rasdaman GmbH.
 class r_Parse_Params
 {
 public:
-
     /// the possible parameter types used for add()
     enum parse_param_type
     {
@@ -108,6 +107,5 @@ protected:
   Output stream operator for objects of type <tt>const</tt> r_Parse_Params::parse_param_type.
   */
 extern std::ostream &operator<<(std::ostream &s, const r_Parse_Params::parse_param_type &d);
-
 
 #endif

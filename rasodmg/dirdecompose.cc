@@ -52,7 +52,6 @@ r_Dir_Decompose::get_total_interval()
     return r_Sinterval(intervals.front(), intervals.back());
 }
 
-
 void r_Dir_Decompose::print_status(std::ostream &os) const
 {
     os << "r_Dir_Decompose[ num intervals = " << intervals.size() << " intervals = {";

@@ -22,10 +22,10 @@ rasdaman GmbH.
 */
 #pragma once
 
-#include <iosfwd>                  // for cout, ostream
+#include <iosfwd>  // for cout, ostream
 
-#include "dbobject.hh"             // for DBObject
-#include "oidif.hh"                // for OId
+#include "dbobject.hh"         // for DBObject
+#include "oidif.hh"            // for OId
 #include "raslib/mddtypes.hh"  // for r_Bytes
 
 class DBNamedObject;
@@ -43,12 +43,11 @@ Implements set/getName functionality.
 class DBNamedObject : public DBObject
 {
 public:
-    
     static unsigned int MAXNAMELENGTH;
     /*@Doc:
     the maximum length of a name.
     */
-    
+
     DBNamedObject();
     /*@Doc:
     sets Name to defaultName
@@ -75,7 +74,7 @@ public:
     */
 
     ~DBNamedObject() noexcept(false) override = default;
-    
+
     DBNamedObject &operator=(const DBNamedObject &old);
     /*@Doc:
     takes care of the name
@@ -115,4 +114,3 @@ protected:
 
     static const char *defaultName;
 };
-

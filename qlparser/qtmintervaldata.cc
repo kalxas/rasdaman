@@ -42,8 +42,6 @@ QtMintervalData::QtMintervalData(const r_Minterval &minterval, vector<bool> *ini
     }
 }
 
-
-
 QtMintervalData::~QtMintervalData()
 {
     if (trimFlags)
@@ -53,18 +51,13 @@ QtMintervalData::~QtMintervalData()
     }
 }
 
-
-
 QtDataType
 QtMintervalData::getDataType() const
 {
     return QT_MINTERVAL;
 }
 
-
-
-bool
-QtMintervalData::equal(const QtData *obj) const
+bool QtMintervalData::equal(const QtData *obj) const
 {
     bool returnValue = false;  // not equal by initialization
 
@@ -88,16 +81,14 @@ QtMintervalData::equal(const QtData *obj) const
     return returnValue;
 }
 
-
-
 std::string
 QtMintervalData::getSpelling() const
 {
     std::string result;
 
     // buffer
-    r_Dimension bufferLen = mintervalData.dimension() * 50; // on the safe side for two integers per dimension plus colon and brackets
-    char       *buffer    = new char[ bufferLen ];
+    r_Dimension bufferLen = mintervalData.dimension() * 50;  // on the safe side for two integers per dimension plus colon and brackets
+    char *buffer = new char[bufferLen];
     // replaced deprecated ostrstream -- PB 2005-jan-14
     // ostrstream bufferStream( buffer, bufferLen );
     ostringstream bufferStream(buffer);
@@ -136,17 +127,12 @@ QtMintervalData::getSpelling() const
     return result;
 }
 
-
-
 char *QtMintervalData::getTypeStructure() const
 {
     return strdup("minterval");
 }
 
-
-
-void
-QtMintervalData::printStatus(std::ostream &stream) const
+void QtMintervalData::printStatus(std::ostream &stream) const
 {
     stream << "minterval, value: " << std::flush;
 
@@ -178,22 +164,3 @@ QtMintervalData::printStatus(std::ostream &stream) const
 
     QtData::printStatus(stream);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

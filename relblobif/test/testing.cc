@@ -51,7 +51,8 @@ double Test::stopTimer()
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (tv.tv_sec - Test::timer_sec_) * 1.0 + (tv.tv_usec -
-            Test::timer_usec_) * static_cast<double>(0.0000001);
+                                                   Test::timer_usec_) *
+                                                      static_cast<double>(0.0000001);
 }
 
 int Test::getResult()
@@ -61,9 +62,9 @@ int Test::getResult()
     return (tests_passed_ != tests_run_);
 }
 
-string Test::charPtrToString(char* ptr, unsigned int size)
+string Test::charPtrToString(char *ptr, unsigned int size)
 {
-    char* res = (char*) malloc(size + 1);
+    char *res = (char *)malloc(size + 1);
     memcpy(res, ptr, size);
     res[size + 1] = '\0';
     string ret(res);

@@ -25,12 +25,10 @@
 namespace common
 {
 
-IPv6Resolver::IPv6Resolver(const in6_addr& addressArg, std::uint32_t portArg) :
-    AbstractNetworkResolver(portArg), address(addressArg)
+IPv6Resolver::IPv6Resolver(const in6_addr &addressArg, std::uint32_t portArg)
+    : AbstractNetworkResolver(portArg), address(addressArg)
 {
-
 }
-
 
 bool IPv6Resolver::isPortBusy()
 {
@@ -42,7 +40,7 @@ bool IPv6Resolver::isPortBusy()
     clientV6.sin6_family = AF_INET6;
     clientV6.sin6_port = htons(this->port);
 
-    if (connect(sock, (struct sockaddr*) &clientV6, sizeof(clientV6)) == 0)
+    if (connect(sock, (struct sockaddr *)&clientV6, sizeof(clientV6)) == 0)
     {
         isBusy = true;
         close(sock);
@@ -51,4 +49,4 @@ bool IPv6Resolver::isPortBusy()
     return isBusy;
 }
 
-} // namespace common
+}  // namespace common

@@ -47,7 +47,7 @@ using namespace std;
 extern QueryTree *parseQueryTree;
 
 QtMarrayOp2::QtMarrayOp2(mddIntervalListType *&aList, QtOperation *&cellExp)
-    :  iterators(*aList), qtOperation(cellExp)
+    : iterators(*aList), qtOperation(cellExp)
 {
 }
 
@@ -56,7 +56,7 @@ bool QtMarrayOp2::concatenateIntervals()
     // check for validity
     bool concatenate = true;
 
-    for (auto ii = iterators.begin(); ii != iterators.end() ; ii++)
+    for (auto ii = iterators.begin(); ii != iterators.end(); ii++)
     {
         auto *ddd = (static_cast<QtMintervalOp *>(ii->tree))->getInputs();
         for (auto j = ddd->begin(); j != ddd->end(); j++)
@@ -86,23 +86,23 @@ bool QtMarrayOp2::concatenateIntervals()
         greatDimension = 0;
         greatIterator = "";
         std::vector<r_Sinterval> intervals;
-        for (auto i = iterators.begin(); i != iterators.end() ; i++)
+        for (auto i = iterators.begin(); i != iterators.end(); i++)
         {
             // evaluate intervals
             QtData *data = (i->tree)->evaluate(0);
             auto *mintervalData = static_cast<QtMintervalData *>(data);
             const auto &domain = mintervalData->getMintervalData();
             LTRACE << i->variable << ": " << domain.dimension();
-            i->dimensionOffset = greatDimension; // used later in rewriteVars / traverse
-            
+            i->dimensionOffset = greatDimension;  // used later in rewriteVars / traverse
+
             // extend dimension and list of sintervals
             greatDimension += domain.dimension();
             for (r_Dimension j = 0; j < domain.dimension(); ++j)
                 intervals.push_back(domain[j]);
-            
+
             // update new iterator
             if (!greatIterator.empty())
-              greatIterator += "_";
+                greatIterator += "_";
             greatIterator += i->variable;
         }
         LTRACE << "Total: " << greatDimension;
@@ -110,13 +110,11 @@ bool QtMarrayOp2::concatenateIntervals()
         // concatenate the data of the intervals into one big interval
         greatDomain = r_Minterval(greatDimension);
         for (const auto &interval: intervals)
-          greatDomain << interval;
+            greatDomain << interval;
         LTRACE << "QtMarray2 combined domain: " << greatDomain;
     }
     return concatenate;
 }
-
-
 
 void QtMarrayOp2::rewriteVars()
 {
@@ -124,10 +122,10 @@ void QtMarrayOp2::rewriteVars()
     {
         // concatenate the identifier names to one big identifier name
         greatIterator = "";
-        for (auto i = iterators.begin(); i != iterators.end() ; i++)
+        for (auto i = iterators.begin(); i != iterators.end(); i++)
         {
             if (!greatIterator.empty())
-              greatIterator += "_";
+                greatIterator += "_";
             greatIterator += i->variable;
         }
         LTRACE << "concatenated iterator: " << greatIterator;
@@ -192,7 +190,7 @@ void QtMarrayOp2::traverse(QtOperation *&node)
                         index = r_Long(i.dimensionOffset);
                 if (!oldMarray)
                 {
-                    LTRACE << "marray index variable " << varNode->getIteratorName() 
+                    LTRACE << "marray index variable " << varNode->getIteratorName()
                            << " will be replaced with " << greatIterator << "[" << index << "]";
                     varNode->setIteratorName(greatIterator);
                 }
@@ -248,7 +246,7 @@ void QtMarrayOp2::traverse(QtOperation *&node)
             case QtNode::QT_OID:
             case QtNode::QT_LO:
             case QtNode::QT_HI:
-         // case QtNode::QT_DOMAIN_OPERATION:
+                // case QtNode::QT_DOMAIN_OPERATION:
             case QtNode::QT_CONVERSION:
             case QtNode::QT_SOME:
             case QtNode::QT_MINCELLS:

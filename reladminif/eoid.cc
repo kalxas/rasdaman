@@ -32,12 +32,13 @@ rasdaman GmbH.
  **********************************************************************/
 
 #include "eoid.hh"
-#include "adminif.hh"           // for AdminIf
-#include "databaseif.hh"        // for ostream, DatabaseIf
-#include "raslib/error.hh"      // for r_Error, r_Error::r_Error_Transaction...
-#include <ostream>              // for operator<<, basic_ostream, ostream
+#include "adminif.hh"       // for AdminIf
+#include "databaseif.hh"    // for ostream, DatabaseIf
+#include "raslib/error.hh"  // for r_Error, r_Error::r_Error_Transaction...
+#include <ostream>          // for operator<<, basic_ostream, ostream
 
-EOId::EOId() : OId()
+EOId::EOId()
+    : OId()
 {
     if (AdminIf::getCurrentDatabaseIf())
     {
@@ -56,7 +57,8 @@ EOId::EOId(const char *systemname, const char *dbname, OId::OIdCounter id,
 {
 }
 
-EOId::EOId(const OId &id) : OId(id)
+EOId::EOId(const OId &id)
+    : OId(id)
 {
     if (AdminIf::getCurrentDatabaseIf())
     {

@@ -64,5 +64,5 @@ TEST(UserDatabaseRightsTest, parseFromProto)
     ASSERT_EQ(writeRights, dbRights.hasWriteAccess());
 }
 
-}
-}
+}  // namespace test
+}  // namespace rasmgr

@@ -57,7 +57,7 @@ RasMgrConfig::RasMgrConfig()
     this->clientGetServerRetryTimeout = 1000;
 
     //TODO:This must be given as a parameter at runtime
-    this->rasServerExecPath = BINDIR"rasserver";
+    this->rasServerExecPath = BINDIR "rasserver";
 
     this->connectHostName = "localhost";
 }
@@ -97,4 +97,4 @@ boost::int32_t RasMgrConfig::getClientGetServerRetryTimeout()
     return this->clientGetServerRetryTimeout;
 }
 
-}
+}  // namespace rasmgr

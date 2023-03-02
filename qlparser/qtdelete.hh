@@ -89,6 +89,3 @@ private:
 #include "qlparser/qtdelete.icc"
 
 #endif
-
-
-

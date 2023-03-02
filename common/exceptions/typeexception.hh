@@ -26,19 +26,21 @@ rasdaman GmbH.
 
 #include "exception.hh"
 
-namespace common {
+namespace common
+{
 
 /**
  * @brief thrown during semantic type check phase.
  */
-class TypeException : public Exception {
- public:
-  TypeException() = default;
-  TypeException(const std::string& message) : Exception(message) {}
+class TypeException : public Exception
+{
+public:
+    TypeException() = default;
+    TypeException(const std::string &message)
+        : Exception(message) {}
 
-  ~TypeException() override = default;
+    ~TypeException() override = default;
 };
-} // namespace common
+}  // namespace common
 
 #endif
-

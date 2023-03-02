@@ -36,8 +36,8 @@ rasdaman GmbH.
 #include "dbobject.hh"  // for DBObject
 #include <logging.hh>
 
-#include <string.h>     // for strncpy, strlen
-#include <ostream>      // for operator<<, ostream, basic_ostream, char_traits
+#include <string.h>  // for strncpy, strlen
+#include <ostream>   // for operator<<, ostream, basic_ostream, char_traits
 
 // Beware: keep this value less or equal to STRING_MAXLEN in externs.h!
 #define MAXNAMELENGTH_CONST 200
@@ -51,11 +51,13 @@ void DBNamedObject::printStatus(unsigned int level, std::ostream &stream) const
     stream << " Name: " << myName;
 }
 
-DBNamedObject::DBNamedObject(const OId &id) : DBObject(id)
+DBNamedObject::DBNamedObject(const OId &id)
+    : DBObject(id)
 {
 }
 
-DBNamedObject::DBNamedObject() : DBObject(), myName(defaultName)
+DBNamedObject::DBNamedObject()
+    : DBObject(), myName(defaultName)
 {
 }
 
@@ -114,11 +116,10 @@ void DBNamedObject::setName(const short length, const char *data)
     strncpy(tmp, data, len);
     *(tmp + len) = 0;
     myName = tmp;
-    delete [] tmp;
+    delete[] tmp;
 }
 
 r_Bytes DBNamedObject::getMemorySize() const
 {
     return myName.size() + DBObject::getMemorySize() + sizeof(unsigned short);
 }
-

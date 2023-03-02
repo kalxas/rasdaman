@@ -41,17 +41,19 @@ namespace rasmgr
 namespace test
 {
 using rasmgr::User;
-using rasmgr::UserProto;
 using rasmgr::UserAdminRightsProto;
 using rasmgr::UserDatabaseRightsProto;
 using rasmgr::UserMgrProto;
+using rasmgr::UserProto;
 using rasmgr::test::TestUtil;
 
-class UserManagerTest: public ::testing::Test
+class UserManagerTest : public ::testing::Test
 {
 protected:
-    UserManagerTest(): userName("userName"), password("password")
-    {}
+    UserManagerTest()
+        : userName("userName"), password("password")
+    {
+    }
 
     UserProto createUser()
     {
@@ -59,8 +61,8 @@ protected:
         user.set_name(userName);
         user.set_password(password);
 
-        UserAdminRightsProto* adminRights = new UserAdminRightsProto();
-        UserDatabaseRightsProto* dbRights = new UserDatabaseRightsProto();
+        UserAdminRightsProto *adminRights = new UserAdminRightsProto();
+        UserDatabaseRightsProto *dbRights = new UserDatabaseRightsProto();
         dbRights->set_read(true);
         dbRights->set_write(false);
 
@@ -150,7 +152,6 @@ TEST_F(UserManagerTest, removeUserFailsWhenUserHasAlreadyBeenRemoved)
     ASSERT_ANY_THROW(userManager.removeUser(userName));
 }
 
-
 TEST_F(UserManagerTest, changeUserFailsWhenUserDoesNotExist)
 {
     UserProto newUserProp;
@@ -160,13 +161,13 @@ TEST_F(UserManagerTest, changeUserFailsWhenUserDoesNotExist)
     newUserProp.set_name(newUserName);
     newUserProp.set_password(newPassword);
 
-    UserAdminRightsProto* adminRights = new UserAdminRightsProto();
+    UserAdminRightsProto *adminRights = new UserAdminRightsProto();
     adminRights->set_access_control_rights(TestUtil::randomBool());
     adminRights->set_info_rights(TestUtil::randomBool());
     adminRights->set_server_admin_rights(TestUtil::randomBool());
     adminRights->set_system_config_rights(TestUtil::randomBool());
 
-    UserDatabaseRightsProto* dbRights = new UserDatabaseRightsProto();
+    UserDatabaseRightsProto *dbRights = new UserDatabaseRightsProto();
     dbRights->set_read(TestUtil::randomBool());
     dbRights->set_write(TestUtil::randomBool());
 
@@ -186,13 +187,13 @@ TEST_F(UserManagerTest, changeUserSucceeds)
     newUserProp.set_name(newUserName);
     newUserProp.set_password(newPassword);
 
-    UserAdminRightsProto* adminRights = new UserAdminRightsProto();
+    UserAdminRightsProto *adminRights = new UserAdminRightsProto();
     adminRights->set_access_control_rights(TestUtil::randomBool());
     adminRights->set_info_rights(TestUtil::randomBool());
     adminRights->set_server_admin_rights(TestUtil::randomBool());
     adminRights->set_system_config_rights(TestUtil::randomBool());
 
-    UserDatabaseRightsProto* dbRights = new UserDatabaseRightsProto();
+    UserDatabaseRightsProto *dbRights = new UserDatabaseRightsProto();
     dbRights->set_read(TestUtil::randomBool());
     dbRights->set_write(TestUtil::randomBool());
 
@@ -255,5 +256,5 @@ TEST_F(UserManagerTest, serializeToProto)
     ASSERT_EQ(proto.users(0).DebugString(), User::serializeToProto(*out_user).DebugString());
 }
 
-}
-}
+}  // namespace test
+}  // namespace rasmgr

@@ -22,18 +22,18 @@ rasdaman GmbH.
 */
 // This is -*- C++ -*-
 
-#include "basetype.hh"             // for BaseType
-#include "mddbasetype.hh"          // for MDDBaseType
-#include "mdddomaintype.hh"        // for MDDDomainType
-#include "mddtype.hh"              // for MDDType, MDDType::MDDBASETYPE, MDD...
-#include "raslib/mddtypes.hh"      // for r_Bytes
-#include "type.hh"                 // for Type (ptr only), ostream
-#include "relcatalogif/typefactory.hh" // for TypeFactory
+#include "basetype.hh"                  // for BaseType
+#include "mddbasetype.hh"               // for MDDBaseType
+#include "mdddomaintype.hh"             // for MDDDomainType
+#include "mddtype.hh"                   // for MDDType, MDDType::MDDBASETYPE, MDD...
+#include "raslib/mddtypes.hh"           // for r_Bytes
+#include "type.hh"                      // for Type (ptr only), ostream
+#include "relcatalogif/typefactory.hh"  // for TypeFactory
 
-#include <logging.hh>              // for Writer, CTRACE, LTRACE
-#include <cstring>                 // for strcat, strcpy, strlen
-#include <iostream>                // for operator<<, basic_ostream, char_tr...
-#include <string>                  // for string
+#include <logging.hh>  // for Writer, CTRACE, LTRACE
+#include <cstring>     // for strcat, strcpy, strlen
+#include <iostream>    // for operator<<, basic_ostream, char_tr...
+#include <string>      // for string
 
 MDDBaseType::MDDBaseType()
     : MDDType("unnamed mddbasetype")
@@ -78,7 +78,7 @@ std::string MDDBaseType::getTypeStructure() const
 {
     auto baseType = myBaseType->getTypeStructure();
     auto resultLen = 10 + baseType.size();
-    
+
     std::string ret;
     ret.reserve(resultLen);
     ret += "marray <";
@@ -92,7 +92,7 @@ std::string MDDBaseType::getNewTypeStructure() const
 {
     auto baseType = TypeFactory::getSyntaxTypeFromInternalType(myBaseType->getTypeName());
     auto resultLen = 10 + baseType.size();
-    
+
     std::string ret;
     ret.reserve(resultLen);
     ret += "marray {";

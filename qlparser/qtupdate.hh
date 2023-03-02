@@ -89,7 +89,6 @@ public:
     /// method for query rewrite
     inline virtual void setInput(QtOperation *child, QtOperation *input);
 
-
     /// type checking
     virtual void checkType();
 
@@ -128,6 +127,3 @@ private:
 #include "qlparser/qtupdate.icc"
 
 #endif
-
-
-

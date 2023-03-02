@@ -154,7 +154,6 @@ public:
     */
 
 protected:
-
     static DBObject *loadObjectByOId(const OId &id);
     /*@Doc:
     load a dbobject from db.  passes (r_Error)s from DBObject up.
@@ -359,7 +358,6 @@ protected:
     */
 
 private:
-
     /// the types have to be in fornt of* the maps because of static destructor!
     static ULongType *theULong;
     /*@Doc:
@@ -522,4 +520,3 @@ private:
      */
     static OId::OIdType clearingObjectsOfType;
 };
-

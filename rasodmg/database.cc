@@ -43,7 +43,6 @@ rasdaman GmbH.
 // At the beginning, no database is actually opened.
 r_Database *r_Database::actual_database = 0;
 
-
 r_Database::r_Database()
 {
 }
@@ -88,7 +87,7 @@ r_Database::get_type_schema(const char *typeName, type_schema typeType)
         }
         char *temp = this->communication->getTypeStructure(typeName, type);
         retval = r_Type::get_any_type(temp);
-        delete [] temp;
+        delete[] temp;
         temp = 0;
     }
     return retval;
@@ -102,8 +101,7 @@ r_Database::~r_Database()
     }
 }
 
-void
-r_Database::open(const char *database_name, access_status new_status)
+void r_Database::open(const char *database_name, access_status new_status)
 {
     if (db_status != not_open)
     {
@@ -175,7 +173,7 @@ r_Database::open(const char *database_name, access_status new_status)
         default:
             err = r_Error(r_Error::r_Error_General);
         }
-        
+
         delete communication;
         communication = 0;
         throw err;
@@ -188,8 +186,7 @@ r_Database::open(const char *database_name, access_status new_status)
     db_status = new_status;
 }
 
-void
-r_Database::close()
+void r_Database::close()
 {
     if (db_status != not_open)
     {
@@ -215,23 +212,19 @@ r_Database::close()
     }
 }
 
-void
-r_Database::create(__attribute__((unused)) const char *name)
+void r_Database::create(__attribute__((unused)) const char *name)
 {
     // this operation is not supported through this interface; use rasql
-    throw (r_Error(NO_PERMISSION_FOR_OPERATION)); // Access denied, no permission
+    throw(r_Error(NO_PERMISSION_FOR_OPERATION));  // Access denied, no permission
 }
 
-void
-r_Database::destroy(__attribute__((unused)) const char *name)
+void r_Database::destroy(__attribute__((unused)) const char *name)
 {
     // this operation is not supported through this interface; use rasql
-    throw (r_Error(NO_PERMISSION_FOR_OPERATION)); // Access denied, no permission
+    throw(r_Error(NO_PERMISSION_FOR_OPERATION));  // Access denied, no permission
 }
 
-
-void
-r_Database::set_servername(const char *name, int port)
+void r_Database::set_servername(const char *name, int port)
 {
     //We let the name of the function as it is, but it's about the rasmgr name
     if (!name)
@@ -243,8 +236,7 @@ r_Database::set_servername(const char *name, int port)
     rasmgrName = name;
     rasmgrPort = port;
 }
-void
-r_Database::set_useridentification(const char *name, const char *plain_pass)
+void r_Database::set_useridentification(const char *name, const char *plain_pass)
 {
     if (!name)
     {
@@ -257,12 +249,11 @@ r_Database::set_useridentification(const char *name, const char *plain_pass)
         throw r_Error(r_Error::r_Error_NameInvalid);
     }
 
-    userName  = name;
+    userName = name;
     plainPass = plain_pass;
 }
 
-void
-r_Database::set_object_name(r_Object &obj, const char *name)
+void r_Database::set_object_name(r_Object &obj, const char *name)
 {
     obj.set_object_name(name);
 }
@@ -285,8 +276,6 @@ r_Database::lookup_object(const char *name) const
     return communication->getCollOIdsByName(name);
 }
 
-
-
 r_Ref_Any
 r_Database::lookup_object(const r_OId &oid) const
 {
@@ -297,12 +286,11 @@ r_Database::lookup_object(const r_OId &oid) const
 
     // determine type of object and get it
     return communication->getObjectType(oid) == 1
-            ? communication->getMDDByOId(oid) : communication->getCollOIdsByOId(oid);
+               ? communication->getMDDByOId(oid)
+               : communication->getCollOIdsByOId(oid);
 }
 
-
-void
-r_Database::set_transfer_format(r_Data_Format format, const char *formatParams)
+void r_Database::set_transfer_format(r_Data_Format format, const char *formatParams)
 {
     if (db_status == not_open)
     {
@@ -325,8 +313,7 @@ r_Database::set_transfer_format(r_Data_Format format, const char *formatParams)
     }
 }
 
-void
-r_Database::set_storage_format(r_Data_Format format, const char *formatParams)
+void r_Database::set_storage_format(r_Data_Format format, const char *formatParams)
 {
     if (db_status == not_open)
     {
@@ -356,7 +343,6 @@ r_Database::get_new_oid(unsigned short objType) const
 {
     return communication->getNewOId(objType);
 }
-
 
 void r_Database::insertColl(const char *collName, const char *typeName, const r_OId &oid)
 {

@@ -20,6 +20,6 @@ const std::string COMPLEXTYPE1 = "complex";
 const std::string COMPLEXTYPE2 = "complexd";
 const std::string CINT16 = "cint16";
 const std::string CINT32 = "cint32";
-}
+}  // namespace SyntaxType
 
-#endif // SYNTAXTYPES_HH
+#endif  // SYNTAXTYPES_HH

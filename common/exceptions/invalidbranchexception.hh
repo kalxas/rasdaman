@@ -28,17 +28,18 @@ rasdaman GmbH.
 
 #include "logicexception.hh"
 
-namespace common {
+namespace common
+{
 
-class InvalidBranchException : public LogicException {
- public:
-  InvalidBranchException();
-  InvalidBranchException(const std::string &msg);
+class InvalidBranchException : public LogicException
+{
+public:
+    InvalidBranchException();
+    InvalidBranchException(const std::string &msg);
 
-  ~InvalidBranchException() override;
+    ~InvalidBranchException() override;
 };
 
 } /* namespace common */
 
 #endif
-

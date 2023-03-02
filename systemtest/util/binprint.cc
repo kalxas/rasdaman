@@ -38,15 +38,14 @@ const char cellSep = ' ';
 
 // type abbreviation -> type size in bytes
 unordered_map<string, int> typeSizes = {
-    {"b", 1}, {"c", 1}, {"o", 1}, {"s", 2}, {"us", 2}, {"l", 4}, {"ul", 4}, {"f", 4}, {"d", 8}
-};
+    {"b", 1}, {"c", 1}, {"o", 1}, {"s", 2}, {"us", 2}, {"l", 4}, {"ul", 4}, {"f", 4}, {"d", 8}};
 
 // type abbreviation -> average chars when printed
 unordered_map<string, int> typeSizesPrinted = {
-    {"b", 4}, {"c", 4}, {"o", 4}, {"s", 4}, {"us", 4}, {"l", 4}, {"ul", 4}, {"f", 18}, {"d", 18}
-};
+    {"b", 4}, {"c", 4}, {"o", 4}, {"s", 4}, {"us", 4}, {"l", 4}, {"ul", 4}, {"f", 18}, {"d", 18}};
 
-void usage() {
+void usage()
+{
     cout << "Print the array values from binary output of rasdaman.\n\n"
          << "Usage: binprint <filepath> <cellsperline> <celltype> [ <celltype> ... ]\n\n"
          << "<filepath>     - path to the binary file\n"
@@ -57,8 +56,10 @@ void usage() {
          << "                  specify more than one for multiband data)" << endl;
 }
 
-int main(int argc, char *argv[]) {
-    if (argc < 4) {
+int main(int argc, char *argv[])
+{
+    if (argc < 4)
+    {
         usage();
         return 1;
     }
@@ -67,15 +68,20 @@ int main(int argc, char *argv[]) {
     string filepath{argv[1]};
     string cellsPerLineArg{argv[2]};
     size_t cellsPerLine{0};
-    if (cellsPerLineArg != "0") {
+    if (cellsPerLineArg != "0")
+    {
         cellsPerLine = stoi(cellsPerLineArg);
     }
     vector<string> celltypes;
-    for (size_t i = 3; i < argc; ++i) {
+    for (size_t i = 3; i < argc; ++i)
+    {
         string celltype{argv[i]};
-        if (typeSizes.count(celltype) > 0) {
+        if (typeSizes.count(celltype) > 0)
+        {
             celltypes.emplace_back(celltype);
-        } else {
+        }
+        else
+        {
             cerr << "invalid cell type: " << celltype;
             usage();
             return 1;
@@ -85,7 +91,8 @@ int main(int argc, char *argv[]) {
 
     // open file
     ifstream f{filepath, ios::binary | ios::in};
-    if (!f) {
+    if (!f)
+    {
         perror(filepath.c_str());
         return 1;
     }
@@ -99,7 +106,8 @@ int main(int argc, char *argv[]) {
     size_t avgCellSize{};
     vector<size_t> bandsizes;
     size_t cellsize{};
-    for (const auto &celltype: celltypes) {
+    for (const auto &celltype: celltypes)
+    {
         auto currcellsize = typeSizes[celltype];
         avgCellSize += typeSizesPrinted[celltype];
         cellsize += currcellsize;
@@ -107,43 +115,62 @@ int main(int argc, char *argv[]) {
     }
     // double quotes + whitespace
     if (cellno > 1) avgCellSize += 3;
-    if (cellsPerLine == 0) {
-        cellsPerLine = 80/avgCellSize;
+    if (cellsPerLine == 0)
+    {
+        cellsPerLine = 80 / avgCellSize;
     }
 
     // read values
     char buffer[maxCellBytes];
     size_t currsize{};
     size_t valuecount{};
-    while (currsize < filesize) {
-
+    while (currsize < filesize)
+    {
         if (cellno > 1) cout << multibandSep;
 
-        for (size_t i = 0; i < cellno; ++i) {
+        for (size_t i = 0; i < cellno; ++i)
+        {
             if (i > 0) cout << multibandComponentSep;
 
             const auto &celltype = celltypes[i];
             f.read(buffer, bandsizes[i]);
-            if (celltype == "bool") {
-                cout << (*((bool*) buffer) ? "t" : "f");
-            } else if (celltype == "c") {
-                cout << static_cast<int>(*((unsigned char*) buffer));
-            } else if (celltype == "o") {
-                cout << static_cast<int>(*((signed char*) buffer));
-            } else if (celltype == "s") {
-                cout << *((signed short*) buffer);
-            } else if (celltype == "us") {
-                cout << *((unsigned short*) buffer);
-            } else if (celltype == "l") {
-                cout << *((signed int*) buffer);
-            } else if (celltype == "ul") {
-                cout << *((unsigned long*) buffer);
-            } else if (celltype == "f") {
+            if (celltype == "bool")
+            {
+                cout << (*((bool *)buffer) ? "t" : "f");
+            }
+            else if (celltype == "c")
+            {
+                cout << static_cast<int>(*((unsigned char *)buffer));
+            }
+            else if (celltype == "o")
+            {
+                cout << static_cast<int>(*((signed char *)buffer));
+            }
+            else if (celltype == "s")
+            {
+                cout << *((signed short *)buffer);
+            }
+            else if (celltype == "us")
+            {
+                cout << *((unsigned short *)buffer);
+            }
+            else if (celltype == "l")
+            {
+                cout << *((signed int *)buffer);
+            }
+            else if (celltype == "ul")
+            {
+                cout << *((unsigned long *)buffer);
+            }
+            else if (celltype == "f")
+            {
                 cout << std::setprecision(std::numeric_limits<float>::digits10 + 1)
-                     << *((float*) buffer);
-            } else if (celltype == "d") {
+                     << *((float *)buffer);
+            }
+            else if (celltype == "d")
+            {
                 cout << std::setprecision(std::numeric_limits<double>::digits10 + 1)
-                     << *((double*) buffer);
+                     << *((double *)buffer);
             }
         }
         currsize += cellsize;
@@ -153,10 +180,13 @@ int main(int argc, char *argv[]) {
 
         // print new line if necessary, otherwise value separator
         valuecount += celltypes.size();
-        if (valuecount >= cellsPerLine) {
+        if (valuecount >= cellsPerLine)
+        {
             valuecount = 0;
             cout << endl;
-        } else {
+        }
+        else
+        {
             cout << cellSep;
         }
     }

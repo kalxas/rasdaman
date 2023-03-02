@@ -45,8 +45,7 @@ rasdaman GmbH.
 #include "rasodmg/oqlquery.hh"
 #include "rasodmg/storagelayout.hh"
 
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     SystemBasic::usageHeader = "system_compare version 0.9\n\t\tProgram for executing queries against RasDaMan\n";
     SystemBasic::usageFooter = "Required information:\n\t\tQuery file\n";
@@ -55,14 +54,13 @@ main(int argc, char** argv)
     {
         retval = SystemQuery::doStuff(argc, argv);
     }
-    catch (r_Error& e)
+    catch (r_Error &e)
     {
         cout << "Caught Exception at top level: " << e.get_errorno() << " " << e.what() << endl;
     }
 }
 
-int
-SystemQuery::doStuff(int argc, char** argv)
+int SystemQuery::doStuff(int argc, char **argv)
 {
     installSignalHandlers();
     int retval = 0;
@@ -71,24 +69,24 @@ SystemQuery::doStuff(int argc, char** argv)
     {
         if (fileName)
         {
-            r_Storage_Layout* stl = 0;
+            r_Storage_Layout *stl = 0;
             db.set_servername(serverName);
             db.set_useridentification(userName, passwd);
             try
             {
                 db.open(baseName);
-                FILE* filePointer = checkFile(fileName, retval);
+                FILE *filePointer = checkFile(fileName, retval);
                 if (retval != 0)
                 {
                     return retval;
                 }
                 size_t dataSize = 0;
-                char* data = getData(filePointer, dataSize, retval);
+                char *data = getData(filePointer, dataSize, retval);
                 if (retval != 0)
                 {
                     return retval;
                 }
-                char* myQuery = new char[dataSize + 1];
+                char *myQuery = new char[dataSize + 1];
                 memcpy(myQuery, data, dataSize);
                 delete data;
                 data = 0;
@@ -106,19 +104,24 @@ SystemQuery::doStuff(int argc, char** argv)
                     {
                         try
                         {
-                            RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
-                                    RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
-                                    sleep(100); \
-                                    RMInit::dbgOut << "Continue now\n" << std::endl;);
+                            RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL",
+                                    RMInit::dbgOut << "Waiting 100 sec before query\n"
+                                                   << std::endl;
+                                    sleep(100);
+                                    RMInit::dbgOut << "Continue now\n"
+                                                   << std::endl;);
                             r_oql_execute(q1, &ta);
-                            RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
-                                    RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
-                                    sleep(100); \
-                                    RMInit::dbgOut << "Continue now\n" << std::endl;);
+                            RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL",
+                                    RMInit::dbgOut << "Waiting 100 sec before query\n"
+                                                   << std::endl;
+                                    sleep(100);
+                                    RMInit::dbgOut << "Continue now\n"
+                                                   << std::endl;);
                         }
-                        catch (r_Error& errorObj)
+                        catch (r_Error &errorObj)
                         {
-                            cout << "FAILED" << endl << errorObj.what() << endl;
+                            cout << "FAILED" << endl
+                                 << errorObj.what() << endl;
                             ta.abort();
                             retval = EXCEPTIONEXECUTEQUERY;
                         }
@@ -141,19 +144,24 @@ SystemQuery::doStuff(int argc, char** argv)
                     cout.flush();
                     try
                     {
-                        RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
-                                RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
-                                sleep(100); \
-                                RMInit::dbgOut << "Continue now\n" << std::endl;);
+                        RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL",
+                                RMInit::dbgOut << "Waiting 100 sec before query\n"
+                                               << std::endl;
+                                sleep(100);
+                                RMInit::dbgOut << "Continue now\n"
+                                               << std::endl;);
                         r_oql_execute(q1, result_set, &ta);
-                        RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
-                                RMInit::dbgOut << "Waiting 100 sec before query\n" << std::endl; \
-                                sleep(100); \
-                                RMInit::dbgOut << "Continue now\n" << std::endl;);
+                        RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL",
+                                RMInit::dbgOut << "Waiting 100 sec before query\n"
+                                               << std::endl;
+                                sleep(100);
+                                RMInit::dbgOut << "Continue now\n"
+                                               << std::endl;);
                     }
-                    catch (r_Error& errorObj)
+                    catch (r_Error &errorObj)
                     {
-                        cout << "FAILED" << endl << errorObj.what() << endl;
+                        cout << "FAILED" << endl
+                             << errorObj.what() << endl;
                         ta.abort();
                         retval = EXCEPTIONEXECUTEQUERY;
                     }
@@ -197,13 +205,13 @@ SystemQuery::doStuff(int argc, char** argv)
                         {
                             cout << "-- Testbed start block:" << endl;
                         }
-                        for (int i = 1 ; iter.not_done(); iter++, i++)
+                        for (int i = 1; iter.not_done(); iter++, i++)
                         {
                             switch (result_set.get_element_type_schema()->type_id())
                             {
                             case r_Type::MARRAYTYPE:
                             {
-                                const char* defExt = NULL;
+                                const char *defExt = NULL;
                                 r_Data_Format mafmt = r_Ref<r_GMarray>(*iter)->get_current_format();
                                 r_Data_Format tmpfmt = r_Data_Format_NUMBER;
                                 if (outputFormat)
@@ -247,7 +255,7 @@ SystemQuery::doStuff(int argc, char** argv)
                                     if (printText)
                                     {
                                         int numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
-                                        const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
+                                        const char *theStuff = r_Ref<r_GMarray>(*iter)->get_array();
                                         for (int cnt = 0; cnt < numCells; cnt++)
                                         {
                                             cout << theStuff[cnt];
@@ -262,17 +270,16 @@ SystemQuery::doStuff(int argc, char** argv)
                                 }
                                 else
                                 {
-
                                     if (outputFormat && mafmt != outputFormat)
                                     {
-                                        r_Base_Type* conversionType = NULL;
-                                        r_Minterval* mddDomain = NULL;
+                                        r_Base_Type *conversionType = NULL;
+                                        r_Minterval *mddDomain = NULL;
                                         if (mafmt != r_Array)
                                         {
                                             data = r_Ref<r_GMarray>(*iter)->get_array();
                                             dataSize = r_Ref<r_GMarray>(*iter)->get_array_size();
-                                            mddDomain = (r_Minterval*) & (r_Ref<r_GMarray>(*iter)->spatial_domain());
-                                            conversionType = (r_Base_Type*)r_Ref<r_GMarray>(*iter)->get_base_type_schema();
+                                            mddDomain = (r_Minterval *)&(r_Ref<r_GMarray>(*iter)->spatial_domain());
+                                            conversionType = (r_Base_Type *)r_Ref<r_GMarray>(*iter)->get_base_type_schema();
                                             //convert this from currentformat(DEF) to r_Array
                                             if (convertFrom(mafmt, data, dataSize, *mddDomain, conversionType, NULL) == 0)
                                             {
@@ -292,8 +299,8 @@ SystemQuery::doStuff(int argc, char** argv)
                                         //convert this from r_Array to outputFormat
                                         data = r_Ref<r_GMarray>(*iter)->get_array();
                                         dataSize = r_Ref<r_GMarray>(*iter)->get_array_size();
-                                        mddDomain = (r_Minterval*) & (r_Ref<r_GMarray>(*iter)->spatial_domain());
-                                        conversionType = (r_Base_Type*)r_Ref<r_GMarray>(*iter)->get_base_type_schema();
+                                        mddDomain = (r_Minterval *)&(r_Ref<r_GMarray>(*iter)->spatial_domain());
+                                        conversionType = (r_Base_Type *)r_Ref<r_GMarray>(*iter)->get_base_type_schema();
                                         if (convertTo(outputFormat, data, dataSize, *mddDomain, conversionType, outputFormatParams) == 0)
                                         {
                                             r_Ref<r_GMarray>(*iter)->set_array_size(dataSize);
@@ -314,8 +321,8 @@ SystemQuery::doStuff(int argc, char** argv)
                                     sprintf(defFileName, "%s%d.%s", outputFileName, i, defExt);
                                     cout << "Marray " << i << " will write " << r_Ref<r_GMarray>(*iter)->get_array_size() << " bytes to " << defFileName << endl;
 
-                                    FILE* tfile = fopen(defFileName, "wb");
-                                    fwrite((void*)r_Ref<r_GMarray>(*iter)->get_array(), 1, r_Ref<r_GMarray>(*iter)->get_array_size(), tfile);
+                                    FILE *tfile = fopen(defFileName, "wb");
+                                    fwrite((void *)r_Ref<r_GMarray>(*iter)->get_array(), 1, r_Ref<r_GMarray>(*iter)->get_array_size(), tfile);
                                     fclose(tfile);
                                 }
                             }
@@ -361,7 +368,7 @@ SystemQuery::doStuff(int argc, char** argv)
                 myQuery = 0;
                 db.close();
             }
-            catch (r_Error& obj)
+            catch (r_Error &obj)
             {
                 cout << "Exception (" << obj.get_errorno() << ") : " << obj.what() << endl;
                 ta.abort();
@@ -378,54 +385,54 @@ SystemQuery::doStuff(int argc, char** argv)
     return retval;
 }
 
-void SystemQuery::printScalar(const r_Scalar& scalar)
+void SystemQuery::printScalar(const r_Scalar &scalar)
 {
     switch (scalar.get_type()->type_id())
     {
     case r_Type::BOOL:
-        cout << (((r_Primitive*)&scalar)->get_boolean() ? "T" : "F") << flush;
+        cout << (((r_Primitive *)&scalar)->get_boolean() ? "T" : "F") << flush;
         break;
 
     case r_Type::CHAR:
-        cout << (int)((r_Primitive*)&scalar)->get_char() << flush;
+        cout << (int)((r_Primitive *)&scalar)->get_char() << flush;
         break;
 
     case r_Type::OCTET:
-        cout << (int)((r_Primitive*)&scalar)->get_octet() << flush;
+        cout << (int)((r_Primitive *)&scalar)->get_octet() << flush;
         break;
 
     case r_Type::SHORT:
-        cout << ((r_Primitive*)&scalar)->get_short() << flush;
+        cout << ((r_Primitive *)&scalar)->get_short() << flush;
         break;
 
     case r_Type::USHORT:
-        cout << ((r_Primitive*)&scalar)->get_ushort() << flush;
+        cout << ((r_Primitive *)&scalar)->get_ushort() << flush;
         break;
 
     case r_Type::LONG:
-        cout << ((r_Primitive*)&scalar)->get_long() << flush;
+        cout << ((r_Primitive *)&scalar)->get_long() << flush;
         break;
 
     case r_Type::ULONG:
-        cout << ((r_Primitive*)&scalar)->get_ulong() << flush;
+        cout << ((r_Primitive *)&scalar)->get_ulong() << flush;
         break;
 
     case r_Type::FLOAT:
-        cout << ((r_Primitive*)&scalar)->get_float() << flush;
+        cout << ((r_Primitive *)&scalar)->get_float() << flush;
         break;
 
     case r_Type::DOUBLE:
-        cout << ((r_Primitive*)&scalar)->get_double() << flush;
+        cout << ((r_Primitive *)&scalar)->get_double() << flush;
         break;
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        cout << "(" << ((r_Complex*)&scalar)->get_re() << ", " << ((r_Complex*)&scalar)->get_im() << ")" << flush;
+        cout << "(" << ((r_Complex *)&scalar)->get_re() << ", " << ((r_Complex *)&scalar)->get_im() << ")" << flush;
         break;
 
     case r_Type::STRUCTURETYPE:
     {
-        r_Structure* structValue = (r_Structure*)&scalar;
+        r_Structure *structValue = (r_Structure *)&scalar;
 
         cout << "{ " << flush;
 

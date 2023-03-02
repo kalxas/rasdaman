@@ -43,7 +43,6 @@ rasdaman GmbH.
 #include "rasodmg/ref.hh"
 #include "clientcomm/clientcomm.hh"
 
-
 int main()
 {
     try
@@ -59,7 +58,7 @@ int main()
         cout << "OK" << endl;
 
         cout << "Getting type structure RGBImage ..." << flush;
-        char* ts = a.getTypeStructure("RGBImage", ClientComm::r_MDDType_Type);
+        char *ts = a.getTypeStructure("RGBImage", ClientComm::r_MDDType_Type);
         cout << "OK" << endl;
 
         cout << "Type Structure " << ts << endl;

@@ -42,9 +42,9 @@ class RasmgrComm;
 class RasnetServer
 {
 public:
-    RasnetServer(std::uint32_t listenPort1, const char* rasmgrHost1, 
-                 std::uint32_t rasmgrPort1, const char* serverId1);
-    
+    RasnetServer(std::uint32_t listenPort1, const char *rasmgrHost1,
+                 std::uint32_t rasmgrPort1, const char *serverId1);
+
     void startRasnetServer();
 
 private:
@@ -60,5 +60,5 @@ private:
     std::shared_ptr<RasmgrComm> rasmgrComm;
     std::shared_ptr<common::HealthServiceImpl> healthServiceImpl;
 };
-}
-#endif // RASSERVER_X_SRC_RASNETSERVER_HH
+}  // namespace rasserver
+#endif  // RASSERVER_X_SRC_RASNETSERVER_HH

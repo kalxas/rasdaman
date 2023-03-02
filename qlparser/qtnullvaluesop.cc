@@ -37,11 +37,10 @@ rasdaman GmbH.
 
 using namespace std;
 
-
 const QtNode::QtNodeType QtNullvaluesOp::nodeType = QT_NULLVALUESOP;
 
 QtNullvaluesOp::QtNullvaluesOp(QtNullvaluesList *opList)
-    :  QtNaryOperation(), nullvalueIntervals{opList}
+    : QtNaryOperation(), nullvalueIntervals{opList}
 {
 }
 
@@ -80,7 +79,6 @@ QtNullvaluesOp::getDoubleValue(const QtScalarData *data)
     }
 }
 
-
 QtData *
 QtNullvaluesOp::evaluate(QtDataList *)
 {
@@ -103,26 +101,19 @@ QtNullvaluesOp::evaluate(QtDataList *)
     return returnValue;
 }
 
-
-void
-QtNullvaluesOp::printTree(int tab, ostream &s, QtChildType mode)
+void QtNullvaluesOp::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtNullvaluesOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtNaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtNullvaluesOp::printAlgebraicExpression(ostream &s)
+void QtNullvaluesOp::printAlgebraicExpression(ostream &s)
 {
     s << "NULL VALUES [";
     QtNaryOperation::printAlgebraicExpression(s);
     s << "]";
 }
-
-
 
 const QtTypeElement &
 QtNullvaluesOp::checkType(QtTypeTuple *)
@@ -131,16 +122,14 @@ QtNullvaluesOp::checkType(QtTypeTuple *)
     return dataStreamType;
 }
 
-
 // -----------------------------------------------------------------------------
 // QtAddNullvalues
 // -----------------------------------------------------------------------------
 
-
 const QtNode::QtNodeType QtAddNullvalues::nodeType = QT_NULLVALUESOP;
 
 QtAddNullvalues::QtAddNullvalues(QtOperation *input, QtNullvaluesOp *nullvaluesOp)
-    :  QtBinaryOperation(input, nullvaluesOp)
+    : QtBinaryOperation(input, nullvaluesOp)
 {
 }
 
@@ -167,9 +156,7 @@ QtAddNullvalues::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-void
-QtAddNullvalues::printTree(int tab, ostream &s, QtChildType mode)
+void QtAddNullvalues::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtAddNullvalues Object "
       << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
@@ -177,10 +164,7 @@ QtAddNullvalues::printTree(int tab, ostream &s, QtChildType mode)
     QtBinaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtAddNullvalues::printAlgebraicExpression(ostream &s)
+void QtAddNullvalues::printAlgebraicExpression(ostream &s)
 {
     s << "(";
     if (input1)
@@ -202,8 +186,6 @@ QtAddNullvalues::printAlgebraicExpression(ostream &s)
     }
     s << ")";
 }
-
-
 
 const QtTypeElement &
 QtAddNullvalues::checkType(QtTypeTuple *typeTuple)

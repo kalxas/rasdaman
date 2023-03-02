@@ -54,15 +54,15 @@ public:
     /// this class represents an MDD in HTTP transfer encoding
     struct MDDEncoding
     {
-        int      objectType{0};
-        char    *objectTypeName{NULL};
-        char    *typeStructure{NULL};
+        int objectType{0};
+        char *objectTypeName{NULL};
+        char *typeStructure{NULL};
         unsigned long typeLength{0};
-        char    *domain{NULL};
-        char    *tileSize{NULL};
-        char    *oidString{NULL};
+        char *domain{NULL};
+        char *tileSize{NULL};
+        char *oidString{NULL};
         unsigned long dataSize{0};
-        char    *binData{NULL};
+        char *binData{NULL};
 
         MDDEncoding() = default;
         ~MDDEncoding();
@@ -82,12 +82,12 @@ public:
 
     /// print server status to \c s
     void printServerStatus() override;
-    
+
     /// provided for temporary compatibility with the encoding of the java interface
     /// resultBuffer will be allocated and it's address stored in the given pointer
     /// result is the length of the result
-    long processRequest(unsigned long callingClientId, 
-                        const char* httpParams, int httpParamsLen, char*& resultBuffer);
+    long processRequest(unsigned long callingClientId,
+                        const char *httpParams, int httpParamsLen, char *&resultBuffer);
 
     /// Executes a retrieval query and prepare the result for HTTP transer.
     virtual long processRequest(unsigned long callingClientId, char *baseName,
@@ -113,7 +113,6 @@ public:
     */
 
 private:
-
     long encodeResult(unsigned short execResult, unsigned long callingClientId,
                       char *&result, ExecuteQueryRes &resultError);
 
@@ -123,7 +122,7 @@ private:
 
     long encodeEmpty(char *&result);
 
-    long encodeError(char *&result, const r_ULong  errorNo,
+    long encodeError(char *&result, const r_ULong errorNo,
                      const r_ULong lineNo, const r_ULong columnNo, const char *text);
 
     size_t getHeaderSize(const char *collType) const;
@@ -149,7 +148,6 @@ private:
                              std::vector<HttpServer::MDDEncoding *> &transferredMDDs, bool isPersistent);
 
     long encodeInsertError(char *&result, unsigned short execResult, std::vector<HttpServer::MDDEncoding *> &transferredMDDs);
-
 
     static std::vector<MDDEncoding *> getMDDs(int binDataSize, char *binData, int endianess);
     static int encodeAckn(char *&result, int ackCode);

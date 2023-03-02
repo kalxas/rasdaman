@@ -80,7 +80,7 @@ public:
      * @param requestUUID An unique identifier for the streamed result.
      */
     void cleanQueryStreamedResult(std::uint32_t requestUUID);
-    
+
     /**
      * @brief removeAllQueryStreamedResults Remove all results that must be streamed.
      * Meant to be called from commit/abort transaction, as in certain cases the
@@ -102,7 +102,7 @@ public:
      * @param streamedResult The result which will be streamed.
      */
     void addQueryStreamedResult(std::uint32_t requestUUID,
-                                const std::shared_ptr<ClientQueryStreamedResult>& streamedResult);
+                                const std::shared_ptr<ClientQueryStreamedResult> &streamedResult);
 
 private:
     /**
@@ -114,17 +114,17 @@ private:
 
     boost::shared_mutex clientMutex;
     common::Timer timeSinceLastPing; /*! a Timer that counts down from the last ping*/
-    std::uint32_t clientId; /*! Current client connected to this server */
+    std::uint32_t clientId;          /*! Current client connected to this server */
     bool clientConnected{false};
-    
+
     boost::shared_mutex requestMutex;
     std::uint32_t requestId; /*! Request id for the query result */
     bool streamingRequest{false};
     std::shared_ptr<ClientQueryStreamedResult> requestResult;
-    
-    std::unique_ptr<std::thread> evaluateClientStatusThread;/*! Thread running the evaluateClientStatus method */
-    std::mutex evaluateClientStatusMutex;/*! Mutex used to safely stop the worker thread */
-    bool isEvaluateClientStatusThreadRunning; /*! Flag used to stop the worker thread */
+
+    std::unique_ptr<std::thread> evaluateClientStatusThread;              /*! Thread running the evaluateClientStatus method */
+    std::mutex evaluateClientStatusMutex;                                 /*! Mutex used to safely stop the worker thread */
+    bool isEvaluateClientStatusThreadRunning;                             /*! Flag used to stop the worker thread */
     std::condition_variable isEvaluateClientStatusThreadRunningCondition; /*! Condition variable used to stop the worker thread */
 
     /**
@@ -134,6 +134,6 @@ private:
     void evaluateClientStatus();
 };
 
-}
+}  // namespace rasserver
 
-#endif // CLIENTMANAGER_HH
+#endif  // CLIENTMANAGER_HH

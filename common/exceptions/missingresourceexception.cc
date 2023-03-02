@@ -24,11 +24,12 @@
 
 namespace common
 {
-MissingResourceException::MissingResourceException(const std::string& whatArg)
+MissingResourceException::MissingResourceException(const std::string &whatArg)
     : RuntimeException(whatArg)
 {
 }
 
 MissingResourceException::~MissingResourceException() noexcept
-{}
+{
 }
+}  // namespace common

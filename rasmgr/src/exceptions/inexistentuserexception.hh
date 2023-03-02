@@ -34,7 +34,7 @@ namespace rasmgr
 class InexistentUserException : public common::MissingResourceException
 {
 public:
-    InexistentUserException(const std::string& userName);
+    InexistentUserException(const std::string &userName);
 
     virtual ~InexistentUserException() noexcept;
 };

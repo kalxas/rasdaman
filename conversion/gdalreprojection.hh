@@ -4,8 +4,8 @@
 #include "common/geo/resamplingalg.hh"
 #include "common/geo/geobbox.hh"
 
-#include <memory>                                    // for shared_ptr
-#include <string>                                    // for string
+#include <memory>  // for shared_ptr
+#include <string>  // for string
 
 namespace common
 {
@@ -38,7 +38,6 @@ public:
     const std::string &getCrsOut() const;
 
 private:
-
     common::TypeDesc type;
 
     common::GeoBbox in;
@@ -47,4 +46,4 @@ private:
     double errThreshold;
 };
 
-}
+}  // namespace conversion

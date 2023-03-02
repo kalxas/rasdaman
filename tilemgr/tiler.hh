@@ -27,8 +27,8 @@ rasdaman GmbH.
 #include "raslib/mddtypes.hh"   // for r_Range
 #include "raslib/minterval.hh"  // for r_Minterval
 
-#include <utility>                  // for pair
-#include <vector>                   // for vector
+#include <utility>  // for pair
+#include <vector>   // for vector
 
 class PersTile;
 class Tile;
@@ -83,7 +83,6 @@ public:
     */
 
 private:
-
     std::vector<r_Minterval> splitMinterval(const r_Minterval &sourceDomain, std::vector<RangePair> &splitDimensions);
 
     std::vector<RangePair> computeSplitDimensions(const r_Minterval &sourceDomain) const;
@@ -96,4 +95,3 @@ private:
 };
 
 #endif
-

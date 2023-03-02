@@ -34,17 +34,17 @@ namespace rasmgr
  *  It reports errors that arise because a user tries to create a peer with the same identiefier as an existing one.
  */
 
-class InPeerAlreadyExistsException: public common::LogicException
+class InPeerAlreadyExistsException : public common::LogicException
 {
 public:
     /**
      * @brief InPeerAlreadyExistsException
      * @param hostName Host name uniquely identifying the peer
      */
-    InPeerAlreadyExistsException(const std::string& hostName);
+    InPeerAlreadyExistsException(const std::string &hostName);
 
     virtual ~InPeerAlreadyExistsException() noexcept;
 };
-}
+}  // namespace rasmgr
 
-#endif // PEERALREADYEXISTSEXCEPTION_HH
+#endif  // PEERALREADYEXISTSEXCEPTION_HH

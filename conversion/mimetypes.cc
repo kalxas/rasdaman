@@ -29,12 +29,12 @@ using namespace std;
 
 std::map<std::string, std::string> r_MimeTypes::mimeTypeToFormatName = initMimeTypeToFormatNameMap();
 
-bool r_MimeTypes::isMimeType(const std::string& mimeType)
+bool r_MimeTypes::isMimeType(const std::string &mimeType)
 {
     return mimeTypeToFormatName.count(mimeType) == 1;
 }
 
-std::string r_MimeTypes::getFormatName(const std::string& mimeType)
+std::string r_MimeTypes::getFormatName(const std::string &mimeType)
 {
     if (isMimeType(mimeType))
     {
@@ -62,7 +62,7 @@ std::map<std::string, std::string> r_MimeTypes::initMimeTypeToFormatNameMap()
     ret["image/x-gtx"] = "GTX";
     ret["image/x-aaigrid"] = "AAIGrid";
     ret["image/tiff"] = "GTiff";
-    ret["tiff"] = "GTiff"; //not a mimetype, but enables us to encode queries to "tiff"
+    ret["tiff"] = "GTiff";  //not a mimetype, but enables us to encode queries to "tiff"
     ret["image/png"] = "PNG";
     ret["image/jpip-stream"] = "JPIPKAK";
     ret["image/jpeg"] = "JPEG";

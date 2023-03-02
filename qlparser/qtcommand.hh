@@ -78,7 +78,6 @@ public:
     virtual void checkType();
 
 private:
-
     static const size_t MAX_COLLECTION_NAME_LENGTH = 200;
 
     /// create a collection
@@ -122,6 +121,3 @@ private:
 #include "qlparser/qtcommand.icc"
 
 #endif
-
-
-

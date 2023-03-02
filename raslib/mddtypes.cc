@@ -86,54 +86,53 @@ const char *format_name_grib = "GRIB";
 const char *format_name_gdal = "GDAL";
 
 const char *all_data_format_names[r_Data_Format_NUMBER] =
-{
-    format_name_array,
-    format_name_tiff,
-    format_name_jpeg,
-    format_name_jp2,
-    format_name_hdf,
-    format_name_netcdf,
-    format_name_csv,
-    format_name_json,
-    format_name_png,
-    format_name_zlib,
-    format_name_auto_compression,
-    format_name_bmp,
-    format_name_rle,
-    format_name_wavelet_haar,
-    format_name_wavelet_daubechies,
-    format_name_sep_zlib,
-    format_name_sep_rle,
-    format_name_wavelet_daub6,
-    format_name_wavelet_daub8,
-    format_name_wavelet_daub10,
-    format_name_wavelet_daub12,
-    format_name_wavelet_daub14,
-    format_name_wavelet_daub16,
-    format_name_wavelet_daub18,
-    format_name_wavelet_daub20,
-    format_name_wavelet_least8,
-    format_name_wavelet_least10,
-    format_name_wavelet_least12,
-    format_name_wavelet_least14,
-    format_name_wavelet_least16,
-    format_name_wavelet_least18,
-    format_name_wavelet_least20,
-    format_name_wavelet_coiflet6,
-    format_name_wavelet_coiflet12,
-    format_name_wavelet_coiflet18,
-    format_name_wavelet_coiflet24,
-    format_name_wavelet_coiflet30,
-    format_name_wavelet_qhaar,
-    format_name_ppm,
-    format_name_dem,
-    format_name_pack_bits,
-    format_name_ecw,
-    format_name_tmc,
-    format_name_nitf,
-    format_name_grib,
-    format_name_gdal
-};
+    {
+        format_name_array,
+        format_name_tiff,
+        format_name_jpeg,
+        format_name_jp2,
+        format_name_hdf,
+        format_name_netcdf,
+        format_name_csv,
+        format_name_json,
+        format_name_png,
+        format_name_zlib,
+        format_name_auto_compression,
+        format_name_bmp,
+        format_name_rle,
+        format_name_wavelet_haar,
+        format_name_wavelet_daubechies,
+        format_name_sep_zlib,
+        format_name_sep_rle,
+        format_name_wavelet_daub6,
+        format_name_wavelet_daub8,
+        format_name_wavelet_daub10,
+        format_name_wavelet_daub12,
+        format_name_wavelet_daub14,
+        format_name_wavelet_daub16,
+        format_name_wavelet_daub18,
+        format_name_wavelet_daub20,
+        format_name_wavelet_least8,
+        format_name_wavelet_least10,
+        format_name_wavelet_least12,
+        format_name_wavelet_least14,
+        format_name_wavelet_least16,
+        format_name_wavelet_least18,
+        format_name_wavelet_least20,
+        format_name_wavelet_coiflet6,
+        format_name_wavelet_coiflet12,
+        format_name_wavelet_coiflet18,
+        format_name_wavelet_coiflet24,
+        format_name_wavelet_coiflet30,
+        format_name_wavelet_qhaar,
+        format_name_ppm,
+        format_name_dem,
+        format_name_pack_bits,
+        format_name_ecw,
+        format_name_tmc,
+        format_name_nitf,
+        format_name_grib,
+        format_name_gdal};
 
 const char *get_name_from_data_format(r_Data_Format fmt)
 {
@@ -175,10 +174,9 @@ const char *scale_function_name_subsampling = "subsampling";
 const char *scale_function_name_bitaggregation = "bitaggregation";
 
 const char *all_scale_function_names[r_Scale_Function_NUMBER] =
-{
-    scale_function_name_subsampling,
-    scale_function_name_bitaggregation
-};
+    {
+        scale_function_name_subsampling,
+        scale_function_name_bitaggregation};
 
 const char *get_name_from_scale_function(r_Scale_Function fmt)
 {
@@ -225,15 +223,14 @@ const char *index_name_tilecontainer = "tc";
 const char *index_name_regcomputed = "rc";
 
 const char *all_index_type_names[r_Index_Type_NUMBER] =
-{
-    index_name_auto,
-    index_name_directory,
-    index_name_regdirectory,
-    index_name_rplustree,
-    index_name_regrplustree,
-    index_name_tilecontainer,
-    index_name_regcomputed
-};
+    {
+        index_name_auto,
+        index_name_directory,
+        index_name_regdirectory,
+        index_name_rplustree,
+        index_name_regrplustree,
+        index_name_tilecontainer,
+        index_name_regcomputed};
 
 const char *get_name_from_index_type(r_Index_Type it)
 {
@@ -294,15 +291,14 @@ const char *tiling_name_directionaltiling = "DirectionalTiling";
 const char *tiling_name_sizetiling = "SizeTiling";
 
 const char *all_tiling_scheme_names[r_Tiling_Scheme_NUMBER] =
-{
-    tiling_name_notiling,
-    tiling_name_regulartiling,
-    tiling_name_statisticaltiling,
-    tiling_name_interesttiling,
-    tiling_name_alignedtiling,
-    tiling_name_directionaltiling,
-    tiling_name_sizetiling
-};
+    {
+        tiling_name_notiling,
+        tiling_name_regulartiling,
+        tiling_name_statisticaltiling,
+        tiling_name_interesttiling,
+        tiling_name_alignedtiling,
+        tiling_name_directionaltiling,
+        tiling_name_sizetiling};
 
 const char *get_name_from_tiling_scheme(r_Tiling_Scheme ts)
 {

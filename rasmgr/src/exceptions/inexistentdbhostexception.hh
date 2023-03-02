@@ -34,7 +34,7 @@ namespace rasmgr
 class InexistentDbHostException : public common::MissingResourceException
 {
 public:
-    InexistentDbHostException(const std::string& dbHostName);
+    InexistentDbHostException(const std::string &dbHostName);
 
     virtual ~InexistentDbHostException() noexcept;
 };

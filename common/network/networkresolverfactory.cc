@@ -34,11 +34,10 @@
 #include "ipv4resolver.hh"
 #include "ipv6resolver.hh"
 
-
 namespace common
 {
 
-std::shared_ptr<AbstractNetworkResolver> NetworkResolverFactory::getNetworkResolver(const std::string& host, std::uint32_t port)
+std::shared_ptr<AbstractNetworkResolver> NetworkResolverFactory::getNetworkResolver(const std::string &host, std::uint32_t port)
 {
     std::shared_ptr<AbstractNetworkResolver> resolver;
 
@@ -59,12 +58,12 @@ std::shared_ptr<AbstractNetworkResolver> NetworkResolverFactory::getNetworkResol
 
     if (res->ai_family == AF_INET)
     {
-        struct sockaddr_in* ipv4 = reinterpret_cast<struct sockaddr_in*>(res->ai_addr);
+        struct sockaddr_in *ipv4 = reinterpret_cast<struct sockaddr_in *>(res->ai_addr);
         resolver.reset(new IPv4Resolver(ipv4->sin_addr, port));
     }
     else if (res->ai_family == AF_INET6)
     {
-        struct sockaddr_in6* ipv6 = reinterpret_cast<struct sockaddr_in6*>(res->ai_addr);
+        struct sockaddr_in6 *ipv6 = reinterpret_cast<struct sockaddr_in6 *>(res->ai_addr);
         resolver.reset(new IPv6Resolver(ipv6->sin6_addr, port));
     }
     else
@@ -80,4 +79,4 @@ std::shared_ptr<AbstractNetworkResolver> NetworkResolverFactory::getNetworkResol
     return resolver;
 }
 
-} // namespace common
+}  // namespace common

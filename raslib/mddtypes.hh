@@ -211,7 +211,6 @@ const char *get_name_from_data_format(r_Data_Format fmt);
 */
 r_Data_Format get_data_format_from_name(const char *name);
 
-
 //@ManMemo: Module: <b>raslib</b>
 /**
   Output stream operator for objects of type <tt>const</tt> r_Data_Format.
@@ -247,7 +246,6 @@ r_Scale_Function get_scale_function_from_name(const char *name);
   Output stream operator for objects of type <tt>const</tt> r_Scale_Function.
 */
 extern std::ostream &operator<<(std::ostream &s, const r_Scale_Function &d);
-
 
 enum r_Index_Type
 {
@@ -392,12 +390,12 @@ enum r_Clustering_Scheme
 };
 extern std::ostream &operator<<(std::ostream &in, r_Clustering_Scheme type);
 
-
 /**
  * Indicate how multiband data is linearized in 1D space.
  */
-enum class r_Band_Linearization: std::int8_t {
-    /// The components of each pixel are layed out one after another, e.g. for 
+enum class r_Band_Linearization : std::int8_t
+{
+    /// The components of each pixel are layed out one after another, e.g. for
     /// 3 RGB pixels we have layout: R G B R G B R G B
     PixelInterleaved = 0,
     /// First the first band of each pixel is layed out continuously, then the
@@ -406,12 +404,11 @@ enum class r_Band_Linearization: std::int8_t {
 };
 extern std::ostream &operator<<(std::ostream &in, r_Band_Linearization type);
 
-
 /**
  * Linearization of cells from nD to 1D space. Default is column-major.
  * See https://doc.rasdaman.org/03_contributing.html#internal-array-representation
  */
-enum class r_Cell_Linearization: std::int8_t
+enum class r_Cell_Linearization : std::int8_t
 {
     /// Linearize cells of first column, then second column, and so on. In nD
     /// column = last dimension, then second last, etc.
@@ -428,9 +425,9 @@ extern std::ostream &operator<<(std::ostream &in, r_Cell_Linearization type);
 struct r_Tile_Structure
 {
     r_Tile_Structure() noexcept {}
-    r_Tile_Structure(r_Data_Format f, r_Band_Linearization b, r_Cell_Linearization c):
-      dataFormat{f}, bandLinearization{b}, cellLinearization{c} {}
-    
+    r_Tile_Structure(r_Data_Format f, r_Band_Linearization b, r_Cell_Linearization c)
+        : dataFormat{f}, bandLinearization{b}, cellLinearization{c} {}
+
     r_Data_Format dataFormat{r_Array};
     r_Band_Linearization bandLinearization{r_Band_Linearization::PixelInterleaved};
     r_Cell_Linearization cellLinearization{r_Cell_Linearization::ColumnMajor};

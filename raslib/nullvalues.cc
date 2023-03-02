@@ -37,16 +37,18 @@ double r_Nullvalues::getFirstNullValue() const
 {
     assert(!nullvalues.empty());
     // check first the non-interval null values
-    for (const auto &p : nullvalues) {
-      if (p.first == p.second)
-        return p.first;
+    for (const auto &p: nullvalues)
+    {
+        if (p.first == p.second)
+            return p.first;
     }
     // check interval null values
-    for (const auto &p : nullvalues) {
-      if (p.first != unlimitedLow)
-        return p.first;
-      if (p.second != unlimitedHigh)
-        return p.second;
+    for (const auto &p: nullvalues)
+    {
+        if (p.first != unlimitedLow)
+            return p.first;
+        if (p.second != unlimitedHigh)
+            return p.second;
     }
     // nothing found, should never happen
     assert(false && "there must be at least one non-unlimited null value");
@@ -56,9 +58,9 @@ double r_Nullvalues::getFirstNullValue() const
 std::string r_Nullvalues::toString() const
 {
     std::string ret = "[";
-    for (const auto &p : nullvalues)
+    for (const auto &p: nullvalues)
     {
-        if (ret.size() > 1) // ret == "[" at the start
+        if (ret.size() > 1)  // ret == "[" at the start
             ret += ",";
 
         // std::to_string seems to fail for nan on Ubuntu 18.04 (see #2156)

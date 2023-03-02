@@ -49,7 +49,7 @@ class r_Minterval;
 /**
   * \ingroup Catalogmgrs
   */
-class QLMarrayOp: public MarrayOp
+class QLMarrayOp : public MarrayOp
 {
 public:
     /// constructor
@@ -78,9 +78,6 @@ private:
     std::string iteratorName;
 };
 
-
-
-
 //@ManMemo: Module: {\bf catalogif}
 
 /*@Doc:
@@ -89,18 +86,18 @@ private:
 
 */
 
-class QLCondenseOp: public GenCondenseOp
+class QLCondenseOp : public GenCondenseOp
 {
 public:
     /// constructor
-    QLCondenseOp(QtOperation     *newCellExpression,
-                 QtOperation     *newCondExpression,
+    QLCondenseOp(QtOperation *newCellExpression,
+                 QtOperation *newCondExpression,
                  std::vector<QtData *> *newDataList,
-                 std::string           &newIteratorName,
-                 const BaseType        *newResType,
-                 unsigned int     newResOff,
-                 BinaryOp        *newAccuOp,
-                 char            *newInitVal = 0);
+                 std::string &newIteratorName,
+                 const BaseType *newResType,
+                 unsigned int newResOff,
+                 BinaryOp *newAccuOp,
+                 char *newInitVal = 0);
     /**
       Constructor gets cell expression pointer, cell condition expression pointer,
       data vector for bounded variables, cell type, and type offset
@@ -152,8 +149,8 @@ public:
 
     /// virtual destructor
     virtual ~QLInducedCondenseOp();
-private:
 
+private:
     /// pointer to the cell expression
     QtOperation *cellExpression{NULL};
 
@@ -162,7 +159,7 @@ private:
 
     /// pointer to data vector
     std::vector<QtData *> *dataList{NULL};
-    
+
     const BaseType *resBaseType{NULL};
 
     BinaryOp *myOp{NULL};
@@ -172,4 +169,3 @@ private:
 };
 
 #endif
-

@@ -31,9 +31,7 @@ rasdaman GmbH.
 
 RMINITGLOBALS('C')
 
-
-void
-main(unsigned int argc, const char** argv)
+void main(unsigned int argc, const char **argv)
 {
     r_Minterval indexDomain("[0:99,0:99]");
     cout << "index " << indexDomain << endl;
@@ -50,4 +48,3 @@ main(unsigned int argc, const char** argv)
     }
     cout << " i is " << i << endl;
 }
-

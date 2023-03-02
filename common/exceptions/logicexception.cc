@@ -23,9 +23,10 @@ rasdaman GmbH.
 
 #include "logicexception.hh"
 
-namespace common {
-LogicException::LogicException(const std::string& message)
+namespace common
+{
+LogicException::LogicException(const std::string &message)
     : Exception(message) {}
 
 LogicException::~LogicException() noexcept = default;
-}
+}  // namespace common

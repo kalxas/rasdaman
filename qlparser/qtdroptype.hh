@@ -62,8 +62,6 @@ private:
     };
 
     DropType dropType;
-
-
 };
 
-#endif // QTDROPTYPE_HH
+#endif  // QTDROPTYPE_HH

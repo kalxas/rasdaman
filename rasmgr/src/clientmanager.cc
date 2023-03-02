@@ -54,8 +54,8 @@ ClientManager::ClientManager(const ClientManagerConfig &c,
                              std::shared_ptr<UserManager> um,
                              std::shared_ptr<ServerManager> sm,
                              std::shared_ptr<PeerManager> pm,
-                             std::shared_ptr<CpuScheduler> cs):
-    config(c), userManager(um), serverManager(sm), peerManager(pm), cpuScheduler(cs)
+                             std::shared_ptr<CpuScheduler> cs)
+    : config(c), userManager(um), serverManager(sm), peerManager(pm), cpuScheduler(cs)
 {
     this->isCheckAssignedClientsThreadRunning = true;
     this->checkAssignedClientsThread.reset(new std::thread(&ClientManager::evaluateAssignedClients, this));
@@ -76,7 +76,7 @@ ClientManager::~ClientManager()
         }
         this->checkAssignedClientsCondition.notify_one();
         this->checkAssignedClientsThread->join();
-    
+
 #ifdef CLIENT_QUEUEING_ENABLED
         // exit checkWaitingClientsThread
         {
@@ -89,7 +89,7 @@ ClientManager::~ClientManager()
         LDEBUG << "~ClientManager() - wait for checkWaitingClientsThread to exit";
         this->checkWaitingClientsThread->join();
         LDEBUG << "~ClientManager() - wait for checkWaitingClientsThread to exit done";
-    
+
         // notify all threads waiting in openClientDbSession
         while (!this->waitingClients.empty())
         {
@@ -117,8 +117,8 @@ ClientManager::~ClientManager()
     }
 }
 
-std::uint32_t  ClientManager::connectClient(const ClientCredentials &clientCredentials, 
-                                            const std::string &rasmgrHost)
+std::uint32_t ClientManager::connectClient(const ClientCredentials &clientCredentials,
+                                           const std::string &rasmgrHost)
 {
     /**
      * 1. Check if the user is a token, if yes verify its validity.
@@ -131,22 +131,22 @@ std::uint32_t  ClientManager::connectClient(const ClientCredentials &clientCrede
 
     std::shared_ptr<User> out_user;
     bool isUserValid = false;
-        LDEBUG << "Authenticating username and password client";
-        isUserValid = this->userManager->tryGetUser(clientCredentials.getUserName(), 
-                                                    clientCredentials.getPasswordHash(),
-                                                    out_user);
+    LDEBUG << "Authenticating username and password client";
+    isUserValid = this->userManager->tryGetUser(clientCredentials.getUserName(),
+                                                clientCredentials.getPasswordHash(),
+                                                out_user);
 
     if (isUserValid)
     {
         LDEBUG << "Successfully authenticated user " << out_user->getName();
-        
+
         // Exclusive lock to make sure no conflicting UUID is generated
         // and to avoid concurrent changes to the clients list
         boost::upgrade_lock<boost::shared_mutex> sharedLock(this->clientsMutex);
         // Generate a UID for the client
         auto ret = ++nextClientId;
-        
-        auto client = std::make_shared<Client>(ret, out_user, 
+
+        auto client = std::make_shared<Client>(ret, out_user,
                                                this->config.getClientLifeTime(),
                                                rasmgrHost, cpuScheduler);
 
@@ -209,9 +209,9 @@ void ClientManager::openClientDbSession(std::uint32_t clientId,
                           "failed to successfully connect first?");
         }
     }
-    
+
 #ifdef CLIENT_QUEUEING_ENABLED
-    
+
     // check for queue overflow
     static const auto maxClientQueueSize = this->config.getMaxClientQueueSize();
     {
@@ -221,7 +221,7 @@ void ClientManager::openClientDbSession(std::uint32_t clientId,
             throw NoAvailableServerException();
         }
     }
-    
+
     std::unique_ptr<WaitingClient> wc;
     wc.reset(new WaitingClient(client, dbName));
     {
@@ -249,15 +249,15 @@ void ClientManager::openClientDbSession(std::uint32_t clientId,
         }
         LDEBUG << "openClientDbSession - unique_lock on WaitingClient->mut released " << clientId;
     }
-    
+
 #else
-    
+
     bool opened = this->tryGetFreeServer(client, dbName, out_serverSession);
     if (!opened)
     {
         throw NoAvailableServerException();
     }
-    
+
 #endif
 }
 
@@ -284,7 +284,7 @@ void ClientManager::closeClientDbSession(std::uint32_t clientId,
                 clientId, "cannot close the client connection to rasserver.");
         }
     }
-    
+
     // wake up waiting clients thread as one client has finished evaluation
     LDEBUG << "closeClientDbSession - notifyWaitingClientsThread() " << clientId;
     this->notifyWaitingClientsThread();
@@ -313,7 +313,7 @@ const ClientManagerConfig &ClientManager::getConfig()
 
 void ClientManager::evaluateAssignedClients()
 {
-    std::chrono::milliseconds timeToSleepFor(this->config.getCleanupInterval()); // 3s
+    std::chrono::milliseconds timeToSleepFor(this->config.getCleanupInterval());  // 3s
 
     std::unique_lock<std::mutex> threadLock(this->checkAssignedClientsMutex);
     while (this->isCheckAssignedClientsThreadRunning)
@@ -326,7 +326,7 @@ void ClientManager::evaluateAssignedClients()
         {
             boost::upgrade_lock<boost::shared_mutex> clientsLock(this->clientsMutex);
             LTRACE << "Evaluating assigned clients.";
-            
+
             auto it = this->clients.begin();
             while (it != this->clients.end())
             {
@@ -372,25 +372,25 @@ void ClientManager::evaluateAssignedClients()
 
 void ClientManager::evaluateWaitingClients()
 {
-    std::chrono::milliseconds timeToSleepFor(this->config.getClientLifeTime() / 2); // 15s
-  
+    std::chrono::milliseconds timeToSleepFor(this->config.getClientLifeTime() / 2);  // 15s
+
     std::unique_lock<std::mutex> threadLock(this->checkWaitingClientsMutex);
     while (this->isCheckWaitingClientsThreadRunning)
     {
         // Wait on the condition variable to be notified when it is time to
-        // check the queue of assigned clients, or until the cleanup timeout 
+        // check the queue of assigned clients, or until the cleanup timeout
         // is reached (3 seconds by default)
         LDEBUG << "evaluateWaitingClients() - wait on checkWaitingClientsCondition or 15s timeout";
         this->isCheckWaitingClientsConditionWaiting = true;
         this->checkWaitingClientsCondition.wait_for(threadLock, timeToSleepFor);
         this->isCheckWaitingClientsConditionWaiting = false;
         LDEBUG << "evaluateWaitingClients() - wait on checkWaitingClientsCondition wakeup";
-    
+
         //LDEBUG << "evaluateWaitingClients() - upgrade_lock on waitingClientsMutex";
         LDEBUG << "evaluateWaitingClients() - upgrade_lock on waitingClientsMutex";
         boost::upgrade_lock<boost::shared_mutex> sharedLock(this->waitingClientsMutex);
         LDEBUG << "evaluateWaitingClients() - upgrade_lock on waitingClientsMutex acquired " << this->waitingClients.size() << " waiting clients.";
-        
+
         bool removed = true;
         while (removed && !this->waitingClients.empty())
         {
@@ -423,7 +423,7 @@ void ClientManager::evaluateWaitingClients()
                     LDEBUG << "evaluateWaitingClients() - removing client from waiting client list as it seems to be dead " << clientId;
                     removed = true;
                 }
-                
+
                 if (removed)
                 {
                     // remove client from waiting queue
@@ -434,7 +434,7 @@ void ClientManager::evaluateWaitingClients()
                         this->waitingClients.pop();
                         LDEBUG << "evaluateWaitingClients() - upgrade_to_unique_lock on waitingClientsMutex released " << clientId;
                     }
-                  
+
                     // notify the original thread that this has been done
                     wc->assigned = true;
                     LDEBUG << "evaluateWaitingClients() - WaitingClient->cv.notify_one() " << clientId;
@@ -454,7 +454,7 @@ void ClientManager::evaluateWaitingClients()
             {
                 LERROR << "Failed evaluating status of waiting client " << clientId;
             }
-            
+
             LDEBUG << "evaluateWaitingClients() - upgrade_lock on waitingClientsMutex released: " << clientId;
         }
     }
@@ -479,23 +479,22 @@ bool ClientManager::tryGetFreeServer(const std::shared_ptr<Client> &client,
 {
     static const std::string localhost("127.0.0.1");
     static const std::string localhostName = "localhost";
-    
-#define NORMALIZE_LOCALHOST(h) \
+
+#define NORMALIZE_LOCALHOST(h)                                                    \
     if (h.empty() || common::StringUtil::equalsCaseInsensitive(h, localhostName)) \
         h = localhost;
-    
+
     auto clientHost = client->getRasmgrHost();
     NORMALIZE_LOCALHOST(clientHost)
-    
-    const char* serverType; // used only for debugging
+
+    const char *serverType;  // used only for debugging
     if (this->tryGetFreeLocalServer(client, dbName, out_serverSession))
     {
         auto serverHost = out_serverSession.serverHostName;
         NORMALIZE_LOCALHOST(serverHost)
         if (clientHost != localhost && clientHost != serverHost)
         {
-            throw common::RuntimeException("No server is configured to listen on host '"
-                + clientHost + "' in rasmgr.conf, the server -host is '" + serverHost + "'.");
+            throw common::RuntimeException("No server is configured to listen on host '" + clientHost + "' in rasmgr.conf, the server -host is '" + serverHost + "'.");
         }
         serverType = "local";
     }
@@ -505,15 +504,14 @@ bool ClientManager::tryGetFreeServer(const std::shared_ptr<Client> &client,
         ClientServerRequest request(client->getUser()->getName(),
                                     client->getUser()->getPassword(),
                                     dbName);
-  
+
         if (this->tryGetFreeRemoteServer(request, out_serverSession))
         {
             auto serverHost = out_serverSession.serverHostName;
             NORMALIZE_LOCALHOST(serverHost)
             if (clientHost != localhost && clientHost != serverHost && serverHost == "127.0.0.1")
             {
-                throw common::RuntimeException("No server is configured to listen on host '"
-                    + clientHost + "' in rasmgr.conf, the server -host is '" + serverHost + "'.");
+                throw common::RuntimeException("No server is configured to listen on host '" + clientHost + "' in rasmgr.conf, the server -host is '" + serverHost + "'.");
             }
             serverType = "remote";
         }
@@ -522,8 +520,8 @@ bool ClientManager::tryGetFreeServer(const std::shared_ptr<Client> &client,
             return false;
         }
     }
-    
-    LDEBUG << "Allocated " << serverType << " server running on " 
+
+    LDEBUG << "Allocated " << serverType << " server running on "
            << out_serverSession.serverHostName << ":" << out_serverSession.serverPort
            << " to client " << out_serverSession.clientSessionId
            << " connected to rasmgr on " << client->getRasmgrHost();
@@ -555,7 +553,7 @@ bool ClientManager::tryGetFreeLocalServer(std::shared_ptr<Client> client,
         out_serverSession.dbSessionId = dbSessionId;
         out_serverSession.serverHostName = assignedServer->getHostName();
         out_serverSession.serverPort = static_cast<std::uint32_t>(assignedServer->getPort());
-        
+
         foundServer = true;
     }
 

@@ -35,7 +35,7 @@ namespace rasmgr
  * @brief The OutPeerAlreadyExistsException class defines a type of object to be thrown as exception.
  *  It reports errors that arise because a user tries to create a peer with the same identiefier as an existing one.
  */
-class OutPeerAlreadyExistsException: public common::LogicException
+class OutPeerAlreadyExistsException : public common::LogicException
 {
 public:
     /**
@@ -43,10 +43,10 @@ public:
      * @param hostName Host name uniquely identifying the peer
      * @param port Port uniquely identifying the peer
      */
-    OutPeerAlreadyExistsException(const std::string& hostName, const std::uint32_t port);
+    OutPeerAlreadyExistsException(const std::string &hostName, const std::uint32_t port);
 
     virtual ~OutPeerAlreadyExistsException() noexcept;
 };
-}
+}  // namespace rasmgr
 
-#endif // PEERALREADYEXISTSEXCEPTION_HH
+#endif  // PEERALREADYEXISTSEXCEPTION_HH

@@ -26,18 +26,16 @@ rasdaman GmbH.
 const QtNode::QtNodeType QtONCStream::nodeType = QtNode::QT_ONC_STREAM;
 
 QtONCStream::QtONCStream()
-    :  QtNode()
+    : QtNode()
 {
 }
-
 
 QtONCStream::QtONCStream(QtNode *node)
-    :  QtNode(node)
+    : QtNode(node)
 {
 }
 
-void
-QtONCStream::setDataStreamType(const QtTypeTuple &type)
+void QtONCStream::setDataStreamType(const QtTypeTuple &type)
 {
     dataStreamType = type;
 }

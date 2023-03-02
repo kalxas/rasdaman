@@ -31,13 +31,13 @@ namespace rasmgr
  * @brief The InexistentDatabaseException class defines a type of object to be thrown as exception.
  *  It reports errors that arise because a user tried to operate on a database that does not exist.
  */
-class InexistentDatabaseException: public common::MissingResourceException
+class InexistentDatabaseException : public common::MissingResourceException
 {
 public:
-    InexistentDatabaseException(const std::string& dbName);
-    InexistentDatabaseException(const std::string& dbName, const std::string &details);
+    InexistentDatabaseException(const std::string &dbName);
+    InexistentDatabaseException(const std::string &dbName, const std::string &details);
 
     virtual ~InexistentDatabaseException() noexcept;
 };
-}
-#endif // RASMGR_X_SRC_EXCEPTIONS_INEXISTENDDATABASEEXCEPTION_HH
+}  // namespace rasmgr
+#endif  // RASMGR_X_SRC_EXCEPTIONS_INEXISTENDDATABASEEXCEPTION_HH

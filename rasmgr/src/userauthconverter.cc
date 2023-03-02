@@ -34,13 +34,13 @@
 #include "authentication.hh"
 #include "common/crypto/crypto.hh"
 
-#define RC_OK            0
-#define ERRAUTHFNOTF    -1
-#define ERRAUTHFCORR    -2
-#define ERRAUTHFWRHOST  -3
-#define ERRAUTHFVERS    -4
+#define RC_OK 0
+#define ERRAUTHFNOTF -1
+#define ERRAUTHFCORR -2
+#define ERRAUTHFWRHOST -3
+#define ERRAUTHFVERS -4
 
-#define AUTHFILEID   26012001
+#define AUTHFILEID 26012001
 #define AUTHFILEVERS 2;
 
 #define MAXBUFF 500
@@ -52,7 +52,6 @@ using google::protobuf::io::CodedInputStream;
 using google::protobuf::io::CodedOutputStream;
 using google::protobuf::io::IstreamInputStream;
 using google::protobuf::io::OstreamOutputStream;
-
 
 RandomGenerator UserAuthConverter::randomGenerator;
 
@@ -122,19 +121,19 @@ bool UserAuthConverter::tryGetOldFormatAuthData(const std::string &oldFilePath, 
     case RC_OK:
         LDEBUG << "ok";
         break;
-    case  ERRAUTHFNOTF:
+    case ERRAUTHFNOTF:
         LDEBUG << "Warning: User authorization file not found, using default user settings.";
         break;
-    case  ERRAUTHFCORR:
+    case ERRAUTHFCORR:
         LDEBUG << "Error: User authorization file is corrupt, aborting.";
         break;
-    case  ERRAUTHFWRHOST:
+    case ERRAUTHFWRHOST:
         LDEBUG << "Error: User authorization file is not for this host.";
         break;
-    case  ERRAUTHFVERS:
+    case ERRAUTHFVERS:
         LDEBUG << "Error: User authorization file is incompatible due to different encryption used - see migration documentation.";
         break;
-    default:                            // should not occur, internal enum mismatch
+    default:  // should not occur, internal enum mismatch
         LDEBUG << "Error: Internal evaluation error.";
         break;
     }
@@ -182,7 +181,6 @@ int UserAuthConverter::verifyAuthFile(std::ifstream &ifs)
     }
 
     initCrypt(header.lastUserID);
-
 
     unsigned char buff[MAXBUFF];
     long cpos = ifs.tellg();
@@ -240,7 +238,7 @@ void UserAuthConverter::crypt(void *vbuffer, int length)
     unsigned char *buff = static_cast<unsigned char *>(vbuffer);
     for (int i = 0; i < length; i++)
     {
-        buff[i] ^= randomGenerator();    //rand();
+        buff[i] ^= randomGenerator();  //rand();
     }
 }
 
@@ -278,4 +276,4 @@ UserAdminRightsProto UserAuthConverter::convertAdminRightsToProto(int adminRight
 
     return result;
 }
-}
+}  // namespace rasmgr

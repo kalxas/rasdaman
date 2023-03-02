@@ -48,21 +48,24 @@ using namespace std;
 
 RMINITGLOBALS('C')
 
-
 // test environment:
 #include "testcenter.h"
 
 #define ELLIPSIS "..."
 /// test macro for checking error condition, printing result, and aborting on error
-#define CHECK(p)  { cout << "CHECKING " << "p"; \
-        if (!(p)) \
-        {   cout << TEST_ERROR << endl; \
-            return false; \
-        } \
-        else \
-        { \
-            cout << TEST_OK << endl; \
-        } \
+#define CHECK(p)                        \
+    {                                   \
+        cout << "CHECKING "             \
+             << "p";                    \
+        if (!(p))                       \
+        {                               \
+            cout << TEST_ERROR << endl; \
+            return false;               \
+        }                               \
+        else                            \
+        {                               \
+            cout << TEST_OK << endl;    \
+        }                               \
     }
 
 /// ObjectBroker: dummy class to satisfy linker; real ObjectBroker functionality never used here.
@@ -99,12 +102,12 @@ char globalDbPasswd[255] = {0};
 /// true    if all tests succeeded
 /// false   if some test failed
 
-bool doTest(const char* dbname)
+bool doTest(const char *dbname)
 {
-    bool result = false;        // overall test result
-    DatabaseIf* db = NULL;      // our test candidate
+    bool result = false;    // overall test result
+    DatabaseIf *db = NULL;  // our test candidate
 
-    try             // capture eny eventual exception for reporting
+    try  // capture eny eventual exception for reporting
     {
         // --- (1) good scenario
 
@@ -136,7 +139,7 @@ bool doTest(const char* dbname)
         result = true;
     }
     // FIXME: what else should be caught explicitly?
-    catch (r_Error& myErr)
+    catch (r_Error &myErr)
     {
         cout << "caught r_Error exception #" << myErr.get_errorno() << ": " << myErr.what() << endl;
         result = false;
@@ -155,17 +158,16 @@ bool doTest(const char* dbname)
     return result;
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    const char* progName = argv[0]; // name of this test program
+    const char *progName = argv[0];  // name of this test program
 
-    int RManDebug2 = 5;     // debug trace settings
-    int RManModule = 1;     // dito
+    int RManDebug2 = 5;  // debug trace settings
+    int RManModule = 1;  // dito
 
-    char* dbName = DEFAULT_DBNAME;
-    int result = RC_ERROR;      // overall test exit code
-    char* resultText = NULL;    // overall test status string
+    char *dbName = DEFAULT_DBNAME;
+    int result = RC_ERROR;    // overall test exit code
+    char *resultText = NULL;  // overall test status string
 
     // --- parameter evaluation, launch msg
     if (argc == 2)
@@ -198,4 +200,3 @@ main(int argc, char* argv[])
 
     return (result);
 }
-

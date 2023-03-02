@@ -31,7 +31,7 @@ rasdaman GmbH.
 #include <string>
 using namespace std;
 
-pair< r_Point, r_Point > getBoundingBox(const vector< r_Point > &polygon)
+pair<r_Point, r_Point> getBoundingBox(const vector<r_Point> &polygon)
 {
     r_Point minPoint(polygon[0].dimension());
     r_Point maxPoint(polygon[0].dimension());
@@ -54,7 +54,7 @@ pair< r_Point, r_Point > getBoundingBox(const vector< r_Point > &polygon)
     return make_pair(minPoint, maxPoint);
 }
 
-void rasterizePolygon(vector< vector< char >> &mask, const vector< r_Point > &polygon, bool isPolygon)
+void rasterizePolygon(vector<vector<char>> &mask, const vector<r_Point> &polygon, bool isPolygon)
 {
     r_Dimension numIt = 0;
 
@@ -98,9 +98,9 @@ void rasterizePolygon(vector< vector< char >> &mask, const vector< r_Point > &po
         int dx = x2 - x1;
         int dy = abs(y2 - y1);
         int x = x1;
-        int y = y1; // start point
+        int y = y1;  // start point
         int error = dx / 2;
-        int ystep = (y1 < y2) ? 1 : -1; // step in + or - y-direction
+        int ystep = (y1 < y2) ? 1 : -1;  // step in + or - y-direction
 
         for (int i = 0; i <= dx; i++)
         {
@@ -126,7 +126,7 @@ void rasterizePolygon(vector< vector< char >> &mask, const vector< r_Point > &po
 
 //used for filling the first values of the mask which are inside the polygon
 //this algorithm searches every point adjacent to the polygon boundary and checks which points are inside, and which are outside
-void polygonInteriorFloodfill(vector< vector< char >> &mask, const vector< r_Point > &polygon)
+void polygonInteriorFloodfill(vector<vector<char>> &mask, const vector<r_Point> &polygon)
 {
     //if mask.size() = x and mask is roughly square, then floodfilling everything is O(x^2)
     //and checking isPointInsidePolygon() on the boundary is, for polygon.size() = p, O(6*p*x),
@@ -170,7 +170,7 @@ void polygonInteriorFloodfill(vector< vector< char >> &mask, const vector< r_Poi
                     {
                         floodFillFromPoint(mask, j, i + 1, 2, 0);
                     }
-                    else if (fillOutside) //else -> outside, fillOutside -> generally more optimal to fill
+                    else if (fillOutside)  //else -> outside, fillOutside -> generally more optimal to fill
                     {
                         floodFillFromPoint(mask, j, i + 1, 2, 3);
                     }
@@ -207,14 +207,13 @@ void polygonInteriorFloodfill(vector< vector< char >> &mask, const vector< r_Poi
                     {
                         floodFillFromPoint(mask, j - 1, i, 2, 3);
                     }
-
                 }
             }
         }
     }
 }
 
-void floodFillFromPoint(vector< vector< char >> &mask, size_t x, size_t y, char oldColor, char newColor)
+void floodFillFromPoint(vector<vector<char>> &mask, size_t x, size_t y, char oldColor, char newColor)
 {
     //check colours
     if (oldColor == newColor)
@@ -229,7 +228,7 @@ void floodFillFromPoint(vector< vector< char >> &mask, size_t x, size_t y, char 
     size_t x1{};
     bool spanAbove{}, spanBelow{};
 
-    std::vector< std::pair<size_t, size_t>> linesToScanfill{};
+    std::vector<std::pair<size_t, size_t>> linesToScanfill{};
     linesToScanfill.push_back(xy);
 
     while (!linesToScanfill.empty())
@@ -284,9 +283,9 @@ int orientation(const r_Point &p, const r_Point &q, const r_Point &r)
 
     if (val == 0)
     {
-        return 0;    // colinear
+        return 0;  // colinear
     }
-    return (val > 0) ? 1 : 2; // clock or counterclock wise
+    return (val > 0) ? 1 : 2;  // clock or counterclock wise
 }
 
 int orientation(const r_Point &p, const r_Point &q, const double x, const double y)
@@ -299,12 +298,12 @@ int orientation(const r_Point &p, const r_Point &q, const double x, const double
 
     if (val == 0)
     {
-        return 0;    // colinear
+        return 0;  // colinear
     }
-    return (val > 0) ? 1 : 2; // clock or counterclock wise
+    return (val > 0) ? 1 : 2;  // clock or counterclock wise
 }
 
-int orientation(const vector< double > &p, const vector< double > &q, const vector< double > &r)
+int orientation(const vector<double> &p, const vector<double> &q, const vector<double> &r)
 {
     double val = (q[1] - p[1]) * (r[0] - q[0]) -
                  (q[0] - p[0]) * (r[1] - q[1]);
@@ -314,12 +313,12 @@ int orientation(const vector< double > &p, const vector< double > &q, const vect
 
     if (val == 0)
     {
-        return 0;    // colinear
+        return 0;  // colinear
     }
-    return (val > 0) ? 1 : 2; // clock or counterclock wise
+    return (val > 0) ? 1 : 2;  // clock or counterclock wise
 }
 
-int checkPointInsidePolygon(const double x, const double y, const vector< r_Point > &polygon)
+int checkPointInsidePolygon(const double x, const double y, const vector<r_Point> &polygon)
 {
     unsigned int next;
     int count = 0;
@@ -351,7 +350,7 @@ int checkPointInsidePolygon(const double x, const double y, const vector< r_Poin
         next = (i + 1) % polygon.size();
 
         if ((y <= polygon[i][1] && y >= polygon[next][1]) ||
-                (y >= polygon[i][1] && y <= polygon[next][1]))
+            (y >= polygon[i][1] && y <= polygon[next][1]))
         {
             if (x <= polygon[i][0] && x <= polygon[next][0])
             {
@@ -400,7 +399,7 @@ int checkPointInsidePolygon(const double x, const double y, const vector< r_Poin
     return count;
 }
 
-int checkPointInsidePolygon(const r_Point &x, const vector< r_Point > &polygon)
+int checkPointInsidePolygon(const r_Point &x, const vector<r_Point> &polygon)
 {
     unsigned int next;
     int count = 0;
@@ -438,7 +437,7 @@ int checkPointInsidePolygon(const r_Point &x, const vector< r_Point > &polygon)
         }
 
         if ((x[1] <= polygon[i][1] && x[1] >= polygon[next][1]) ||
-                (x[1] >= polygon[i][1] && x[1] <= polygon[next][1]))
+            (x[1] >= polygon[i][1] && x[1] <= polygon[next][1]))
         {
             if (x[0] <= polygon[i][0] && x[0] <= polygon[next][0])
             {
@@ -487,7 +486,7 @@ int checkPointInsidePolygon(const r_Point &x, const vector< r_Point > &polygon)
     return count;
 }
 
-int checkPointInsidePolygon(const vector< double > &x, const vector< vector< double >> &polygon)
+int checkPointInsidePolygon(const vector<double> &x, const vector<vector<double>> &polygon)
 {
     unsigned int next;
     int count = 0;
@@ -522,7 +521,7 @@ int checkPointInsidePolygon(const vector< double > &x, const vector< vector< dou
             return checkPointInsidePolygon({x[0], x[1] + 0.01}, polygon);
 
         if ((x[1] <= polygon[i][1] && x[1] >= polygon[next][1]) ||
-                (x[1] >= polygon[i][1] && x[1] <= polygon[next][1]))
+            (x[1] >= polygon[i][1] && x[1] <= polygon[next][1]))
         {
             if (x[0] <= polygon[i][0] && x[0] <= polygon[next][0])
             {
@@ -572,7 +571,7 @@ int checkPointInsidePolygon(const vector< double > &x, const vector< vector< dou
     return count;
 }
 
-bool isPointInsidePolygon(const int testx, const int testy, const std::vector< r_Point > &polygon)
+bool isPointInsidePolygon(const int testx, const int testy, const std::vector<r_Point> &polygon)
 {
     /*
     Copyright (c) 1970-2003, Wm. Randolph Franklin
@@ -631,26 +630,26 @@ bool checkSegmentsIntersect(const r_Point &p1, const r_Point &q1, const r_Point 
         // the points are colinear
         // check if p2 is inside (p1,q1)
         if (p2[0] >= min(p1[0], q1[0]) && p2[0] <= max(p1[0], q1[0]) &&
-                p2[1] >= min(p1[1], q1[1]) && p2[1] <= max(p1[1], q1[1]))
+            p2[1] >= min(p1[1], q1[1]) && p2[1] <= max(p1[1], q1[1]))
         {
             return true;
         }
         // check if q2 is inside (p1,q1)
         if (q2[0] >= min(p1[0], q1[0]) && q2[0] <= max(p1[0], q1[0]) &&
-                q2[1] >= min(p1[1], q1[1]) && q2[1] <= max(p1[1], q1[1]))
+            q2[1] >= min(p1[1], q1[1]) && q2[1] <= max(p1[1], q1[1]))
         {
             return true;
         }
         // check if p1 is inside (p2,q2)
         if (p1[0] >= min(p2[0], q2[0]) && p1[0] <= max(p2[0], q2[0]) &&
-                p1[1] >= min(p2[1], q2[1]) && p1[1] <= max(p2[1], q2[1]))
+            p1[1] >= min(p2[1], q2[1]) && p1[1] <= max(p2[1], q2[1]))
         {
             return true;
         }
         return false;
     }
     if (orientation(p1, q1, p2) != orientation(p1, q1, q2) &&
-            orientation(p2, q2, p1) != orientation(p2, q2, q1))
+        orientation(p2, q2, p1) != orientation(p2, q2, q1))
     {
         return true;
     }
@@ -659,7 +658,7 @@ bool checkSegmentsIntersect(const r_Point &p1, const r_Point &q1, const r_Point 
 
 // take v1 as the left-down vertex of the square
 // and v2 as the right-up vertex of the square !!!
-void checkSquare(const r_Point &v1, const r_Point &v2, const vector< r_Point > &polygon, vector< vector< char >> &mask)
+void checkSquare(const r_Point &v1, const r_Point &v2, const vector<r_Point> &polygon, vector<vector<char>> &mask)
 {
     if (abs(v1[0] - v2[0]) <= 2 || abs(v1[1] - v2[1]) <= 2)
     {
@@ -695,7 +694,7 @@ void checkSquare(const r_Point &v1, const r_Point &v2, const vector< r_Point > &
     }
 
     if (doIntersect || (checkPointInsidePolygon(v1, polygon) % 2 == 1) ||
-            (checkPointInsidePolygon(polygon[0], {v1, r_Point(v2[0], v1[1]), v2, r_Point(v1[0], v2[1])}) % 2 == 1))
+        (checkPointInsidePolygon(polygon[0], {v1, r_Point(v2[0], v1[1]), v2, r_Point(v1[0], v2[1])}) % 2 == 1))
     {
         // split the square in four and check each square
         int midX = v1[0] + (v2[0] - v1[0]) / 2;
@@ -708,7 +707,7 @@ void checkSquare(const r_Point &v1, const r_Point &v2, const vector< r_Point > &
     }
 }
 
-vector< double > changePointTo2D(const r_Point &x, const vector< r_Point > &polygon)
+vector<double> changePointTo2D(const r_Point &x, const vector<r_Point> &polygon)
 {
     r_Point a = polygon[0];
     r_Point b = polygon[1];
@@ -754,8 +753,7 @@ vector< double > changePointTo2D(const r_Point &x, const vector< r_Point > &poly
     return result;
 }
 
-
-vector< double > changePointTo2D(const vector< double > &x, const vector< r_Point > &polygon)
+vector<double> changePointTo2D(const vector<double> &x, const vector<r_Point> &polygon)
 {
     r_Point a = polygon[0];
     r_Point b = polygon[1];
@@ -801,7 +799,7 @@ vector< double > changePointTo2D(const vector< double > &x, const vector< r_Poin
     return result;
 }
 
-vector< vector< double >> changePolygonTo2D(const vector< r_Point > &polygon)
+vector<vector<double>> changePolygonTo2D(const vector<r_Point> &polygon)
 {
     vector<vector<double>> result;
     for (unsigned int i = 0; i < polygon.size(); i++)
@@ -813,7 +811,7 @@ vector< vector< double >> changePolygonTo2D(const vector< r_Point > &polygon)
 
 // take v1 as the left-down vertex of the cube
 // and v2 as the right-up vertex of the cube !!!
-void checkCube(const r_Point &v1, const r_Point &v2, const vector< r_Point > &polygon, map< r_Point, bool, classcomp > &result)
+void checkCube(const r_Point &v1, const r_Point &v2, const vector<r_Point> &polygon, map<r_Point, bool, classcomp> &result)
 {
     //require vector to have at least 3 points
 
@@ -859,7 +857,6 @@ void checkCube(const r_Point &v1, const r_Point &v2, const vector< r_Point > &po
         nextPoint++;
     }
 
-
     vector<vector<double>> polygon2D = changePolygonTo2D(polygon);
 
     if (abs(x - a) <= 1 || abs(y - b) <= 1 || abs(z - c) <= 1)
@@ -885,12 +882,12 @@ void checkCube(const r_Point &v1, const r_Point &v2, const vector< r_Point > &po
                     else
                     {
                         // or we can check if it is at a distance smaller than 0.5 from the polygon on any of the axes
-                        if (((i * eX + j * eY + k * eZ + eD) * ((i + 0.5)*eX + j * eY + k * eZ + eD) <= 0) ||
-                                ((i * eX + j * eY + k * eZ + eD) * ((i - 0.5)*eX + j * eY + k * eZ + eD) <= 0) ||
-                                ((i * eX + j * eY + k * eZ + eD) * (i * eX + (j + 0.5)*eY + k * eZ + eD) <= 0) ||
-                                ((i * eX + j * eY + k * eZ + eD) * (i * eX + (j - 0.5)*eY + k * eZ + eD) <= 0) ||
-                                ((i * eX + j * eY + k * eZ + eD) * (i * eX + j * eY + (k + 0.5)*eZ + eD) <= 0) ||
-                                ((i * eX + j * eY + k * eZ + eD) * (i * eX + j * eY + (k - 0.5)*eZ + eD) <= 0))
+                        if (((i * eX + j * eY + k * eZ + eD) * ((i + 0.5) * eX + j * eY + k * eZ + eD) <= 0) ||
+                            ((i * eX + j * eY + k * eZ + eD) * ((i - 0.5) * eX + j * eY + k * eZ + eD) <= 0) ||
+                            ((i * eX + j * eY + k * eZ + eD) * (i * eX + (j + 0.5) * eY + k * eZ + eD) <= 0) ||
+                            ((i * eX + j * eY + k * eZ + eD) * (i * eX + (j - 0.5) * eY + k * eZ + eD) <= 0) ||
+                            ((i * eX + j * eY + k * eZ + eD) * (i * eX + j * eY + (k + 0.5) * eZ + eD) <= 0) ||
+                            ((i * eX + j * eY + k * eZ + eD) * (i * eX + j * eY + (k - 0.5) * eZ + eD) <= 0))
                         {
                             // get the equation of the line that is perpendicular on the plane and goes through (i,j,k)
                             /*
@@ -921,15 +918,14 @@ void checkCube(const r_Point &v1, const r_Point &v2, const vector< r_Point > &po
         return;
     }
 
-
     // check if all vertices of the cube are on the same side of the plane
     if (!(((a * eX + b * eY + c * eZ + eD > 0) == (x * eX + b * eY + c * eZ + eD > 0)) &&
-            ((a * eX + b * eY + c * eZ + eD > 0) == (x * eX + b * eY + z * eZ + eD > 0)) &&
-            ((a * eX + b * eY + c * eZ + eD > 0) == (a * eX + b * eY + z * eZ + eD > 0)) &&
-            ((a * eX + b * eY + c * eZ + eD > 0) == (a * eX + y * eY + c * eZ + eD > 0)) &&
-            ((a * eX + b * eY + c * eZ + eD > 0) == (x * eX + y * eY + c * eZ + eD > 0)) &&
-            ((a * eX + b * eY + c * eZ + eD > 0) == (x * eX + y * eY + z * eZ + eD > 0)) &&
-            ((a * eX + b * eY + c * eZ + eD > 0) == (a * eX + y * eY + z * eZ + eD > 0))))
+          ((a * eX + b * eY + c * eZ + eD > 0) == (x * eX + b * eY + z * eZ + eD > 0)) &&
+          ((a * eX + b * eY + c * eZ + eD > 0) == (a * eX + b * eY + z * eZ + eD > 0)) &&
+          ((a * eX + b * eY + c * eZ + eD > 0) == (a * eX + y * eY + c * eZ + eD > 0)) &&
+          ((a * eX + b * eY + c * eZ + eD > 0) == (x * eX + y * eY + c * eZ + eD > 0)) &&
+          ((a * eX + b * eY + c * eZ + eD > 0) == (x * eX + y * eY + z * eZ + eD > 0)) &&
+          ((a * eX + b * eY + c * eZ + eD > 0) == (a * eX + y * eY + z * eZ + eD > 0))))
     {
         int midX = a + (x - a) / 2;
         int midY = b + (y - b) / 2;
@@ -949,9 +945,9 @@ void checkCube(const r_Point &v1, const r_Point &v2, const vector< r_Point > &po
 
     // check if any of the vertices is inside the plane
     if ((a * eX + b * eY + c * eZ + eD == 0) || (x * eX + b * eY + c * eZ + eD == 0) ||
-            (x * eX + b * eY + z * eZ + eD == 0) || (a * eX + b * eY + z * eZ + eD == 0) ||
-            (a * eX + y * eY + c * eZ + eD == 0) || (x * eX + y * eY + c * eZ + eD == 0) ||
-            (x * eX + y * eY + z * eZ + eD == 0) || (a * eX + y * eY + z * eZ + eD == 0))
+        (x * eX + b * eY + z * eZ + eD == 0) || (a * eX + b * eY + z * eZ + eD == 0) ||
+        (a * eX + y * eY + c * eZ + eD == 0) || (x * eX + y * eY + c * eZ + eD == 0) ||
+        (x * eX + y * eY + z * eZ + eD == 0) || (a * eX + y * eY + z * eZ + eD == 0))
     {
         int midX = a + (x - a) / 2;
         int midY = b + (y - b) / 2;

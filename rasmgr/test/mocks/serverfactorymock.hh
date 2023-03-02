@@ -8,13 +8,12 @@ namespace rasmgr
 {
 namespace test
 {
-class ServerFactoryMock: public rasmgr::ServerFactory
+class ServerFactoryMock : public rasmgr::ServerFactory
 {
 public:
-
-    MOCK_METHOD1(createServer, std::shared_ptr<rasmgr::Server>(const ServerConfig&));
+    MOCK_METHOD1(createServer, std::shared_ptr<rasmgr::Server>(const ServerConfig &));
 };
-}
-}
+}  // namespace test
+}  // namespace rasmgr
 
-#endif // RASMGR_X_TEST_MOCKS_SERVERFACTORYMOCK_HH
+#endif  // RASMGR_X_TEST_MOCKS_SERVERFACTORYMOCK_HH

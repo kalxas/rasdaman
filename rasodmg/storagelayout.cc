@@ -41,7 +41,7 @@ rasdaman GmbH.
 #include <logging.hh>
 
 r_Storage_Layout::r_Storage_Layout(r_Data_Format init_format, const char *formatParams)
-    :   storage_format(init_format)
+    : storage_format(init_format)
 {
     til = new r_Size_Tiling();
     if (formatParams != NULL)
@@ -49,7 +49,7 @@ r_Storage_Layout::r_Storage_Layout(r_Data_Format init_format, const char *format
 }
 
 r_Storage_Layout::r_Storage_Layout(r_Tiling *ts, r_Data_Format init_format, const char *formatParams)
-    :   til(ts), storage_format(init_format)
+    : til(ts), storage_format(init_format)
 {
     if (til == NULL)
         til = new r_Size_Tiling();
@@ -58,9 +58,9 @@ r_Storage_Layout::r_Storage_Layout(r_Tiling *ts, r_Data_Format init_format, cons
 }
 
 r_Storage_Layout::r_Storage_Layout(const r_Storage_Layout &sl)
-    :   til(sl.get_tiling()->clone()),
-        storage_format(sl.get_storage_format()),
-        storage_params(sl.storage_params)
+    : til(sl.get_tiling()->clone()),
+      storage_format(sl.get_storage_format()),
+      storage_params(sl.storage_params)
 {
 }
 
@@ -119,15 +119,13 @@ r_Storage_Layout::decomposeMDD(const r_Minterval &domain, const r_Bytes cell_siz
     return til->compute_tiles(domain, cell_size);
 }
 
-void
-r_Storage_Layout::print_status(std::ostream &os) const
+void r_Storage_Layout::print_status(std::ostream &os) const
 {
-    os << "r_Storage_Layout[ tiling = " << *til << " storage format = " << storage_format 
+    os << "r_Storage_Layout[ tiling = " << *til << " storage format = " << storage_format
        << " storage parameters = " << (!storage_params.empty() ? storage_params : "none defined") << " ]";
 }
 
-bool
-r_Storage_Layout::is_compatible(const r_Minterval &obj_domain, r_Bytes cellTypeSize) const
+bool r_Storage_Layout::is_compatible(const r_Minterval &obj_domain, r_Bytes cellTypeSize) const
 {
     return til->is_compatible(obj_domain, cellTypeSize);
 }
@@ -138,4 +136,3 @@ operator<<(std::ostream &s, const r_Storage_Layout &sl)
     sl.print_status(s);
     return s;
 }
-

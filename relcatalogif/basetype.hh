@@ -37,7 +37,7 @@ rasdaman GmbH.
 #ifndef _BASETYPE_HH_
 #define _BASETYPE_HH_
 
-#include <iosfwd>               // for ostream
+#include <iosfwd>  // for ostream
 
 #include "raslib/odmgtypes.hh"  // for r_Long, r_ULong
 #include "type.hh"              // for Type, ostream
@@ -68,7 +68,6 @@ are also used in subclasses of \Ref{MDDObject}.
 class BaseType : public Type
 {
 public:
-
     BaseType();
     /*@Doc:
     default constructor, cannot be used.

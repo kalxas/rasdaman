@@ -38,7 +38,6 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
-
 #include "stgmddconfig.hh"
 
 using namespace std;

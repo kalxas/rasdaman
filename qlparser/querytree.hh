@@ -41,7 +41,6 @@ class MDDObj;
 class QtONCStream;
 class QtDomainOperation;
 
-
 /*************************************************************
  *
  *
@@ -74,10 +73,9 @@ QtNode. It consists of the entry point and methods working on the whole tree
 
 */
 
-class QueryTree: public el::Loggable
+class QueryTree : public el::Loggable
 {
 public:
-
     /// indicate the type of information requested in a SELECT query
     enum QtInfoType
     {
@@ -226,7 +224,7 @@ private:
     */
 
     /// list of unlinked lists
-    std::list<std::vector<QtONCStream *>*> vectorList;
+    std::list<std::vector<QtONCStream *> *> vectorList;
     /**
       This list is used to store elements of type \Ref{vector<QtONCStream*>} generated
       in the parse process and not linked to the result tree yet. In case of an error
@@ -234,7 +232,7 @@ private:
     */
 
     /// list of domain operations relevant to variables in an MArray.
-    std::list<QtDomainOperation *> dopList; // contains basically QtDomainOperation (everything else is evil :-) )
+    std::list<QtDomainOperation *> dopList;  // contains basically QtDomainOperation (everything else is evil :-) )
     /**
       This list is used to store elements of type \Ref{QtDomainOperation *} generated
       in the parse process for the purpose of a tree rewrite. In case of an error
@@ -250,10 +248,8 @@ private:
 
     /// indicates if we want some information, like in SELECT VERSION()
     QtInfoType infoType;
-
 };
 
 #include "querytree.icc"
 
 #endif
-

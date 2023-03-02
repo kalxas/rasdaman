@@ -88,7 +88,6 @@ TEST(DatabaseTest, isBusyReturnsTrueWhenThereIsAtLeastOneSessions)
     //Add a client sessions and the state of the database should become busy
     ASSERT_NO_THROW(db.addClientSession(clientId, sessionId));
 
-
     ASSERT_TRUE(db.isBusy());
 }
 
@@ -160,5 +159,5 @@ TEST(DatabaseTest, setDbNameDbIsBusy)
     ASSERT_TRUE(db.isBusy());
     ASSERT_ANY_THROW(db.setDbName(newName));
 }
-}
-}
+}  // namespace test
+}  // namespace rasmgr

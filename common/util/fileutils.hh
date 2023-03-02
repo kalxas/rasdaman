@@ -31,20 +31,21 @@
 
 namespace common
 {
-class FileUtils {
+class FileUtils
+{
 public:
     /// Check if a file exists.
     /// @return A boolean value of whether the file exists.
-    static bool fileExists(const std::string& path);
+    static bool fileExists(const std::string &path);
     /// Check if a directory exists.
     /// @return A boolean value of whether a directory at the given path exists.
-    static bool dirExists(const std::string& path);
+    static bool dirExists(const std::string &path);
 
     /// Copies a file.
     /// @param srcFile The source file.
     /// @param destFile The destination file.
-    static void copyFile(const std::string& srcFile, const std::string& destFile);
-    
+    static void copyFile(const std::string &srcFile, const std::string &destFile);
+
     /// @return contents of file fp
     static std::string readFile(FILE *fp);
     /// @return contents of file at a given path if it exists, otherwise empty string
@@ -53,37 +54,37 @@ public:
     static std::unique_ptr<char[]> readFile(const char *filePath);
     /// @return true if filePath is readable, false otherwise
     static bool isReadable(const char *filePath);
-    
+
     /// write data to a file at filePath
     static bool writeFile(const char *filePath, const char *data, size_t size);
     static bool writeFile(const char *filePath, const std::string &data);
-    
+
     /// @return available space on the filesystem at the given path, or -1
     /// in case of error (e.g. path does not exist)
-    static long getAvailableFilesystemSpace(const char* path);
-    
+    static long getAvailableFilesystemSpace(const char *path);
+
     /// Try to create directory at path.
     /// @return true if successful, false otherwise
     static bool createDirectory(const std::string &path);
     /// Try to create directory at path, along with any parent directories as necessary.
     /// @return true if successful, false otherwise
     static bool createDirectoryRecursive(const std::string &path);
-    
+
     /// Try to remove file at path.
     /// @return true if successful, false otherwise
     static bool removeFile(const std::string &path);
     /// try to remove the directory at path;
     /// return the number of files/directories removed.
     static int removeDirRecursive(const std::string &path);
-    
+
     /// filePath must not be an empty string.
     /// @return true if the filePath is absolute, false otherwise.
     static bool isAbsolutePath(const std::string &filePath);
-    
+
     /// filePath must not be an empty string.
     /// @return true if the filePath is a GDAL subdataset, false otherwise
     static bool isGdalSubdataset(const std::string &filePath);
-    
+
     /// @return true if path is an empty directory, false otherwise.
     static bool isDirEmpty(const std::string &path);
 
@@ -92,7 +93,7 @@ public:
     /// Note: assumes that dirPath is a directory and exists on the filesystem.
     static std::vector<std::string> listFiles(const std::string &dirPath,
                                               std::string extension = "");
-    
+
     /// @return path with any leading directory removed, e.g.
     /// `/path/to/something.txt` -> `something.txt`. If the last character of
     /// path is `/` then it is first removed, and then the basename is computed.
@@ -103,33 +104,33 @@ public:
     * @param fname File name.
     * @return a string containing the
     */
-    static std::string dirnameOf(const std::string& fname);
+    static std::string dirnameOf(const std::string &fname);
 };
 
 /**
  * Iterate through the files in a directory; directories are skipped.
  */
-class FileDirIterator {
+class FileDirIterator
+{
 public:
-  explicit FileDirIterator(const std::string &dirPath);
-  ~FileDirIterator() noexcept;
-  
-  /// Open directory stream.
-  /// @return true if successful, false otherwise; inspect errno in case of false.
-  bool open();
-  
-  /// @return the next file in the directory; returns an empty string if there
-  /// are no more files.
-  std::string nextFile();
-  
-  /// @return true if the directory stream is open
-  bool isOpen() const;
+    explicit FileDirIterator(const std::string &dirPath);
+    ~FileDirIterator() noexcept;
+
+    /// Open directory stream.
+    /// @return true if successful, false otherwise; inspect errno in case of false.
+    bool open();
+
+    /// @return the next file in the directory; returns an empty string if there
+    /// are no more files.
+    std::string nextFile();
+
+    /// @return true if the directory stream is open
+    bool isOpen() const;
 
 private:
-  std::string dirPath;
-  DIR* dirStream{nullptr};
+    std::string dirPath;
+    DIR *dirStream{nullptr};
 };
 
-}
+}  // namespace common
 #endif /* FILEUTILS_HH */
-

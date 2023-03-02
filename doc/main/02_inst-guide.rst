@@ -3285,43 +3285,51 @@ but can be helpful in case of other installation methods as well.
       REPO_FILE=/etc/apt/sources.list.d/rasdaman.list
       sudo mv $REPO_FILE $REPO_FILE.disabled
       # remove rasdaman package; this won't remove any configuration/data
+      sudo service rasdaman stop
       sudo apt remove $(dpkg -l | grep rasdaman | awk '{ print $2; }')
 
-2. Upgrade to Ubuntu 20.04 with ``do-release-upgrade``
+2. Upgrade to Ubuntu 20.04: ::
+
+      # first remove this package as it breaks the upgrade
+      apt remove postgresql-10-postgis-2.4
+      # then upgrade
+      do-release-upgrade
 
 3. Migrate data to new postgres version: ::
 
       sudo apt install postgresql-12-postgis-3
 
-      # migrate data
-      sudo -u postgres -i
-      cd /tmp
       OLDVER=10
       NEWVER=12
 
-      # alt 0:
       # ideally one would run this command and be done, but it fails because the old
       # postgresql-10-postgis-2.4 gets removed during the upgrade and it is required
       # in order to do the pg_upgrade. Execute it in any case, as it may migrate
       # at least configuration files like pg_hba.conf
-      /usr/lib/postgresql/$NEWVER/bin/pg_upgrade \
+      sudo systemctl stop postgresql.service
+      sudo -u postgres /usr/lib/postgresql/$NEWVER/bin/pg_upgrade \
         --old-datadir=/var/lib/postgresql/$OLDVER/main \
         --new-datadir=/var/lib/postgresql/$NEWVER/main \
         --old-bindir=/usr/lib/postgresql/$OLDVER/bin \
         --new-bindir=/usr/lib/postgresql/$NEWVER/bin \
         --old-options "-c config_file=/etc/postgresql/$OLDVER/main/postgresql.conf" \
         --new-options "-c config_file=/etc/postgresql/$NEWVER/main/postgresql.conf"
+      sudo systemctl start postgresql.service
 
-      # if alt 0 fails, restore the backup created in step 1. with psql/pg_restore
+      # instead we have to restore the backup created in step 1. with psql/pg_restore
+      sudo -u postgres -i
 
+      #
       # alt 1: restore database with psql
       /usr/lib/postgresql/$NEWVER/bin/createdb -p 5433 petascopedb
       # enter the spring.datasource.password= from /opt/rasdaman/etc/petascope.properties
       /usr/lib/postgresql/$NEWVER/bin/createuser -s -p 5433 petauser -P
       zcat /backup/petascopedb.sql.gz | \
         /usr/lib/postgresql/$NEWVER/bin/psql -p 5433 -d petascopedb > /dev/null
+      #
       # alt 2: restore database with pg_restore
-      postgres pg_restore --file=/backup/petascopedb.sql.gz
+      pg_restore --file=/backup/petascopedb.sql.gz
+      #
 
       # swap ports in postgres config, so the new version is at 5432
       sed -i 's/port = 5432/port = 5433/' /etc/postgresql/$OLDVER/main/postgresql.conf
@@ -3337,7 +3345,7 @@ but can be helpful in case of other installation methods as well.
 
       # enable rasdaman repo with correct distribution codename
       REPO_FILE=/etc/apt/sources.list.d/rasdaman.list
-      sudo sed 's/bionic/focal/g' $REPO_FILE.disable > $REPO_FILE
+      sudo sed 's/bionic/focal/g' $REPO_FILE.disabled > $REPO_FILE
       sudo apt update
       # install rasdaman
       sudo apt install rasdaman
@@ -3377,6 +3385,7 @@ but can be helpful in case of other installation methods as well.
       REPO_FILE=/etc/apt/sources.list.d/rasdaman.list
       sudo mv $REPO_FILE $REPO_FILE.disabled
       # remove rasdaman package; this won't remove any configuration/data
+      sudo service rasdaman stop
       sudo apt remove $(dpkg -l | grep rasdaman | awk '{ print $2; }')
 
 2. Upgrade to Ubuntu 22.04 with ``do-release-upgrade``
@@ -3418,7 +3427,7 @@ but can be helpful in case of other installation methods as well.
 
       # enable rasdaman repo with correct distribution codename
       REPO_FILE=/etc/apt/sources.list.d/rasdaman.list
-      sudo sed 's/focal/jammy/g' $REPO_FILE.disable > $REPO_FILE
+      sudo sed 's/focal/jammy/g' $REPO_FILE.disabled > $REPO_FILE
       sudo apt update
       # install rasdaman
       sudo apt install rasdaman

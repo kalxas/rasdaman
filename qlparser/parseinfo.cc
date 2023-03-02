@@ -69,8 +69,6 @@ ParseInfo::ParseInfo(const char *initToken, unsigned int initLineNo, unsigned in
     }
 }
 
-
-
 ParseInfo::ParseInfo(unsigned long initErrorNo, const char *initToken, unsigned int initLineNo, unsigned initColumnNo)
     : errorNo(initErrorNo),
       lineNo(initLineNo),
@@ -96,11 +94,9 @@ ParseInfo::operator=(const ParseInfo &old)
     return *this;
 }
 
-void
-ParseInfo::printStatus(ostream &s) const
+void ParseInfo::printStatus(ostream &s) const
 {
     r_Equery_execution_failed e(errorNo,
                                 lineNo, columnNo, token.c_str());
     s << "rasdaman error " << e.get_errorno() << ": " << e.what() << endl;
 }
-

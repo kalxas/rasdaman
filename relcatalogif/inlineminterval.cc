@@ -131,4 +131,3 @@ void InlineMinterval::insertInDb(r_Range *lowerbound, r_Range *upperbound,
         }
     }
 }
-

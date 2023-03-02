@@ -83,7 +83,7 @@ rasdaman GmbH.
 
 #include "raslib/rminit.hh"
 #include "relcatalogif/typefactory.hh"
-#include "ulongtype.hh"       // from the catalogif base DBMS interface module    
+#include "ulongtype.hh"  // from the catalogif base DBMS interface module
 
 #include "mddmgr/persmddcoll.hh"
 #include "mddmgr/persmddobj.hh"
@@ -94,31 +94,31 @@ rasdaman GmbH.
 #include "databaseif.hh"
 #include "transactionif.hh"
 
-extern char* myExecArgv0 = "";
+extern char *myExecArgv0 = "";
 
 RMINITGLOBALS('C')
 
-#define    MAX 256
-ifstream  testfile;
+#define MAX 256
+ifstream testfile;
 
-void   testAccessing(char* persMDDCollName, char* search,
-                     int printTilesContents, int timeAccess,
-                     int printSizes, int printCompression);
-void intersectOption(char* search,
-                     PersMDDColl*  accessedColl,
+void testAccessing(char *persMDDCollName, char *search,
+                   int printTilesContents, int timeAccess,
+                   int printSizes, int printCompression);
+void intersectOption(char *search,
+                     PersMDDColl *accessedColl,
                      int printTilesContents,
                      int timeAccess,
                      int printSizes);
-void pointQueryOption(char* search,
-                      PersMDDColl*  accessedColl,
+void pointQueryOption(char *search,
+                      PersMDDColl *accessedColl,
                       int timeAccess,
                       int printSizes);
-void testDeleteColls(DatabaseIf* db, char* persMDDCollName,
-                     char* search, int timeAccess, int printSizes);
+void testDeleteColls(DatabaseIf *db, char *persMDDCollName,
+                     char *search, int timeAccess, int printSizes);
 
-int   checkArguments(int argc, char** argv, const char* searchText,
-                     int& optionValueIndex);
-void      printUsage();
+int checkArguments(int argc, char **argv, const char *searchText,
+                   int &optionValueIndex);
+void printUsage();
 
 /**********************************************************************
  * Function name.: int main (int argc, char** argv)
@@ -130,25 +130,24 @@ void      printUsage();
  * Description...: none
  **********************************************************************/
 
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // variables representing O2 database, test file, ta and session
-    DatabaseIf                               database;
-    TransactionIf                                  ta;
+    DatabaseIf database;
+    TransactionIf ta;
     // static char O2BenchSchemaName[] = "SMRasDaSchema";
-    static char                    O2BenchDBName[MAX];
-    char                     mc_name[MAX], search[MAX];
-    int                        printTilesContents = 0;
-    int                                timeAccess = 0;
-    int                                printSizes = 0;
-    int                          printCompression = 0;
-    int                               deleteColls = 0;
-    int                           i, optionValueIndex;
+    static char O2BenchDBName[MAX];
+    char mc_name[MAX], search[MAX];
+    int printTilesContents = 0;
+    int timeAccess = 0;
+    int printSizes = 0;
+    int printCompression = 0;
+    int deleteColls = 0;
+    int i, optionValueIndex;
 
     // don't forget to initialize before using AdminIf!
     myExecArgv0 = argv[0];
-    AdminIf* myAdmin = AdminIf::instance();
+    AdminIf *myAdmin = AdminIf::instance();
 
     // is help is needed
     if (checkArguments(argc, argv, "-h", optionValueIndex))
@@ -254,7 +253,8 @@ main(int argc, char** argv)
         ta.commit();
     }
 
-    cout << endl << "Ending O2 session..." << endl;
+    cout << endl
+         << "Ending O2 session..." << endl;
     database.close();
     testfile.close();
     delete myAdmin;
@@ -274,14 +274,16 @@ main(int argc, char** argv)
  * Description...: reads DirTilesIx's and shows contents
  **********************************************************************/
 
-void testAccessing(char* persMDDCollName, char* search,
+void testAccessing(char *persMDDCollName, char *search,
                    int printTilesContents, int timeAccess,
                    int printSizes, int printCompression)
 {
-    PersMDDObj*     accessedObj;
-    PersMDDColl*   accessedColl;
+    PersMDDObj *accessedObj;
+    PersMDDColl *accessedColl;
 
-    cout << endl << endl << "....testAccessing " << persMDDCollName << endl;
+    cout << endl
+         << endl
+         << "....testAccessing " << persMDDCollName << endl;
     try
     {
         accessedColl = new PersMDDColl(persMDDCollName);
@@ -302,32 +304,33 @@ void testAccessing(char* persMDDCollName, char* search,
     // cout << " Iterating through the collection with PersMDDCollIter " << endl;
     // MDDCollIter* objsIt = accessedColl->createIterator( );
 
-
     // the regular option of showing the contents
     if ((strstr(search, "MDDColl")) || (testfile.eof()))
     {
         cout << " Iterating through the collection with PersMDDCollIter " << endl;
-        MDDCollIter* objsIt = accessedColl->createIterator();
+        MDDCollIter *objsIt = accessedColl->createIterator();
 
-        for (int i = 1 ; objsIt->notDone(); i++, objsIt->advance())
+        for (int i = 1; objsIt->notDone(); i++, objsIt->advance())
         {
-            accessedObj = (PersMDDObj*) objsIt->getElement();
-            cout << endl << endl << "    --" << i << ". MDD object in set:" << endl;
+            accessedObj = (PersMDDObj *)objsIt->getElement();
+            cout << endl
+                 << endl
+                 << "    --" << i << ". MDD object in set:" << endl;
 
             if (printTilesContents && timeAccess)
             {
-                vector<Tile*>*  TileVector;
+                vector<Tile *> *TileVector;
 
                 // start counter
                 RMInit::dbgOut.rdbuf(cout.rdbuf());
-                RMTimer* Counter = new RMTimer("PersMDDObj", "getTiles");
+                RMTimer *Counter = new RMTimer("PersMDDObj", "getTiles");
                 TileVector = accessedObj->getTiles();
 
                 // stop counter
                 cout << "The time of accessing by ";
                 delete Counter;
 
-                vector<Tile*> ::iterator   t;
+                vector<Tile *>::iterator t;
                 for (t = TileVector->begin(); t != TileVector->end(); t++)
                 {
                     (*t)->printStatus();
@@ -340,10 +343,10 @@ void testAccessing(char* persMDDCollName, char* search,
 
             else if (printTilesContents && !timeAccess)
             {
-                vector<Tile*>*  TileVector;
+                vector<Tile *> *TileVector;
                 TileVector = accessedObj->getTiles();
 
-                vector<Tile*> ::iterator   t;
+                vector<Tile *>::iterator t;
                 for (t = TileVector->begin(); t != TileVector->end(); t++)
                 {
                     (*t)->printStatus();
@@ -358,11 +361,12 @@ void testAccessing(char* persMDDCollName, char* search,
             {
                 // start counter
                 RMInit::dbgOut.rdbuf(cout.rdbuf());
-                RMTimer* Counter = new RMTimer("PersMDDObj", "printStatus");
+                RMTimer *Counter = new RMTimer("PersMDDObj", "printStatus");
                 accessedObj->printStatus();
 
                 // stop counter
-                cout << endl << "The time of accessing by ";
+                cout << endl
+                     << "The time of accessing by ";
                 delete Counter;
             }
 
@@ -374,7 +378,8 @@ void testAccessing(char* persMDDCollName, char* search,
             if (printSizes)
             {
                 // printing the sizes of the mddobj
-                cout << endl << "The logical-size of the mddobj: " << accessedObj->getLogicalSize() << endl;
+                cout << endl
+                     << "The logical-size of the mddobj: " << accessedObj->getLogicalSize() << endl;
                 cout << "The physical-size of the mddobj: " << accessedObj->getPhysicalSize() << endl;
                 cout << "The physical-cells-size of the mddobj: " << accessedObj->getPhysicalCellsSize() << endl;
                 cout << "The index-size of the mddobj: " << accessedObj->getIxSize() << endl;
@@ -385,10 +390,10 @@ void testAccessing(char* persMDDCollName, char* search,
                 int i = 0;
                 unsigned long totalSize = 0;
 
-                vector<Tile*>*  TileVector;
+                vector<Tile *> *TileVector;
                 TileVector = accessedObj->getTiles();
 
-                vector<Tile*> ::iterator   t;
+                vector<Tile *>::iterator t;
                 for (t = TileVector->begin(); t != TileVector->end(); t++)
                 {
                     cout << ++i << ". ";
@@ -401,7 +406,6 @@ void testAccessing(char* persMDDCollName, char* search,
                     else
                     {
                         cout << "Tile not compressed! Size: " << (*t)->getSize() << endl;
-
                     }
                 }
                 TileVector->erase(TileVector->begin(), TileVector->end());
@@ -412,7 +416,7 @@ void testAccessing(char* persMDDCollName, char* search,
                     cout << "Total size of compressed tiles: " << totalSize << endl;
                 }
             }
-        } // for objsIt loop
+        }  // for objsIt loop
 
         delete objsIt;
 
@@ -433,49 +437,47 @@ void testAccessing(char* persMDDCollName, char* search,
         testfile.getline(search, MAX, ':');
     }
 
-
-
     accessedColl->releaseAll();
     delete accessedColl;
 }
 
-
-
-void
-intersectOption(char* search,
-                PersMDDColl*  accessedColl,
-                int printTilesContents,
-                int timeAccess,
-                int printSizes)
+void intersectOption(char *search,
+                     PersMDDColl *accessedColl,
+                     int printTilesContents,
+                     int timeAccess,
+                     int printSizes)
 {
-    PersMDDObj* accessedObj;
+    PersMDDObj *accessedObj;
 
     int cont = 1;
-    for (; cont == 1  ;)   // intersect loop
+    for (; cont == 1;)  // intersect loop
     {
         testfile.get(search, MAX, '[');
         testfile.getline(search, MAX, ']');
         strcat(search, "]");
 
         cout << " Iterating through the collection with PersMDDCollIter " << endl;
-        MDDCollIter* objsIt = accessedColl->createIterator();
+        MDDCollIter *objsIt = accessedColl->createIterator();
 
-        for (int i = 1 ; objsIt->notDone(); i++, objsIt->advance())
+        for (int i = 1; objsIt->notDone(); i++, objsIt->advance())
         {
-            accessedObj = (PersMDDObj*) objsIt->getElement();
-            cout << endl << endl << "    --" << i << ". MDD object in set:" << endl;
+            accessedObj = (PersMDDObj *)objsIt->getElement();
+            cout << endl
+                 << endl
+                 << "    --" << i << ". MDD object in set:" << endl;
 
-            r_Minterval  interval(search);
+            r_Minterval interval(search);
             cout << "Intersecting to " << interval << endl;
-            vector<Tile*>*      TileVector;
-            vector<Tile*> ::iterator     t;
-            RMTimer* Counter;
+            vector<Tile *> *TileVector;
+            vector<Tile *>::iterator t;
+            RMTimer *Counter;
 
             if (timeAccess)
             {
                 // start counter
                 //  RMInit::dbgOut = cout.rdbuf();
-                RMInit::bmOut << "Intersect Region " << interval << " " << "\t";
+                RMInit::bmOut << "Intersect Region " << interval << " "
+                              << "\t";
                 // Counter = new RMTimer(" PersMDDObj", "intersect");
             }
 
@@ -483,7 +485,7 @@ intersectOption(char* search,
 
             if (printTilesContents)
             {
-                int j  = 1;
+                int j = 1;
                 for (t = TileVector->begin(); t != TileVector->end(); t++, j++)
                 {
                     cout << "Tile " << j << ": " << endl;
@@ -493,7 +495,7 @@ intersectOption(char* search,
             }
             else
             {
-                int j  = 1;
+                int j = 1;
                 for (t = TileVector->begin(); t != TileVector->end(); t++, j++)
                 {
                     cout << "Tile " << j << ": " << (*t)->getDomain() << endl;
@@ -506,12 +508,13 @@ intersectOption(char* search,
             if (printSizes)
             {
                 // printing the sizes of the mddobj
-                cout << endl << "The logical-size of the mddobj: " << accessedObj->getLogicalSize() << endl;
+                cout << endl
+                     << "The logical-size of the mddobj: " << accessedObj->getLogicalSize() << endl;
                 cout << "The physical-size of the mddobj: " << accessedObj->getPhysicalSize() << endl;
                 cout << "The physical-cells-size of the mddobj: " << accessedObj->getPhysicalCellsSize() << endl;
                 cout << "The index-size of the mddobj: " << accessedObj->getIxSize() << endl;
             }
-        } // for objsIt loop
+        }  // for objsIt loop
 
         delete objsIt;
         testfile.getline(search, MAX, ':');
@@ -521,45 +524,47 @@ intersectOption(char* search,
             cont = 0;
         }
         // cout << " cont "<< cont << endl;
-    }   // for cont loop
+    }  // for cont loop
 }
 
-void
-pointQueryOption(char* search,
-                 PersMDDColl*  accessedColl,
-                 int timeAccess,
-                 int printSizes)
+void pointQueryOption(char *search,
+                      PersMDDColl *accessedColl,
+                      int timeAccess,
+                      int printSizes)
 {
-    PersMDDObj* accessedObj;
+    PersMDDObj *accessedObj;
 
     int cont = 1;
-    for (; cont == 1  ;)   // intersect loop
+    for (; cont == 1;)  // intersect loop
     {
         testfile.get(search, MAX, '[');
         testfile.getline(search, MAX, ']');
         strcat(search, "]");
 
         cout << " Iterating through the collection with PersMDDCollIter " << endl;
-        MDDCollIter* objsIt = accessedColl->createIterator();
+        MDDCollIter *objsIt = accessedColl->createIterator();
 
-        for (int i = 1 ; objsIt->notDone(); i++, objsIt->advance())
+        for (int i = 1; objsIt->notDone(); i++, objsIt->advance())
         {
-            accessedObj = (PersMDDObj*) objsIt->getElement();
-            cout << endl << endl << "    --" << i << ". MDD object in set:" << endl;
+            accessedObj = (PersMDDObj *)objsIt->getElement();
+            cout << endl
+                 << endl
+                 << "    --" << i << ". MDD object in set:" << endl;
 
-            r_Minterval  interval(search);
+            r_Minterval interval(search);
             r_Point pnt = interval.get_origin();
             cout << "Point query to " << pnt << endl;
 
-            RMTimer* Counter;
+            RMTimer *Counter;
             if (timeAccess)
             {
                 // start counter
-                RMInit::bmOut << "Intersect Region " << interval << " " << "\t";
+                RMInit::bmOut << "Intersect Region " << interval << " "
+                              << "\t";
                 // Counter = new RMTimer(" PersMDDObj", "intersect");
             }
 
-            char* result = accessedObj->pointQuery(pnt);
+            char *result = accessedObj->pointQuery(pnt);
             if (result)
             {
                 cout << "Result of point query : " << long(*result) << endl;
@@ -572,12 +577,13 @@ pointQueryOption(char* search,
             if (printSizes)
             {
                 // printing the sizes of the mddobj
-                cout << endl << "The logical-size of the mddobj: " << accessedObj->getLogicalSize() << endl;
+                cout << endl
+                     << "The logical-size of the mddobj: " << accessedObj->getLogicalSize() << endl;
                 cout << "The physical-size of the mddobj: " << accessedObj->getPhysicalSize() << endl;
                 cout << "The physical-cells-size of the mddobj: " << accessedObj->getPhysicalCellsSize() << endl;
                 cout << "The index-size of the mddobj: " << accessedObj->getIxSize() << endl;
             }
-        } // for objsIt loop
+        }  // for objsIt loop
 
         delete objsIt;
         testfile.getline(search, MAX, ':');
@@ -587,10 +593,8 @@ pointQueryOption(char* search,
             cont = 0;
         }
         // cout << " cont "<< cont << endl;
-    }   // for cont loop
+    }  // for cont loop
 }
-
-
 
 /**********************************************************************
  * Function......:
@@ -606,11 +610,11 @@ pointQueryOption(char* search,
  * Description...: reads DirTilesIx's and shows contents
  **********************************************************************/
 
-void testDeleteColls(DatabaseIf* db, char* persMDDCollName,
-                     char* search, int timeAccess, int printSizes)
+void testDeleteColls(DatabaseIf *db, char *persMDDCollName,
+                     char *search, int timeAccess, int printSizes)
 {
     // PersMDDObj*     accessedObj;
-    PersMDDColl*     accessedColl;
+    PersMDDColl *accessedColl;
 
     /*
     cout << endl << endl << "... Destroying root collection "
@@ -618,7 +622,9 @@ void testDeleteColls(DatabaseIf* db, char* persMDDCollName,
     PersMDDColl::destroyRoot( persMDDCollName, db );
     */
 
-    cout << endl << endl << "....testAccessing " << persMDDCollName << endl;
+    cout << endl
+         << endl
+         << "....testAccessing " << persMDDCollName << endl;
     try
     {
         accessedColl = new PersMDDColl(persMDDCollName);
@@ -633,10 +639,11 @@ void testDeleteColls(DatabaseIf* db, char* persMDDCollName,
     accessedColl->removeAll();
     accessedColl->releaseAll();
 
-    cout << endl << endl << "... Destroying root collection "
+    cout << endl
+         << endl
+         << "... Destroying root collection "
          << persMDDCollName << endl;
     PersMDDColl::destroyRoot(persMDDCollName, db);
-
 }
 
 /**********************************************************************
@@ -652,11 +659,11 @@ void testDeleteColls(DatabaseIf* db, char* persMDDCollName,
  * Return value..: int
  * Description...: searching an option in the accexuting line
  **********************************************************************/
-int checkArguments(int argc, char** argv, const char* searchText,
-                   int& optionValueIndex)
+int checkArguments(int argc, char **argv, const char *searchText,
+                   int &optionValueIndex)
 {
     int found = 0;
-    int     i = 1;
+    int i = 1;
 
     while (!found && i < argc)
     {
@@ -678,10 +685,10 @@ int checkArguments(int argc, char** argv, const char* searchText,
     return found;
 }
 
-
 void printUsage()
 {
-    cout << endl << "Usage: " << endl;
+    cout << endl
+         << "Usage: " << endl;
     cout << "test_access -h" << endl;
     cout << "test_access -f<file> [-t] [-p] [-s]" << endl;
     cout << "test_access -f<file> -r " << endl;
@@ -689,20 +696,9 @@ void printUsage()
     cout << "      -p          ... for printing tiles contents" << endl;
     cout << "      -t          ... for timming the access" << endl;
     cout << "      -s          ... for printing the sizes of mddobjs" << endl;
-    cout << "      -f<file>    ... for the name of the text file"  << endl;
+    cout << "      -f<file>    ... for the name of the text file" << endl;
     cout << "      -r          ... for deleting the collections listed in <file>" << endl;
     cout << "      -c          ... for printing info on compressed tiles";
-    cout << endl << endl;
-
+    cout << endl
+         << endl;
 }
-
-
-
-
-
-
-
-
-
-
-

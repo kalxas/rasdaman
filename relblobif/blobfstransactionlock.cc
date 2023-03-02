@@ -29,7 +29,7 @@ const std::string BlobFSTransactionLock::TRANSACTION_LOCK = ".transaction.lock";
 const std::string BlobFSTransactionLock::TRANSACTION_COMMIT_LOCK = ".transaction_commit.lock";
 const std::string BlobFSTransactionLock::TRANSACTION_ABORT_LOCK = ".transaction_abort.lock";
 
-BlobFSTransactionLock::BlobFSTransactionLock(const std::string &path, 
+BlobFSTransactionLock::BlobFSTransactionLock(const std::string &path,
                                              const std::string &trLocksPath,
                                              bool check)
     : transactionPath(DirWrapper::toCanonicalPath(path)),

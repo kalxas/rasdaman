@@ -82,13 +82,14 @@ QtInfo::QtInfo(QtVariable *newInput, const char *paramsStr)
                 printTiles = SVG;
             }
         }
-        else{
+        else
+        {
             LERROR << "Error: QtInfo::QtInfo() - printtiles argument is not supported.";
             throw r_Error(INFO_PRINTTILESNOTSUPPORTED);
         }
         if (printParam != NULL)
         {
-            delete [] printParam;
+            delete[] printParam;
         }
     }
     delete params;
@@ -418,7 +419,6 @@ QtInfo::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input)
     {
-
         // get input type
         const QtTypeElement &inputType = input->checkType(typeTuple);
 

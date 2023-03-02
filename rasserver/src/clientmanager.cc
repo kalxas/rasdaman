@@ -33,23 +33,23 @@ rasdaman GmbH.
 namespace rasserver
 {
 
-using std::string;
-using std::pair;
-using std::make_pair;
-using std::map;
-using std::set;
-using std::unique_lock;
-using std::shared_ptr;
-using std::thread;
-using boost::shared_mutex;
 using boost::shared_lock;
+using boost::shared_mutex;
 using common::Timer;
 using common::UUID;
+using std::make_pair;
+using std::map;
+using std::pair;
+using std::set;
+using std::shared_ptr;
+using std::string;
+using std::thread;
+using std::unique_lock;
 
-const int ClientManager::CLIENT_ALIVE_PING_TIMEOUT_MS = 30000; // 30 seconds
+const int ClientManager::CLIENT_ALIVE_PING_TIMEOUT_MS = 30000;  // 30 seconds
 
 ClientManager::ClientManager()
-  : timeSinceLastPing(CLIENT_ALIVE_PING_TIMEOUT_MS), isEvaluateClientStatusThreadRunning{true}
+    : timeSinceLastPing(CLIENT_ALIVE_PING_TIMEOUT_MS), isEvaluateClientStatusThreadRunning{true}
 {
     this->evaluateClientStatusThread.reset(new thread(&ClientManager::evaluateClientStatus, this));
 }
@@ -62,10 +62,10 @@ ClientManager::~ClientManager()
             std::lock_guard<std::mutex> lock(this->evaluateClientStatusMutex);
             this->isEvaluateClientStatusThreadRunning = false;
         }
-        this->isEvaluateClientStatusThreadRunningCondition.notify_one(); // notify thread to stop
-        this->evaluateClientStatusThread->join(); // wait for the thread to finish
+        this->isEvaluateClientStatusThreadRunningCondition.notify_one();  // notify thread to stop
+        this->evaluateClientStatusThread->join();                         // wait for the thread to finish
     }
-    catch (std::exception& ex)
+    catch (std::exception &ex)
     {
         LERROR << "Client manager destructor has failed: " << ex.what();
     }
@@ -114,7 +114,7 @@ void ClientManager::resetLiveliness(std::uint32_t clientUUID)
 }
 
 void ClientManager::addQueryStreamedResult(std::uint32_t requestUUID,
-                                           const shared_ptr<ClientQueryStreamedResult>& streamedResult)
+                                           const shared_ptr<ClientQueryStreamedResult> &streamedResult)
 {
     boost::lock_guard<boost::shared_mutex> lock(requestMutex);
     if (streamingRequest)
@@ -176,7 +176,7 @@ void ClientManager::evaluateClientStatus()
             // Wait on the condition variable to be notified from the
             // destructor when it is time to stop the worker thread
             if (this->isEvaluateClientStatusThreadRunningCondition.wait_for(
-                  threadLock, timeToSleepFor) == std::cv_status::timeout)
+                    threadLock, timeToSleepFor) == std::cv_status::timeout)
             {
                 // will contain the clients from which no keep alive message
                 // was received after ALIVE_PERIOD milliseconds
@@ -186,33 +186,42 @@ void ClientManager::evaluateClientStatus()
                     // client Keep Alive timer has expired, so the client is considered dead
 
                     // clean up
-                    RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
-                    try {
+                    RasServerEntry &rasServerEntry = RasServerEntry::getInstance();
+                    try
+                    {
                         rasServerEntry.abortTA();
-                    } catch (...) {
+                    }
+                    catch (...)
+                    {
                         LERROR << "Failed aborting transaction.";
                     }
-                    try {
+                    try
+                    {
                         rasServerEntry.closeDB();
-                    } catch (...) {
+                    }
+                    catch (...)
+                    {
                         LERROR << "Failed closing database connection.";
                     }
-                    try {
+                    try
+                    {
                         rasServerEntry.disconnectClient();
-                    } catch (...) {
+                    }
+                    catch (...)
+                    {
                         LERROR << "Failed disconnecting client.";
                     }
-                    
+
                     // remove client results
                     removeAllQueryStreamedResults();
-                    
+
                     // disconnect client here
                     boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(sharedLock);
                     clientConnected = false;
                 }
             }
         }
-        catch (std::exception& ex)
+        catch (std::exception &ex)
         {
             LERROR << "Evaluating client status failed, reason: " << ex.what();
         }
@@ -223,4 +232,4 @@ void ClientManager::evaluateClientStatus()
     }
 }
 
-}
+}  // namespace rasserver

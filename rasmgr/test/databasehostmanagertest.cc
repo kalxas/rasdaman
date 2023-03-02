@@ -40,18 +40,20 @@ namespace test
 using rasmgr::Database;
 using rasmgr::DatabaseHost;
 using rasmgr::DatabaseHostManager;
-using rasmgr::DatabaseHostPropertiesProto;
 using rasmgr::DatabaseHostMgrProto;
+using rasmgr::DatabaseHostPropertiesProto;
 
-class DatabaseHostManagerTest: public ::testing::Test
+class DatabaseHostManagerTest : public ::testing::Test
 {
 protected:
-    DatabaseHostManagerTest(): hostName("hostName"), connectString("connectString"), dbName("dbName"),
-        dbh(hostName, connectString), db(dbName)
-    {}
+    DatabaseHostManagerTest()
+        : hostName("hostName"), connectString("connectString"), dbName("dbName"),
+          dbh(hostName, connectString), db(dbName)
+    {
+    }
 
     std::string hostName;
-    std::string connectString ;
+    std::string connectString;
     std::string dbName;
     DatabaseHost dbh;
     Database db;
@@ -208,12 +210,12 @@ TEST_F(DatabaseHostManagerTest, serializeToProto)
 
     dbhManager.defineDatabaseHost(originalDBH);
 
-    result =  dbhManager.serializeToProto();
+    result = dbhManager.serializeToProto();
     ASSERT_EQ(1, result.database_hosts_size());
 
     ASSERT_EQ(hostName, result.database_hosts(0).host_name());
     ASSERT_EQ(connectString, result.database_hosts(0).connect_string());
 }
 
-}
-}
+}  // namespace test
+}  // namespace rasmgr

@@ -31,7 +31,7 @@
 #include "common/exceptions/missingresourceexception.hh"
 #include "common/uuid/uuid.hh"
 
-#include <limits.h> //PATH_MAX
+#include <limits.h>  //PATH_MAX
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -43,11 +43,11 @@ namespace rasmgr
 using std::runtime_error;
 
 ConfigurationManager::ConfigurationManager(std::shared_ptr<ControlCommandExecutor> commandExecutor,
-        std::shared_ptr<DatabaseHostManager> dbhManager,
-        std::shared_ptr<DatabaseManager> dbManager,
-        std::shared_ptr<PeerManager> peerManager,
-        std::shared_ptr<ServerManager> serverManager,
-        std::shared_ptr<UserManager> userManager)
+                                           std::shared_ptr<DatabaseHostManager> dbhManager,
+                                           std::shared_ptr<DatabaseManager> dbManager,
+                                           std::shared_ptr<PeerManager> peerManager,
+                                           std::shared_ptr<ServerManager> serverManager,
+                                           std::shared_ptr<UserManager> userManager)
     : commandExecutor_(commandExecutor),
       dbhManager_(dbhManager),
       dbManager_(dbManager),
@@ -56,10 +56,12 @@ ConfigurationManager::ConfigurationManager(std::shared_ptr<ControlCommandExecuto
       userManager_(userManager),
       rasmgrConfFilePath(std::string(CONFDIR) + "/" + std::string(RASMGR_CONF_FILE)),
       isDirty_(false)
-{}
+{
+}
 
 ConfigurationManager::~ConfigurationManager()
-{}
+{
+}
 
 void ConfigurationManager::saveConfiguration(bool backup)
 {
@@ -121,7 +123,7 @@ void ConfigurationManager::loadRasMgrConf()
 
     LDEBUG << "Opening rasmanager configuration file:" << rasmgrConfFilePath;
 
-    std::ifstream ifs(rasmgrConfFilePath);    // open config file
+    std::ifstream ifs(rasmgrConfFilePath);  // open config file
 
     if (!ifs)
     {
@@ -295,4 +297,4 @@ void ConfigurationManager::savePeers(std::ofstream &out)
     }
 }
 
-}
+}  // namespace rasmgr

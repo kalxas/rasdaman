@@ -32,18 +32,16 @@ using namespace std;
 const QtNode::QtNodeType QtIterator::nodeType = QtNode::QT_ITERATOR;
 
 QtIterator::QtIterator()
-    :  QtONCStream(),
-       inputs(NULL)
+    : QtONCStream(),
+      inputs(NULL)
 {
 }
-
 
 QtIterator::QtIterator(QtNode *node)
-    :  QtONCStream(node),
-       inputs(NULL)
+    : QtONCStream(node),
+      inputs(NULL)
 {
 }
-
 
 QtIterator::~QtIterator()
 {
@@ -62,12 +60,11 @@ QtIterator::~QtIterator()
     }
 }
 
-
 QtNode::QtNodeList *
 QtIterator::getChilds(QtChildType flag)
 {
     QtNodeList *resultList = NULL;
-    list<QtNode *>::iterator it; //default
+    list<QtNode *>::iterator it;  //default
     QtNode::QtNodeList::iterator iter;
 
     // allocate resultList
@@ -97,9 +94,7 @@ QtIterator::getChilds(QtChildType flag)
     return resultList;
 }
 
-
-void
-QtIterator::open()
+void QtIterator::open()
 {
     startTimer("QtIterator");
 
@@ -114,9 +109,7 @@ QtIterator::open()
     }
 }
 
-
-void
-QtIterator::close()
+void QtIterator::close()
 {
     if (inputs)
     {
@@ -131,9 +124,7 @@ QtIterator::close()
     stopTimer();
 }
 
-
-void
-QtIterator::reset()
+void QtIterator::reset()
 {
     if (inputs)
     {
@@ -146,9 +137,7 @@ QtIterator::reset()
     }
 }
 
-
-void
-QtIterator::printTree(int tab, ostream &s, QtChildType mode)
+void QtIterator::printTree(int tab, ostream &s, QtChildType mode)
 {
     if (mode != QtNode::QT_DIRECT_CHILDS)
     {
@@ -167,10 +156,7 @@ QtIterator::printTree(int tab, ostream &s, QtChildType mode)
     }
 }
 
-
-
-void
-QtIterator::printAlgebraicExpression(ostream &s)
+void QtIterator::printAlgebraicExpression(ostream &s)
 {
     if (inputs)
     {
@@ -194,13 +180,10 @@ QtIterator::printAlgebraicExpression(ostream &s)
     }
 }
 
-
-
-void
-QtIterator::setStreamInput(QtONCStream *oldInput, QtONCStream *newInput)
+void QtIterator::setStreamInput(QtONCStream *oldInput, QtONCStream *newInput)
 {
     QtONCStreamList::iterator iter;
-    bool            notDone = true;
+    bool notDone = true;
 
     for (iter = inputs->begin(); iter != inputs->end() && notDone; iter++)
         if (*iter && (*iter) == oldInput)
@@ -226,9 +209,7 @@ QtIterator::getStreamInputs()
     return inputs;
 }
 
-
-void
-QtIterator::getInputTypeTuple(QtTypeTuple &typeTuple)
+void QtIterator::getInputTypeTuple(QtTypeTuple &typeTuple)
 {
     typeTuple = QtTypeTuple(0);
 
@@ -253,4 +234,3 @@ QtIterator::getInputTypeTuple(QtTypeTuple &typeTuple)
         LERROR << "Error: QtIterator::getInputTypeTuple() - inputs branch is invalid.";
     }
 }
-

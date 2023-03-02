@@ -38,17 +38,16 @@ namespace common
 class NetworkResolverFactory
 {
 public:
-  NetworkResolverFactory() = delete;
+    NetworkResolverFactory() = delete;
 
     /**
      * @brief getNetworkResolver Creates a netowrk resolver for a host and a port, regardless the address family.
      * @param host Host name or ip address.
      * @param port The port.
      */
-  static std::shared_ptr<AbstractNetworkResolver>
-  getNetworkResolver(const std::string &host, std::uint32_t port);
-
+    static std::shared_ptr<AbstractNetworkResolver>
+    getNetworkResolver(const std::string &host, std::uint32_t port);
 };
 
-} //namespace common
-#endif // NETWORKRESOLVERFACTORY_HH
+}  //namespace common
+#endif  // NETWORKRESOLVERFACTORY_HH

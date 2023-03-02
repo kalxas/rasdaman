@@ -61,14 +61,15 @@ public:
     inline char *nextCell();
     /// returns TRUE if iteration is finished.
     inline bool isDone();
+
 protected:
     // structure storing information on iteration for each dimension
     // (perhaps add dimension for reordering later)
     struct incArrElem
     {
-        r_Range repeat; // total number of repeats
-        int inc;    // increment per repeat
-        int curr;   // current repeat
+        r_Range repeat;  // total number of repeats
+        int inc;         // increment per repeat
+        int curr;        // current repeat
     };
     /// area to be iterated through
     const r_Minterval *areaIter{NULL};

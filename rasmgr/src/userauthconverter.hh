@@ -48,6 +48,7 @@ public:
      * @return TRUE if the file represents authentication file stored in the old format, FALSE otherwise.
      */
     static bool tryGetOldFormatAuthData(const std::string &oldFilePath, UserMgrProto &out_userManagerData);
+
 private:
     static RandomGenerator randomGenerator;
 
@@ -64,5 +65,5 @@ private:
     static void saveUserInformation(const rasmgr::UserMgrProto &userData, const std::string &filePath);
 };
 
-}
-#endif // RASMGR_X_SRC_USERAUTHCONVERTER_HH
+}  // namespace rasmgr
+#endif  // RASMGR_X_SRC_USERAUTHCONVERTER_HH

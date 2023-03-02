@@ -33,7 +33,8 @@ rasdaman GmbH.
 class r_OId;
 class r_Database;
 class r_Ref_Any;
-template <typename T> class r_Ref;
+template <typename T>
+class r_Ref;
 
 /**
   Transactions can be started, committed, aborted, and checkpointed.
@@ -49,10 +50,20 @@ class r_Transaction
 {
 public:
     /// possible states of the transaction
-    enum r_TAStatus { active, inactive, comiting, aborting };
+    enum r_TAStatus
+    {
+        active,
+        inactive,
+        comiting,
+        aborting
+    };
 
     /// possible transaction modes
-    enum r_TAMode { read_write, read_only };
+    enum r_TAMode
+    {
+        read_write,
+        read_only
+    };
 
     /// create a new transaction object; if the db object is not provided, this
     /// class not thread-safe.

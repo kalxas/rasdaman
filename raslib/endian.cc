@@ -30,7 +30,7 @@ rasdaman GmbH.
  *      None
 */
 
-#include "config.h" // for IS_LITTLE_ENDIAN
+#include "config.h"  // for IS_LITTLE_ENDIAN
 
 #include "raslib/endian.hh"
 #include "raslib/minterval.hh"
@@ -133,31 +133,30 @@ static inline r_Double eswap(r_Double val)
 {
     r_Long *ptr = reinterpret_cast<r_Long *>(&val);
     r_Double result;
-    eswap(ptr[0], reinterpret_cast<char*>(&result) + sizeof(r_Long));
-    eswap(ptr[1], reinterpret_cast<char*>(&result));
+    eswap(ptr[0], reinterpret_cast<char *>(&result) + sizeof(r_Long));
+    eswap(ptr[1], reinterpret_cast<char *>(&result));
     return result;
 }
 static inline void eswap(r_Double val, void *dest)
 {
     r_Long *ptr = reinterpret_cast<r_Long *>(&val);
-    eswap(ptr[0], reinterpret_cast<char*>(dest) + sizeof(r_Long));
+    eswap(ptr[0], reinterpret_cast<char *>(dest) + sizeof(r_Long));
     eswap(ptr[1], dest);
 }
-
 
 /*
  *  Template functions used throughout the code
  */
 
 // template for special linear iteration
-template<class T>
+template <class T>
 void swap_array_templ(r_Bytes size, T *dest, const T *src)
 {
     for (r_Bytes ctr = 0; ctr < size; ctr += sizeof(T), src++, dest++)
         eswap(*src, dest);
 }
 // template for identical domains for src and dest
-template<class T>
+template <class T>
 void swap_array_templ(r_Miter &iter, T *destBase, const T *srcBase)
 {
     while (!iter.isDone())
@@ -167,7 +166,7 @@ void swap_array_templ(r_Miter &iter, T *destBase, const T *srcBase)
     }
 }
 // template for generic iteration (src is just a dummy here)
-template<class T>
+template <class T>
 void swap_array_templ(r_Miter &siter, r_Miter &diter, __attribute__((unused)) const T *srcBase)
 {
     while (!siter.isDone())
@@ -332,7 +331,6 @@ void r_Endian::swap_array(r_Bytes size, const r_Double *src, r_Double *dest)
     swap_array_templ(size, dest, src);
 }
 
-
 /*
  *  Same functionality as above, but with the type size given as parameter
  */
@@ -347,7 +345,7 @@ void r_Endian::swap_array(r_Bytes size, r_Bytes tsize, const void *src, void *de
         swap_array_templ(size, static_cast<r_Long *>(dest), static_cast<const r_Long *>(src));
         break;
     case 8:
-    case 16:    // complexd
+    case 16:  // complexd
         swap_array_templ(size, static_cast<r_Double *>(dest), static_cast<const r_Double *>(src));
         break;
     default:
@@ -408,9 +406,8 @@ void r_Endian::swap_array(const r_Primitive_Type *type, const r_Minterval &srcDo
     }
 }
 
-
-static void swap_array_struct(const r_Structure_Type *structType, 
-                              const r_Minterval &srcDom, const r_Minterval &srcIterDom, 
+static void swap_array_struct(const r_Structure_Type *structType,
+                              const r_Minterval &srcDom, const r_Minterval &srcIterDom,
                               const void *src, void *dest, r_ULong step)
 {
     for (const auto &att: structType->getAttributes())
@@ -428,16 +425,16 @@ static void swap_array_struct(const r_Structure_Type *structType,
     }
 }
 
-void r_Endian::swap_array(const r_Base_Type *type, 
-                          const r_Minterval &srcDom, const r_Minterval &srcIterDom, 
+void r_Endian::swap_array(const r_Base_Type *type,
+                          const r_Minterval &srcDom, const r_Minterval &srcIterDom,
                           const void *src, void *dest)
 {
     const auto step = static_cast<r_ULong>(type->size());
     if (type->isStructType())
-        swap_array_struct(static_cast<const r_Structure_Type *>(type), 
+        swap_array_struct(static_cast<const r_Structure_Type *>(type),
                           srcDom, srcIterDom, src, dest, step);
     else
-        swap_array(static_cast<const r_Primitive_Type *>(type), 
+        swap_array(static_cast<const r_Primitive_Type *>(type),
                    srcDom, srcIterDom, src, dest, step);
 }
 
@@ -446,9 +443,9 @@ void r_Endian::swap_array(const r_Base_Type *type,
  *  src and dest. Beware that the number of cells in the iteration domains
  *  for src and dest must be identical!
  */
-void r_Endian::swap_array(const r_Primitive_Type *type, 
-                          const r_Minterval &srcDom, const r_Minterval &srcIterDom, 
-                          const r_Minterval &destDom, const r_Minterval &destIterDom, 
+void r_Endian::swap_array(const r_Primitive_Type *type,
+                          const r_Minterval &srcDom, const r_Minterval &srcIterDom,
+                          const r_Minterval &destDom, const r_Minterval &destIterDom,
                           const void *src, void *dest, r_ULong step)
 {
     /// check if the whole thing reduces to a linear scan
@@ -500,10 +497,9 @@ void r_Endian::swap_array(const r_Primitive_Type *type,
     }
 }
 
-
-static void swap_array_struct(const r_Structure_Type *structType, 
-                              const r_Minterval &srcDom, const r_Minterval &srcIterDom, 
-                              const r_Minterval &destDom, const r_Minterval &destIterDom, 
+static void swap_array_struct(const r_Structure_Type *structType,
+                              const r_Minterval &srcDom, const r_Minterval &srcIterDom,
+                              const r_Minterval &destDom, const r_Minterval &destIterDom,
                               const void *src, void *dest, r_ULong step)
 {
     for (const auto &att: structType->getAttributes())
@@ -521,9 +517,9 @@ static void swap_array_struct(const r_Structure_Type *structType,
     }
 }
 
-void r_Endian::swap_array(const r_Base_Type *type, 
-                          const r_Minterval &srcDom, const r_Minterval &srcIterDom, 
-                          const r_Minterval &destDom, const r_Minterval &destIterDom, 
+void r_Endian::swap_array(const r_Base_Type *type,
+                          const r_Minterval &srcDom, const r_Minterval &srcIterDom,
+                          const r_Minterval &destDom, const r_Minterval &destIterDom,
                           const void *src, void *dest)
 {
     const auto step = static_cast<r_ULong>(type->size());
@@ -540,8 +536,8 @@ std::ostream &operator<<(std::ostream &s, r_Endian::r_Endianness &e)
     switch (e)
     {
     case r_Endian::r_Endian_Little: s << "Little_Endian"; break;
-    case r_Endian::r_Endian_Big:    s << "Big_Endian"; break;
-    default:                        s << "Invalid"; break;
+    case r_Endian::r_Endian_Big: s << "Big_Endian"; break;
+    default: s << "Invalid"; break;
     }
     return s;
 }

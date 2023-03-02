@@ -106,7 +106,6 @@ void QtDropType::printTree(int tab, std::ostream &s, __attribute__((unused)) QtC
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  DROP TYPE " << typeName;
 }
 
-
 void QtDropType::printAlgebraicExpression(std::ostream &s)
 {
     s << "command <";

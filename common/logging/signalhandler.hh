@@ -10,19 +10,21 @@
 #include <string>
 #include <initializer_list>
 
-namespace common {
+namespace common
+{
 
-using SignalHandlerFunction = void (*)(int, siginfo_t*, void*);
+using SignalHandlerFunction = void (*)(int, siginfo_t *, void *);
 
 /**
  * Functionality to help handling signals.
  */
-class SignalHandler {
+class SignalHandler
+{
 public:
     /**
      * Specified signals will be ignored.
      */
-    static void ignoreSignals(const std::initializer_list<int>& signals);
+    static void ignoreSignals(const std::initializer_list<int> &signals);
 
     /**
      * "Standard" signals will be ignored:
@@ -33,7 +35,7 @@ public:
     /**
      * Specified signals will be handled by the specified handler.
      */
-    static void handleSignals(const std::initializer_list<int>& signals, SignalHandlerFunction handler);
+    static void handleSignals(const std::initializer_list<int> &signals, SignalHandlerFunction handler);
 
     /**
      * "Shutdown" signals will be handled by the specified handler:
@@ -50,12 +52,12 @@ public:
     /**
      * Install the specified handler for a specific signal.
      */
-    static void installSignalHandler(void (*handler)(int, siginfo_t*, void*), int signal);
+    static void installSignalHandler(void (*handler)(int, siginfo_t *, void *), int signal);
 
     /**
      * @return a string description of the caught signal info
      */
-    static std::string toString(siginfo_t* info);
+    static std::string toString(siginfo_t *info);
 
     /**
      * @return a stack trace as a string; the caller address is not included.
@@ -71,9 +73,7 @@ public:
     static std::string extraSignalInfo(siginfo_t *info);
 
     static std::string pointerToString(const void *p);
-
 };
 
-}
+}  // namespace common
 #endif
-

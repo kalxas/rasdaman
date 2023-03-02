@@ -5,9 +5,10 @@
 namespace rasmgr
 {
 ServerManagerConfig::ServerManagerConfig()
-  : cleanupInterval(SERVER_MANAGER_CLEANUP_INTERVAL),
-    restartDelay(SERVER_MANAGER_RESTART_DELAY)
-{}
+    : cleanupInterval(SERVER_MANAGER_CLEANUP_INTERVAL),
+      restartDelay(SERVER_MANAGER_RESTART_DELAY)
+{
+}
 
 std::int32_t ServerManagerConfig::getCleanupInterval() const
 {
@@ -29,5 +30,4 @@ void ServerManagerConfig::setRestartDelay(unsigned int value)
     restartDelay = value;
 }
 
-}
-  
+}  // namespace rasmgr

@@ -20,7 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-
 #ifndef COMMON_SRC_GRPC_HEALTHSERVICEIMPL_HH
 #define COMMON_SRC_GRPC_HEALTHSERVICEIMPL_HH
 
@@ -38,7 +37,7 @@ namespace common
  * The client can optionally set the service name it wants to query for health status.
  * The suggested format of service name is package_names.ServiceName
  */
-class HealthServiceImpl: public HealthService::Service
+class HealthServiceImpl : public HealthService::Service
 {
 public:
     HealthServiceImpl();
@@ -50,14 +49,14 @@ public:
      * @param service String uniquely identifying the service.
      * @param status ServingStatus which can be any of UNKNOWN, SERVING, NOT_SERVING
      */
-    virtual void setStatus(const std::string& service, const HealthCheckResponse::ServingStatus& status);
+    virtual void setStatus(const std::string &service, const HealthCheckResponse::ServingStatus &status);
 
     /**
      * @brief clearStatus Clear the health status of the given GRPC service.
      * If a query will be received for the given service, NOT_SERVING will be returned.
      * @param service
      */
-    virtual void clearStatus(const std::string& service);
+    virtual void clearStatus(const std::string &service);
 
     /**
      * @brief clearAll Clear all the status information.
@@ -75,13 +74,13 @@ public:
      * @param response
      * @return
      */
-    virtual grpc::Status Check(grpc::ServerContext* context, const HealthCheckRequest* request, HealthCheckResponse* response);
+    virtual grpc::Status Check(grpc::ServerContext *context, const HealthCheckRequest *request, HealthCheckResponse *response);
 
 private:
     std::mutex mutex;
     // Map with the meaning <serviceIdentifier, status>
     std::map<std::string, HealthCheckResponse::ServingStatus> statuses;
 };
-}
+}  // namespace common
 
-#endif // COMMON_SRC_GRPC_HEALTHSERVICEIMPL_HH
+#endif  // COMMON_SRC_GRPC_HEALTHSERVICEIMPL_HH

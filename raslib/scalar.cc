@@ -72,18 +72,15 @@ r_Scalar::operator=(const r_Scalar &obj)
     return *this;
 }
 
-bool
-r_Scalar::isStructure() const
+bool r_Scalar::isStructure() const
 {
     return false;
 }
-bool
-r_Scalar::isComplex() const
+bool r_Scalar::isComplex() const
 {
     return false;
 }
-bool
-r_Scalar::isPrimitive() const
+bool r_Scalar::isPrimitive() const
 {
     return false;
 }
@@ -99,5 +96,3 @@ std::ostream &operator<<(std::ostream &s, const r_Scalar &obj)
     obj.print_status(s);
     return s;
 }
-
-

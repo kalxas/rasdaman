@@ -20,7 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-
 #ifndef RASCONTROL_X_SRC_INVALIDRASCTRLCOMMANDEXCEPTION_HH
 #define RASCONTROL_X_SRC_INVALIDRASCTRLCOMMANDEXCEPTION_HH
 
@@ -28,13 +27,13 @@
 
 namespace rascontrol
 {
-class InvalidRasctrlCommandException: public common::Exception
+class InvalidRasctrlCommandException : public common::Exception
 {
 public:
     InvalidRasctrlCommandException();
 
     virtual ~InvalidRasctrlCommandException() noexcept;
 };
-}
+}  // namespace rascontrol
 
-#endif // RASCONTROL_X_SRC_INVALIDRASCTRLCOMMANDEXCEPTION_HH
+#endif  // RASCONTROL_X_SRC_INVALIDRASCTRLCOMMANDEXCEPTION_HH

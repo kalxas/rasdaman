@@ -75,7 +75,7 @@ private:
     // process the i-th operand and insert the new tiles into resultMDD
     void processOperand(unsigned int i, QtMDD *qtMDDObj, MDDObj *resultMDD,
                         const BaseType *baseType, const std::vector<r_Point> &tVector);
-    
+
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 
@@ -86,6 +86,3 @@ private:
 #include "qlparser/qtconcat.icc"
 
 #endif
-
-
-

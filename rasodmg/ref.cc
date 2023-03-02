@@ -39,9 +39,9 @@ r_Ref_Any::r_Ref_Any()
 }
 r_Ref_Any::r_Ref_Any(const r_Ref_Any &obj)
 {
-    memptr       = obj.memptr;
-    oid          = obj.oid;
-    ta           = obj.ta;
+    memptr = obj.memptr;
+    oid = obj.oid;
+    ta = obj.ta;
 }
 r_Ref_Any::r_Ref_Any(const r_OId &initOId, r_Transaction *taArg)
     : ta{taArg}, memptr(0), oid{initOId}
@@ -73,24 +73,23 @@ r_Ref_Any::~r_Ref_Any()
 r_Ref_Any &
 r_Ref_Any::operator=(const r_Ref_Any &objptr)
 {
-    ta        = objptr.ta;
-    memptr    = objptr.memptr;
-    oid       = objptr.oid;
+    ta = objptr.ta;
+    memptr = objptr.memptr;
+    oid = objptr.oid;
 
     return *this;
 }
 r_Ref_Any &
 r_Ref_Any::operator=(r_Object *ptr)
 {
-    ta        = ptr->get_transaction();
-    memptr    = ptr;
-    oid       = r_OId();
+    ta = ptr->get_transaction();
+    memptr = ptr;
+    oid = r_OId();
 
     return *this;
 }
 
-void
-r_Ref_Any::destroy()
+void r_Ref_Any::destroy()
 {
     if (memptr && !oid.is_valid())
     {
@@ -98,8 +97,7 @@ r_Ref_Any::destroy()
         memptr = 0;
     }
 }
-void
-r_Ref_Any::delete_object()
+void r_Ref_Any::delete_object()
 {
     if (memptr)
     {
@@ -145,39 +143,33 @@ r_Ref_Any::operator r_Structure *()
     return static_cast<r_Structure *>(memptr);
 }
 
-int
-r_Ref_Any::operator!() const
+int r_Ref_Any::operator!() const
 {
     return !is_null();
 }
-int
-r_Ref_Any::is_null() const
+int r_Ref_Any::is_null() const
 {
     return (memptr == 0) && !oid.is_valid();
 }
 
-int
-r_Ref_Any::operator==(const r_Ref_Any &ref) const
+int r_Ref_Any::operator==(const r_Ref_Any &ref) const
 {
-    return // both refs are not valid or ...
+    return  // both refs are not valid or ...
         (is_null() && ref.is_null()) ||
         // both oids are valid and the same or ...
         (oid.is_valid() && oid == ref.oid) ||
         // both oids are not valid and memory pointers are the same
         (!oid.is_valid() && !ref.oid.is_valid() && memptr == ref.memptr);
 }
-int
-r_Ref_Any::operator!=(const r_Ref_Any &ref) const
+int r_Ref_Any::operator!=(const r_Ref_Any &ref) const
 {
     return !operator==(ref);
 }
-int
-r_Ref_Any::operator==(const r_Object *ptr) const
+int r_Ref_Any::operator==(const r_Object *ptr) const
 {
     return memptr == static_cast<void *>(const_cast<r_Object *>(ptr));
 }
-int
-r_Ref_Any::operator!=(const r_Object *ptr) const
+int r_Ref_Any::operator!=(const r_Object *ptr) const
 {
     return !operator==(ptr);
 }
@@ -204,41 +196,41 @@ r_Ref_Any::is_oid_valid() const
 
 #endif  // __EXECUTABLE__
 
-template<class T>
+template <class T>
 r_Ref<T>::r_Ref()
 {
 }
-template<class T>
+template <class T>
 r_Ref<T>::r_Ref(const r_Ref<T> &obj)
 {
-    ta           = obj.ta;
-    memptr       = obj.memptr;
-    oid          = obj.oid;
+    ta = obj.ta;
+    memptr = obj.memptr;
+    oid = obj.oid;
 }
-template<class T>
+template <class T>
 r_Ref<T>::r_Ref(const r_OId &initOId, r_Transaction *taArg)
     : ta{taArg}, memptr(0), oid{initOId}
 {
 }
-template<class T>
+template <class T>
 r_Ref<T>::r_Ref(const r_Ref_Any &obj)
 {
-    ta        = obj.get_transaction();
-    memptr    = static_cast<T *>(obj.get_memory_ptr());
-    oid       = obj.get_oid();
+    ta = obj.get_transaction();
+    memptr = static_cast<T *>(obj.get_memory_ptr());
+    oid = obj.get_oid();
 }
-template<class T>
+template <class T>
 r_Ref<T>::r_Ref(T *newPtr, r_Transaction *taArg)
     : ta{taArg}, memptr(newPtr), oid()
 {
 }
-template<class T>
+template <class T>
 r_Ref<T>::r_Ref(const r_OId &initOId, T *newPtr, r_Transaction *taArg)
     : ta{taArg}, memptr(newPtr), oid(initOId)
 {
 }
 
-template<class T>
+template <class T>
 r_Ref<T>::~r_Ref()
 {
     //LTRACE << "~r_Ref()";
@@ -250,41 +242,41 @@ r_Ref<T>::~r_Ref()
     //  }
 }
 
-template<class T>
+template <class T>
 r_Ref<T>::operator r_Ref_Any() const
 {
     return r_Ref_Any(oid, (r_Object *)memptr, ta);
 }
-template<class T>
+template <class T>
 r_Ref<T> &
 r_Ref<T>::operator=(const r_Ref_Any &newPtr)
 {
-    ta        = newPtr.get_transaction();
-    memptr    = static_cast<T *>(newPtr.get_memory_ptr());
-    oid       = newPtr.get_oid();
+    ta = newPtr.get_transaction();
+    memptr = static_cast<T *>(newPtr.get_memory_ptr());
+    oid = newPtr.get_oid();
 
     return *this;
 }
-template<class T>
+template <class T>
 r_Ref<T> &
 r_Ref<T>::operator=(T *newPtr)
 {
-    memptr    = newPtr;
-    oid       = r_OId();
+    memptr = newPtr;
+    oid = r_OId();
 
     return *this;
 }
-template<class T>
+template <class T>
 r_Ref<T> &
 r_Ref<T>::operator=(const r_Ref<T> &objptr)
 {
-    ta        = objptr.ta;
-    memptr    = objptr.memptr;
-    oid       = objptr.oid;
+    ta = objptr.ta;
+    memptr = objptr.memptr;
+    oid = objptr.oid;
 
     return *this;
 }
-template<class T>
+template <class T>
 const T &
 r_Ref<T>::operator*() const
 {
@@ -294,9 +286,8 @@ r_Ref<T>::operator*() const
         throw r_Error(r_Error::r_Error_RefNull);
     return *memptr;
 }
-template<class T>
-T &
-r_Ref<T>::operator*()
+template <class T>
+T &r_Ref<T>::operator*()
 {
     if (!memptr)
         load_object();
@@ -304,7 +295,7 @@ r_Ref<T>::operator*()
         throw r_Error(r_Error::r_Error_RefNull);
     return *memptr;
 }
-template<class T>
+template <class T>
 const T *
 r_Ref<T>::operator->() const
 {
@@ -314,9 +305,8 @@ r_Ref<T>::operator->() const
         throw r_Error(r_Error::r_Error_RefNull);
     return memptr;
 }
-template<class T>
-T *
-r_Ref<T>::operator->()
+template <class T>
+T *r_Ref<T>::operator->()
 {
     if (!memptr)
         load_object();
@@ -324,7 +314,7 @@ r_Ref<T>::operator->()
         throw r_Error(r_Error::r_Error_RefNull);
     return memptr;
 }
-template<class T>
+template <class T>
 const T *
 r_Ref<T>::ptr() const
 {
@@ -332,60 +322,52 @@ r_Ref<T>::ptr() const
         load_object();
     return memptr;
 }
-template<class T>
-T *
-r_Ref<T>::ptr()
+template <class T>
+T *r_Ref<T>::ptr()
 {
     if (!memptr)
         load_object();
     return memptr;
 }
-template<class T>
-int
-r_Ref<T>::operator!() const
+template <class T>
+int r_Ref<T>::operator!() const
 {
     return !is_null();
 }
-template<class T>
-int
-r_Ref<T>::is_null() const
+template <class T>
+int r_Ref<T>::is_null() const
 {
     return (memptr == 0) && !oid.is_valid();
 }
 
-template<class T>
-int
-r_Ref<T>::operator==(const r_Ref<T> &refR) const
+template <class T>
+int r_Ref<T>::operator==(const r_Ref<T> &refR) const
 {
-    return // both refs are not valid or ...
+    return  // both refs are not valid or ...
         (is_null() && refR.is_null()) ||
         // both oids are valid and the same or ...
         (oid.is_valid() && oid == refR.oid) ||
         // both oids are not valid and memory pointers are the same
         (!oid.is_valid() && !refR.oid.is_valid() && memptr == refR.memptr);
 }
-template<class T>
-int
-r_Ref<T>::operator!=(const r_Ref<T> &refR) const
+template <class T>
+int r_Ref<T>::operator!=(const r_Ref<T> &refR) const
 {
     return !operator==(refR);
 }
-template<class T>
-int
-r_Ref<T>::operator==(const T *newPtr) const
+template <class T>
+int r_Ref<T>::operator==(const T *newPtr) const
 {
     return memptr == newPtr;
 }
-template<class T>
-int
-r_Ref<T>::operator!=(const T *newPtr) const
+template <class T>
+int r_Ref<T>::operator!=(const T *newPtr) const
 {
     return !operator==(newPtr);
 }
 
-template<class T>
-void
-r_Ref<T>::destroy()
+template <class T>
+void r_Ref<T>::destroy()
 {
     if (memptr && !oid.is_valid())
     {
@@ -393,9 +375,8 @@ r_Ref<T>::destroy()
         memptr = 0;
     }
 }
-template<class T>
-void
-r_Ref<T>::delete_object()
+template <class T>
+void r_Ref<T>::delete_object()
 {
     if (memptr)
     {
@@ -404,28 +385,26 @@ r_Ref<T>::delete_object()
     }
 }
 
-template<class T>
-T *
-r_Ref<T>::get_memory_ptr() const
+template <class T>
+T *r_Ref<T>::get_memory_ptr() const
 {
     return memptr;
 }
-template<class T>
+template <class T>
 const r_OId &
 r_Ref<T>::get_oid() const
 {
     return oid;
 }
-template<class T>
+template <class T>
 unsigned int
 r_Ref<T>::is_oid_valid() const
 {
     return oid.is_valid();
 }
 
-template<class T>
-void
-r_Ref<T>::load_object() const
+template <class T>
+void r_Ref<T>::load_object() const
 {
     if (oid.is_valid())
     {
@@ -443,10 +422,9 @@ r_Ref<T>::load_object() const
 
         // load object and take its memory pointer
         r_Ref<T> ref = ta->load_object(oid);
-        memptr       = ref.get_memory_ptr();
+        memptr = ref.get_memory_ptr();
     }
 }
-
 
 #include "rasodmg/gmarray.hh"
 template class r_Ref<r_GMarray>;
@@ -467,4 +445,3 @@ template class r_Ref<r_OId>;
 template class r_Ref<r_Scalar>;
 #include "raslib/stringdata.hh"
 template class r_Ref<r_String>;
-

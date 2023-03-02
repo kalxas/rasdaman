@@ -100,25 +100,3 @@ public:
 #include "qlparser/qtatomicdata.icc"
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

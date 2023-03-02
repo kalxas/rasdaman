@@ -23,11 +23,12 @@ rasdaman GmbH.
 
 #include "invalidtransactionexception.hh"
 
-namespace common {
+namespace common
+{
 
 InvalidTransactionException::InvalidTransactionException(
     const std::string &message)
     : LogicException(message) {}
 
 InvalidTransactionException::~InvalidTransactionException() = default;
-}
+}  // namespace common

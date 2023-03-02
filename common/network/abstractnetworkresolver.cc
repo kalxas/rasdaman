@@ -30,8 +30,9 @@
 namespace common
 {
 
-AbstractNetworkResolver::AbstractNetworkResolver(std::uint32_t portArg) : port(portArg)
+AbstractNetworkResolver::AbstractNetworkResolver(std::uint32_t portArg)
+    : port(portArg)
 {
 }
 
-} //namespace common
+}  //namespace common

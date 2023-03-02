@@ -24,7 +24,7 @@
 #include <unistd.h>          // for isatty
 #include <initializer_list>  // for initializer_list
 
-#include "logging.hh"        // for LWARNING
+#include "logging.hh"  // for LWARNING
 #include "loggingutils.hh"
 
 namespace common
@@ -47,18 +47,18 @@ void LogConfiguration::configClientLogging(bool quiet)
     initConfig("", quiet);
 }
 
-void LogConfiguration::configServerLogging(const string& outputLogFilePath, bool quiet)
+void LogConfiguration::configServerLogging(const string &outputLogFilePath, bool quiet)
 {
     initConfig(outputLogFilePath, quiet);
 }
 
-void LogConfiguration::initConfig(const string& outputLogFilePath, bool quiet)
+void LogConfiguration::initConfig(const string &outputLogFilePath, bool quiet)
 {
     bool client = outputLogFilePath.empty();
-    
+
     struct stat buffer;
     auto configFileExists = stat(configFilePath.c_str(), &buffer) == 0;
-    
+
     if (configFileExists)
     {
         conf = el::Configurations(configFilePath);
@@ -79,7 +79,7 @@ void LogConfiguration::initConfig(const string& outputLogFilePath, bool quiet)
         conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");
         conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");
     }
-    
+
     el::Loggers::addFlag(el::LoggingFlag::LogDetailedCrashReason);
     el::Loggers::addFlag(el::LoggingFlag::CreateLoggerAutomatically);
     el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
@@ -91,45 +91,46 @@ void LogConfiguration::initConfig(const string& outputLogFilePath, bool quiet)
         conf.set(el::Level::Global, el::ConfigurationType::Filename, outputLogFilePath);
     if (quiet)
     {
-        for (auto lvl : {el::Level::Info, el::Level::Debug, el::Level::Trace})
+        for (auto lvl: {el::Level::Info, el::Level::Debug, el::Level::Trace})
             conf.set(lvl, el::ConfigurationType::Enabled, "false");
     }
     el::Loggers::setDefaultConfigurations(conf, true);
-    
+
     if (!configFileExists)
     {
-        LWARNING << "Using default log configuration as the config file '" 
+        LWARNING << "Using default log configuration as the config file '"
                  << configFilePath << "' was not found.";
     }
-    
-    auto levels = {el::Level::Info, el::Level::Debug, el::Level::Error, 
-        el::Level::Warning, el::Level::Fatal, el::Level::Trace, el::Level::Global};
-    
-    // copy the default logger into a "no new line" logger that doesn't 
+
+    auto levels = {el::Level::Info, el::Level::Debug, el::Level::Error,
+                   el::Level::Warning, el::Level::Fatal, el::Level::Trace, el::Level::Global};
+
+    // copy the default logger into a "no new line" logger that doesn't
     // automatically append a new line
     {
         el::Configurations customConf;
         customConf.setFromBase(&conf);
-        for (auto lvl : levels)
+        for (auto lvl: levels)
         {
             auto *formatConf = customConf.get(lvl, el::ConfigurationType::Format);
             formatConf->setValue(formatConf->value() + "%nnl");
         }
         el::Loggers::getLogger("nnl")->configure(customConf);
     }
-    
+
     // copy the default logger into a "bare" logger that only prints the %msg
     {
         el::Configurations customConf;
         customConf.setFromBase(&conf);
-        for (auto lvl : levels)
+        for (auto lvl: levels)
             customConf.get(lvl, el::ConfigurationType::Format)->setValue("%msg%nnl");
         el::Loggers::getLogger("bare")->configure(customConf);
     }
 }
 
-el::Configurations &LogConfiguration::getConfig() {
-  return conf;
+el::Configurations &LogConfiguration::getConfig()
+{
+    return conf;
 }
 
-}
+}  // namespace common

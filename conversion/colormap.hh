@@ -49,7 +49,7 @@ public:
     r_ColorMap();
 
     std::unique_ptr<unsigned char[]> applyColorMap(
-        const r_Type* srcType, const char* srcData, const r_Minterval& dimData, int& baseType);
+        const r_Type *srcType, const char *srcData, const r_Minterval &dimData, int &baseType);
 
     void setColorMapType(r_ColorMap::Type type);
 
@@ -58,6 +58,7 @@ public:
     void setUColorTable(ColorTableUMap uColorTableMap);
 
     size_t getResultBandNumber() const;
+
 private:
     r_ColorMap::Type colorMapType{r_ColorMap::Type::VALUES};
 
@@ -68,15 +69,15 @@ private:
     ColorTableUMap uColorTable;
 
     template <class T>
-    void applySpecificColorMap(const T* srcData, size_t nrPixels, size_t nrBands, unsigned char* res);
+    void applySpecificColorMap(const T *srcData, size_t nrPixels, size_t nrBands, unsigned char *res);
 
     template <class T>
-    void applyValuesColorMap(const T* srcData, size_t nrPixels, size_t nrBands, unsigned char* res);
+    void applyValuesColorMap(const T *srcData, size_t nrPixels, size_t nrBands, unsigned char *res);
 
     template <class T>
-    void applyIntervalsColorMap(const T* srcData, size_t nrPixels, size_t nrBands, unsigned char* res, bool ramp);
+    void applyIntervalsColorMap(const T *srcData, size_t nrPixels, size_t nrBands, unsigned char *res, bool ramp);
 
-    const std::vector<unsigned char>* getUColor(double curr) const;
+    const std::vector<unsigned char> *getUColor(double curr) const;
 };
 
 #endif /* R_CONV_COLORMAP_HH */

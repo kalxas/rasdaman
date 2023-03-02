@@ -51,7 +51,7 @@ rasdaman GmbH.
 
 using namespace std;
 
-int main(int argc, const char** argv)
+int main(int argc, const char **argv)
 {
     SystemBasic::usageHeader = "system_compare version 0.9\n\t\tProgram for checking data in RasDaMan\n";
     SystemBasic::usageFooter = "Required information:\n\t\tMDD type\n\t\tCollection name\n\t\tMDD domain\n\t\tScale levels or file name\n";
@@ -60,18 +60,17 @@ int main(int argc, const char** argv)
     {
         retval = SystemCompare::doStuff(argc, argv);
     }
-    catch (r_Error& e)
+    catch (r_Error &e)
     {
         cout << "Caught Exception at top level: " << e.get_errorno() << " " << e.what() << endl;
     }
 }
 
-int
-SystemCompare::doStuff(int argc, const char** argv)
+int SystemCompare::doStuff(int argc, const char **argv)
 {
     installSignalHandlers();
     int retval = 0;
-    retval = parseParams(argc, (char**)argv);
+    retval = parseParams(argc, (char **)argv);
     if (retval == 0)
     {
         if (mddTypeName)
@@ -118,8 +117,7 @@ SystemCompare::doStuff(int argc, const char** argv)
 }
 
 //SystemUpdate::doUpdate(const char* queryString, const char* queryStringS, const char* mddTypeName, const r_Marray_Type mddType, const r_Minterval& mddDomain, const char* inputFormatParams, )
-int
-SystemCompare::doCompare()
+int SystemCompare::doCompare()
 {
     int retval = 0;
     char queryBufferS[QUERYBUFFERLENGTH];
@@ -134,13 +132,13 @@ SystemCompare::doCompare()
         ostrstream stream(queryBufferS, QUERYBUFFERLENGTH);
         stream << "SELECT A" << mddDomain << " FROM " << collName << " AS A";
     }
-    r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
-    char* typeStructure = NULL;
+    r_Storage_Layout *stl = new r_Storage_Layout(theTiling->clone());
+    char *typeStructure = NULL;
     r_Ref<r_GMarray> selectedMDD;
     r_Set<r_Ref_Any> result;
 
-    r_Type* tempType = NULL;
-    r_Marray_Type* mddType = NULL;
+    r_Type *tempType = NULL;
+    r_Marray_Type *mddType = NULL;
     try
     {
         openTransaction(false);
@@ -148,7 +146,7 @@ SystemCompare::doCompare()
         ta.abort();
         db.close();
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         RMInit::logOut << "Error during type retrieval from database: " << err.get_errorno() << " " << err.what() << endl;
         typeStructure = new char[strlen(mddTypeName) + 1];
@@ -158,7 +156,7 @@ SystemCompare::doCompare()
     {
         if (tempType->isMarrayType())
         {
-            mddType = (r_Marray_Type*)tempType;
+            mddType = (r_Marray_Type *)tempType;
         }
         else
         {
@@ -166,7 +164,7 @@ SystemCompare::doCompare()
             retval = MDDTYPEINVALID;
         }
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         RMInit::logOut << "Error during type retrieval from type structure (" << typeStructure << "): " << err.get_errorno() << " " << err.what() << endl;
         retval = MDDTYPEINVALID;
@@ -177,10 +175,10 @@ SystemCompare::doCompare()
         if (fileName)
         {
             //check if file corresponds to collection
-            r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
-            r_Ref<r_GMarray> tempMDD = new(mddTypeName)r_GMarray(mddDomain, baseTypeLength, stl);
+            r_Storage_Layout *stl = new r_Storage_Layout(theTiling->clone());
+            r_Ref<r_GMarray> tempMDD = new (mddTypeName) r_GMarray(mddDomain, baseTypeLength, stl);
             tempMDD->set_type_schema(mddType);
-            FILE* filePointer = checkFile(fileName, retval);
+            FILE *filePointer = checkFile(fileName, retval);
             if (retval != 0)
             {
                 tempMDD.destroy();
@@ -200,31 +198,31 @@ SystemCompare::doCompare()
                     if (polygonDefined)
                     {
                         polygon.setMArray(*selectedMDD);
-//                        if (foreGroundDef)
-//                            polygon.fillMArrayInside(foreGround);
-//                        if (backGroundDef)
-//                            polygon.fillMArrayOutside(backGround);
+                        //                        if (foreGroundDef)
+                        //                            polygon.fillMArrayInside(foreGround);
+                        //                        if (backGroundDef)
+                        //                            polygon.fillMArrayOutside(backGround);
                     }
                     if (retval == 0)
                     {
                         retval = compareGMarrays(selectedMDD, tempMDD);
                         if (((retval != 0) || (force)) && (outputFileName != NULL))
                         {
-                            char* tempName = new char[strlen(outputFileName) + strlen("image.png") + 1];
+                            char *tempName = new char[strlen(outputFileName) + strlen("image.png") + 1];
                             strcpy(tempName, outputFileName);
                             strcat(tempName, ".db.png");
                             saveData(tempName, selectedMDD->get_array(), selectedMDD->get_array_size(), selectedMDD->spatial_domain());
                             strcpy(tempName, outputFileName);
                             strcat(tempName, ".image.png");
                             saveData(tempName, tempMDD->get_array(), tempMDD->get_array_size(), tempMDD->spatial_domain());
-                            delete [] tempName;
+                            delete[] tempName;
                             tempName = NULL;
                         }
                     }
                     ta.abort();
                     db.close();
                 }
-                catch (r_Error& err)
+                catch (r_Error &err)
                 {
                     RMInit::logOut << "Error during administrative action: " << err.get_errorno() << " " << err.what() << endl;
                     retval = EXCEPTIONADMIN;
@@ -249,16 +247,16 @@ SystemCompare::doCompare()
                 if (polygonDefined)
                 {
                     polygon.setMArray(*selectedMDD);
-//                    if (foreGroundDef)
-//                        polygon.fillMArrayInside(foreGround);
-//                    if (backGroundDef)
-//                        polygon.fillMArrayOutside(backGround);
+                    //                    if (foreGroundDef)
+                    //                        polygon.fillMArrayInside(foreGround);
+                    //                    if (backGroundDef)
+                    //                        polygon.fillMArrayOutside(backGround);
                 }
                 if (retval == 0)
                 {
                     //read the scaled mdds from db and scale down the selected MDD and compare
-                    std::list<std::pair<double, char*>>::iterator iter = scaleLevels->begin();
-                    std::list<std::pair<double, char*>>::iterator end = scaleLevels->end();
+                    std::list<std::pair<double, char *>>::iterator iter = scaleLevels->begin();
+                    std::list<std::pair<double, char *>>::iterator end = scaleLevels->end();
                     r_Minterval scaledDomain;
                     r_Minterval clipDomain;
                     unsigned int length = 0;
@@ -274,7 +272,7 @@ SystemCompare::doCompare()
                         factor = iter->first;
                         retval = scaleDomain(overlayDomain, origin, factor, scaledDomain, clipDomain, length);
                         RMInit::logOut << "scaled: " << iter->second << " scaled domain " << scaledDomain << " clip domain " << clipDomain << " result=" << retval << endl;
-                        const r_Type* type = selectedMDD->get_base_type_schema();
+                        const r_Type *type = selectedMDD->get_base_type_schema();
                         size_t tlen = selectedMDD->get_type_length();
                         retval = compareScaledMDD(selectedMDD, clipDomain, scaledDomain, length, iter->second);
                         iter++;
@@ -283,7 +281,7 @@ SystemCompare::doCompare()
                 ta.abort();
                 db.close();
             }
-            catch (r_Error& err)
+            catch (r_Error &err)
             {
                 RMInit::logOut << "Error during administrative action: " << err.get_errorno() << " " << err.what() << endl;
                 retval = EXCEPTIONADMIN;
@@ -297,4 +295,3 @@ SystemCompare::doCompare()
     }
     return retval;
 }
-

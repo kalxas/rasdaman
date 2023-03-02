@@ -26,8 +26,10 @@ namespace rasmgr
 {
 InvalidClientCredentialsException::InvalidClientCredentialsException(const std::string &username)
     : common::RuntimeException("The password provided by the client for user '" + username + "' is invalid.")
-{}
+{
+}
 
 InvalidClientCredentialsException::~InvalidClientCredentialsException() noexcept
-{}
+{
 }
+}  // namespace rasmgr

@@ -21,24 +21,24 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "dbmddset.hh"                 // for DBMDDSet, DBMDDSet::DBMDDObjIdSet
-#include "dbmddobj.hh"                 // for DBMDDObj
-#include "mddid.hh"                    // for DBMDDObjId, DBMDDSetId, DBMDDO...
-#include "reladminif/dbnamedobject.hh"   // for DBNamedObject
-#include "reladminif/dbref.hh"           // for DBRef
-#include "reladminif/dbobject.hh"        // for DBObject
+#include "dbmddset.hh"                  // for DBMDDSet, DBMDDSet::DBMDDObjIdSet
+#include "dbmddobj.hh"                  // for DBMDDObj
+#include "mddid.hh"                     // for DBMDDObjId, DBMDDSetId, DBMDDO...
+#include "reladminif/dbnamedobject.hh"  // for DBNamedObject
+#include "reladminif/dbref.hh"          // for DBRef
+#include "reladminif/dbobject.hh"       // for DBObject
 #include "reladminif/dbobjectiditerator.hh"
-#include "reladminif/objectbroker.hh"    // for ObjectBroker
-#include "reladminif/oidif.hh"           // for OId, operator<<, OId::MDDCOLLOID
-#include "reladminif/lists.h"            // for OIdSet
+#include "reladminif/objectbroker.hh"      // for ObjectBroker
+#include "reladminif/oidif.hh"             // for OId, operator<<, OId::MDDCOLLOID
+#include "reladminif/lists.h"              // for OIdSet
 #include "relcatalogif/collectiontype.hh"  // for CollectionType
 #include "relcatalogif/type.hh"            // for ostream, std::endl
-#include "raslib/mddtypes.hh"          // for r_Bytes, r_Ptr
-#include "raslib/error.hh"             // for r_Error, r_Error::r_Error_Obje...
-#include <logging.hh>                  // for Writer, CTRACE, LTRACE, CFATAL
+#include "raslib/mddtypes.hh"              // for r_Bytes, r_Ptr
+#include "raslib/error.hh"                 // for r_Error, r_Error::r_Error_Obje...
+#include <logging.hh>                      // for Writer, CTRACE, LTRACE, CFATAL
 
-#include <iostream>                    // for operator<<, ostream, std::endl, bas...
-#include <set>                         // for _Rb_tree_const_iterator
+#include <iostream>  // for operator<<, ostream, std::endl, bas...
+#include <set>       // for _Rb_tree_const_iterator
 
 DBMDDSet::DBMDDSet(const char *name, const CollectionType *type)
     : DBNamedObject(name), collType(type)
@@ -121,7 +121,6 @@ void DBMDDSet::setCollType(const CollectionType *collTypeArg)
     setModified();
 }
 
-
 r_Bytes DBMDDSet::getMemorySize() const
 {
     return DBNamedObject::getMemorySize() + sizeof(OIdSet) +
@@ -165,7 +164,7 @@ DBMDDSetId DBMDDSet::getDBMDDSet(const char *name)
 
 DBMDDSetId DBMDDSet::getDBMDDSet(const OId &o)
 {
-  return DBMDDSetId(static_cast<DBMDDSet *>(ObjectBroker::getObjectByOId(o)));
+    return DBMDDSetId(static_cast<DBMDDSet *>(ObjectBroker::getObjectByOId(o)));
 }
 
 bool DBMDDSet::deleteDBMDDSet(const OId &oid)
@@ -244,4 +243,3 @@ void DBMDDSet::updateInDb()
     insertInDb();
     DBObject::updateInDb();
 }
-

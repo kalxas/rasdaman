@@ -32,13 +32,12 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-
 #ifndef QTCASEEQUALITY_HH
 #define QTCASEEQUALITY_HH
 
 #include "qlparser/qtbinaryinduce2.hh"
 
-class QtCaseEquality: public QtEqual
+class QtCaseEquality : public QtEqual
 {
 public:
     /// constructor getting the two operands
@@ -54,4 +53,4 @@ private:
     bool commonOperandDeleted;
 };
 
-#endif  /* QTCASEEQUALITY_HH */
+#endif /* QTCASEEQUALITY_HH */

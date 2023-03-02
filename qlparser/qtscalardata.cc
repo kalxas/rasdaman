@@ -44,8 +44,6 @@ QtScalarData::QtScalarData()
 {
 }
 
-
-
 QtScalarData::QtScalarData(const QtScalarData &obj)
     : QtData(obj),
       ownCells(true)
@@ -57,7 +55,7 @@ QtScalarData::QtScalarData(const QtScalarData &obj)
 
     if (valueType && obj.valueBuffer)
     {
-        valueBuffer = new char[ valueType->getSize() ];
+        valueBuffer = new char[valueType->getSize()];
         memcpy(valueBuffer, obj.valueBuffer, valueType->getSize());
     }
     else
@@ -65,8 +63,6 @@ QtScalarData::QtScalarData(const QtScalarData &obj)
         valueBuffer = NULL;
     }
 }
-
-
 
 QtScalarData::~QtScalarData()
 {
@@ -80,8 +76,6 @@ QtScalarData::~QtScalarData()
         }
     }
 }
-
-
 
 QtDataType
 QtScalarData::getDataType() const
@@ -134,24 +128,19 @@ QtScalarData::getDataType() const
             returnValue = QT_COMPLEX;
             break;
         default:
-            LTRACE << "getDataType() bad type " <<  valueType->getType();
+            LTRACE << "getDataType() bad type " << valueType->getType();
             break;
         }
 
     return returnValue;
 }
 
-
-
-bool
-QtScalarData::isScalarData() const
+bool QtScalarData::isScalarData() const
 {
     return true;
 }
 
-
-bool
-QtScalarData::equal(const QtData *obj) const
+bool QtScalarData::equal(const QtData *obj) const
 {
     int returnValue = false;  // not equal by initialization
 
@@ -159,18 +148,15 @@ QtScalarData::equal(const QtData *obj) const
     {
         QtScalarData *scalarObj = static_cast<QtScalarData *>(const_cast<QtData *>(obj));
 
-        if (getDataType() == scalarObj->getDataType())   // Attention: this is not correct for structs
+        if (getDataType() == scalarObj->getDataType())  // Attention: this is not correct for structs
             // compare value buffers
         {
             returnValue = (memcmp(valueBuffer, scalarObj->valueBuffer, valueType->getSize()) == 0);
         }
-
     }
 
     return returnValue;
 }
-
-
 
 string
 QtScalarData::getSpelling() const
@@ -211,7 +197,6 @@ QtScalarData::getSpelling() const
     return result;
 }
 
-
 char *QtScalarData::getTypeStructure() const
 {
     if (valueType)
@@ -224,17 +209,15 @@ char *QtScalarData::getTypeStructure() const
     }
 }
 
-
-void
-QtScalarData::printStatus(ostream &stream) const
+void QtScalarData::printStatus(ostream &stream) const
 {
     if (valueType)
     {
         auto typeStructure = valueType->getTypeStructure();
 
-        stream << "type: "        << flush << valueType->getTypeName()
+        stream << "type: " << flush << valueType->getTypeName()
                << ", structure: " << flush << typeStructure
-               << ", value: "     << flush;
+               << ", value: " << flush;
 
         valueType->printCell(stream, valueBuffer);
 

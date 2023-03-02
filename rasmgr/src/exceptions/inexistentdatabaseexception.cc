@@ -25,14 +25,17 @@
 namespace rasmgr
 {
 
-InexistentDatabaseException::InexistentDatabaseException(const std::string& dbName)
-  : common::MissingResourceException("The database " + dbName + " does not exist.")
-{}
+InexistentDatabaseException::InexistentDatabaseException(const std::string &dbName)
+    : common::MissingResourceException("The database " + dbName + " does not exist.")
+{
+}
 
 InexistentDatabaseException::InexistentDatabaseException(const std::string &dbName, const std::string &details)
-  : common::MissingResourceException("The database " + dbName + " does not exist: " + details)
-{}
+    : common::MissingResourceException("The database " + dbName + " does not exist: " + details)
+{
+}
 
 InexistentDatabaseException::~InexistentDatabaseException() noexcept
-{}
+{
 }
+}  // namespace rasmgr

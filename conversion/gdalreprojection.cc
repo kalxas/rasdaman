@@ -1,29 +1,29 @@
-#include "config.h"                                 // for HAVE_GDAL
+#include "config.h"  // for HAVE_GDAL
 #include "conversion/gdalreprojection.hh"
 #include "conversion/convutil.hh"
 #include "common/exceptions/runtimeexception.hh"
 #include <common/types/service/basetypeservice.hh>
-#include "common/types/model/typedescriptor.hh"     // for TypeDesc
-#include <common/tilemgr/tilemgr.hh>                // for TileMgr
+#include "common/types/model/typedescriptor.hh"  // for TypeDesc
+#include <common/tilemgr/tilemgr.hh>             // for TileMgr
 #include <common/util/tileutil.hh>
-#include <raslib/minterval.hh>                // for Domain
-#include "raslib/sinterval.hh"              // for Interval
-#include "common/exceptions/exception.hh"           // for Exception
-#include "common/result/model/arraytile.hh"         // for ArrayTile
+#include <raslib/minterval.hh>               // for Domain
+#include "raslib/sinterval.hh"               // for Interval
+#include "common/exceptions/exception.hh"    // for Exception
+#include "common/result/model/arraytile.hh"  // for ArrayTile
 #include <logging.hh>
 
-#include <limits>                                    // for numeric_limits
-#include <cstddef>                                   // for size_t, NULL
-#include <cstdlib>                                   // for strtof
-#include <cstring>                                   // for strtok, NULL
+#include <limits>   // for numeric_limits
+#include <cstddef>  // for size_t, NULL
+#include <cstdlib>  // for strtof
+#include <cstring>  // for strtok, NULL
 
 #ifdef HAVE_GDAL
-#include <gdalwarper.h>                              // for GDALAutoCreateWa...
-#include <ogr_core.h>                                // for OGRERR_NONE, OGRErr
-#include <ogr_spatialref.h>                          // for OGRSpatialReference
-#include <cpl_error.h>                               // for CPLGetLastErrorMsg
-#include <gdal.h>                                    // for GDALGetDriverByName
-#include <gdal_priv.h>                               // for GDALClose, GDALD...
+#include <gdalwarper.h>      // for GDALAutoCreateWa...
+#include <ogr_core.h>        // for OGRERR_NONE, OGRErr
+#include <ogr_spatialref.h>  // for OGRSpatialReference
+#include <cpl_error.h>       // for CPLGetLastErrorMsg
+#include <gdal.h>            // for GDALGetDriverByName
+#include <gdal_priv.h>       // for GDALClose, GDALD...
 #endif
 
 namespace conversion
@@ -32,9 +32,9 @@ namespace conversion
 using namespace common;
 using std::make_shared;
 
-GdalReprojection::GdalReprojection(const common::TypeDesc& typeArg,
-                                   const std::string& boundsIn, const std::string& crsIn,
-                                   const std::string& boundsOut, const std::string& crsOut,
+GdalReprojection::GdalReprojection(const common::TypeDesc &typeArg,
+                                   const std::string &boundsIn, const std::string &crsIn,
+                                   const std::string &boundsOut, const std::string &crsOut,
                                    int widthOut, int heightOut, common::ResampleAlg ra, double et)
     : type{typeArg},
       in{crsIn, boundsIn, static_cast<int>((*type.getExtent())[0].get_extent()),
@@ -47,9 +47,9 @@ GdalReprojection::GdalReprojection(const common::TypeDesc& typeArg,
 #endif
 }
 
-GdalReprojection::GdalReprojection(const common::TypeDesc& typeArg,
-                                   const std::string& boundsIn, const std::string& crsIn,
-                                   const std::string& boundsOut, const std::string& crsOut,
+GdalReprojection::GdalReprojection(const common::TypeDesc &typeArg,
+                                   const std::string &boundsIn, const std::string &crsIn,
+                                   const std::string &boundsOut, const std::string &crsOut,
                                    double xres, double yres, common::ResampleAlg ra, double et)
     : type{typeArg},
       in{crsIn, boundsIn, static_cast<int>((*type.getExtent())[0].get_extent()),
@@ -63,9 +63,9 @@ GdalReprojection::GdalReprojection(const common::TypeDesc& typeArg,
 }
 
 #ifdef HAVE_GDAL
-void throwError(const char* msg, GDALDataset* ds1 = nullptr, GDALDataset* ds2 = nullptr);
+void throwError(const char *msg, GDALDataset *ds1 = nullptr, GDALDataset *ds2 = nullptr);
 
-void throwError(const char* msg, GDALDataset* ds1, GDALDataset* ds2)
+void throwError(const char *msg, GDALDataset *ds1, GDALDataset *ds2)
 {
     auto msgStr = std::string(msg) + ": " + std::string(CPLGetLastErrorMsg());
     LERROR << msgStr;
@@ -81,14 +81,14 @@ void throwError(const char* msg, GDALDataset* ds1, GDALDataset* ds2)
 }
 #endif
 
-ArrayTilePtr GdalReprojection::reproject(const ArrayTilePtr& tile)
+ArrayTilePtr GdalReprojection::reproject(const ArrayTilePtr &tile)
 {
 #ifdef HAVE_GDAL
     assert(tile);
 
     LRDEBUG("Reprojecting:\n in  - " << in.toString() << "\n out - " << out.toString());
 
-    const auto& domain = tile->getDomain();
+    const auto &domain = tile->getDomain();
     const auto cellCount = domain.cell_count();
     // suffix i = int; the extra variables are for convenience as GDAL expects int
     // no suffix = size_t
@@ -108,19 +108,18 @@ ArrayTilePtr GdalReprojection::reproject(const ArrayTilePtr& tile)
     //
     LRDEBUG("Tile with domain " << domain.to_string() << " -> GDAL dataset...");
     CPLErrorReset();
-    auto* driver = (GDALDriver*) GDALGetDriverByName("MEM");
+    auto *driver = (GDALDriver *)GDALGetDriverByName("MEM");
     if (driver == NULL)
         throw common::RuntimeException{"Could not init GDAL driver."};
-    auto* srcDs = driver->Create("mem_in", wi, hi, ni, gBandType, NULL);
+    auto *srcDs = driver->Create("mem_in", wi, hi, ni, gBandType, NULL);
     {
         const auto dst = TileMgr::getTile<char>(cellCount * bandCellSz);
-//        memset(dst.get(), 0, cellCount * bandCellSz);
+        //        memset(dst.get(), 0, cellCount * bandCellSz);
         for (size_t i = 0; i < n; ++i)
         {
             LDEBUG << "transposing band " << i << " of tile with dimensions " << w << " x " << h;
             TileUtil::transpose(tile->getTileBand(i).data(), dst.get(), h, w, rBandType);
-            if (srcDs->GetRasterBand(static_cast<int>(i) + 1)->RasterIO(
-                        GF_Write, 0, 0, wi, hi, dst.get(), wi, hi, gBandType, 0, 0) != CE_None)
+            if (srcDs->GetRasterBand(static_cast<int>(i) + 1)->RasterIO(GF_Write, 0, 0, wi, hi, dst.get(), wi, hi, gBandType, 0, 0) != CE_None)
             {
                 throwError("Failed converting tile to a GDAL dataset");
             }
@@ -136,7 +135,7 @@ ArrayTilePtr GdalReprojection::reproject(const ArrayTilePtr& tile)
     LDEBUG << "Reprojecting dataset...";
     auto interpolation = static_cast<GDALResampleAlg>(resampleAlg);
 
-    GDALDataset* dstDs{nullptr};
+    GDALDataset *dstDs{nullptr};
     if (!out.bounds.empty())
     {
         // output bounds are set, use GDALReprojectImage in this case
@@ -150,25 +149,25 @@ ArrayTilePtr GdalReprojection::reproject(const ArrayTilePtr& tile)
         //                   the GDALReprojectImage method. Keeping it in case it
         //                   is needed for more advanced use case in future.
 
-        void* hTransformArg = GDALCreateGenImgProjTransformer2(srcDs, nullptr, nullptr);
-        void* phTransformArg = hTransformArg;
+        void *hTransformArg = GDALCreateGenImgProjTransformer2(srcDs, nullptr, nullptr);
+        void *phTransformArg = hTransformArg;
         GDALSetGenImgProjTransformerDstGeoTransform(phTransformArg, out.gt);
         GDALTransformerFunc pfnTransformer = GDALGenImgProjTransform;
 
-        GDALWarpOptions* psWO = GDALCreateWarpOptions();
+        GDALWarpOptions *psWO = GDALCreateWarpOptions();
         psWO->eWorkingDataType = gBandType;
         psWO->eResampleAlg = interpolation;
         psWO->hSrcDS = srcDs;
         psWO->hDstDS = dstDs;
         psWO->nBandCount = n;
-        psWO->panSrcBands = static_cast<int*>(CPLMalloc(n * sizeof(int)));
-        psWO->panDstBands = static_cast<int*>(CPLMalloc(n * sizeof(int)));
+        psWO->panSrcBands = static_cast<int *>(CPLMalloc(n * sizeof(int)));
+        psWO->panDstBands = static_cast<int *>(CPLMalloc(n * sizeof(int)));
         for (int i = 0; i < psWO->nBandCount; i++)
         {
             psWO->panSrcBands[i] = psWO->panDstBands[i] = i + 1;
         }
         hTransformArg = GDALCreateApproxTransformer(
-                            GDALGenImgProjTransform, hTransformArg, errThreshold);
+            GDALGenImgProjTransform, hTransformArg, errThreshold);
         pfnTransformer = GDALApproxTransform;
         GDALApproxTransformerOwnsSubtransformer(hTransformArg, TRUE);
         psWO->pfnTransformer = pfnTransformer;
@@ -202,8 +201,8 @@ ArrayTilePtr GdalReprojection::reproject(const ArrayTilePtr& tile)
     else
     {
         // output bounds are _not_ set, use GDALAutoCreateWarpedVRT
-        dstDs = (GDALDataset*) GDALAutoCreateWarpedVRT(srcDs,
-                in.wkt.c_str(), out.wkt.c_str(), interpolation, errThreshold, NULL);
+        dstDs = (GDALDataset *)GDALAutoCreateWarpedVRT(srcDs,
+                                                       in.wkt.c_str(), out.wkt.c_str(), interpolation, errThreshold, NULL);
         if (!dstDs)
         {
             throwError("Reprojection failed", srcDs);
@@ -227,17 +226,17 @@ ArrayTilePtr GdalReprojection::reproject(const ArrayTilePtr& tile)
                                            {0ll, r_Range(hi - 1)}}}));
     auto tileSz = w * h * BaseTypeService::getBaseTypeSizeInBytes(rBandType);
     auto src = TileMgr::getTile<char>(tileSz);
-//    memset(src.get(), 0, tileSz);
+    //    memset(src.get(), 0, tileSz);
 
     for (int band = 0; band < ni; ++band)
     {
         if (dstDs->GetRasterBand(band + 1)->RasterIO(
-                    GF_Read, 0, 0, wi, hi, src.get(), wi, hi, gBandType, 0, 0) != CE_None)
+                GF_Read, 0, 0, wi, hi, src.get(), wi, hi, gBandType, 0, 0) != CE_None)
         {
             throwError("Failed reading raster band data from GDAL dataset", dstDs);
         }
         auto tileData = TileMgr::getTile<char>(tileSz);
-//        memset(tileData.get(), 0, tileSz);
+        //        memset(tileData.get(), 0, tileSz);
         TileUtil::transpose(src.get(), tileData.get(), w, h, rBandType);
         result->appendTileBand(std::move(tileData));
     }
@@ -248,13 +247,13 @@ ArrayTilePtr GdalReprojection::reproject(const ArrayTilePtr& tile)
 #endif
 }
 
-const std::string& GdalReprojection::getCrsIn() const
+const std::string &GdalReprojection::getCrsIn() const
 {
     return in.crs;
 }
-const std::string& GdalReprojection::getCrsOut() const
+const std::string &GdalReprojection::getCrsOut() const
 {
-  return out.crs;
+    return out.crs;
 }
 
-}
+}  // namespace conversion

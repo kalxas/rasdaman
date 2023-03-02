@@ -39,10 +39,10 @@ public:
      * @brief DbHostAlreadyExistsException
      * @param dbHostName Name of the database host that the user tried to duplicate.
      */
-    DbHostAlreadyExistsException(const std::string& dbHostName);
+    DbHostAlreadyExistsException(const std::string &dbHostName);
 
     virtual ~DbHostAlreadyExistsException() noexcept;
 };
 
-}
-#endif // RASMGR_X_SRC_EXCEPTIONS_DATABASEHOSTEXCEPTION_HH
+}  // namespace rasmgr
+#endif  // RASMGR_X_SRC_EXCEPTIONS_DATABASEHOSTEXCEPTION_HH

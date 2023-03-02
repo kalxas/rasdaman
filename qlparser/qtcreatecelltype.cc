@@ -63,7 +63,6 @@ void QtCreateCellType::checkType()
             throw parseInfo;
         }
     }
-
 }
 
 void QtCreateCellType::printTree(int tab, std::ostream &s, __attribute__((unused)) QtChildType mode)
@@ -85,7 +84,6 @@ void QtCreateCellType::printTree(int tab, std::ostream &s, __attribute__((unused
         isFirst = false;
     }
 }
-
 
 void QtCreateCellType::printAlgebraicExpression(std::ostream &s)
 {

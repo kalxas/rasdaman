@@ -35,7 +35,6 @@ rasdaman GmbH.
 #include "tilemgr/tile.hh"
 #include "tilemgr/transtile.hh"
 
-
 #include "raslib/rminit.hh"
 RMINITGLOBALS('C')
 
@@ -46,11 +45,11 @@ RMINITGLOBALS('C')
 #include "transactionif.hh"
 
 // perhaps used later
-static char O2BenchDBName[]  = "TestSMBase";
+static char O2BenchDBName[] = "TestSMBase";
 static char O2BenchSchemaName[] = "TestSMSchema";
 
 // static void ClearDB( d_Database &DB );
-extern char* myExecArgv0 = "";
+extern char *myExecArgv0 = "";
 
 /*************************************************************
  * Function name.: int main( int argc, char** argv)
@@ -61,8 +60,7 @@ extern char* myExecArgv0 = "";
  * Return value..: exit status
  * Description...: none
  ************************************************************/
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // variables representing O2 database, ta and session
     DatabaseIf database;
@@ -70,19 +68,17 @@ main(int argc, char** argv)
 
     // don't forget to initialize before using AdminIf!
     myExecArgv0 = argv[0];
-    AdminIf* myAdmin = AdminIf::instance();
-
+    AdminIf *myAdmin = AdminIf::instance();
 
     // connect to the database
     cout << "Connecting to database " << O2BenchDBName << "..." << endl;
     database.open(O2BenchDBName);
 
-
     // create indexes and put them in TestMDDObjContainer
     cout << " SplitTile..." << endl;
     ta.begin();
 
-    static BaseType* bt = TypeFactory::mapType("Short");
+    static BaseType *bt = TypeFactory::mapType("Short");
     cout << "BaseType " << bt->getTypeName() << endl;
 
     r_Minterval tileDom =
@@ -95,9 +91,9 @@ main(int argc, char** argv)
     // ("[0:39,0:39]");
     cout << "BigTileDom " << BigTileDom << endl;
 
-    unsigned long  sz = bt->getSize() * BigTileDom.cell_count();
+    unsigned long sz = bt->getSize() * BigTileDom.cell_count();
 
-    char* cells = new char[sz];
+    char *cells = new char[sz];
     /*
     for (int i = 0; i < sz ; i++ )
     {
@@ -105,27 +101,26 @@ main(int argc, char** argv)
        else cells[i] = 0;
     }
     */
-    short* typedCells = (short*) cells;
+    short *typedCells = (short *)cells;
     unsigned typedSz = BigTileDom.cell_count();
     for (int i = 0; i < typedSz; i++)
     {
         typedCells[i] = i;
     }
 
-    vector<Tile*>* tilesReturned;
-    TransTile* tile1Obj1 = new TransTile(BigTileDom,
-                                         (const BaseType*) bt,
-                                         (char*) cells, 1);
+    vector<Tile *> *tilesReturned;
+    TransTile *tile1Obj1 = new TransTile(BigTileDom,
+                                         (const BaseType *)bt,
+                                         (char *)cells, 1);
 
     cout << "Calling splitTile " << endl;
     tilesReturned = tile1Obj1->splitTile(tileDom);
     cout << "Finished splitTile " << endl;
 
+    vector<Tile *>::iterator entryIt = tilesReturned->begin();
 
-    vector<Tile*>::iterator entryIt = tilesReturned->begin();
-
-    i = 0 ;
-    while (entryIt !=  tilesReturned->end())
+    i = 0;
+    while (entryIt != tilesReturned->end())
     {
         cout << "Tile " << i << endl;
         (*entryIt)->printStatus();
@@ -137,8 +132,8 @@ main(int argc, char** argv)
 
     delete[] cells;
 
-    cout << endl << "Ending O2 session..." << endl;
+    cout << endl
+         << "Ending O2 session..." << endl;
     database.close();
     delete myAdmin;
 }
-

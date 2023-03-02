@@ -57,28 +57,26 @@ rasdaman GmbH.
 #include "rasodmg/dirdecompose.hh"
 #include "rasodmg/storagelayout.hh"
 
-#define YEARS               (2L)
+#define YEARS (2L)
 
-#define TOTAL_DAYS          (365L * 2L)
-#define TOTAL_PRODUCTS      (60L)
-#define TOTAL_STORES        (100L)
+#define TOTAL_DAYS (365L * 2L)
+#define TOTAL_PRODUCTS (60L)
+#define TOTAL_STORES (100L)
 
+#define MAX_SALES 500
 
-#define MAX_SALES           500
+#define S_32K (32 * 1024L)
+#define S_64K (64 * 1024L)
+#define S_128K (128 * 1024L)
+#define S_256K (256 * 1024L)
 
-#define S_32K               (32  * 1024L)
-#define S_64K               (64  * 1024L)
-#define S_128K              (128 * 1024L)
-#define S_256K              (256 * 1024L)
+#define TOTAL_CUBES 10
 
-#define TOTAL_CUBES         10
+char *server_name;
+char *dbase_name;
+char *colect_name;
 
-
-char* server_name;
-char* dbase_name;
-char* colect_name;
-
-void parse(int argc, char* argv[])
+void parse(int argc, char *argv[])
 {
     if (argc != 4)
     {
@@ -89,29 +87,27 @@ void parse(int argc, char* argv[])
     }
 
     server_name = argv[1];
-    dbase_name  = argv[2];
+    dbase_name = argv[2];
     colect_name = argv[3];
 }
 
-r_ULong init(const r_Point& pnt)
+r_ULong init(const r_Point &pnt)
 {
     return (long)(rand() % MAX_SALES);
 }
 
 void insert_datacube()
 {
-
-    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>>  cube_set;
+    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>> cube_set;
     // r_Ref< r_Marray<r_ULong> >                 cube[TOTAL_CUBES];
-    r_Minterval                                   domain, block_config;
-    r_Storage_Layout*                             dsl[TOTAL_CUBES];
-    r_OId                                         oid[TOTAL_CUBES];
+    r_Minterval domain, block_config;
+    r_Storage_Layout *dsl[TOTAL_CUBES];
+    r_OId oid[TOTAL_CUBES];
 
     domain = r_Minterval(3);
     domain << r_Sinterval((r_Range)1L, (r_Range)TOTAL_DAYS)
            << r_Sinterval((r_Range)1L, (r_Range)TOTAL_PRODUCTS)
            << r_Sinterval((r_Range)1L, (r_Range)TOTAL_STORES);
-
 
     block_config = r_Minterval(3);
     block_config << r_Sinterval((r_Range)0L, (r_Range)TOTAL_DAYS)
@@ -122,11 +118,10 @@ void insert_datacube()
     // ( and server ) crashes because memory is released for a non heap memory free
     // r_Marray become responsible for managing the memory allocated for the
     // tiling object.
-    r_Aligned_Tiling* til_reg_32k = new r_Aligned_Tiling(block_config, S_32K);
-    r_Aligned_Tiling* til_reg_64k = new r_Aligned_Tiling(block_config, S_64K);
-    r_Aligned_Tiling* til_reg_128k = new r_Aligned_Tiling(block_config, S_128K);
-    r_Aligned_Tiling* til_reg_256k = new r_Aligned_Tiling(block_config, S_256K);
-
+    r_Aligned_Tiling *til_reg_32k = new r_Aligned_Tiling(block_config, S_32K);
+    r_Aligned_Tiling *til_reg_64k = new r_Aligned_Tiling(block_config, S_64K);
+    r_Aligned_Tiling *til_reg_128k = new r_Aligned_Tiling(block_config, S_128K);
+    r_Aligned_Tiling *til_reg_256k = new r_Aligned_Tiling(block_config, S_256K);
 
     // For directional tiling
 
@@ -137,12 +132,12 @@ void insert_datacube()
     decomp.push_back(c);
 
     //                Jan  Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dez
-    unsigned int daysMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    unsigned int daysMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     int ix = 0;
     int year;
     int month;
     decomp[0] << 1;
-    for (year = 0; year < YEARS ; year++)
+    for (year = 0; year < YEARS; year++)
     {
         for (month = 0; month < 12; month++)
         {
@@ -154,15 +149,12 @@ void insert_datacube()
     decomp[1] << 1 << 60;
 
     // << 1 << 1 + 26 << 27 + 8 << 35 + 6 << 41 + 18 << 59 + 14 << 73 + 16 << 89 + 8 << 97 + 3;
-    decomp[2] << 1 <<  27 <<  35 << 41 << 59 << 73 << 89 << 97 << 100;
+    decomp[2] << 1 << 27 << 35 << 41 << 59 << 73 << 89 << 97 << 100;
 
-
-    r_Dir_Tiling* til_dir_32k = new r_Dir_Tiling((r_Dimension)3, decomp, S_32K);
-    r_Dir_Tiling* til_dir_64k = new r_Dir_Tiling((r_Dimension)3, decomp, S_64K);
-    r_Dir_Tiling* til_dir_128k = new r_Dir_Tiling((r_Dimension)3, decomp, S_128K);
-    r_Dir_Tiling* til_dir_256k = new r_Dir_Tiling((r_Dimension)3, decomp, S_256K);
-
-
+    r_Dir_Tiling *til_dir_32k = new r_Dir_Tiling((r_Dimension)3, decomp, S_32K);
+    r_Dir_Tiling *til_dir_64k = new r_Dir_Tiling((r_Dimension)3, decomp, S_64K);
+    r_Dir_Tiling *til_dir_128k = new r_Dir_Tiling((r_Dimension)3, decomp, S_128K);
+    r_Dir_Tiling *til_dir_256k = new r_Dir_Tiling((r_Dimension)3, decomp, S_256K);
 
     vector<r_Dir_Decompose> decomp1;
     r_Dir_Decompose e, f, g;
@@ -172,7 +164,7 @@ void insert_datacube()
 
     ix = 0;
     decomp1[0] << 1;
-    for (year = 0; year < YEARS ; year++)
+    for (year = 0; year < YEARS; year++)
     {
         for (month = 0; month < 12; month++)
         {
@@ -183,14 +175,14 @@ void insert_datacube()
 
     // Products
     // << 1<< 1+ 26 << 27 + 15 << 42 + 28
-    decomp1[1] << 1 <<  27 <<  42 << 60;
+    decomp1[1] << 1 << 27 << 42 << 60;
 
     // Stores
     // << 1 << 1 + 26 << 27 + 8 << 35 + 6 << 41 + 18 << 59 + 14 << 73 + 16 << 89 + 8 << 97 + 3;
-    decomp1[2] << 1 <<  27 <<  35 << 41 << 59 << 73 << 89 << 97 << 100;
+    decomp1[2] << 1 << 27 << 35 << 41 << 59 << 73 << 89 << 97 << 100;
 
-    r_Dir_Tiling* til_dir1_32k = new r_Dir_Tiling((r_Dimension)3, decomp1, S_32K);
-    r_Dir_Tiling* til_dir1_64k = new r_Dir_Tiling((r_Dimension)3, decomp1, S_64K);
+    r_Dir_Tiling *til_dir1_32k = new r_Dir_Tiling((r_Dimension)3, decomp1, S_32K);
+    r_Dir_Tiling *til_dir1_64k = new r_Dir_Tiling((r_Dimension)3, decomp1, S_64K);
 
     // Domain storage layouts
 
@@ -207,8 +199,7 @@ void insert_datacube()
     dsl[8] = new r_Storage_Layout(til_dir1_32k);
     dsl[9] = new r_Storage_Layout(til_dir1_64k);
 
-
-    for (int i = 0 ; i < TOTAL_CUBES ; i++)
+    for (int i = 0; i < TOTAL_CUBES; i++)
     {
         r_Database db;
         r_Transaction trans;
@@ -229,7 +220,6 @@ void insert_datacube()
 
             trans.begin();
 
-
             cout << "Ok" << endl;
             cout << "Opening the set... " << flush;
 
@@ -242,7 +232,7 @@ void insert_datacube()
                 cout << "*Failed*" << endl;
                 cout << "Creating the set... " << flush;
 
-                cube_set = new(&db, "ULong_3D_Set") r_Set<r_Ref<r_Marray<r_ULong>>>;
+                cube_set = new (&db, "ULong_3D_Set") r_Set<r_Ref<r_Marray<r_ULong>>>;
                 db.set_object_name(*cube_set, colect_name);
             }
 
@@ -254,7 +244,7 @@ void insert_datacube()
             // cube[i] =
             cout << "domain == " << domain << endl;
             cube1 =
-                new(&db, "ULongCube") r_Marray<r_ULong>(domain, 1L/* &init */, dsl[i]);
+                new (&db, "ULongCube") r_Marray<r_ULong>(domain, 1L /* &init */, dsl[i]);
 
             // cube_set->insert_element(cube[i]);
             // oid[i] = cube[i].get_oid();
@@ -263,14 +253,13 @@ void insert_datacube()
 
             cout << "*" << flush;
 
-
             cout << " ... Ok" << endl;
 
             cout << "  Cube[" << i + 1 << "]:  " << oid[i] << endl;
             cout << "  Spatial domain: " << cube1->spatial_domain() << endl;
             cout << "  Type length: " << cube1->get_type_length() << endl;
             cout << "  Storage Layout:  ";
-            r_Bytes tileSize = ((r_Size_Tiling*) dsl[i]->get_tiling())->get_tile_size();
+            r_Bytes tileSize = ((r_Size_Tiling *)dsl[i]->get_tiling())->get_tile_size();
             if (i < 4)
             {
                 cout << "regular; tile size " << tileSize << endl;
@@ -279,9 +268,9 @@ void insert_datacube()
             {
                 cout << "directional; tile size " << tileSize << endl;
                 cout << "Dir decompose:  ";
-                for (int j = 0; j < 3 ; j++)
+                for (int j = 0; j < 3; j++)
                 {
-                    for (int k = 0; k < 3 ; k++)
+                    for (int k = 0; k < 3; k++)
                     {
                         if (i < 8)
                         {
@@ -305,9 +294,8 @@ void insert_datacube()
             cout << "Closing database... " << flush;
 
             db.close();
-
         }
-        catch (r_Error& e)
+        catch (r_Error &e)
         {
             cout << e.what() << endl;
             exit(0);
@@ -319,25 +307,18 @@ void insert_datacube()
         }
     }
 
-    cout << "Ok [******************]" << endl << flush;
+    cout << "Ok [******************]" << endl
+         << flush;
 
     cout << endl;
     cout << "Inserted data resume" << endl;
     cout << "====================" << endl;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     parse(argc, argv);
     insert_datacube();
 
     return 0;
 }
-
-
-
-
-
-
-
-

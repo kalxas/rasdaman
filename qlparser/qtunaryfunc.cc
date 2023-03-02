@@ -34,13 +34,10 @@ rasdaman GmbH.
 
 const QtNode::QtNodeType QtIntervalLoOp::nodeType = QtNode::QT_LO;
 
-
 QtIntervalLoOp::QtIntervalLoOp(QtOperation *newInput)
     : QtUnaryOperation(newInput)
 {
 }
-
-
 
 QtData *
 QtIntervalLoOp::evaluate(QtDataList *inputList)
@@ -96,7 +93,6 @@ QtIntervalLoOp::evaluate(QtDataList *inputList)
         {
             operand->deleteRef();
         }
-
     }
     else
     {
@@ -108,20 +104,14 @@ QtIntervalLoOp::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
-void
-QtIntervalLoOp::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtIntervalLoOp::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIntervalLoOp Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtIntervalLoOp::printAlgebraicExpression(std::ostream &s)
+void QtIntervalLoOp::printAlgebraicExpression(std::ostream &s)
 {
     s << "(" << std::flush;
 
@@ -137,8 +127,6 @@ QtIntervalLoOp::printAlgebraicExpression(std::ostream &s)
     s << ").lo ";
 }
 
-
-
 const QtTypeElement &
 QtIntervalLoOp::checkType(QtTypeTuple *typeTuple)
 {
@@ -147,7 +135,6 @@ QtIntervalLoOp::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input)
     {
-
         // get input type
         const QtTypeElement &inputType = input->checkType(typeTuple);
 
@@ -168,17 +155,12 @@ QtIntervalLoOp::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-
-
 const QtNode::QtNodeType QtIntervalHiOp::nodeType = QtNode::QT_HI;
-
 
 QtIntervalHiOp::QtIntervalHiOp(QtOperation *newInput)
     : QtUnaryOperation(newInput)
 {
 }
-
-
 
 QtData *
 QtIntervalHiOp::evaluate(QtDataList *inputList)
@@ -245,20 +227,14 @@ QtIntervalHiOp::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
-void
-QtIntervalHiOp::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtIntervalHiOp::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIntervalHiOp Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtIntervalHiOp::printAlgebraicExpression(std::ostream &s)
+void QtIntervalHiOp::printAlgebraicExpression(std::ostream &s)
 {
     s << "(" << std::flush;
 
@@ -274,8 +250,6 @@ QtIntervalHiOp::printAlgebraicExpression(std::ostream &s)
     s << ").hi ";
 }
 
-
-
 const QtTypeElement &
 QtIntervalHiOp::checkType(QtTypeTuple *typeTuple)
 {
@@ -284,7 +258,6 @@ QtIntervalHiOp::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input)
     {
-
         // get input type
         const QtTypeElement &inputType = input->checkType(typeTuple);
 
@@ -304,18 +277,12 @@ QtIntervalHiOp::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-
-
-
 const QtNode::QtNodeType QtSDom::nodeType = QtNode::QT_SDOM;
-
 
 QtSDom::QtSDom(QtOperation *newInput)
     : QtUnaryOperation(newInput)
 {
 }
-
-
 
 QtData *
 QtSDom::evaluate(QtDataList *inputList)
@@ -344,7 +311,7 @@ QtSDom::evaluate(QtDataList *inputList)
         }
 #endif
 
-        QtMDD  *qtMDD  = static_cast<QtMDD *>(operand);
+        QtMDD *qtMDD = static_cast<QtMDD *>(operand);
         MDDObj *currentMDDObj = qtMDD->getMDDObject();
         auto *nullValues = currentMDDObj->getNullValues();
 
@@ -367,10 +334,7 @@ QtSDom::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
-void
-QtSDom::optimizeLoad(QtTrimList *trimList)
+void QtSDom::optimizeLoad(QtTrimList *trimList)
 {
     // reset trimList because optimization enters a new MDD area
 
@@ -390,20 +354,14 @@ QtSDom::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-
-
-void
-QtSDom::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtSDom::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtSDom Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtSDom::printAlgebraicExpression(std::ostream &s)
+void QtSDom::printAlgebraicExpression(std::ostream &s)
 {
     s << "sdom(" << std::flush;
 
@@ -419,8 +377,6 @@ QtSDom::printAlgebraicExpression(std::ostream &s)
     s << ")";
 }
 
-
-
 const QtTypeElement &
 QtSDom::checkType(QtTypeTuple *typeTuple)
 {
@@ -429,7 +385,6 @@ QtSDom::checkType(QtTypeTuple *typeTuple)
     // check operand branches
     if (input)
     {
-
         // get input type
         const QtTypeElement &inputType = input->checkType(typeTuple);
 
@@ -450,37 +405,29 @@ QtSDom::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-
-
-
 const QtNode::QtNodeType QtAxisSDom::nodeType = QT_AXISSDOM;
 
-
 QtAxisSDom::QtAxisSDom(QtOperation *mdd, r_Dimension axisInput)
-    :  QtUnaryOperation(mdd),
-     axis(axisInput), namedAxisFlag(false)
+    : QtUnaryOperation(mdd),
+      axis(axisInput), namedAxisFlag(false)
 {
 }
 
 // named axis
 QtAxisSDom::QtAxisSDom(QtOperation *mdd, const std::string &axisInput)
-    :  QtUnaryOperation(mdd),
-     namedAxisFlag(true), axisName(axisInput)
+    : QtUnaryOperation(mdd),
+      namedAxisFlag(true), axisName(axisInput)
 {
 }
 
-
-void
-QtAxisSDom::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtAxisSDom::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtAxisSDom Object " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree(tab, s, mode);
 }
 
-
-void
-QtAxisSDom::optimizeLoad(QtTrimList *trimList)
+void QtAxisSDom::optimizeLoad(QtTrimList *trimList)
 {
     // reset trimList because optimization enters a new MDD area
 
@@ -500,8 +447,7 @@ QtAxisSDom::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-void
-QtAxisSDom::printAlgebraicExpression(std::ostream &s)
+void QtAxisSDom::printAlgebraicExpression(std::ostream &s)
 {
     s << "QtAxisSDom(" << std::flush;
 
@@ -516,7 +462,6 @@ QtAxisSDom::printAlgebraicExpression(std::ostream &s)
 
     s << ")";
 }
-
 
 const QtTypeElement &
 QtAxisSDom::checkType(QtTypeTuple *typeTuple)
@@ -537,7 +482,7 @@ QtAxisSDom::checkType(QtTypeTuple *typeTuple)
         }
 
         // if axis input is a name, get actual axes names of input array and save into vector.
-        if(namedAxisFlag)
+        if (namedAxisFlag)
         {
             r_Minterval domainDef = *((static_cast<MDDDomainType *>(const_cast<Type *>(inputType.getType())))->getDomain());
             std::vector<std::string> axisDef = (&domainDef)->get_axis_names();
@@ -557,26 +502,25 @@ QtAxisSDom::checkType(QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-void
-QtAxisSDom::getAxisFromName()
+void QtAxisSDom::getAxisFromName()
 {
     bool found = false;
     std::vector<std::string> axisNamesVector = *axisNamesCorrect;
     std::vector<std::string>::iterator axisNamesVectorIt;
 
-    unsigned int count = 0;// loop through all axes names in the vector.
-    for(axisNamesVectorIt = axisNamesVector.begin(); axisNamesVectorIt != axisNamesVector.end(); axisNamesVectorIt++, count++)
+    unsigned int count = 0;  // loop through all axes names in the vector.
+    for (axisNamesVectorIt = axisNamesVector.begin(); axisNamesVectorIt != axisNamesVector.end(); axisNamesVectorIt++, count++)
     {
-        if( (*axisNamesVectorIt).compare(axisName) == 0 )// if the name matches one of the names in the vector, take that axis
+        if ((*axisNamesVectorIt).compare(axisName) == 0)  // if the name matches one of the names in the vector, take that axis
         {
             axis = count;
             found = true;
             break;
         }
     }
-    if(!found)// in case the name does not correspond to any axis
+    if (!found)  // in case the name does not correspond to any axis
     {
-        LERROR <<"Error: QtAxisSDom::getAxisFromName() - Name of the axis doesn't correspond with any defined axis name of the type.";
+        LERROR << "Error: QtAxisSDom::getAxisFromName() - Name of the axis doesn't correspond with any defined axis name of the type.";
         AxisParseInfo.setErrorNo(347);
         throw AxisParseInfo;
     }
@@ -585,20 +529,20 @@ QtAxisSDom::getAxisFromName()
 QtData *
 QtAxisSDom::evaluate(QtDataList *inputList)
 {
-    QtData *operand = NULL;// operand: input MDD
+    QtData *operand = NULL;  // operand: input MDD
     operand = input->evaluate(inputList);
 
     // get mddobj
-    QtMDD  *qtMDD  = static_cast<QtMDD *>(operand);
+    QtMDD *qtMDD = static_cast<QtMDD *>(operand);
     MDDObj *currentMDDObj = qtMDD->getMDDObject();
     auto *nullValues = currentMDDObj->getNullValues();
     // get current minterval
     r_Minterval currentDomain = currentMDDObj->getCurrentDomain();
     // check that the axis is within bounds - always parsed as positive int.
-    if(axis >= currentDomain.dimension())
+    if (axis >= currentDomain.dimension())
     {
         LERROR << "Internal error in QtAxisSDom::evaluate() - "
-                   << "The axis is outside the array's spatial domain.";
+               << "The axis is outside the array's spatial domain.";
 
         AxisParseInfo.setErrorNo(AXIS_OUTOFBOUNDS);
         throw AxisParseInfo;
@@ -607,9 +551,9 @@ QtAxisSDom::evaluate(QtDataList *inputList)
     // spatial domain at axis:
     r_Sinterval sdom = currentDomain[axis];
     std::vector<r_Sinterval> interval;
-    interval.push_back(sdom);// create Minterval
+    interval.push_back(sdom);  // create Minterval
 
-    QtData *returnValue = new QtMintervalData( r_Minterval( interval ) );
+    QtData *returnValue = new QtMintervalData(r_Minterval(interval));
     returnValue->setNullValues(nullValues);
 
     return returnValue;

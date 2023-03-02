@@ -11,4 +11,4 @@
 #include "resourcebusyexception.hh"
 #include "runtimeexception.hh"
 
-#endif // COMMON_SRC_EXCEPTIONS_RASEXCEPTIONS_HH
+#endif  // COMMON_SRC_EXCEPTIONS_RASEXCEPTIONS_HH

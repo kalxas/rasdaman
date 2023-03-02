@@ -20,7 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-
 #include "database.hh"
 #include "databasehost.hh"
 #include "exceptions/inexistentdatabaseexception.hh"
@@ -33,8 +32,8 @@
 namespace rasmgr
 {
 
-DatabaseHost::DatabaseHost(const std::string &hostName, const std::string &connectString) :
-    hostName(hostName), connectString(connectString)
+DatabaseHost::DatabaseHost(const std::string &hostName, const std::string &connectString)
+    : hostName(hostName), connectString(connectString)
 {
     this->sessionCount = 0;
     this->serverCount = 0;
@@ -44,7 +43,7 @@ void DatabaseHost::addClientSessionOnDB(const std::string &databaseName, std::ui
 {
     boost::upgrade_lock<boost::shared_mutex> lock(databaseListMutex);
     bool foundDb = false;
-    for (auto it = this->databaseList.begin(); !foundDb &&  it != this->databaseList.end(); it++)
+    for (auto it = this->databaseList.begin(); !foundDb && it != this->databaseList.end(); it++)
     {
         if ((*it)->getDbName() == databaseName)
         {
@@ -53,7 +52,7 @@ void DatabaseHost::addClientSessionOnDB(const std::string &databaseName, std::ui
             //on this db, the next line will throw an exception
             //and the counter will not be incremented
             (*it)->addClientSession(clientId, sessionId);
-            
+
             boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
             this->sessionCount++;
         }
@@ -204,4 +203,4 @@ bool DatabaseHost::containsDatabase(const std::string &dbName)
     }
     return false;
 }
-}
+}  // namespace rasmgr

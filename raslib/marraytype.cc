@@ -27,22 +27,22 @@ rasdaman GmbH.
 #include <logging.hh>
 
 r_Marray_Type::r_Marray_Type()
-    :   r_Type()
+    : r_Type()
 {
 }
 
 r_Marray_Type::r_Marray_Type(const r_Base_Type &newBaseType)
-    :   r_Type(),
-        baseType(static_cast<r_Base_Type *>(newBaseType.clone()))
+    : r_Type(),
+      baseType(static_cast<r_Base_Type *>(newBaseType.clone()))
 {
 }
 
 r_Marray_Type::r_Marray_Type(const r_Marray_Type &oldObj)
-    :   r_Type(oldObj)
+    : r_Type(oldObj)
 {
     if (oldObj.baseType)
     {
-        baseType =  static_cast<r_Base_Type *>(oldObj.baseType->clone());
+        baseType = static_cast<r_Base_Type *>(oldObj.baseType->clone());
     }
     else
     {
@@ -73,8 +73,7 @@ r_Marray_Type::operator=(const r_Marray_Type &oldObj)
     return *this;
 }
 
-bool
-r_Marray_Type::isMarrayType() const
+bool r_Marray_Type::isMarrayType() const
 {
     return true;
 }
@@ -97,18 +96,15 @@ r_Marray_Type::type_id() const
     return MARRAYTYPE;
 }
 
-void
-r_Marray_Type::convertToLittleEndian(char *, r_Area) const
+void r_Marray_Type::convertToLittleEndian(char *, r_Area) const
 {
 }
 
-void
-r_Marray_Type::convertToBigEndian(char *, r_Area) const
+void r_Marray_Type::convertToBigEndian(char *, r_Area) const
 {
 }
 
-void
-r_Marray_Type::print_status(std::ostream &s) const
+void r_Marray_Type::print_status(std::ostream &s) const
 {
     s << "marray< ";
     baseType->print_status(s);

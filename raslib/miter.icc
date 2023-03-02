@@ -49,13 +49,13 @@ r_Miter::nextCell()
             incArrIter[i].curr++;
             currCell += incArrIter[i].inc;
             if (incArrIter[i].curr < incArrIter[i].repeat)
-                break;                  // no overflow in this dimension
+                break;  // no overflow in this dimension
             else
-                incArrIter[i].curr = 0; // overflow in this dimension
+                incArrIter[i].curr = 0;  // overflow in this dimension
         }
         if (i == areaIter->dimension())
         {
-            done = true;                // overflow in last dimension
+            done = true;  // overflow in last dimension
             currCell = retVal;
         }
     }

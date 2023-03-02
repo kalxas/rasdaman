@@ -56,7 +56,7 @@ rasdaman GmbH.
 #include "raslib/rminit.hh"
 
 // global variable for AdminIf because of O2 d_Session::begin()
-extern char* myExecArgv0 = "";
+extern char *myExecArgv0 = "";
 
 RMINITGLOBALS('C')
 
@@ -64,8 +64,7 @@ RMINITGLOBALS('C')
 static char O2BenchDBName[256] = "NorbertBase";
 static char O2BenchSchemaName[256] = "NorbertSchema";
 
-void
-printTime()
+void printTime()
 {
     struct timespec cur_time;
     clock_gettime(CLOCK_REALTIME, &cur_time);
@@ -73,24 +72,23 @@ printTime()
     cout << asctime(localtime(&(cur_time.tv_sec)));
 }
 
-void
-testConstructors()
+void testConstructors()
 {
     // for for loops
     unsigned long i;
     // Tile used for tests
-    Tile* myTile;
+    Tile *myTile;
     // base types for tiles
-    BaseType* ulongType = TypeFactory::mapType("ULong");
+    BaseType *ulongType = TypeFactory::mapType("ULong");
     // domain of all Tiles
     r_Minterval dom =
         r_Minterval(3) << r_Sinterval(1L, 10L) << r_Sinterval(11L, 20L)
-        << r_Sinterval(5L, 7L);
+                       << r_Sinterval(5L, 7L);
 
     // testing constructor executing section operation
     // first create a tile with the whole domain
     // char* containing data for one ULong Tile
-    char* tileData = (char*)mymalloc(dom.cell_count() * ulongType->getSize());
+    char *tileData = (char *)mymalloc(dom.cell_count() * ulongType->getSize());
     for (i = 0; i < dom.cell_count() * ulongType->getSize(); i++)
     {
         if (i % ulongType->getSize() == 3)
@@ -109,15 +107,15 @@ testConstructors()
     myTile = new TransTile(dom, ulongType, tileData);
 
     // now project it
-    set<r_Dimension, less<r_Dimension>>* projSet =
-                                         new set<r_Dimension, less<r_Dimension>>;
+    set<r_Dimension, less<r_Dimension>> *projSet =
+        new set<r_Dimension, less<r_Dimension>>;
     projSet->insert(1);
 
     r_Minterval projDom =
         r_Minterval(3) << r_Sinterval(1l, 10l) << r_Sinterval(15l, 15l)
-        << r_Sinterval(5l, 7l);
+                       << r_Sinterval(5l, 7l);
 
-    Tile* projectedTile = new TransTile(myTile, projDom, projSet);
+    Tile *projectedTile = new TransTile(myTile, projDom, projSet);
 
     projectedTile->printStatus();
 
@@ -125,21 +123,22 @@ testConstructors()
     delete projectedTile;
 }
 
-void
-testUnaryOps()
+void testUnaryOps()
 {
     // base types for tiles
-    BaseType* ulongType = TypeFactory::mapType("ULong");
-    BaseType* boolType = TypeFactory::mapType("Bool");;
-    BaseType* charType = TypeFactory::mapType("Char");;
+    BaseType *ulongType = TypeFactory::mapType("ULong");
+    BaseType *boolType = TypeFactory::mapType("Bool");
+    ;
+    BaseType *charType = TypeFactory::mapType("Char");
+    ;
 
     // default cell for filling ULong Tiles
     unsigned long longVal = 4294966295;
-    char* ulongCell = (char*)&longVal;
+    char *ulongCell = (char *)&longVal;
 
     // default cell for filling Bool Tiles
     unsigned char boolVal = 1;
-    char* boolCell = (char*)&boolVal;
+    char *boolCell = (char *)&boolVal;
 
     // domain of all Tiles
     r_Minterval dom =
@@ -153,18 +152,19 @@ testUnaryOps()
         r_Minterval(2) << r_Sinterval(1L, 10L);
 
     unsigned char charVal = 20;
-    char* charCell = (char*)&charVal;
+    char *charCell = (char *)&charVal;
 
     // Tiles used for tests
-    Tile* transULongTile;
-    Tile* transBoolTile;
-    Tile* persULongTile;
-    Tile* persBoolTile;
-    Tile* transCharTile;
-    Tile* transCharRes;
+    Tile *transULongTile;
+    Tile *transBoolTile;
+    Tile *persULongTile;
+    Tile *persBoolTile;
+    Tile *transCharTile;
+    Tile *transCharRes;
 
     cout << "Testing Unary Operations on Tiles" << endl;
-    cout << "---------------------------------" << endl << endl;
+    cout << "---------------------------------" << endl
+         << endl;
 
     // transient with value
     cout << "Creating Tiles for Unary Operations with domain "
@@ -176,8 +176,8 @@ testUnaryOps()
     transCharTile = new TransTile(dom, charType, charCell);
     transCharRes = new TransTile(domOp, charType, boolCell);
 
-
-    cout << "Operations with ULong:" << endl << endl;
+    cout << "Operations with ULong:" << endl
+         << endl;
 
     cout << "Carrying out NOT on TransTile (should be 1000)" << endl;
     transULongTile->execUnaryOp(Ops::OP_NOT, dom, transULongTile, dom);
@@ -203,7 +203,8 @@ testUnaryOps()
     cout << "Contents after operation: " << endl;
     persULongTile->printStatus();
 
-    cout << "Operations with Bool:" << endl << endl;
+    cout << "Operations with Bool:" << endl
+         << endl;
 
     cout << "Carrying out NOT on TransTile (should be FALSE)" << endl;
     transBoolTile->execUnaryOp(Ops::OP_NOT, dom, transBoolTile, dom);
@@ -239,7 +240,7 @@ testUnaryOps()
     unsigned char val = 0;
     for (int i = 0; i < transCharTile->getSize(); i++)
     {
-        transCharTile->setCell(i, (const char*)&val);
+        transCharTile->setCell(i, (const char *)&val);
         val++;
     }
 
@@ -259,7 +260,7 @@ testUnaryOps()
         r_Minterval(2) << r_Sinterval(1L, 10L) << r_Sinterval(15L, 15L);
     r_Minterval verSlice =
         r_Minterval(2) << r_Sinterval(5L, 5L) << r_Sinterval(11L, 20L);
-    Tile* transRes1D = new TransTile(res1D, charType, charCell);
+    Tile *transRes1D = new TransTile(res1D, charType, charCell);
 
     cout << "Carrying out IDENTITY to receive a 1D vertical slice" << endl;
     transRes1D->execUnaryOp(Ops::OP_IDENTITY, res1D, transCharTile, horSlice);
@@ -273,7 +274,8 @@ testUnaryOps()
     cout << "Contents after operation: " << endl;
     transRes1D->printStatus();
 
-    cout << "Deleting created Tiles ..." << endl << endl;
+    cout << "Deleting created Tiles ..." << endl
+         << endl;
 
     delete transULongTile;
     delete transBoolTile;
@@ -284,36 +286,37 @@ testUnaryOps()
     delete transRes1D;
 }
 
-void
-testBinaryOps()
+void testBinaryOps()
 {
     // base types for tiles
-    BaseType* ulongType = TypeFactory::mapType("ULong");
-    BaseType* boolType = TypeFactory::mapType("Bool");;
+    BaseType *ulongType = TypeFactory::mapType("ULong");
+    BaseType *boolType = TypeFactory::mapType("Bool");
+    ;
 
     // default cell for filling ULong Tiles
     unsigned long longVal = 1000;
-    char* ulongCell = (char*)&longVal;
+    char *ulongCell = (char *)&longVal;
 
     // default cell for filling Bool Tiles
     unsigned char boolVal = 1;
-    char* boolCell = (char*)&boolVal;
+    char *boolCell = (char *)&boolVal;
 
     // domain of all Tiles
     r_Minterval dom =
         r_Minterval(3) << r_Sinterval(1L, 10L) << r_Sinterval(11L, 20L)
-        << r_Sinterval(5L, 7L);
+                       << r_Sinterval(5L, 7L);
 
     // Tiles used for tests
-    Tile* transULongTile;
-    Tile* transBoolTile;
-    Tile* persULongTile;
-    Tile* persBoolTile;
-    Tile* constULongTile;
-    Tile* constBoolTile;
+    Tile *transULongTile;
+    Tile *transBoolTile;
+    Tile *persULongTile;
+    Tile *persBoolTile;
+    Tile *constULongTile;
+    Tile *constBoolTile;
 
     cout << "Testing Binary Operations on Tiles" << endl;
-    cout << "---------------------------------" << endl << endl;
+    cout << "---------------------------------" << endl
+         << endl;
 
     cout << "Creating Tiles for Binary Operations with domain "
          << dom << ":" << endl;
@@ -341,7 +344,7 @@ testBinaryOps()
     long bval = 10000;
 
     // default cell for filling all Tiles
-    char* bvalCell = (char*)&bval;
+    char *bvalCell = (char *)&bval;
 
     cout << "Creating a TransTile for the two operands..." << endl;
     TransTile btileOp = TransTile(dom, ulongType, boolCell);
@@ -375,123 +378,121 @@ testBinaryOps()
     delete constBoolTile;
 }
 
-void
-testCompTile()
+void testCompTile()
 {
-//   // size of tiles in one direction
-//   const long testSize = 10;
-//   // base types for tiles
-//   BaseType* ulongType = TypeFactory::mapType("ULong");
+    //   // size of tiles in one direction
+    //   const long testSize = 10;
+    //   // base types for tiles
+    //   BaseType* ulongType = TypeFactory::mapType("ULong");
 
-//   // default cell for filling ULong Tiles
-//   unsigned long longVal = 1000;
-//   char* ulongCell = (char*)&longVal;
+    //   // default cell for filling ULong Tiles
+    //   unsigned long longVal = 1000;
+    //   char* ulongCell = (char*)&longVal;
 
-//   // domain of all Tiles
-//   r_Minterval dom =
-//     r_Minterval(2) << r_Sinterval(1L,testSize) << r_Sinterval(1L,testSize);
+    //   // domain of all Tiles
+    //   r_Minterval dom =
+    //     r_Minterval(2) << r_Sinterval(1L,testSize) << r_Sinterval(1L,testSize);
 
-//   // Tiles used for tests
-//   Tile* compTile1;
-//   Tile* compTile2;
-//   TransTile* transTile;
+    //   // Tiles used for tests
+    //   Tile* compTile1;
+    //   Tile* compTile2;
+    //   TransTile* transTile;
 
-//   cout << "Testing CompTile" << endl;
-//   cout << "----------------" << endl << endl;
+    //   cout << "Testing CompTile" << endl;
+    //   cout << "----------------" << endl << endl;
 
-//   cout << "Creating Tiles with domain "
-//        << dom << ":" << endl;
-//   compTile1 = new CompTile( dom, ulongType, Tile::COMP_ZLIB, ulongCell );
-//   compTile2 = new CompTile( dom, ulongType, Tile::COMP_ZLIB, ulongCell );
-//   transTile = new TransTile( dom, ulongType, ulongCell );
+    //   cout << "Creating Tiles with domain "
+    //        << dom << ":" << endl;
+    //   compTile1 = new CompTile( dom, ulongType, Tile::COMP_ZLIB, ulongCell );
+    //   compTile2 = new CompTile( dom, ulongType, Tile::COMP_ZLIB, ulongCell );
+    //   transTile = new TransTile( dom, ulongType, ulongCell );
 
     // initialize with random values
-//   long val;
-//   for(int i = 0; i < testSize; i++) {
-//     for(int j = 0; j < testSize; j++) {
-//       val = (long)(LONG_MIN + ((double)LONG_MAX-LONG_MIN)*drand48());
-//       compTile1->setCell(i*testSize+j, (char*)&val);
-//       val = (long)(LONG_MIN + ((double)LONG_MAX-LONG_MIN)*drand48());
-//       compTile2->setCell(i*testSize+j, (char*)&val);
-//     }
-//   }
+    //   long val;
+    //   for(int i = 0; i < testSize; i++) {
+    //     for(int j = 0; j < testSize; j++) {
+    //       val = (long)(LONG_MIN + ((double)LONG_MAX-LONG_MIN)*drand48());
+    //       compTile1->setCell(i*testSize+j, (char*)&val);
+    //       val = (long)(LONG_MIN + ((double)LONG_MAX-LONG_MIN)*drand48());
+    //       compTile2->setCell(i*testSize+j, (char*)&val);
+    //     }
+    //   }
 
     // initialize with incrementing values.
-//   long val;
-//   for(int i = 0; i < testSize; i++) {
-//     for(int j = 0; j < testSize; j++) {
-//       val = i*testSize+j;
-//       compTile1->setCell(i*testSize+j, (char*)&val);
-//       compTile2->setCell(i*testSize+j, (char*)&val);
-//     }
-//   }
+    //   long val;
+    //   for(int i = 0; i < testSize; i++) {
+    //     for(int j = 0; j < testSize; j++) {
+    //       val = i*testSize+j;
+    //       compTile1->setCell(i*testSize+j, (char*)&val);
+    //       compTile2->setCell(i*testSize+j, (char*)&val);
+    //     }
+    //   }
 
     // initialize with incrementing values, simulate struct
-//   long val;
-//   for(int i = 0; i < testSize; i++) {
-//     for(int j = 0; j < testSize; j += 3) {
-//       val = i*testSize+j;
+    //   long val;
+    //   for(int i = 0; i < testSize; i++) {
+    //     for(int j = 0; j < testSize; j += 3) {
+    //       val = i*testSize+j;
 
-//       compTile1->setCell(i*testSize+j, (char*)&val);
-//       if(j+1 < testSize)
-//  compTile1->setCell(i*testSize+j+1, (char*)&val+1000000);
-//       if(j+2 < testSize)
-//  compTile1->setCell(i*testSize+j+2, (char*)&val+2000000);
+    //       compTile1->setCell(i*testSize+j, (char*)&val);
+    //       if(j+1 < testSize)
+    //  compTile1->setCell(i*testSize+j+1, (char*)&val+1000000);
+    //       if(j+2 < testSize)
+    //  compTile1->setCell(i*testSize+j+2, (char*)&val+2000000);
 
-//       compTile2->setCell(i*testSize+j, (char*)&val);
-//       if(j+1 < testSize)
-//  compTile2->setCell(i*testSize+j+1, (char*)&val+1000000);
-//       if(j+2 < testSize)
-//  compTile2->setCell(i*testSize+j+2, (char*)&val+2000000);
-//     }
-//   }
+    //       compTile2->setCell(i*testSize+j, (char*)&val);
+    //       if(j+1 < testSize)
+    //  compTile2->setCell(i*testSize+j+1, (char*)&val+1000000);
+    //       if(j+2 < testSize)
+    //  compTile2->setCell(i*testSize+j+2, (char*)&val+2000000);
+    //     }
+    //   }
 
-//   cout << "Contents transTile: " << endl;
-//   if(transTile->getSize() <= 1000)
-//     transTile->printStatus();
+    //   cout << "Contents transTile: " << endl;
+    //   if(transTile->getSize() <= 1000)
+    //     transTile->printStatus();
 
-//   cout << "Contents compTile1: " << endl;
-//   if(transTile->getSize() <= 1000)
-//     compTile1->printStatus();
+    //   cout << "Contents compTile1: " << endl;
+    //   if(transTile->getSize() <= 1000)
+    //     compTile1->printStatus();
 
-//   cout << "Contents compTile2: " << endl;
-//   if(transTile->getSize() <= 1000)
-//     compTile2->printStatus();
+    //   cout << "Contents compTile2: " << endl;
+    //   if(transTile->getSize() <= 1000)
+    //     compTile2->printStatus();
 
     // does only work if compress() is not protected.
-//   cout << "Compressing compTiles" << endl;
-//   ((CompTile*)compTile1)->compress();
-//   ((CompTile*)compTile2)->compress();
+    //   cout << "Compressing compTiles" << endl;
+    //   ((CompTile*)compTile1)->compress();
+    //   ((CompTile*)compTile2)->compress();
 
-//   cout << "Carrying out binary operation..." << endl;
-//   transTile->execBinaryOp(Ops::OP_PLUS, dom, compTile1, dom, compTile2, dom);
+    //   cout << "Carrying out binary operation..." << endl;
+    //   transTile->execBinaryOp(Ops::OP_PLUS, dom, compTile1, dom, compTile2, dom);
 
-//   cout << "Contents after operation: " << endl;
-//   if(transTile->getSize() <= 1000)
-//     transTile->printStatus();
+    //   cout << "Contents after operation: " << endl;
+    //   if(transTile->getSize() <= 1000)
+    //     transTile->printStatus();
 
-//   delete compTile1;
-//   delete compTile2;
-//   delete transTile;
+    //   delete compTile1;
+    //   delete compTile2;
+    //   delete transTile;
 }
 
-void
-testOpsWithConsts()
+void testOpsWithConsts()
 {
     // base types for tiles
-    BaseType* ulongType = TypeFactory::mapType("ULong");
-    BaseType* charType = TypeFactory::mapType("Char");
+    BaseType *ulongType = TypeFactory::mapType("ULong");
+    BaseType *charType = TypeFactory::mapType("Char");
 
-    StructType* structType = new StructType("TestStruct", 2);
+    StructType *structType = new StructType("TestStruct", 2);
     structType->addElement("Band1", "ULong");
     structType->addElement("Band2", "Char");
 
     // default cell for filling ULong Tiles
     unsigned long uLongVal = 1000;
-    char* ulongCell = (char*)&uLongVal;
+    char *ulongCell = (char *)&uLongVal;
     // default cell for filling Char Tiles
     unsigned char charVal = 112;
-    char* charCell = (char*)&charVal;
+    char *charCell = (char *)&charVal;
     // default cell for filling Struct Tiles
     unsigned char structCell[5];
     structCell[0] = ulongCell[0];
@@ -507,9 +508,9 @@ testOpsWithConsts()
     // Tiles used for tests
     cout << "Creating Tiles with domain "
          << dom << ":" << endl;
-    Tile* charTile = new TransTile(dom, charType, charCell);
-    Tile* ulongTile = new TransTile(dom, ulongType, ulongCell);
-    Tile* structTile = new TransTile(dom, structType, (char*)structCell);
+    Tile *charTile = new TransTile(dom, charType, charCell);
+    Tile *ulongTile = new TransTile(dom, ulongType, ulongCell);
+    Tile *structTile = new TransTile(dom, structType, (char *)structCell);
 
     cout << "Contents of Tiles: " << endl;
     charTile->printStatus();
@@ -546,19 +547,18 @@ testOpsWithConsts()
     delete structTile;
 }
 
-void
-testCellAccess()
+void testCellAccess()
 {
     // base types for tiles
-    BaseType* ulongType = TypeFactory::mapType("ULong");
-    BaseType* charType = TypeFactory::mapType("Char");
+    BaseType *ulongType = TypeFactory::mapType("ULong");
+    BaseType *charType = TypeFactory::mapType("Char");
 
     // default cell for filling ULong Tiles
     unsigned long uLongVal = 1000;
-    char* ulongCell = (char*)&uLongVal;
+    char *ulongCell = (char *)&uLongVal;
     // default cell for filling Char Tiles
     unsigned char charVal = 112;
-    char* charCell = (char*)&charVal;
+    char *charCell = (char *)&charVal;
 
     // domain of all Tiles
     r_Minterval dom =
@@ -567,24 +567,23 @@ testCellAccess()
     // Tiles used for tests
     cout << "Creating Tiles with domain "
          << dom << ":" << endl;
-    Tile* charTile = new TransTile(dom, charType, charCell);
-    Tile* ulongTile = new TransTile(dom, ulongType, ulongCell);
+    Tile *charTile = new TransTile(dom, charType, charCell);
+    Tile *ulongTile = new TransTile(dom, ulongType, ulongCell);
 
     cout << "Accessing cell by point: ";
     r_Point a = r_Point(2) << 5 << 5;
     cout << (int)*(charTile->getCell(a)) << " "
-         << *(unsigned long*)ulongTile->getCell(a) << endl;
+         << *(unsigned long *)ulongTile->getCell(a) << endl;
 
     delete charTile;
     delete ulongTile;
 }
 
-void
-testScaleOp(void)
+void testScaleOp(void)
 {
     r_Dimension dim = 2;
     r_Dimension i;
-    BaseType* charType = TypeFactory::mapType("Char");
+    BaseType *charType = TypeFactory::mapType("Char");
     r_Minterval dom = r_Minterval(dim);
     r_Minterval nextDom = r_Minterval(dim);
     r_Point origin(dim);
@@ -601,9 +600,9 @@ testScaleOp(void)
     }
 
     fullSize = dom.cell_count();
-    char* tileValues = (char*)mymalloc(fullSize);
-    Tile* charTile = new TransTile(dom, charType, tileValues, fullSize);
-    Tile* nextTile = new TransTile(dom, charType);
+    char *tileValues = (char *)mymalloc(fullSize);
+    Tile *charTile = new TransTile(dom, charType, tileValues, fullSize);
+    Tile *nextTile = new TransTile(dom, charType);
     memset(charTile->getContents(), 0, dom.cell_count());
 
     vector<float> scaleFactors(dim);
@@ -625,8 +624,8 @@ testScaleOp(void)
         if (charTile->scaleGetDomain(dom, origin, scaleFactors, scaledDom))
         {
             unsigned long scaledSize = scaledDom.cell_count();
-            char* scaledValues = (char*)mymalloc(scaledSize);
-            Tile* scaledTile = new TransTile(scaledDom, charType, scaledValues, scaledSize);
+            char *scaledValues = (char *)mymalloc(scaledSize);
+            Tile *scaledTile = new TransTile(scaledDom, charType, scaledValues, scaledSize);
 
             r_Minterval nextScaledDom;
             if (nextTile->scaleGetDomain(nextDom, origin, scaleFactors, nextScaledDom))
@@ -657,7 +656,6 @@ testScaleOp(void)
     delete nextTile;
 }
 
-
 /*************************************************************
  * Function name.: int main( int argc, char** argv)
  *
@@ -668,8 +666,7 @@ testScaleOp(void)
  * Description...: none
  ************************************************************/
 
-int
-main(int argc , char* argv[])
+int main(int argc, char *argv[])
 {
     int i;
 
@@ -702,7 +699,7 @@ main(int argc , char* argv[])
 
     // don't forget to initialize before using AdminIf!
     myExecArgv0 = argv[0];
-    AdminIf* myAdmin = AdminIf::instance();
+    AdminIf *myAdmin = AdminIf::instance();
 
     cout << "RManDebug: " << RManDebug << endl;
 
@@ -713,7 +710,8 @@ main(int argc , char* argv[])
 
     ta.begin(&database);
 
-    cout << "This protocol was created on:" << endl << "  ";
+    cout << "This protocol was created on:" << endl
+         << "  ";
     printTime();
     cout << endl;
 

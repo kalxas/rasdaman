@@ -60,25 +60,24 @@ rasdaman GmbH.
 
 using namespace std;
 
-#define TOTAL_DAYS          (365L * 2L)
-#define TOTAL_PRODUCTS      (60L)
-#define TOTAL_STORES        (100L)
+#define TOTAL_DAYS (365L * 2L)
+#define TOTAL_PRODUCTS (60L)
+#define TOTAL_STORES (100L)
 
-#define MAX_SALES           500
+#define MAX_SALES 500
 
-#define S_32K               (32  * 1024L)
-#define S_64K               (64  * 1024L)
-#define S_128K              (128 * 1024L)
-#define S_256K              (256 * 1024L)
+#define S_32K (32 * 1024L)
+#define S_64K (64 * 1024L)
+#define S_128K (128 * 1024L)
+#define S_256K (256 * 1024L)
 
-#define TOTAL_CUBES         9
+#define TOTAL_CUBES 9
 
+char *server_name;
+char *dbase_name;
+char *colect_name;
 
-char* server_name;
-char* dbase_name;
-char* colect_name;
-
-void parse(int argc, char* argv[])
+void parse(int argc, char *argv[])
 {
     if (argc != 4)
     {
@@ -89,29 +88,27 @@ void parse(int argc, char* argv[])
     }
 
     server_name = argv[1];
-    dbase_name  = argv[2];
+    dbase_name = argv[2];
     colect_name = argv[3];
 }
 
-r_ULong init(const r_Point&)
+r_ULong init(const r_Point &)
 {
     return (long)(rand() % MAX_SALES);
 }
 
 void insert_datacube()
 {
-
-    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>>  cube_set;
+    r_Ref<r_Set<r_Ref<r_Marray<r_ULong>>>> cube_set;
     // r_Ref< r_Marray<r_ULong> >                 cube[TOTAL_CUBES];
-    r_Minterval                                   domain, block_config;
-    r_Storage_Layout*                             dsl[TOTAL_CUBES];
-    r_OId                                         oid[TOTAL_CUBES];
+    r_Minterval domain, block_config;
+    r_Storage_Layout *dsl[TOTAL_CUBES];
+    r_OId oid[TOTAL_CUBES];
 
     domain = r_Minterval(3);
     domain << r_Sinterval((r_Range)1L, (r_Range)TOTAL_DAYS)
            << r_Sinterval((r_Range)1L, (r_Range)TOTAL_PRODUCTS)
            << r_Sinterval((r_Range)1L, (r_Range)TOTAL_STORES);
-
 
     // For alligned tiling (Regular tiling)
 
@@ -120,29 +117,27 @@ void insert_datacube()
                  << r_Sinterval((r_Range)0L, (r_Range)TOTAL_PRODUCTS)
                  << r_Sinterval((r_Range)0L, (r_Range)TOTAL_STORES);
 
-    r_Aligned_Tiling* til_reg_32k = new r_Aligned_Tiling(block_config, S_32K);
-    r_Aligned_Tiling* til_reg_64k = new r_Aligned_Tiling(block_config, S_64K);
-    r_Aligned_Tiling* til_reg_128k = new r_Aligned_Tiling(block_config, S_128K);
-    r_Aligned_Tiling* til_reg_256k = new r_Aligned_Tiling(block_config, S_256K);
-
+    r_Aligned_Tiling *til_reg_32k = new r_Aligned_Tiling(block_config, S_32K);
+    r_Aligned_Tiling *til_reg_64k = new r_Aligned_Tiling(block_config, S_64K);
+    r_Aligned_Tiling *til_reg_128k = new r_Aligned_Tiling(block_config, S_128K);
+    r_Aligned_Tiling *til_reg_256k = new r_Aligned_Tiling(block_config, S_256K);
 
     // For directional tiling
 
     vector<r_Dir_Decompose> decomp;
     r_Dir_Decompose a, b, c;
     a << 1 << 365 << 730;
-    b << 1 <<  27 <<  42 << 60;
-    c << 1 <<  27 <<  35 << 41 << 59 << 73 << 89 << 97 << 100;
+    b << 1 << 27 << 42 << 60;
+    c << 1 << 27 << 35 << 41 << 59 << 73 << 89 << 97 << 100;
     decomp.push_back(a);
     decomp.push_back(b);
     decomp.push_back(c);
 
-    r_Dir_Tiling* til_dir_32k = new r_Dir_Tiling((r_Dimension)3, decomp, S_32K);
-    r_Dir_Tiling* til_dir_64k = new r_Dir_Tiling((r_Dimension)3, decomp, S_64K);
-    r_Dir_Tiling* til_dir_128k = new r_Dir_Tiling((r_Dimension)3, decomp, S_128K);
-    r_Dir_Tiling* til_dir_256k = new r_Dir_Tiling((r_Dimension)3, decomp, S_256K);
-    r_Dir_Tiling* til_dir_Unlk = new r_Dir_Tiling((r_Dimension)3, decomp, S_256K, r_Dir_Tiling::WITHOUT_SUBTILING);
-
+    r_Dir_Tiling *til_dir_32k = new r_Dir_Tiling((r_Dimension)3, decomp, S_32K);
+    r_Dir_Tiling *til_dir_64k = new r_Dir_Tiling((r_Dimension)3, decomp, S_64K);
+    r_Dir_Tiling *til_dir_128k = new r_Dir_Tiling((r_Dimension)3, decomp, S_128K);
+    r_Dir_Tiling *til_dir_256k = new r_Dir_Tiling((r_Dimension)3, decomp, S_256K);
+    r_Dir_Tiling *til_dir_Unlk = new r_Dir_Tiling((r_Dimension)3, decomp, S_256K, r_Dir_Tiling::WITHOUT_SUBTILING);
 
     // Domain storage layouts
 
@@ -157,8 +152,7 @@ void insert_datacube()
     dsl[7] = new r_Storage_Layout(til_dir_256k);
     dsl[8] = new r_Storage_Layout(til_dir_Unlk);
 
-
-    for (int i = 0; i < TOTAL_CUBES ; i++)
+    for (int i = 0; i < TOTAL_CUBES; i++)
     {
         r_Database db;
         r_Transaction trans;
@@ -179,7 +173,6 @@ void insert_datacube()
 
             trans.begin();
 
-
             cout << "Ok" << endl;
             cout << "Opening the set... " << flush;
 
@@ -192,7 +185,7 @@ void insert_datacube()
                 cout << "*Failed*" << endl;
                 cout << "Creating the set... " << flush;
 
-                cube_set = new(&db, "ULong_3D_Set") r_Set<r_Ref<r_Marray<r_ULong>>>;
+                cube_set = new (&db, "ULong_3D_Set") r_Set<r_Ref<r_Marray<r_ULong>>>;
                 db.set_object_name(*cube_set, colect_name);
             }
 
@@ -203,7 +196,7 @@ void insert_datacube()
             //  {
             // cube[i] =
             cube1 =
-                new(&db, "ULongCube") r_Marray<r_ULong>(domain, 1L /* &init */, dsl[i]);
+                new (&db, "ULongCube") r_Marray<r_ULong>(domain, 1L /* &init */, dsl[i]);
 
             // cube_set->insert_element(cube[i]);
             // oid[i] = cube[i].get_oid();
@@ -211,7 +204,6 @@ void insert_datacube()
             oid[i] = cube1->get_oid();
 
             cout << "*" << flush;
-
 
             cout << " ... Ok" << endl;
 
@@ -226,9 +218,8 @@ void insert_datacube()
             cout << "Closing database... " << flush;
 
             db.close();
-
         }
-        catch (r_Error& e)
+        catch (r_Error &e)
         {
             cout << e.what() << endl;
             exit(0);
@@ -240,12 +231,13 @@ void insert_datacube()
         }
     }
 
-    cout << "Ok [******************]" << endl << flush;
+    cout << "Ok [******************]" << endl
+         << flush;
 
-// Wrong - management of memory for storage layouts passes
-//         to the marray, after being given to it.
-//     for (int j=0; j<TOTAL_CUBES; j++)
-//       delete dsl[j];
+    // Wrong - management of memory for storage layouts passes
+    //         to the marray, after being given to it.
+    //     for (int j=0; j<TOTAL_CUBES; j++)
+    //       delete dsl[j];
 
     cout << endl;
     cout << "Inserted data resume" << endl;
@@ -257,18 +249,10 @@ void insert_datacube()
     }
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     parse(argc, argv);
     insert_datacube();
 
     return 0;
 }
-
-
-
-
-
-
-
-

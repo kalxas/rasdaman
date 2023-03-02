@@ -47,7 +47,7 @@ public:
     /// if base type is NULL an exception will be raised.
     /// this is possible
     r_Marray_Type(const r_Marray_Type &);
-    
+
     /// destructor
     ~r_Marray_Type() override;
 
@@ -89,4 +89,3 @@ protected:
 extern std::ostream &operator<<(std::ostream &str, const r_Marray_Type &type);
 
 #endif
-

@@ -65,7 +65,6 @@ public:
     /// test if the edge to the parent node is of type mdd or atomic
     virtual QtAreaType getAreaType();
 
-
     /// type coercion
     const BaseType *getResultType(const BaseType *op1, const BaseType *op2);
 
@@ -73,7 +72,6 @@ public:
     int isSignedType(const BaseType *type);
 
 private:
-
     std::unique_ptr<MDDObj> getResultMDD(QtDataList *operandList);
 
     /// attribute for identification of nodes

@@ -38,7 +38,7 @@ rasdaman GmbH.
 #ifndef _ATOMICTYPE_HH_
 #define _ATOMICTYPE_HH_
 
-#include "basetype.hh"            // for BaseType
+#include "basetype.hh"  // for BaseType
 
 class OId;
 
@@ -60,13 +60,12 @@ AtomicType is the abstract base class for all non-structured
 class AtomicType : public BaseType
 {
 public:
-
     explicit AtomicType(unsigned int newSize);
 
     AtomicType(const AtomicType &);
 
     explicit AtomicType(const OId &id);
-    
+
     ~AtomicType() override = default;
 
     AtomicType &operator=(const AtomicType &) = default;

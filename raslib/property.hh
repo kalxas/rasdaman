@@ -40,7 +40,6 @@ class r_Base_Type;
 class r_Property : public r_Meta_Object
 {
 public:
-
     /// constructor getting name and type of property.
     r_Property(const char *newTypeName, const r_Base_Type &newType);
 
@@ -57,7 +56,6 @@ public:
     const r_Base_Type &type_of() const;
 
 protected:
-
     r_Base_Type *myType{NULL};
 
     /// default constructor.

@@ -40,7 +40,7 @@ namespace rasmgr
 namespace test
 {
 
-class OutPeerTest: public ::testing::Test
+class OutPeerTest : public ::testing::Test
 {
 protected:
     OutPeerTest()
@@ -52,7 +52,7 @@ protected:
 
     std::unique_ptr<grpc::Server> createAndInitServer()
     {
-        std::string serverAddress = common::GrpcUtils::constructAddressString("127.0.0.1",  this->peerPort);
+        std::string serverAddress = common::GrpcUtils::constructAddressString("127.0.0.1", this->peerPort);
 
         grpc::ServerBuilder builder;
         builder.RegisterService(healthService.get());
@@ -87,7 +87,6 @@ TEST_F(OutPeerTest, DISABLED_tryGetRemoteServer_RemoteNotResponding)
     // Failing to add a server should keep the peer not busy
     ASSERT_FALSE(peer.isBusy());
 }
-
 
 TEST_F(OutPeerTest, tryGetRemoteServer_RemoteHasNoServers)
 {
@@ -152,5 +151,5 @@ TEST_F(OutPeerTest, releaseServer_ValidSession)
     server->Shutdown();
 }
 
-}
-}
+}  // namespace test
+}  // namespace rasmgr

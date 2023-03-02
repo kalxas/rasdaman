@@ -27,9 +27,8 @@ rasdaman GmbH.
 #include <cmath>
 #include <cerrno>
 
-
 OpABSCDouble::OpABSCDouble(const BaseType *newResType, const BaseType *newOpType,
-    size_t newResOff, size_t newOpOff)
+                           size_t newResOff, size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 void OpABSCDouble::operator()(char *res, const char *op)
@@ -40,7 +39,7 @@ void OpABSCDouble::operator()(char *res, const char *op)
 }
 
 OpABSCLong::OpABSCLong(const BaseType *newResType, const BaseType *newOpType,
-    size_t newResOff, size_t newOpOff)
+                       size_t newResOff, size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 void OpABSCLong::operator()(char *res, const char *op)
@@ -51,7 +50,7 @@ void OpABSCLong::operator()(char *res, const char *op)
 }
 
 OpABSCULong::OpABSCULong(const BaseType *newResType, const BaseType *newOpType,
-    size_t newResOff, size_t newOpOff)
+                         size_t newResOff, size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
 void OpABSCULong::operator()(char *res, const char *op)
@@ -65,7 +64,6 @@ OpSQRTCDouble::OpSQRTCDouble(
     size_t newResOff,
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
-
 
 void OpSQRTCDouble::operator()(char *res, const char *op)
 {
@@ -89,7 +87,6 @@ OpPOWCDouble::OpPOWCDouble(
     size_t newResOff,
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
-
 
 void OpPOWCDouble::operator()(char *res, const char *op)
 {
@@ -119,7 +116,6 @@ OpEXPCDouble::OpEXPCDouble(
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
-
 void OpEXPCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
@@ -142,7 +138,6 @@ OpLOGCDouble::OpLOGCDouble(
     size_t newResOff,
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
-
 
 void OpLOGCDouble::operator()(char *res, const char *op)
 {
@@ -167,7 +162,6 @@ OpLNCDouble::OpLNCDouble(
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
-
 void OpLNCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
@@ -190,7 +184,6 @@ OpSINCDouble::OpSINCDouble(
     size_t newResOff,
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
-
 
 void OpSINCDouble::operator()(char *res, const char *op)
 {
@@ -215,7 +208,6 @@ OpCOSCDouble::OpCOSCDouble(
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
-
 void OpCOSCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
@@ -238,7 +230,6 @@ OpTANCDouble::OpTANCDouble(
     size_t newResOff,
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
-
 
 void OpTANCDouble::operator()(char *res, const char *op)
 {
@@ -263,7 +254,6 @@ OpSINHCDouble::OpSINHCDouble(
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
-
 void OpSINHCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
@@ -286,7 +276,6 @@ OpCOSHCDouble::OpCOSHCDouble(
     size_t newResOff,
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
-
 
 void OpCOSHCDouble::operator()(char *res, const char *op)
 {
@@ -311,7 +300,6 @@ OpTANHCDouble::OpTANHCDouble(
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
-
 void OpTANHCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
@@ -334,7 +322,6 @@ OpARCSINCDouble::OpARCSINCDouble(
     size_t newResOff,
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
-
 
 void OpARCSINCDouble::operator()(char *res, const char *op)
 {
@@ -359,7 +346,6 @@ OpARCCOSCDouble::OpARCCOSCDouble(
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
-
 void OpARCCOSCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
@@ -383,7 +369,6 @@ OpARCTANCDouble::OpARCTANCDouble(
     size_t newOpOff)
     : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
 
-
 void OpARCTANCDouble::operator()(char *res, const char *op)
 {
     double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
@@ -399,4 +384,3 @@ void OpARCTANCDouble::operator()(char *res, const char *op)
     }
     resType->makeFromCDouble(res + resOff, &convRes);
 }
-

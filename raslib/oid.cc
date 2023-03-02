@@ -40,7 +40,6 @@ rasdaman GmbH.
 #include <string.h>
 #include <stdlib.h>
 
-
 r_OId::r_OId(const char *initOIdString)
     : oidString{initOIdString ? initOIdString : ""}
 {
@@ -71,9 +70,12 @@ r_OId::r_OId(const char *initOIdString)
                 endPtr++;
                 startPtr = endPtr;
                 size_t pos;
-                try {
+                try
+                {
                     localOId = std::stoll(startPtr, &pos);
-                } catch (...) {
+                }
+                catch (...)
+                {
                     LERROR << "Failed parsing local oid from '" << startPtr << "'.";
                     throw r_Error(r_Error::r_Error_OIdInvalid);
                 }
@@ -109,42 +111,34 @@ r_OId &r_OId::operator=(const r_OId &o)
     return *this;
 }
 
-bool
-r_OId::operator==(const r_OId &oid) const
+bool r_OId::operator==(const r_OId &oid) const
 {
     return oidString == oid.oidString;
 }
-bool
-r_OId::operator!=(const r_OId &oid) const
+bool r_OId::operator!=(const r_OId &oid) const
 {
     return !operator==(oid);
 }
-bool
-r_OId::operator>(const r_OId &oid) const
+bool r_OId::operator>(const r_OId &oid) const
 {
     return systemName == oid.systemName && baseName == oid.baseName &&
            localOId > oid.localOId;
 }
-bool
-r_OId::operator< (const r_OId &oid) const
+bool r_OId::operator<(const r_OId &oid) const
 {
     return systemName == oid.systemName && baseName == oid.baseName &&
            localOId < oid.localOId;
 }
-bool
-r_OId::operator>=(const r_OId &oid) const
+bool r_OId::operator>=(const r_OId &oid) const
 {
     return !operator<(oid);
 }
-bool
-r_OId::operator<=(const r_OId &oid) const
+bool r_OId::operator<=(const r_OId &oid) const
 {
     return !operator>(oid);
 }
-        
-        
-void
-r_OId::print_status(std::ostream &s) const
+
+void r_OId::print_status(std::ostream &s) const
 {
     s << oidString;
 }
@@ -153,7 +147,7 @@ std::ostream &operator<<(std::ostream &s, const r_OId &oid)
     oid.print_status(s);
     return s;
 }
-                        
+
 const char *
 r_OId::get_string_representation() const
 {
@@ -184,8 +178,7 @@ r_OId::get_local_oid_double() const
     return localOId;
 }
 
-bool
-r_OId::is_valid() const
+bool r_OId::is_valid() const
 {
     return localOId != 0;
 }

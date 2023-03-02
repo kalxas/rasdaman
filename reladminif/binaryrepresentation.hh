@@ -32,4 +32,3 @@ public:
     unsigned long binaryLength{};
     static const char *fileTag;
 };
-

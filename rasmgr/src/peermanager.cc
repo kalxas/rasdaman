@@ -1,4 +1,4 @@
-  /*
+/*
  * This file is part of rasdaman community.
  *
  * Rasdaman community is free software: you can redistribute it and/or modify
@@ -46,7 +46,7 @@ void PeerManager::defineInPeer(const std::string &peerHostName)
     std::lock_guard<std::mutex> lock(this->mut);
 
     // Check for duplicates
-    for (const auto &inPeer : this->inPeers)
+    for (const auto &inPeer: this->inPeers)
     {
         if (inPeer->getHostName() == peerHostName)
         {
@@ -94,7 +94,7 @@ void PeerManager::defineOutPeer(const std::string &peerHostName, const std::uint
     std::lock_guard<std::mutex> lock(this->mut);
 
     // Check for duplicates
-    for (const auto &outPeer : this->outPeers)
+    for (const auto &outPeer: this->outPeers)
     {
         if (outPeer->getHostName() == peerHostName)
         {
@@ -142,7 +142,7 @@ bool PeerManager::tryGetRemoteServer(const ClientServerRequest &request, ClientS
 {
     std::lock_guard<std::mutex> lock(this->mut);
 
-    for (const auto &outpeer : this->outPeers)
+    for (const auto &outpeer: this->outPeers)
     {
         if (outpeer->tryGetRemoteServer(request, out_reply))
         {
@@ -180,14 +180,14 @@ PeerMgrProto PeerManager::serializeToProto()
     std::lock_guard<std::mutex> lock(this->mut);
 
     PeerMgrProto result;
-    for (const auto &outPeer : this->outPeers)
+    for (const auto &outPeer: this->outPeers)
     {
         OutPeerProto outPeerProto;
         outPeerProto.set_host_name(outPeer->getHostName());
         outPeerProto.set_port(outPeer->getPort());
         result.add_outpeers()->CopyFrom(outPeerProto);
     }
-    for (const auto &inPeer : this->inPeers)
+    for (const auto &inPeer: this->inPeers)
     {
         InPeerProto inPeerProto;
         inPeerProto.set_host_name(inPeer->getHostName());
@@ -201,4 +201,4 @@ std::string PeerManager::remoteClientSessionToString(const RemoteClientSession &
 {
     return clientSession.getClientSessionId() + ":" + clientSession.getDbSessionId();
 }
-}
+}  // namespace rasmgr

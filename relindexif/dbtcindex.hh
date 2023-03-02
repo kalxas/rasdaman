@@ -26,7 +26,6 @@ rasdaman GmbH.
 #include "reladminif/oidif.hh"
 #include "relblobif/tileid.hh"
 
-
 //@ManMemo: Module: {\bf relindexif}
 /*@Doc:
 This class stores data of hierarchical indexes in the database.  It is extended

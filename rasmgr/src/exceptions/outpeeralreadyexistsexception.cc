@@ -26,11 +26,13 @@
 namespace rasmgr
 {
 
-OutPeerAlreadyExistsException::OutPeerAlreadyExistsException(const std::string& hostName, const uint32_t port)
+OutPeerAlreadyExistsException::OutPeerAlreadyExistsException(const std::string &hostName, const uint32_t port)
     : common::LogicException("Outpeer rasmanager " + hostName + ":" + std::to_string(port) + " already defined.")
-{}
+{
+}
 
 OutPeerAlreadyExistsException::~OutPeerAlreadyExistsException() noexcept
-{}
-
+{
 }
+
+}  // namespace rasmgr

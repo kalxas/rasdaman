@@ -75,8 +75,6 @@ public:
     virtual grpc::Status GetNextStreamedHttpQuery(grpc::ServerContext *context, const rasnet::service::GetNextStreamedHttpQueryReq *request, rasnet::service::StreamedHttpQueryRepl *response) override;
 
 private:
-
-
     std::shared_ptr<rasserver::ClientManager> clientManager;
 
     static grpc::Status getRErrorStatus(r_Error &err);
@@ -85,4 +83,4 @@ private:
     static grpc::Status getUnknownExceptionStatus();
 };
 
-#endif // RASNETSERVERCOMM_HH
+#endif  // RASNETSERVERCOMM_HH

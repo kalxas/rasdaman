@@ -24,7 +24,7 @@
 #define D_SINTERVAL_HH
 
 #include "raslib/mddtypes.hh"  // for r_Range, r_Bytes
-#include <iosfwd>     // for ostream, cout
+#include <iosfwd>              // for ostream, cout
 #include <string>
 
 //@ManMemo: Module: {\bf raslib}
@@ -215,7 +215,7 @@ class r_Sinterval
 public:
     using BoundType = r_Range;
     using OffsetType = size_t;
-    
+
     /// default constructor creates an interval with open bounds
     r_Sinterval() = default;
     /// constructor taking string representation (e.g. *:200 )
@@ -231,7 +231,7 @@ public:
     r_Sinterval(r_Range low, char);
     r_Sinterval(char, char);
     //@}
-    
+
     // Equality comparison
     //@{
     /// Two intervals are equal if they have the same lower and upper bound.
@@ -263,7 +263,7 @@ public:
     void set_interval(r_Range low, char) noexcept;
     void set_interval(char, char) noexcept;
     void set_slice() noexcept;
-    
+
     /// @return the axis name of this interval; the interval has no axis name if
     /// an empty string is returned.
     const std::string &get_axis_name() const;
@@ -272,14 +272,14 @@ public:
     void set_axis_name(const std::string &axis_name_arg);
     /// @return true if the interval has an axis name set, false otherwise
     bool has_axis_name() const;
-    
+
     /// get distance to lower bound of this interval from o; this interval is
     /// assumed to be fixed in the lower bound, and o >= this.low()
     OffsetType get_offset_to(BoundType o) const noexcept;
-    /// get distance to lower bound of this interval from lower bound of o; 
+    /// get distance to lower bound of this interval from lower bound of o;
     /// intervals must be fixed in lower bound, and o.low() >= this.low()
     OffsetType get_offset_to(const r_Sinterval &o) const noexcept;
-    /// translate this interval by a given offset; assumes that this interval 
+    /// translate this interval by a given offset; assumes that this interval
     /// has fixed bounds
     r_Sinterval translate_by(BoundType offset) const;
     //@}
@@ -324,11 +324,11 @@ public:
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream &s) const;
-    
+
     /// Returns a string representation of this sinterval as a pointer that
     /// should eventually be deallocated by the caller with `free()`.
     char *get_string_representation() const;
-    
+
     /// Returns a string representation of this sinterval as a string object.
     std::string to_string() const;
 

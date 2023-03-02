@@ -20,7 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-
 #include "client.hh"
 #include "rasmgr/src/messages/rasmgrmess.pb.h"
 #include "server.hh"
@@ -33,22 +32,21 @@
 
 #include <logging.hh>
 
-
 namespace rasmgr
 {
-using std::string;
-using std::runtime_error;
-using std::map;
-using common::UUID;
 using boost::shared_lock;
 using boost::shared_mutex;
 using boost::unique_lock;
 using boost::upgrade_lock;
 using boost::upgrade_to_unique_lock;
+using common::UUID;
+using std::map;
+using std::runtime_error;
+using std::string;
 
 std::atomic<std::uint32_t> Client::sessionIdCounter{};
 
-Client::Client(std::uint32_t clientIdArg, std::shared_ptr<User> userArg, 
+Client::Client(std::uint32_t clientIdArg, std::shared_ptr<User> userArg,
                std::int32_t lifeTime, const std::string &rasmgrHostArg,
                const std::shared_ptr<CpuScheduler> &cpuSchedulerArg)
     : clientId(clientIdArg), user(userArg), timer(lifeTime), rasmgrHost(rasmgrHostArg),
@@ -93,7 +91,7 @@ bool Client::isAlive()
 void Client::resetLiveliness()
 {
     boost::lock_guard<shared_mutex> uniqueTimer(this->timerMutex);
-//    LDEBUG << "resetting liveliness of client " << clientId;
+    //    LDEBUG << "resetting liveliness of client " << clientId;
     this->timer.reset();
 }
 
@@ -112,7 +110,7 @@ void Client::addDbSession(const std::string &dbName,
     UserDatabaseRights out_dbRights(false, false);
 
     boost::lock_guard<shared_mutex> lock(this->assignedServerMutex);
-    
+
     if (sessionOpen)
     {
         throw DuplicateDbSessionException(dbName, sessionId);
@@ -122,7 +120,7 @@ void Client::addDbSession(const std::string &dbName,
     out_dbRights = this->user->getDefaultDbRights();
 
     // TODO(DM) - remove this rights mgmt here
-    if (out_dbRights.hasReadAccess()  || out_dbRights.hasWriteAccess())
+    if (out_dbRights.hasReadAccess() || out_dbRights.hasWriteAccess())
     {
         //Generate a unique session id.
         out_sessionId = ++sessionIdCounter;
@@ -131,8 +129,8 @@ void Client::addDbSession(const std::string &dbName,
 
         this->assignedServer = newServer;
         newServer->allocateClientSession(
-              this->clientId, this->user->getName(), this->user->getPassword(),
-              this->user->getToken(), out_sessionId, dbName, out_dbRights);
+            this->clientId, this->user->getName(), this->user->getPassword(),
+            this->user->getToken(), out_sessionId, dbName, out_dbRights);
         sessionOpen = true;
     }
     else
@@ -210,4 +208,4 @@ void Client::removeDeadServer()
     }
 }
 
-}
+}  // namespace rasmgr

@@ -34,8 +34,10 @@ rasdaman GmbH.
 #include <logging.hh>
 
 using namespace rasnet::service;
-using grpc::ServerContext;
 using common::ErrorMessage;
+using grpc::ServerContext;
+
+// clang-format off
 
 // Executes the try_block in a try/catch that automatically handles several exception types.
 // The finally block is executed then after the try/catch block.
@@ -613,3 +615,5 @@ grpc::Status RasnetServerComm::getUnknownExceptionStatus()
     message.set_type(ErrorMessage::UNKNOWN);
     return grpc::Status(grpc::StatusCode::UNKNOWN, message.SerializeAsString());
 }
+
+// clang-format on

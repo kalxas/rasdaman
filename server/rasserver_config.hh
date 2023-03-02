@@ -1,4 +1,4 @@
- /*
+/*
 * This file is part of rasdaman community.
 *
 * Rasdaman community is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@ rasdaman GmbH.
 */
 #ifndef RASSERVER_CONFIG_HH
 #define RASSERVER_CONFIG_HH
-
 
 #include "raslib/minterval.hh"
 
@@ -53,59 +52,58 @@ class CommandLineParameter;
 class Configuration
 {
 public:
-
     Configuration() = default;
 
-    bool parseCommandLine(int argc, char** argv);
-    
+    bool parseCommandLine(int argc, char **argv);
+
     // -- rasserver
-    const char* getServerName();
-    int         getListenPort();
-    bool        isRasserver();
+    const char *getServerName();
+    int getListenPort();
+    bool isRasserver();
 
-    const char* getRasmgrHost();
-    int         getRasmgrPort();
-    bool        isLogToStdOut();
+    const char *getRasmgrHost();
+    int getRasmgrPort();
+    bool isLogToStdOut();
 
-    int         getMaxTransferBufferSize();
-    const char* getDbConnectionID();
+    int getMaxTransferBufferSize();
+    const char *getDbConnectionID();
 
-    int         getDefaultTileSize();
-    int         getDefaultPCTMin();
-    int         getDefaultPCTMax();
-    int         getDefaultIndexSize();
-    const char* getDefaultTileConfig();
-    const char* getTilingScheme();
-    const char* getIndexType();
-    
-    const char* getNewServerId();
+    int getDefaultTileSize();
+    int getDefaultPCTMin();
+    int getDefaultPCTMax();
+    int getDefaultIndexSize();
+    const char *getDefaultTileConfig();
+    const char *getTilingScheme();
+    const char *getIndexType();
+
+    const char *getNewServerId();
 
 #ifdef RMANDEBUG
-    int         getDebugLevel();
+    int getDebugLevel();
 #endif
 
     // -- directql
-    const char* getQueryString();
-    const char* getFileName();
-    const char* getUser();
-    const char* getPasswd();
-    const char* getOutFileMask();
-    const r_Minterval& getMddDomain();
-    const char* getMddTypeName();
-    bool        isMddDomainDef();
-    bool        isMddTypeNameDef();
-    bool        isQuietLogOn();
-    bool        isOutputOn();
-    bool        hasQueryString();
+    const char *getQueryString();
+    const char *getFileName();
+    const char *getUser();
+    const char *getPasswd();
+    const char *getOutFileMask();
+    const r_Minterval &getMddDomain();
+    const char *getMddTypeName();
+    bool isMddDomainDef();
+    bool isMddTypeNameDef();
+    bool isQuietLogOn();
+    bool isOutputOn();
+    bool hasQueryString();
     OUTPUT_TYPE getOutputType();
-    
-    void        setMddTypeName(const char* mddtn);
+
+    void setMddTypeName(const char *mddtn);
 
     // -- rasdl
-    bool        usesRasdl();
-    ProgModes   getProgMode();
+    bool usesRasdl();
+    ProgModes getProgMode();
 
-     const char *getBaseName() const;
+    const char *getBaseName() const;
 
 private:
     void printHelp();
@@ -113,103 +111,103 @@ private:
     void initParameters();
     void checkParameters();
     void initLogFiles();
-    void deprecated(CommandLineParameter*);
+    void deprecated(CommandLineParameter *);
 
-    const char* makeLogFileName(const char* srvName, const char* desExt);
+    const char *makeLogFileName(const char *srvName, const char *desExt);
 
     // Parameters
-    CommandLineParameter* cmlHelp{};
-    CommandLineParameter* cmlRsn{};
-    CommandLineParameter* cmlPort{};
-    CommandLineParameter* cmlMgr{};
-    CommandLineParameter* cmlMgrPort{};
+    CommandLineParameter *cmlHelp{};
+    CommandLineParameter *cmlRsn{};
+    CommandLineParameter *cmlPort{};
+    CommandLineParameter *cmlMgr{};
+    CommandLineParameter *cmlMgrPort{};
 
-    CommandLineParameter* cmlTransBuffer{};
+    CommandLineParameter *cmlTransBuffer{};
 
-    CommandLineParameter* cmlConnectStr{};
-    CommandLineParameter* cmlLog{};
+    CommandLineParameter *cmlConnectStr{};
+    CommandLineParameter *cmlLog{};
 
-    CommandLineParameter* cmlTileSize{};
-    CommandLineParameter* cmlPctMin{};
-    CommandLineParameter* cmlPctMax{};
-    CommandLineParameter* cmlTileConf{};
-    CommandLineParameter* cmlTiling{};
-    CommandLineParameter* cmlIndex{};
-    CommandLineParameter* cmlIndexSize{};
-    CommandLineParameter* cmlNewServerId{}; // required by rasnet
+    CommandLineParameter *cmlTileSize{};
+    CommandLineParameter *cmlPctMin{};
+    CommandLineParameter *cmlPctMax{};
+    CommandLineParameter *cmlTileConf{};
+    CommandLineParameter *cmlTiling{};
+    CommandLineParameter *cmlIndex{};
+    CommandLineParameter *cmlIndexSize{};
+    CommandLineParameter *cmlNewServerId{};  // required by rasnet
 
     // directql parameters
-    CommandLineParameter* cmlQuery{};
-    CommandLineParameter* cmlQueryFile{};
-    CommandLineParameter* cmlFile{};
+    CommandLineParameter *cmlQuery{};
+    CommandLineParameter *cmlQueryFile{};
+    CommandLineParameter *cmlFile{};
 
-    CommandLineParameter* cmlContent{};
-    CommandLineParameter* cmlOut{};
-    CommandLineParameter* cmlOutfile{};
-    CommandLineParameter* cmlMddDomain{};
-    CommandLineParameter* cmlMddType{};
-    CommandLineParameter* cmlType{};
+    CommandLineParameter *cmlContent{};
+    CommandLineParameter *cmlOut{};
+    CommandLineParameter *cmlOutfile{};
+    CommandLineParameter *cmlMddDomain{};
+    CommandLineParameter *cmlMddType{};
+    CommandLineParameter *cmlType{};
 
-    CommandLineParameter* cmlDatabase{};
-    CommandLineParameter* cmlUser{};
-    CommandLineParameter* cmlPasswd{};
-    CommandLineParameter* cmlQuiet{};
+    CommandLineParameter *cmlDatabase{};
+    CommandLineParameter *cmlUser{};
+    CommandLineParameter *cmlPasswd{};
+    CommandLineParameter *cmlQuiet{};
 
     // rasdl parameters
-    CommandLineParameter* cmlCreateDb{};
-    CommandLineParameter* cmlDelDb{};
-    
+    CommandLineParameter *cmlCreateDb{};
+    CommandLineParameter *cmlDelDb{};
+
     // deprecated, kept for backwards compatibility
-    CommandLineParameter* cmlTimeOut{};
-    CommandLineParameter* cmlUseTC{};
-    CommandLineParameter* cmlLockMgrOn{};
-    CommandLineParameter* cmlCacheLimit{};
+    CommandLineParameter *cmlTimeOut{};
+    CommandLineParameter *cmlUseTC{};
+    CommandLineParameter *cmlLockMgrOn{};
+    CommandLineParameter *cmlCacheLimit{};
 #ifdef RMANDEBUG
-    CommandLineParameter* cmlDbg{};
-    CommandLineParameter* cmlDbgLevel{};
+    CommandLineParameter *cmlDbg{};
+    CommandLineParameter *cmlDbgLevel{};
 #endif
 
-    const char* myExecutable{};
-    
-    const char* newServerId{}; // required by rasnet
-    const char* serverName{};
-    const char* rasmgrHost{};
-    
-    const char* dbConnection{};
-    
-    const char* logFileName{}; // == 0 if stdout
-    const char* tileConf{};
-    const char* tilingName{};
-    const char* indexType{};
-    
-    int         rasmgrPort{};
-    int         listenPort{};
-    int         tileSize{};
-    int         pctMin{};
-    int         pctMax{};
-    int         indexSize{};
-    int         maxTransferBufferSize{};
+    const char *myExecutable{};
+
+    const char *newServerId{};  // required by rasnet
+    const char *serverName{};
+    const char *rasmgrHost{};
+
+    const char *dbConnection{};
+
+    const char *logFileName{};  // == 0 if stdout
+    const char *tileConf{};
+    const char *tilingName{};
+    const char *indexType{};
+
+    int rasmgrPort{};
+    int listenPort{};
+    int tileSize{};
+    int pctMin{};
+    int pctMax{};
+    int indexSize{};
+    int maxTransferBufferSize{};
 
     // directql
-    const char* queryString{};
-    const char* fileName{};
-    const char* baseName{};
-    const char* user{};
-    const char* passwd{};
-    const char* outFileMask{};
-    const char* mddTypeName{};
+    const char *queryString{};
+    const char *fileName{};
+    const char *baseName{};
+    const char *user{};
+    const char *passwd{};
+    const char *outFileMask{};
+    const char *mddTypeName{};
     r_Minterval mddDomain;
-    
+
     OUTPUT_TYPE outputType{OUT_NONE};
-    ProgModes   progMode{M_INVALID};
-    
-    bool        output{false};
-    bool        displayType{false};
-    bool        quietLog{false};
-    bool        mddDomainDef{false};
-    bool        mddTypeNameDef{false};
-    bool        queryStringOn{false};
-    bool        logToStdOut{true};
+    ProgModes progMode{M_INVALID};
+
+    bool output{false};
+    bool displayType{false};
+    bool quietLog{false};
+    bool mddDomainDef{false};
+    bool mddTypeNameDef{false};
+    bool queryStringOn{false};
+    bool logToStdOut{true};
 };
 
 extern Configuration configuration;

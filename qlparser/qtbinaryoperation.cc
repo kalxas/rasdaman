@@ -33,26 +33,24 @@ using namespace std;
 
 // constructors
 
-QtBinaryOperation::QtBinaryOperation() :
-    QtOperation(),
-    input1(NULL),
-    input2(NULL)
+QtBinaryOperation::QtBinaryOperation()
+    : QtOperation(),
+      input1(NULL),
+      input2(NULL)
 {
 }
 
-
-QtBinaryOperation::QtBinaryOperation(QtNode *node) :
-    QtOperation(node),
-    input1(NULL),
-    input2(NULL)
+QtBinaryOperation::QtBinaryOperation(QtNode *node)
+    : QtOperation(node),
+      input1(NULL),
+      input2(NULL)
 {
 }
 
-
-QtBinaryOperation::QtBinaryOperation(QtOperation *initInput1, QtOperation *initInput2) :
-    QtOperation(),
-    input1(initInput1),
-    input2(initInput2)
+QtBinaryOperation::QtBinaryOperation(QtOperation *initInput1, QtOperation *initInput2)
+    : QtOperation(),
+      input1(initInput1),
+      input2(initInput2)
 {
     if (input1)
     {
@@ -81,11 +79,9 @@ QtBinaryOperation::~QtBinaryOperation()
     }
 }
 
-
 // pre-evaluate the operation if the nodes contain constant data
 
-void
-QtBinaryOperation::simplify()
+void QtBinaryOperation::simplify()
 {
     // In order to work bottom up, first inspect the descendants
     QtNode::simplify();
@@ -94,7 +90,7 @@ QtBinaryOperation::simplify()
     if (input1 && input2)
     {
         // Test, if both operands are of const type.
-        if (input1->getNodeType() ==  QT_CONST && input2->getNodeType() == QT_CONST)
+        if (input1->getNodeType() == QT_CONST && input2->getNodeType() == QT_CONST)
         {
             // evaluate the self node with no input list
             QtData *newConst = this->evaluate(NULL);
@@ -115,21 +111,18 @@ QtBinaryOperation::simplify()
             }
         }
     }
-
 }
-
 
 // compare this to another node
 
-bool
-QtBinaryOperation::equalMeaning(QtNode *node)
+bool QtBinaryOperation::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     // are the nodes of the same type?
     if (getNodeType() == node->getNodeType())
     {
-        QtBinaryOperation *binNode = static_cast<QtBinaryOperation *>(node); // by force
+        QtBinaryOperation *binNode = static_cast<QtBinaryOperation *>(node);  // by force
 
         if (input1 && input2)
         {
@@ -148,7 +141,6 @@ QtBinaryOperation::equalMeaning(QtNode *node)
 
     return result;
 }
-
 
 // get childs
 
@@ -193,11 +185,9 @@ QtBinaryOperation::getChilds(QtChildType flag)
     return resultList;
 }
 
-
 // get the two operands
 
-bool
-QtBinaryOperation::getOperands(QtDataList *inputList, QtData *&operand1, QtData *&operand2)
+bool QtBinaryOperation::getOperands(QtDataList *inputList, QtData *&operand1, QtData *&operand2)
 {
     bool success = false;
 
@@ -236,7 +226,6 @@ QtBinaryOperation::getOperands(QtDataList *inputList, QtData *&operand1, QtData 
 
     if (!success)
     {
-
         if (operand1)
         {
             operand1->deleteRef();
@@ -250,17 +239,14 @@ QtBinaryOperation::getOperands(QtDataList *inputList, QtData *&operand1, QtData 
         }
 
         LTRACE << "Error: QtBinaryOperation::getOperands() - at least one operand is not provided.";
-
     }
 
     return success;
 }
 
-
 // get the first or the second operand
 
-bool
-QtBinaryOperation::getOperand(QtDataList *inputList, QtData *&operand, int number)
+bool QtBinaryOperation::getOperand(QtDataList *inputList, QtData *&operand, int number)
 {
     bool success = false;
 
@@ -300,7 +286,6 @@ QtBinaryOperation::getOperand(QtDataList *inputList, QtData *&operand, int numbe
     return success;
 }
 
-
 // get spelling
 
 string
@@ -308,7 +293,7 @@ QtBinaryOperation::getSpelling()
 {
     char tempStr[20];
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
-    string result  = string(tempStr);
+    string result = string(tempStr);
     result.append("(");
 
     if (input1 && input2)
@@ -335,7 +320,6 @@ QtBinaryOperation::getSpelling()
     return result;
 }
 
-
 // get area type
 
 QtNode::QtAreaType
@@ -345,7 +329,7 @@ QtBinaryOperation::getAreaType()
 
     if (input1 && input2)
         if (input1->getAreaType() == QtNode::QT_AREA_SCALAR &&
-                input2->getAreaType() == QtNode::QT_AREA_SCALAR)
+            input2->getAreaType() == QtNode::QT_AREA_SCALAR)
         {
             result = QT_AREA_SCALAR;
         }
@@ -353,11 +337,9 @@ QtBinaryOperation::getAreaType()
     return result;
 }
 
-
 // optimize load
 
-void
-QtBinaryOperation::optimizeLoad(QtTrimList *trimList)
+void QtBinaryOperation::optimizeLoad(QtTrimList *trimList)
 {
     QtNode::QtTrimList *list1 = NULL;
     QtNode::QtTrimList *list2 = NULL;
@@ -385,7 +367,6 @@ QtBinaryOperation::optimizeLoad(QtTrimList *trimList)
         {
             input2->optimizeLoad(list2);
         }
-
     }
     else
     {
@@ -400,9 +381,7 @@ QtBinaryOperation::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-
-void
-QtBinaryOperation::printTree(int tab, ostream &s, QtChildType mode)
+void QtBinaryOperation::printTree(int tab, ostream &s, QtChildType mode)
 {
     if (mode != QT_DIRECT_CHILDS)
     {
@@ -428,18 +407,7 @@ QtBinaryOperation::printTree(int tab, ostream &s, QtChildType mode)
     }
 }
 
-
-
-bool
-QtBinaryOperation::isCommutative() const
+bool QtBinaryOperation::isCommutative() const
 {
-    return true; // by default, a binary operation is commutative
+    return true;  // by default, a binary operation is commutative
 }
-
-
-
-
-
-
-
-

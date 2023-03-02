@@ -37,10 +37,10 @@ class ConnectionFailedException : public RuntimeException
 public:
     ConnectionFailedException();
 
-    ConnectionFailedException(const std::string& reason);
+    ConnectionFailedException(const std::string &reason);
 
     virtual ~ConnectionFailedException() noexcept;
 };
-}
+}  // namespace common
 
-#endif // COMMON_SRC_EXCEPTIONS_CONNECTIONFAILEDEXCEPTION_HH
+#endif  // COMMON_SRC_EXCEPTIONS_CONNECTIONFAILEDEXCEPTION_HH

@@ -26,13 +26,15 @@ rasdaman GmbH.
 
 #include <string>  // for string
 
-namespace common {
+namespace common
+{
 /**
  * @brief The Exception class provides a consistent interface to handle errors
  * in rasdaman.
  * All exceptions defined in rasdaman should inherit from Exception.
  */
-class Exception {
+class Exception
+{
 public:
     /**
      * @brief Exception Constructs an instance of the Exception class with no
@@ -44,7 +46,7 @@ public:
      * @brief Exception Constructs the exception with an explanatory message given by whatArg.
      * @param whatArg Explanatory message that can be retrieved through the what() method.
      */
-    Exception(const std::string& whatArg);
+    Exception(const std::string &whatArg);
 
     virtual ~Exception() noexcept = default;
 
@@ -53,9 +55,9 @@ public:
      */
     virtual const std::string &what() const;
 
- private:
-  std::string msg;
+private:
+    std::string msg;
 };
-} // namespace common
+}  // namespace common
 
 #endif

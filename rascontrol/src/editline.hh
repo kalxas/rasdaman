@@ -44,6 +44,6 @@ private:
     char *rl_gets(const char *prompt);
     char line[MAXMSG];
 };
-}
+}  // namespace rascontrol
 
-#endif // EDITLINE_HH
+#endif  // EDITLINE_HH

@@ -47,59 +47,59 @@ rasdaman GmbH.
 #define GLOBALS_HH
 
 /// default rasmgr listen port
-#define DEFAULT_PORT        7001
+#define DEFAULT_PORT 7001
 
 /// default name of server machine, if gethostname() fails
-#define DEFAULT_HOSTNAME    "127.0.0.1"
+#define DEFAULT_HOSTNAME "127.0.0.1"
 
 /// default name of rasserver instance, if getServerName() fails
-#define DEFAULT_SERVERNAME	"rasserver"
+#define DEFAULT_SERVERNAME "rasserver"
 
 /// default database name
-#define DEFAULT_DBNAME      "RASBASE"
+#define DEFAULT_DBNAME "RASBASE"
 
 /// name of rasmgr configuration file
-#define RASMGR_CONF_DIR     "/etc"
-#define RASMGR_CONF_FILE    "rasmgr.conf"
+#define RASMGR_CONF_DIR "/etc"
+#define RASMGR_CONF_FILE "rasmgr.conf"
 
 /// name of server logging configuration file
-#define SERVER_LOG_CONF    "log-server.conf"
+#define SERVER_LOG_CONF "log-server.conf"
 
 /// name of rasmgr logging configuration file
-#define RASMGR_LOG_CONF    "log-rasmgr.conf"
+#define RASMGR_LOG_CONF "log-rasmgr.conf"
 
 /// name of client logging configuration file
-#define CLIENT_LOG_CONF    "log-client.conf"
+#define CLIENT_LOG_CONF "log-client.conf"
 
 /// name of rasmgr authentication file
-#define RASMGR_AUTH_FILE    "rasmgr.auth"
+#define RASMGR_AUTH_FILE "rasmgr.auth"
 
 /// default resource directory (e.g. for configuration files)
 #define RAS_USER_RESOURCEDIR ".rasdaman"
 
 /// default r/o login name for client tools
-#define DEFAULT_USER        "rasguest"
+#define DEFAULT_USER "rasguest"
 /// default password for this user
-#define DEFAULT_PASSWD      "rasguest"
+#define DEFAULT_PASSWD "rasguest"
 
-#define DEFAULT_ADMIN        "rasadmin"
-#define DEFAULT_ADMIN_PASSWD    "rasadmin"
+#define DEFAULT_ADMIN "rasadmin"
+#define DEFAULT_ADMIN_PASSWD "rasadmin"
 
 /// binaries directory (cannot name it 'BINDIR', that's used by autotools)
-#define BINSUBDIR       "/bin"
+#define BINSUBDIR "/bin"
 
 /// log file suffix
-#define LOG_SUFFIX          "log"
+#define LOG_SUFFIX "log"
 
 // default digest used for encoding passwords
-#define DEFAULT_DIGEST    "MD5"
-#define DEFAULT_DIGEST_SIZE    32
+#define DEFAULT_DIGEST "MD5"
+#define DEFAULT_DIGEST_SIZE 32
 
 /// max transfer buffer size for raw arrays - 10MB
-#define MAX_BUFFER_SIZE     10000000L
+#define MAX_BUFFER_SIZE 10000000L
 
 /// client timeout [secs]
-#define CLIENT_TIMEOUT      300
+#define CLIENT_TIMEOUT 300
 
 ///  The number of milliseconds a server has to reply to a service request.
 #define SERVICE_CALL_TIMEOUT 5000
@@ -110,9 +110,8 @@ rasdaman GmbH.
 #define ALL_IP_ADDRESSES "[::]"
 
 /// Convert parameter to string literal
-#if ! defined(STRINGIFY)
+#if !defined(STRINGIFY)
 #define STRINGIFY(x) #x
 #endif
 
-#endif // GLOBALS_HH
-
+#endif  // GLOBALS_HH

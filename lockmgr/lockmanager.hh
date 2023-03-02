@@ -41,7 +41,11 @@ rasdaman GmbH.
 
 class Tile;
 
-enum Lock {EXCLUSIVE_LOCK, SHARED_LOCK};
+enum Lock
+{
+    EXCLUSIVE_LOCK,
+    SHARED_LOCK
+};
 
 /**
  * This class contains the C++-part implementation of the lock manager.
@@ -76,9 +80,9 @@ private:
 
     // private function for locking a tile (shared or exclusive)
     void lockTileInternal(const char *, OId::OIdCounter, enum Lock);
-    
+
     // function for locking an array of tile ids at "once"
-    void lockTilesInternal(const char *, long long [], int, enum Lock);
+    void lockTilesInternal(const char *, long long[], int, enum Lock);
 
     // private function for unlocking a tile with respect to a specific rasserver
     void unlockTileInternal(const char *, OId::OIdCounter);
@@ -117,7 +121,7 @@ public:
     void lockTiles(std::vector<std::shared_ptr<Tile>> *);
 
     // function for locking all tiles corresponding to the ids in the array
-    void lockTiles(long long [], int);
+    void lockTiles(long long[], int);
 
     // functions processes parameters and then call the corresponding private functions for locking a tile
     void lockTile(Tile *);

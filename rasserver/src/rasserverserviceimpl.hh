@@ -41,23 +41,23 @@ class RasServerServiceImpl : public rasnet::service::RasServerService::Service
 public:
     RasServerServiceImpl(std::shared_ptr<rasserver::ClientManager> clientManagerArg);
 
-    virtual grpc::Status AllocateClient(grpc::ServerContext* context, const rasnet::service::AllocateClientReq* request, rasnet::service::Void* response) override;
+    virtual grpc::Status AllocateClient(grpc::ServerContext *context, const rasnet::service::AllocateClientReq *request, rasnet::service::Void *response) override;
 
-    virtual grpc::Status DeallocateClient(grpc::ServerContext* context, const rasnet::service::DeallocateClientReq* request, rasnet::service::Void* response) override;
+    virtual grpc::Status DeallocateClient(grpc::ServerContext *context, const rasnet::service::DeallocateClientReq *request, rasnet::service::Void *response) override;
 
-    virtual grpc::Status Close(grpc::ServerContext* context, const rasnet::service::CloseServerReq* request, rasnet::service::Void* response) override;
+    virtual grpc::Status Close(grpc::ServerContext *context, const rasnet::service::CloseServerReq *request, rasnet::service::Void *response) override;
 
-    virtual grpc::Status GetClientStatus(grpc::ServerContext* context, const rasnet::service::ClientStatusReq* request, rasnet::service::ClientStatusRepl* response) override;
+    virtual grpc::Status GetClientStatus(grpc::ServerContext *context, const rasnet::service::ClientStatusReq *request, rasnet::service::ClientStatusRepl *response) override;
 
-    virtual grpc::Status GetServerStatus(grpc::ServerContext* context, const rasnet::service::ServerStatusReq* request, rasnet::service::ServerStatusRepl* response) override;
+    virtual grpc::Status GetServerStatus(grpc::ServerContext *context, const rasnet::service::ServerStatusReq *request, rasnet::service::ServerStatusRepl *response) override;
 
 private:
     std::shared_ptr<rasserver::ClientManager> clientManager;
-    
+
     /// Thread to shutdown the rasserver
     std::unique_ptr<std::thread> shutdownThread;
     void shutdownRunner();
 };
-}
+}  // namespace rasserver
 
-#endif // RASSERVERSERVICE_HH
+#endif  // RASSERVERSERVICE_HH

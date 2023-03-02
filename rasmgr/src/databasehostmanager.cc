@@ -33,8 +33,8 @@
 namespace rasmgr
 {
 using std::list;
-using std::shared_ptr;
 using std::runtime_error;
+using std::shared_ptr;
 
 void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &newDbHost)
 {
@@ -72,12 +72,12 @@ void DatabaseHostManager::changeDatabaseHost(const std::string &oldName, const D
         {
             if (!(*it)->isBusy())
             {
-              if (newProperties.has_connect_string())
-                  (*it)->setConnectString(newProperties.connect_string());
-              if (newProperties.has_host_name() && !newProperties.host_name().empty())
-                  (*it)->setHostName(newProperties.host_name());
-              changed = true;
-              break;
+                if (newProperties.has_connect_string())
+                    (*it)->setConnectString(newProperties.connect_string());
+                if (newProperties.has_host_name() && !newProperties.host_name().empty())
+                    (*it)->setHostName(newProperties.host_name());
+                changed = true;
+                break;
             }
             else
             {
@@ -149,7 +149,7 @@ std::shared_ptr<DatabaseHost> DatabaseHostManager::getDatabaseHost(const std::st
     throw common::RuntimeException("Host containing database " + dbName + " not found.");
 }
 
-std::list<std::shared_ptr<DatabaseHost> > DatabaseHostManager::getDatabaseHostList() const
+std::list<std::shared_ptr<DatabaseHost>> DatabaseHostManager::getDatabaseHostList() const
 {
     return this->hostList;
 }
@@ -164,6 +164,5 @@ DatabaseHostMgrProto DatabaseHostManager::serializeToProto()
     }
     return result;
 }
-
 
 } /* namespace rasmgr */

@@ -54,6 +54,7 @@ private:
     int cellSize{};
     std::vector<r_Dir_Decompose> dirDecomp;
     r_Interest_Tiling::Tilesize_Limit tilingSizeStrategy_AOI{r_Interest_Tiling::NO_LIMIT};
+
 public:
     StgMddConfig();
     ~StgMddConfig();

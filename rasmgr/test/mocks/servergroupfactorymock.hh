@@ -9,13 +9,14 @@ namespace rasmgr
 {
 namespace test
 {
-class ServerGroupFactoryMock: public rasmgr::ServerGroupFactory
+class ServerGroupFactoryMock : public rasmgr::ServerGroupFactory
 {
 public:
-    ServerGroupFactoryMock(): ServerGroupFactory(nullptr, nullptr) {}
-    MOCK_METHOD1(createServerGroup, std::shared_ptr<rasmgr::ServerGroup>(const rasmgr::ServerGroupConfigProto&));
+    ServerGroupFactoryMock()
+        : ServerGroupFactory(nullptr, nullptr) {}
+    MOCK_METHOD1(createServerGroup, std::shared_ptr<rasmgr::ServerGroup>(const rasmgr::ServerGroupConfigProto &));
 };
-}
-}
+}  // namespace test
+}  // namespace rasmgr
 
-#endif // RASMGR_X_TEST_SERVERGROUPFACTORYMOCK_HH
+#endif  // RASMGR_X_TEST_SERVERGROUPFACTORYMOCK_HH

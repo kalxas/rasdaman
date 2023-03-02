@@ -98,7 +98,6 @@ public:
     */
 
 private:
-    
     static void extendFaces(HierIndexDS *ix,
                             const r_Minterval &newKeyObjectDom,
                             const r_Minterval &oldCurrDom,

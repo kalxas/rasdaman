@@ -47,7 +47,6 @@ TEST(RasControlTest, UserCredentialsConstructor)
 
     ASSERT_EQ(testUser, configuredUserCredentials.getUserName());
     ASSERT_EQ(common::Crypto::messageDigest(testPassword, DEFAULT_DIGEST), configuredUserCredentials.getUserPassword());
-
 }
 
 TEST(RasControlTest, UserCredentialsEnvironmentLogin)
@@ -55,7 +54,7 @@ TEST(RasControlTest, UserCredentialsEnvironmentLogin)
     std::string testPassword = "testPass";
     std::string testUser = "testUser";
 
-    char* envVar = new char[30];
+    char *envVar = new char[30];
     std::string envVarString = RASLOGIN + "=" + testUser + ":" + testPassword;
     strcpy(envVar, envVarString.c_str());
     UserCredentials credentials;
@@ -64,7 +63,7 @@ TEST(RasControlTest, UserCredentialsEnvironmentLogin)
     ASSERT_ANY_THROW(credentials.environmentLogin());
 
     putenv(envVar);
-    char* s = getenv("RASLOGIN");
+    char *s = getenv("RASLOGIN");
     printf("%s\n", s);
 
     ASSERT_NO_THROW(credentials.environmentLogin());
@@ -74,5 +73,5 @@ TEST(RasControlTest, UserCredentialsEnvironmentLogin)
     delete[] envVar;
 }
 
-}
-}
+}  // namespace test
+}  // namespace rascontrol

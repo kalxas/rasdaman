@@ -42,16 +42,16 @@ using namespace std;
 
 TEST(computerMinterval, clippingHelpFunctions)
 {
-    vector<r_Point> polytopePoints = {r_Point(0, 0, 0), r_Point( 2, 2, 0), r_Point(2, 0, 0)};
-    QtMShapeData* mshape = new QtMShapeData(polytopePoints);
+    vector<r_Point> polytopePoints = {r_Point(0, 0, 0), r_Point(2, 2, 0), r_Point(2, 0, 0)};
+    QtMShapeData *mshape = new QtMShapeData(polytopePoints);
 
-    BoundingBox* bBox = computeBoundingBox(mshape);
+    BoundingBox *bBox = computeBoundingBox(mshape);
 
     r_PointDouble expected1(3), bBoxRemoveDimension(3);
     expected1[2] = -1;
 
     std::set<r_Dimension, std::less<r_Dimension>> projectionDimensionSet;
-    
+
     r_Minterval subspaceAreaOp = computeProjectedMinterval(mshape, bBox, &bBoxRemoveDimension, projectionDimensionSet);
 
     polytopePoints.clear();
@@ -62,13 +62,12 @@ TEST(computerMinterval, clippingHelpFunctions)
     EXPECT_EQ(expected1, bBoxRemoveDimension);
 }
 
-
 TEST(computerMinterval5d, clippingHelpFunctions)
 {
-    vector<r_Point> polytopePoints = {r_Point(0, 0, 0, 0, 0), r_Point( 2, 2, 1, 1, 0), r_Point(2, 2, 0, 0, 0)};
-    QtMShapeData* mshape = new QtMShapeData(polytopePoints);
+    vector<r_Point> polytopePoints = {r_Point(0, 0, 0, 0, 0), r_Point(2, 2, 1, 1, 0), r_Point(2, 2, 0, 0, 0)};
+    QtMShapeData *mshape = new QtMShapeData(polytopePoints);
 
-    BoundingBox* bBox = computeBoundingBox(mshape);
+    BoundingBox *bBox = computeBoundingBox(mshape);
 
     r_PointDouble expected1_5d(5), bBoxRemoveDimension5d(5);
     expected1_5d[4] = -1;
@@ -76,9 +75,8 @@ TEST(computerMinterval5d, clippingHelpFunctions)
     expected1_5d[2] = -1;
 
     std::set<r_Dimension, std::less<r_Dimension>> projectionDimensionSet;
-    
-    r_Minterval subspaceAreaOp5d = computeProjectedMinterval(mshape, bBox, &bBoxRemoveDimension5d, projectionDimensionSet);
 
+    r_Minterval subspaceAreaOp5d = computeProjectedMinterval(mshape, bBox, &bBoxRemoveDimension5d, projectionDimensionSet);
 
     polytopePoints.clear();
     projectionDimensionSet.clear();
@@ -91,16 +89,16 @@ TEST(computerMinterval5d, clippingHelpFunctions)
 TEST(computerMinterval5d_2, clippingHelpFunctions)
 {
     std::set<r_Dimension, std::less<r_Dimension>> projectionDimensionSet;
-    
-    vector<r_Point> polytopePoints = {r_Point(0, 0, 0, 0, 0), r_Point( 0, 2, 1, 2, 2), r_Point(0, 2, 1, 0, 2)};
-    QtMShapeData* mshape = new QtMShapeData(polytopePoints);
-    BoundingBox* bBox = computeBoundingBox(mshape);
+
+    vector<r_Point> polytopePoints = {r_Point(0, 0, 0, 0, 0), r_Point(0, 2, 1, 2, 2), r_Point(0, 2, 1, 0, 2)};
+    QtMShapeData *mshape = new QtMShapeData(polytopePoints);
+    BoundingBox *bBox = computeBoundingBox(mshape);
 
     r_PointDouble expected2_5d(5), bBoxRemoveDim1_5d(5);
     expected2_5d[0] = -1;
     expected2_5d[1] = -1;
     expected2_5d[2] = -1;
-    
+
     r_Minterval subspaceAreaOp2_5d = computeProjectedMinterval(mshape, bBox, &bBoxRemoveDim1_5d, projectionDimensionSet);
 
     polytopePoints.clear();
@@ -114,16 +112,16 @@ TEST(computerMinterval5d_2, clippingHelpFunctions)
 TEST(computerMinterval5d_3, clippingHelpFunctions)
 {
     std::set<r_Dimension, std::less<r_Dimension>> projectionDimensionSet;
-    
-    vector<r_Point> polytopePoints = {r_Point(0, 0, 0, 0, 0), r_Point( 0, 10, 5, 2, 7), r_Point(0, 2, 0, 0, 2)};
-    QtMShapeData* mshape = new QtMShapeData(polytopePoints);
-    BoundingBox* bBox = computeBoundingBox(mshape);
+
+    vector<r_Point> polytopePoints = {r_Point(0, 0, 0, 0, 0), r_Point(0, 10, 5, 2, 7), r_Point(0, 2, 0, 0, 2)};
+    QtMShapeData *mshape = new QtMShapeData(polytopePoints);
+    BoundingBox *bBox = computeBoundingBox(mshape);
 
     r_PointDouble expected2_5d(5), bBoxRemoveDim1_5d(5);
     expected2_5d[0] = -1;
     expected2_5d[3] = -1;
     expected2_5d[2] = -1;
-    
+
     r_Minterval subspaceAreaOp2_5d = computeProjectedMinterval(mshape, bBox, &bBoxRemoveDim1_5d, projectionDimensionSet);
 
     polytopePoints.clear();
@@ -137,9 +135,9 @@ TEST(computerMinterval5d_3, clippingHelpFunctions)
 // TEST if something is in the subspace or not. (Distance not tested here)
 TEST(isInNSubspace, clippingHelpFunctions)
 {
-    // initially we generate the polytope 
-    vector<r_Point> polytopePoints = {r_Point( 1, 2), r_Point(6, 1)};
-    QtMShapeData* mshape = new QtMShapeData(polytopePoints);
+    // initially we generate the polytope
+    vector<r_Point> polytopePoints = {r_Point(1, 2), r_Point(6, 1)};
+    QtMShapeData *mshape = new QtMShapeData(polytopePoints);
 
     EXPECT_EQ(true, isInNSubspace(polytopePoints[0], mshape).second);
     EXPECT_EQ(true, isInNSubspace(polytopePoints[1], mshape).second);
@@ -147,13 +145,11 @@ TEST(isInNSubspace, clippingHelpFunctions)
     delete mshape;
     polytopePoints.clear();
 
-    polytopePoints = {r_Point( 1, 1), r_Point(5, 5)};
+    polytopePoints = {r_Point(1, 1), r_Point(5, 5)};
     mshape = new QtMShapeData(polytopePoints);
 
-    for(int i=0; i < 5; i++)
+    for (int i = 0; i < 5; i++)
     {
         EXPECT_EQ(true, isInNSubspace(r_Point(i, i), mshape).second);
     }
-
-
 }

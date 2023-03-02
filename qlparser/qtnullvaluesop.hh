@@ -32,7 +32,6 @@ rasdaman GmbH.
 #include "qlparser/qtscalardata.hh"
 #include "qlparser/qtbinaryoperation.hh"
 
-
 class QtNullvaluesOp : public QtNaryOperation
 {
 public:
@@ -58,16 +57,12 @@ public:
     virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
-
     r_Double getDoubleValue(const QtScalarData *data);
 
     QtNullvaluesList *nullvalueIntervals;
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
-
-
 
 class QtAddNullvalues : public QtBinaryOperation
 {
@@ -92,14 +87,10 @@ public:
     virtual const QtTypeElement &checkType(QtTypeTuple *typeTuple = NULL);
 
 private:
-
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
 
-
-
 #include "qlparser/qtnullvaluesop.icc"
 
 #endif
-

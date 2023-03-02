@@ -45,28 +45,28 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
-#include "sstoragelayout.hh"                   // for StorageLayout
-#include "relstorageif/dbstoragelayout.hh"     // for DBStorageLayout
-#include "stgmddconfig.hh"                     // for StgMddConfig
-#include "relstorageif/storageid.hh"           // for DBStorageLayoutId
-#include "reladminif/oidif.hh"                 // for operator<<, OId
+#include "sstoragelayout.hh"                // for StorageLayout
+#include "relstorageif/dbstoragelayout.hh"  // for DBStorageLayout
+#include "stgmddconfig.hh"                  // for StgMddConfig
+#include "relstorageif/storageid.hh"        // for DBStorageLayoutId
+#include "reladminif/oidif.hh"              // for operator<<, OId
 #include "mddmgr/mddobj.hh"
 #include "rasodmg/alignedtiling.hh"
 #include "rasodmg/dirtiling.hh"
 #include "rasodmg/stattiling.hh"
 #include "raslib/rmdebug.hh"
-#include "raslib/mddtypes.hh"                  // for r_Dimension, r_Bytes
-#include "raslib/minterval.hh"                 // for r_Minterval, operator<<
-#include "raslib/point.hh"                     // for r_Point, operator<<
-#include <logging.hh>                          // for Writer, CTRACE
+#include "raslib/mddtypes.hh"   // for r_Dimension, r_Bytes
+#include "raslib/minterval.hh"  // for r_Minterval, operator<<
+#include "raslib/point.hh"      // for r_Point, operator<<
+#include <logging.hh>           // for Writer, CTRACE
 
-#include <string>                              // for string
-#include <vector>                              // for vector
+#include <string>  // for string
+#include <vector>  // for vector
 
 using namespace std;
 
 // this number should be DBMS dependent.. default in postgres seems to be 8kB, in MySQL 16kB, etc.
-const r_Bytes   StorageLayout::DBSPageSize = 4096;
+const r_Bytes StorageLayout::DBSPageSize = 4096;
 
 r_Bytes StorageLayout::DefaultMinimalTileSize = DBSPageSize;
 
@@ -77,7 +77,7 @@ r_Bytes StorageLayout::DefaultTileSize = 4194304;
 
 unsigned int StorageLayout::DefaultIndexSize = 0;
 
-r_Index_Type        StorageLayout::DefaultIndexType = r_RPlus_Tree_Index; // DirTilesIx; // AutoIx;
+r_Index_Type StorageLayout::DefaultIndexType = r_RPlus_Tree_Index;  // DirTilesIx; // AutoIx;
 
 r_Tiling_Scheme StorageLayout::DefaultTilingScheme = r_AlignedTiling;
 
@@ -93,13 +93,15 @@ StorageLayout::StorageLayout(r_Index_Type ixType)
     LTRACE << "StorageLayout(" << ixType << ")";
 }
 
-StorageLayout::StorageLayout() : myLayout(new DBStorageLayout())
+StorageLayout::StorageLayout()
+    : myLayout(new DBStorageLayout())
 {
     extraFeatures = new StgMddConfig();
     LTRACE << "StorageLayout()";
 }
 
-StorageLayout::StorageLayout(const DBStorageLayoutId &id) : myLayout(id)
+StorageLayout::StorageLayout(const DBStorageLayoutId &id)
+    : myLayout(id)
 {
     extraFeatures = new StgMddConfig();
     LTRACE << "StorageLayout(" << id.getOId() << ")";
@@ -215,11 +217,10 @@ void StorageLayout::setCellSize(int i)
     extraFeatures->setCellSize(i);
 }
 
-void
-StorageLayout::setDirDecomp(vector<r_Dir_Decompose> *dir)
+void StorageLayout::setDirDecomp(vector<r_Dir_Decompose> *dir)
 {
     vector<r_Dir_Decompose> dec;
-    for (unsigned int i = 0 ; i < dir->size() ; ++i)
+    for (unsigned int i = 0; i < dir->size(); ++i)
     {
         dec.push_back(dir->at(i));
     }
@@ -231,8 +232,7 @@ void StorageLayout::setExtraFeatures(StgMddConfig *newExtraFeatures)
     extraFeatures = newExtraFeatures;
 }
 
-void
-StorageLayout::setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input)
+void StorageLayout::setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input)
 {
     extraFeatures->setTilingSizeStrategy_AOI(input);
 }
@@ -361,7 +361,7 @@ StorageLayout::calcRegLayout(const r_Minterval &tileDomain) const
         // if none found we're done
         if (currdim == 0 && trans[currdim] == transexmax[currdim])
             break;
-        
+
         // 2. advance dimension
         ++trans[currdim];
         // 3. reset later dimensions
@@ -384,7 +384,7 @@ std::vector<r_Minterval>
 StorageLayout::calcInterestLayout(const r_Minterval &tileDomain)
 {
     r_Interest_Tiling tiling(tileDomain.dimension(), extraFeatures->getBBoxes(),
-            myLayout->getTileSize(), extraFeatures->getTilingSizeStrategy_AOI());
+                             myLayout->getTileSize(), extraFeatures->getTilingSizeStrategy_AOI());
     return tiling.compute_tiles(tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
 }
 
@@ -398,7 +398,7 @@ StorageLayout::calcAlignedLayout(const r_Minterval &tileDomain)
 std::vector<r_Minterval>
 StorageLayout::calcDirectionalLayout(const r_Minterval &tileDomain)
 {
-    r_Dir_Tiling tiling(tileDomain.dimension(), 
+    r_Dir_Tiling tiling(tileDomain.dimension(),
                         extraFeatures->getDirDecompose(), myLayout->getTileSize(),
                         extraFeatures->getSubTiling() ? r_Dir_Tiling::WITH_SUBTILING : r_Dir_Tiling::WITHOUT_SUBTILING);
     return tiling.compute_tiles(tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
@@ -412,8 +412,8 @@ StorageLayout::calcStatisticLayout(const r_Minterval &tileDomain)
         accesses.emplace_back(bbox);
     auto borderT = extraFeatures->getBorderThreshold();
     auto interestT = extraFeatures->getInterestThreshold() < 0
-            ? r_Stat_Tiling::DEF_INTERESTING_THR
-            : extraFeatures->getInterestThreshold();
+                         ? r_Stat_Tiling::DEF_INTERESTING_THR
+                         : extraFeatures->getInterestThreshold();
     r_Stat_Tiling tiling(tileDomain.dimension(), accesses, myLayout->getTileSize(), borderT, interestT);
     return tiling.compute_tiles(tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
 }

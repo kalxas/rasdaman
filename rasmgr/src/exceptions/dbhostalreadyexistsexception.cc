@@ -25,11 +25,13 @@
 namespace rasmgr
 {
 
-DbHostAlreadyExistsException::DbHostAlreadyExistsException(const std::string& dbHostName)
+DbHostAlreadyExistsException::DbHostAlreadyExistsException(const std::string &dbHostName)
     : common::LogicException("Database host " + dbHostName + " already defined.")
-{}
+{
+}
 
 DbHostAlreadyExistsException::~DbHostAlreadyExistsException() noexcept
-{}
-
+{
 }
+
+}  // namespace rasmgr

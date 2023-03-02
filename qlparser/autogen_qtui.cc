@@ -31,10 +31,10 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-
 const QtNode::QtNodeType QtAbs::nodeType = QtNode::QT_ABS;
 
-QtAbs::QtAbs(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtAbs::QtAbs(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtAbs::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -135,7 +135,8 @@ const QtTypeElement &QtAbs::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtSqrt::nodeType = QtNode::QT_SQRT;
 
-QtSqrt::QtSqrt(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtSqrt::QtSqrt(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtSqrt::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -235,7 +236,8 @@ const QtTypeElement &QtSqrt::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtExp::nodeType = QtNode::QT_EXP;
 
-QtExp::QtExp(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtExp::QtExp(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtExp::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -335,8 +337,9 @@ const QtTypeElement &QtExp::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtPow::nodeType = QtNode::QT_POW;
 
-QtPow::QtPow(QtOperation *initInput, double newExponent): QtUnaryInduce(initInput),
-    exponent(newExponent)
+QtPow::QtPow(QtOperation *initInput, double newExponent)
+    : QtUnaryInduce(initInput),
+      exponent(newExponent)
 {
 }
 
@@ -440,7 +443,8 @@ const QtTypeElement &QtPow::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtLog::nodeType = QtNode::QT_LOG;
 
-QtLog::QtLog(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtLog::QtLog(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtLog::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -540,7 +544,8 @@ const QtTypeElement &QtLog::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtLn::nodeType = QtNode::QT_LN;
 
-QtLn::QtLn(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtLn::QtLn(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtLn::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -640,7 +645,8 @@ const QtTypeElement &QtLn::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtSin::nodeType = QtNode::QT_SIN;
 
-QtSin::QtSin(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtSin::QtSin(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtSin::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -740,7 +746,8 @@ const QtTypeElement &QtSin::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtCos::nodeType = QtNode::QT_COS;
 
-QtCos::QtCos(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtCos::QtCos(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtCos::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -840,7 +847,8 @@ const QtTypeElement &QtCos::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtTan::nodeType = QtNode::QT_TAN;
 
-QtTan::QtTan(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtTan::QtTan(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtTan::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -940,7 +948,8 @@ const QtTypeElement &QtTan::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtSinh::nodeType = QtNode::QT_SINH;
 
-QtSinh::QtSinh(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtSinh::QtSinh(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtSinh::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -1040,7 +1049,8 @@ const QtTypeElement &QtSinh::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtCosh::nodeType = QtNode::QT_COSH;
 
-QtCosh::QtCosh(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtCosh::QtCosh(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtCosh::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -1140,7 +1150,8 @@ const QtTypeElement &QtCosh::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtTanh::nodeType = QtNode::QT_TANH;
 
-QtTanh::QtTanh(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtTanh::QtTanh(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtTanh::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -1240,7 +1251,8 @@ const QtTypeElement &QtTanh::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtArcsin::nodeType = QtNode::QT_ARCSIN;
 
-QtArcsin::QtArcsin(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtArcsin::QtArcsin(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtArcsin::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -1339,7 +1351,8 @@ const QtTypeElement &QtArcsin::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtArccos::nodeType = QtNode::QT_ARCCOS;
 
-QtArccos::QtArccos(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtArccos::QtArccos(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtArccos::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -1438,7 +1451,8 @@ const QtTypeElement &QtArccos::checkType(QtTypeTuple *typeTuple)
 
 const QtNode::QtNodeType QtArctan::nodeType = QtNode::QT_ARCTAN;
 
-QtArctan::QtArctan(QtOperation *initInput): QtUnaryInduce(initInput) {}
+QtArctan::QtArctan(QtOperation *initInput)
+    : QtUnaryInduce(initInput) {}
 QtData *QtArctan::evaluate(QtDataList *inputList)
 {
     QtData *returnValue = NULL;
@@ -1536,4 +1550,3 @@ const QtTypeElement &QtArctan::checkType(QtTypeTuple *typeTuple)
 
     return dataStreamType;
 }
-

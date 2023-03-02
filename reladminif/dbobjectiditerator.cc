@@ -22,7 +22,7 @@ rasdaman GmbH.
 */
 
 #include "dbobjectiditerator.hh"
-#include "dbref.hh"    // for DBRef
+#include "dbref.hh"  // for DBRef
 
 template <class T>
 DBObjectIdIterator<T>::DBObjectIdIterator(const DBObjectIdIterator<T> &oidlist)
@@ -37,7 +37,7 @@ DBObjectIdIterator<T>::DBObjectIdIterator(
     const std::set<DBRef<T>, std::less<DBRef<T>>> &oidlist)
     : mySet(nullptr), counter(0)
 {
-    mySet = const_cast<std::set<DBRef<T>, std::less<DBRef<T>>>*>(&oidlist);
+    mySet = const_cast<std::set<DBRef<T>, std::less<DBRef<T>>> *>(&oidlist);
     myIter = mySet->begin();
 }
 

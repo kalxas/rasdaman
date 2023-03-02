@@ -28,23 +28,27 @@ rasdaman GmbH.
 #include <logging.hh>
 
 r_Complex_Type::r_Complex_Type()
-    :   r_Primitive_Type()
+    : r_Primitive_Type()
 {
 }
 
 r_Complex_Type::r_Complex_Type(const char *newTypeName, const r_Type::r_Type_Id newTypeId)
-    :   r_Primitive_Type(newTypeName, newTypeId)
+    : r_Primitive_Type(newTypeName, newTypeId)
 {
     switch (typeId)
     {
     case COMPLEXTYPE1:
-        imOff = sizeof(r_Float);  break;
+        imOff = sizeof(r_Float);
+        break;
     case COMPLEXTYPE2:
-        imOff = sizeof(r_Double); break;
+        imOff = sizeof(r_Double);
+        break;
     case CINT16:
-        imOff = sizeof(r_Short);  break;
+        imOff = sizeof(r_Short);
+        break;
     case CINT32:
-        imOff = sizeof(r_Long);   break;
+        imOff = sizeof(r_Long);
+        break;
     default:
         LERROR << "invalid complex typeId " << typeId;
         throw r_Error(r_Error::r_Error_TypeInvalid);
@@ -63,9 +67,9 @@ r_Complex_Type::get_re(const char *cell) const
     switch (typeId)
     {
     case COMPLEXTYPE1:
-        return static_cast<r_Double>(*reinterpret_cast<const r_Float*>(cell));
+        return static_cast<r_Double>(*reinterpret_cast<const r_Float *>(cell));
     case COMPLEXTYPE2:
-        return *reinterpret_cast<const r_Double*>(cell);
+        return *reinterpret_cast<const r_Double *>(cell);
     default:
         LERROR << "invalid complex typeId " << typeId;
         throw r_Error(r_Error::r_Error_TypeInvalid);
@@ -78,9 +82,9 @@ r_Complex_Type::get_im(const char *cell) const
     switch (typeId)
     {
     case COMPLEXTYPE1:
-        return static_cast<r_Double>(*reinterpret_cast<const r_Float*>(cell + imOff));
+        return static_cast<r_Double>(*reinterpret_cast<const r_Float *>(cell + imOff));
     case COMPLEXTYPE2:
-        return *reinterpret_cast<const r_Double*>(cell + imOff);
+        return *reinterpret_cast<const r_Double *>(cell + imOff);
     default:
         LERROR << "invalid complex typeId " << typeId;
         throw r_Error(r_Error::r_Error_TypeInvalid);
@@ -93,9 +97,9 @@ r_Complex_Type::get_re_long(const char *cell) const
     switch (typeId)
     {
     case CINT16:
-        return *reinterpret_cast<const r_Short*>(cell);
+        return *reinterpret_cast<const r_Short *>(cell);
     case CINT32:
-        return *reinterpret_cast<const r_Long*>(cell);
+        return *reinterpret_cast<const r_Long *>(cell);
     default:
         LERROR << "invalid complex typeId " << typeId;
         throw r_Error(r_Error::r_Error_TypeInvalid);
@@ -108,18 +112,16 @@ r_Complex_Type::get_im_long(const char *cell) const
     switch (typeId)
     {
     case CINT16:
-        return *reinterpret_cast<const r_Short*>(cell + imOff);
+        return *reinterpret_cast<const r_Short *>(cell + imOff);
     case CINT32:
-        return *reinterpret_cast<const r_Long*>(cell + imOff);
+        return *reinterpret_cast<const r_Long *>(cell + imOff);
     default:
         LERROR << "invalid complex typeId " << typeId;
         throw r_Error(r_Error::r_Error_TypeInvalid);
     }
 }
 
-
-void
-r_Complex_Type::set_re(char *cell, r_Double re)
+void r_Complex_Type::set_re(char *cell, r_Double re)
 {
     switch (typeId)
     {
@@ -138,8 +140,7 @@ r_Complex_Type::set_re(char *cell, r_Double re)
     }
 }
 
-void
-r_Complex_Type::set_im(char *cell, r_Double im)
+void r_Complex_Type::set_im(char *cell, r_Double im)
 {
     switch (typeId)
     {
@@ -159,8 +160,7 @@ r_Complex_Type::set_im(char *cell, r_Double im)
 }
 
 //setters for complex integers
-void
-r_Complex_Type::set_re_long(char *cell, r_Long re)
+void r_Complex_Type::set_re_long(char *cell, r_Long re)
 {
     switch (typeId)
     {
@@ -179,8 +179,7 @@ r_Complex_Type::set_re_long(char *cell, r_Long re)
     }
 }
 
-void
-r_Complex_Type::set_im_long(char *cell, r_Long im)
+void r_Complex_Type::set_im_long(char *cell, r_Long im)
 {
     switch (typeId)
     {
@@ -198,23 +197,21 @@ r_Complex_Type::set_im_long(char *cell, r_Long im)
         throw r_Error(r_Error::r_Error_TypeInvalid);
     }
 }
-void
-r_Complex_Type::print_status(std::ostream &s) const
+void r_Complex_Type::print_status(std::ostream &s) const
 {
     switch (typeId)
     {
     case COMPLEXTYPE1: s << "complex(float, float)"; break;
     case COMPLEXTYPE2: s << "complex(double, double)"; break;
-    case CINT16:       s << "complex(short, short)"; break;
-    case CINT32:       s << "complex(long, long)"; break;
+    case CINT16: s << "complex(short, short)"; break;
+    case CINT32: s << "complex(long, long)"; break;
     default:
         LERROR << "invalid complex typeId " << typeId;
         throw r_Error(r_Error::r_Error_TypeInvalid);
     }
 }
 
-void
-r_Complex_Type::print_value(const char *storage, std::ostream &s) const
+void r_Complex_Type::print_value(const char *storage, std::ostream &s) const
 {
     switch (typeId)
     {
@@ -232,8 +229,7 @@ r_Complex_Type::print_value(const char *storage, std::ostream &s) const
     }
 }
 
-void
-r_Complex_Type::convertToLittleEndian(char *cells, r_Area noCells) const
+void r_Complex_Type::convertToLittleEndian(char *cells, r_Area noCells) const
 {
     switch (typeId)
     {
@@ -255,8 +251,7 @@ r_Complex_Type::convertToLittleEndian(char *cells, r_Area noCells) const
     }
 }
 
-void
-r_Complex_Type::convertToBigEndian(char *cells, r_Area noCells) const
+void r_Complex_Type::convertToBigEndian(char *cells, r_Area noCells) const
 {
     convertToLittleEndian(cells, noCells);
 }
@@ -266,10 +261,10 @@ void r_Complex_Type::swapEndianessDouble(char *cells, r_Area noCells) const
 {
     for (r_Area i = 0; i < noCells; ++i)
     {
-        *reinterpret_cast<T*>(cells + i * typeSize) =
-                r_Endian::swap(static_cast<T>(get_re(cells + i * typeSize)));
-        *reinterpret_cast<T*>(cells + i * typeSize + imOff) =
-                r_Endian::swap(static_cast<T>(get_im(cells + i * typeSize)));
+        *reinterpret_cast<T *>(cells + i * typeSize) =
+            r_Endian::swap(static_cast<T>(get_re(cells + i * typeSize)));
+        *reinterpret_cast<T *>(cells + i * typeSize + imOff) =
+            r_Endian::swap(static_cast<T>(get_im(cells + i * typeSize)));
     }
 }
 
@@ -278,15 +273,14 @@ void r_Complex_Type::swapEndianessLong(char *cells, r_Area noCells) const
 {
     for (r_Area i = 0; i < noCells; ++i)
     {
-        *reinterpret_cast<T*>(cells + i * typeSize) =
-                r_Endian::swap(static_cast<T>(get_re_long(cells + i * typeSize)));
-        *reinterpret_cast<T*>(cells + i * typeSize + imOff) =
-                r_Endian::swap(static_cast<T>(get_im_long(cells + i * typeSize)));
+        *reinterpret_cast<T *>(cells + i * typeSize) =
+            r_Endian::swap(static_cast<T>(get_re_long(cells + i * typeSize)));
+        *reinterpret_cast<T *>(cells + i * typeSize + imOff) =
+            r_Endian::swap(static_cast<T>(get_im_long(cells + i * typeSize)));
     }
 }
 
-bool
-r_Complex_Type::isComplexType() const
+bool r_Complex_Type::isComplexType() const
 {
     return true;
 }

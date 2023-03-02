@@ -20,19 +20,19 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "basetype.hh"                           // for BaseType
-#include "dbminterval.hh"                        // for DBMinterval
-#include "mddbasetype.hh"                        // for MDDBaseType
-#include "mdddimensiontype.hh"                   // for MDDDimensionType
-#include "mdddomaintype.hh"                      // for MDDDomainType
-#include "mddtype.hh"                            // for MDDType::MDDDOMAINTYPE
-#include "type.hh"                               // for Type, ostream
-#include "relcatalogif/typefactory.hh"             // for TypeFactory, TypeFac...
-#include "raslib/odmgtypes.hh"                   // for MDDTYPE
-#include "raslib/error.hh"                       // for r_Error, r_Error::r_...
-#include "raslib/mddtypes.hh"                    // for r_Bytes
-#include "raslib/minterval.hh"                   // for operator<<, r_Minterval
-#include <logging.hh>                            // for Writer, CTRACE, LTRACE
+#include "basetype.hh"                  // for BaseType
+#include "dbminterval.hh"               // for DBMinterval
+#include "mddbasetype.hh"               // for MDDBaseType
+#include "mdddimensiontype.hh"          // for MDDDimensionType
+#include "mdddomaintype.hh"             // for MDDDomainType
+#include "mddtype.hh"                   // for MDDType::MDDDOMAINTYPE
+#include "type.hh"                      // for Type, ostream
+#include "relcatalogif/typefactory.hh"  // for TypeFactory, TypeFac...
+#include "raslib/odmgtypes.hh"          // for MDDTYPE
+#include "raslib/error.hh"              // for r_Error, r_Error::r_...
+#include "raslib/mddtypes.hh"           // for r_Bytes
+#include "raslib/minterval.hh"          // for operator<<, r_Minterval
+#include <logging.hh>                   // for Writer, CTRACE, LTRACE
 
 #include <boost/algorithm/string/predicate.hpp>  // for starts_with
 #include <cstring>                               // for strcat, strlen, strcpy
@@ -132,7 +132,7 @@ std::string MDDDomainType::getNewTypeStructure() const
 
     std::string ret;
     ret.reserve(baseType.size() + 11 + (myDomain->dimension() * 3));
-    
+
     ret += baseType;
     ret += " MDARRAY ";
     ret += myDomain->to_string();

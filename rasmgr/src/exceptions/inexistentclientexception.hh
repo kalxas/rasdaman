@@ -32,7 +32,7 @@ namespace rasmgr
  * It reports errors that arise because a user tried to operate on the properties of a client object
  * that is not defined.
  */
-class InexistentClientException: public common::MissingResourceException
+class InexistentClientException : public common::MissingResourceException
 {
 public:
     explicit InexistentClientException(std::uint32_t clientId);
@@ -40,5 +40,5 @@ public:
 
     virtual ~InexistentClientException() noexcept;
 };
-}
-#endif // RASMGR_X_SRC_EXCEPTIONS_INEXISTENTCLIENTEXCEPTION_HH
+}  // namespace rasmgr
+#endif  // RASMGR_X_SRC_EXCEPTIONS_INEXISTENTCLIENTEXCEPTION_HH

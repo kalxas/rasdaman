@@ -62,13 +62,13 @@ rasdaman GmbH.
 #include <logging.hh>
 
 #include <iostream>
-#include <time.h>      // for time()
+#include <time.h>  // for time()
 #include <string.h>
-#include <signal.h>    // for sigaction()
-#include <unistd.h>    // for alarm(), gethostname()
+#include <signal.h>  // for sigaction()
+#include <unistd.h>  // for alarm(), gethostname()
 #include <cstdint>
 #include <iomanip>
-#include <cassert>     // for assert()
+#include <cassert>  // for assert()
 
 // --------------------------------------------------------------------------------
 //                          globals
@@ -89,22 +89,21 @@ const int ackCodeNotOK = 98;
 
 extern AccessControl accessControl;
 
-const int HttpServer::commOpenDB           = 1;
-const int HttpServer::commCloseDB          = 2;
-const int HttpServer::commBeginTAreadOnly  = 3;
+const int HttpServer::commOpenDB = 1;
+const int HttpServer::commCloseDB = 2;
+const int HttpServer::commBeginTAreadOnly = 3;
 const int HttpServer::commBeginTAreadWrite = 4;
-const int HttpServer::commCommitTA         = 5;
-const int HttpServer::commAbortTA          = 6;
-const int HttpServer::commIsOpenTA         = 7;
-const int HttpServer::commQueryExec        = 8;
-const int HttpServer::commUpdateQueryExec  = 9;
-const int HttpServer::commGetNewOID        = 10;
-const int HttpServer::commInsertQueryExec  = 11;
+const int HttpServer::commCommitTA = 5;
+const int HttpServer::commAbortTA = 6;
+const int HttpServer::commIsOpenTA = 7;
+const int HttpServer::commQueryExec = 8;
+const int HttpServer::commUpdateQueryExec = 9;
+const int HttpServer::commGetNewOID = 10;
+const int HttpServer::commInsertQueryExec = 11;
 
-const long HttpServer::unknownError        = -10;
+const long HttpServer::unknownError = -10;
 
 using std::vector;
-
 
 // --------------------------------------------------------------------------------
 
@@ -115,7 +114,7 @@ T decodeNumber(char **input, int endianess)
     T ret = *reinterpret_cast<const T *>(*input);
     if (myEndianess != endianess)
         ret = r_Endian::swap(ret);
-    
+
     *input += sizeof(T);
     return ret;
 }
@@ -125,7 +124,7 @@ void encodeNumber(char **output, T value)
 {
 #ifdef RASDEBUG
     if (sizeof(T) == 1)
-        LTRACE << "encoding number: " << (int) value << ", bytes: " << sizeof(T);
+        LTRACE << "encoding number: " << (int)value << ", bytes: " << sizeof(T);
     else
         LTRACE << "encoding number: " << value << ", bytes: " << sizeof(T);
 #endif
@@ -232,7 +231,6 @@ HttpServer::getMDDs(int binDataSize, char *binData, int endianess)
     return resultVector;
 }
 
-
 /**********************************************************************
  *  Class MDDEncoding
  *
@@ -258,24 +256,21 @@ HttpServer::MDDEncoding::~MDDEncoding()
     // binData is freed elsewhere!
 }
 
-
 std::string HttpServer::MDDEncoding::toString() const
 {
     std::stringstream ss;
     ss << "\n\nMDD information:\n\tObjectTypeName: " << objectTypeName
-       << "\n\tObjectType: " << objectType << "\n\tOID: " <<  oidString
+       << "\n\tObjectType: " << objectType << "\n\tOID: " << oidString
        << "\n\tDomain: " << domain << "\n\tTypeStructure: " << typeStructure
        << "\n\ttileSize: " << tileSize << "\n\tDataSize: " << dataSize;
     return ss.str();
 }
 
-
 /*************************************************************************
  *                             HttpServer
  ************************************************************************/
 
-void
-HttpServer::printServerStatus()
+void HttpServer::printServerStatus()
 {
     LDEBUG << "HTTP Server state information\n"
            << "  Transaction active.............: " << (transactionActive ? "yes" : "no") << "\n";
@@ -288,9 +283,9 @@ int HttpServer::encodeAckn(char *&result, int ackCode = ackCodeOK)
     return 1;
 }
 
-bool isValidCommand(char* req);
+bool isValidCommand(char *req);
 
-bool isValidCommand(char* req)
+bool isValidCommand(char *req)
 {
     while (isalpha(req[0]))
         ++req;
@@ -298,22 +293,22 @@ bool isValidCommand(char* req)
 }
 
 long HttpServer::processRequest(unsigned long callingClientId,
-                                const char* httpParams, int httpParamsLen,
-                                char*& resultBuffer)
+                                const char *httpParams, int httpParamsLen,
+                                char *&resultBuffer)
 {
-    char* Database{};
-    char* QueryString{};
-    char* ClientID{};
-    char* BinData{};
-    char* Capability{};
-    int   Command{};
-    int   ClientType{};
-    int   Endianess{};
-    int   NumberOfQueryParams{};
-    int   BinDataSize{};
-    
+    char *Database{};
+    char *QueryString{};
+    char *ClientID{};
+    char *BinData{};
+    char *Capability{};
+    int Command{};
+    int ClientType{};
+    int Endianess{};
+    int NumberOfQueryParams{};
+    int BinDataSize{};
+
     // -------------------------------------------------------------------------
-    
+
     // copy request to local variable (as strtok below modifies the buffer)
     std::unique_ptr<char[]> inputPtr;
     inputPtr.reset(new char[httpParamsLen + 1]);
@@ -321,7 +316,7 @@ long HttpServer::processRequest(unsigned long callingClientId,
     memcpy(input, httpParams, static_cast<size_t>(httpParamsLen));
     input[httpParamsLen] = '\0';
     char *inputEnd = input + httpParamsLen;
-    
+
     // Read the message body and check for the post parameters
     int parseResult{};
     char *buffer = strtok(input, "=");
@@ -415,7 +410,7 @@ long HttpServer::processRequest(unsigned long callingClientId,
             parseResult = 1;
         }
     }
-    
+
     // -------------------------------------------------------------------------
 
     long resultLen = 0;
@@ -435,16 +430,15 @@ long HttpServer::processRequest(unsigned long callingClientId,
     free(Database);
     free(QueryString);
     free(Capability);
-    delete [] BinData;
+    delete[] BinData;
     free(ClientID);
 
     return resultLen;
 }
 
-long
-HttpServer::processRequest(unsigned long callingClientId, char *baseName, int rascommand,
-                           char *query, int binDataSize, char *binData, int Endianess,
-                           char *&result, char *capability)
+long HttpServer::processRequest(unsigned long callingClientId, char *baseName, int rascommand,
+                                char *query, int binDataSize, char *binData, int Endianess,
+                                char *&result, char *capability)
 {
     lastCallingClientId = static_cast<long>(callingClientId);
 
@@ -517,8 +511,8 @@ HttpServer::processRequest(unsigned long callingClientId, char *baseName, int ra
             auto context = getClientContext(callingClientId);
             if (context && resultSize > 0)
                 context->totalTransferedSize = static_cast<unsigned long>(resultSize);
-            
-            endTransfer(callingClientId); // finalize the log stmt of executeQuery with the transfered size
+
+            endTransfer(callingClientId);  // finalize the log stmt of executeQuery with the transfered size
 
             return resultSize;
         }
@@ -539,11 +533,11 @@ HttpServer::processRequest(unsigned long callingClientId, char *baseName, int ra
                 ExecuteUpdateRes returnStructure;
                 if (!isPersistent)
                     execResult = executeUpdate(callingClientId, query, returnStructure);
-                
+
                 switch (execResult)
                 {
                 case 0:
-                    returnValue = encodeAckn(result); // ok
+                    returnValue = encodeAckn(result);  // ok
                     break;
                 case 2:
                 case 3:
@@ -569,7 +563,7 @@ HttpServer::processRequest(unsigned long callingClientId, char *baseName, int ra
             ServerComm::getNewOId(static_cast<unsigned long>(lastCallingClientId), objType, *roid);
 
             // prepare returnValue
-            size_t totalLength = 9; // total length of result in bytes
+            size_t totalLength = 9;  // total length of result in bytes
             totalLength += strlen(roid->get_system_name()) + 1;
             totalLength += strlen(roid->get_base_name()) + 1;
             // allocate the result
@@ -620,7 +614,7 @@ HttpServer::processRequest(unsigned long callingClientId, char *baseName, int ra
             return unknownError;
         }
     }
-    catch (r_Error &e) // this shouldn't be here, but ...
+    catch (r_Error &e)  // this shouldn't be here, but ...
     {
         return encodeError(result, e.get_errorno(), 0, 0, e.what());
     }
@@ -725,12 +719,12 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char *&result, const 
         resultOIDs.push_back(oid);
         releaseContext(context);
 
-        totalLength += resultTypes.back().size() + 1;  // array type
-        totalLength += resultDomains.back().size() + 1; // array domain
+        totalLength += resultTypes.back().size() + 1;    // array type
+        totalLength += resultDomains.back().size() + 1;  // array domain
         const auto *oidStr = oid.get_string_representation();
-        totalLength += oidStr ? strlen(oidStr) + 1 : 1; // array oid
-        totalLength += sizeof(std::uint64_t);           // array size
-        totalLength += resultTiles.back()->getSize();   // array itself
+        totalLength += oidStr ? strlen(oidStr) + 1 : 1;  // array oid
+        totalLength += sizeof(std::uint64_t);            // array size
+        totalLength += resultTiles.back()->getSize();    // array itself
     }
     totalLength += getHeaderSize(resultTypeStructure);
 
@@ -776,14 +770,14 @@ long HttpServer::encodeMDDs(unsigned long callingClientId, char *&result, const 
  */
 long HttpServer::encodeScalars(unsigned long callingClientId, char *&result, const char *typeStructure)
 {
-    vector<char *> resultElems; // contains all TransTiles representing the resulting MDDs
+    vector<char *> resultElems;  // contains all TransTiles representing the resulting MDDs
     resultElems.reserve(20);
     vector<r_ULong> resultLengths;
     resultLengths.reserve(20);
 
-    size_t totalLength{}; // total length of result in bytes
+    size_t totalLength{};  // total length of result in bytes
 
-    r_Long numElem{};     // number of objects in the result
+    r_Long numElem{};  // number of objects in the result
     // This will probably not work for empty collections. Only if getNextElement
     // returns 2 in this case. I really don't get it.
     unsigned short moreElems = 0;
@@ -827,11 +821,10 @@ long HttpServer::encodeScalars(unsigned long callingClientId, char *&result, con
     }
     // delete temporary storage
     for (size_t i = 0; i < static_cast<unsigned int>(numElem); i++)
-        delete [] resultElems[i];
+        delete[] resultElems[i];
 
     return static_cast<long>(totalLength);
 }
-
 
 long HttpServer::encodeEmpty(char *&result)
 {
@@ -844,7 +837,7 @@ long HttpServer::encodeEmpty(char *&result)
     return static_cast<long>(totalLength);
 }
 
-long HttpServer::encodeError(char *&result, const r_ULong  errorNo,
+long HttpServer::encodeError(char *&result, const r_ULong errorNo,
                              const r_ULong lineNo, const r_ULong columnNo, const char *text)
 {
     size_t textLen = strlen(text);
@@ -865,17 +858,16 @@ long HttpServer::encodeError(char *&result, const r_ULong  errorNo,
     return static_cast<long>(totalLength);
 }
 
-
 size_t HttpServer::getHeaderSize(const char *collType) const
 {
     size_t ret{};
-    ++ret;                 // result type
-    ++ret;                 // endianess
-    ret += sizeof(r_Long); // number of objects
+    ++ret;                  // result type
+    ++ret;                  // endianess
+    ret += sizeof(r_Long);  // number of objects
     if (collType)
         ret += strlen(collType) + 1;
     else
-        ret += 1;    // '\0' in this case
+        ret += 1;  // '\0' in this case
     return ret;
 }
 
@@ -887,7 +879,6 @@ void HttpServer::encodeHeader(char **dst, int responseType, int endianess,
     encodeString(dst, collType, dstStart, totalLength);
     encodeNumber(dst, numObjects);
 }
-
 
 void HttpServer::swapArrayIfNeeded(const std::unique_ptr<Tile> &tile, const r_Minterval &dom) const
 {
@@ -989,7 +980,7 @@ long HttpServer::insertIfNeeded(unsigned long callingClientId, char *query, int 
 }
 
 unsigned short HttpServer::startInsertMDD(unsigned long callingClientId, char *query,
-        const vector<HttpServer::MDDEncoding *> &transferredMDDs, bool &isPersistent)
+                                          const vector<HttpServer::MDDEncoding *> &transferredMDDs, bool &isPersistent)
 {
     auto *mdd = transferredMDDs.back();
     r_Minterval tempStorage(mdd->domain);
@@ -1000,12 +991,12 @@ unsigned short HttpServer::startInsertMDD(unsigned long callingClientId, char *q
         // parse the query string to get the collection name
         char *endPtr = query;
         skipWhitespace(&endPtr);
-        skipWord(&endPtr); // insert
+        skipWord(&endPtr);  // insert
         skipWhitespace(&endPtr);
-        skipWord(&endPtr); // into
+        skipWord(&endPtr);  // into
         skipWhitespace(&endPtr);
         char *startPtr = endPtr;
-        skipWord(&endPtr); // coll name
+        skipWord(&endPtr);  // coll name
 
         std::unique_ptr<char[]> collection;
         if (endPtr - startPtr > 0)
@@ -1028,17 +1019,16 @@ unsigned short HttpServer::startInsertMDD(unsigned long callingClientId, char *q
     }
 }
 
-
 unsigned short HttpServer::insertMDD(unsigned long callingClientId,
                                      vector<HttpServer::MDDEncoding *> &transferredMDDs, bool isPersistent)
 {
     auto *mdd = transferredMDDs.back();
     // create RPCMarray data structure - formats are currently hardcoded (r_Array)
     RPCMarray *rpcMarray = new RPCMarray();
-    rpcMarray->domain         = strdup(mdd->domain);
+    rpcMarray->domain = strdup(mdd->domain);
     rpcMarray->cellTypeLength = mdd->typeLength;
-    rpcMarray->currentFormat  = r_Array;
-    rpcMarray->storageFormat  = r_Array;
+    rpcMarray->currentFormat = r_Array;
+    rpcMarray->storageFormat = r_Array;
     rpcMarray->data.confarray_len = mdd->dataSize;
     rpcMarray->data.confarray_val = mdd->binData;
     rpcMarray->bandLinearization = u_short(r_Band_Linearization::PixelInterleaved);
@@ -1104,7 +1094,7 @@ long HttpServer::encodeInsertError(char *&result, unsigned short execResult, vec
     while (!transferredMDDs.empty())
     {
         NNLINFO << "Freeing old transfer structures... ";
-        delete [] transferredMDDs.back()->binData;
+        delete[] transferredMDDs.back()->binData;
         delete (transferredMDDs.back());
         transferredMDDs.pop_back();
         BLINFO << "ok";
@@ -1112,4 +1102,3 @@ long HttpServer::encodeInsertError(char *&result, unsigned short execResult, vec
 
     return returnValue;
 }
-

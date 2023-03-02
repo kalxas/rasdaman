@@ -63,14 +63,14 @@ using namespace std;
 
 INITIALIZE_EASYLOGGINGPP
 
-int main(int ac, char** av)
+int main(int ac, char **av)
 {
     // setup logging configuration
     common::LogConfiguration logConf;
     logConf.configClientLogging();
 
     char rasmgrName[255];
-    int  rasmgrPort;
+    int rasmgrPort;
     char baseName[255];
     char userName[255];
     char userPass[255];
@@ -83,14 +83,14 @@ int main(int ac, char** av)
 
     strcpy(rasmgrName, av[1]);
     rasmgrPort = strtoul(av[2], NULL, 0);
-    strcpy(baseName,   av[3]);
-    strcpy(userName,   av[4]);
-    strcpy(userPass,   av[5]);
+    strcpy(baseName, av[3]);
+    strcpy(userName, av[4]);
+    strcpy(userPass, av[5]);
 
-    string collName             = string("mr");
-    r_Minterval select_domain   = r_Minterval("[0:4,0:4]");
-    r_Minterval where_domain    = r_Minterval("[8:9,8:9]");
-    r_ULong     threshold_value = 0;
+    string collName = string("mr");
+    r_Minterval select_domain = r_Minterval("[0:4,0:4]");
+    r_Minterval where_domain = r_Minterval("[8:9,8:9]");
+    r_ULong threshold_value = 0;
 
     r_Database database;
     r_Transaction transaction{&database};
@@ -126,9 +126,10 @@ int main(int ac, char** av)
         {
             r_oql_execute(query, image_set, &transaction);
         }
-        catch (r_Error& errorObj)
+        catch (r_Error &errorObj)
         {
-            cout << "FAILED" << endl << errorObj.what() << endl;
+            cout << "FAILED" << endl
+                 << errorObj.what() << endl;
 
             cout << "Aborting transaction ... " << flush;
             transaction.abort();
@@ -139,7 +140,8 @@ int main(int ac, char** av)
             cout << "OK" << endl;
             return -1;
         }
-        cout << "OK" << endl << endl;
+        cout << "OK" << endl
+             << endl;
 
         cout << "Collection" << endl;
         cout << "  Oid...................: " << image_set.get_oid() << endl;
@@ -170,7 +172,8 @@ int main(int ac, char** av)
         {
             cout << "<nn>" << flush;
         }
-        cout << endl << endl;
+        cout << endl
+             << endl;
 
         iter = image_set.create_iterator();
 
@@ -192,7 +195,7 @@ int main(int ac, char** av)
         database.close();
         cout << "OK" << endl;
     }
-    catch (r_Error& errorObj)
+    catch (r_Error &errorObj)
     {
         cerr << errorObj.what() << endl;
         return -1;

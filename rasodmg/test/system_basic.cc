@@ -80,20 +80,15 @@ rasdaman GmbH.
 #include "import_error.hh"
 #include "globals.hh"
 
-void
-fast_scale_process_primitive_type(const r_Primitive_Type* primType, char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length, r_Scale_Function func);
-void
-fast_scale_process_structured_type(const r_Structure_Type* primType, char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length, r_Scale_Function func);
-template<class T>
-void
-fast_scale_resample_array(T* dest, const T* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length, bool round);
+void fast_scale_process_primitive_type(const r_Primitive_Type *primType, char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length, r_Scale_Function func);
+void fast_scale_process_structured_type(const r_Structure_Type *primType, char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length, r_Scale_Function func);
+template <class T>
+void fast_scale_resample_array(T *dest, const T *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length, bool round);
 
-template<class T>
-void
-fast_scale_aggregate_array(T* dest, const T* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length);
+template <class T>
+void fast_scale_aggregate_array(T *dest, const T *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length);
 
-void
-signalHandler(int sig)
+void signalHandler(int sig)
 {
     cout << "**CLIENT** signal error " << sig << " ";
     switch (sig)
@@ -207,14 +202,15 @@ signalHandler(int sig)
         SystemBasic::handleSignal = false;
         try
         {
-            cout << "Aborting transaction" << endl;;
+            cout << "Aborting transaction" << endl;
+            ;
             SystemBasic::ta.abort();
             cout << "Transaction aborted" << endl;
             cout << "Closing database" << endl;
             SystemBasic::db.close();
             cout << "Database closed" << endl;
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             cout << "Error while aborting transaction/closing database: " << err.get_errorno() << " : " << err.what() << endl;
         }
@@ -226,8 +222,7 @@ signalHandler(int sig)
     exit(sig);
 }
 
-void
-installSignalHandlers()
+void installSignalHandlers()
 {
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
@@ -278,274 +273,272 @@ installSignalHandlers()
 #endif
 }
 
-r_Tiling*
-SystemBasic::theTiling = 0;
+r_Tiling *
+    SystemBasic::theTiling = 0;
 
 bool
-SystemBasic::testBed = false;
+    SystemBasic::testBed = false;
 
-const char*
-SystemBasic::serverName = DEFAULT_HOSTNAME;
+const char *
+    SystemBasic::serverName = DEFAULT_HOSTNAME;
 
 r_ULong
-SystemBasic::serverPort = DEFAULT_PORT;
+    SystemBasic::serverPort = DEFAULT_PORT;
 
-const char*
-SystemBasic::baseName = DEFAULT_DBNAME;
+const char *
+    SystemBasic::baseName = DEFAULT_DBNAME;
 
-const char*
-SystemBasic::userName = DEFAULT_USER;
+const char *
+    SystemBasic::userName = DEFAULT_USER;
 
-const char*
-SystemBasic::passwd = DEFAULT_PASSWD;
+const char *
+    SystemBasic::passwd = DEFAULT_PASSWD;
 
 bool
-SystemBasic::printText = false;
+    SystemBasic::printText = false;
 
-const char*
-SystemBasic::outputFileName = NULL;
-
-r_Data_Format
-SystemBasic::outputFormat = r_Array;
-
-const char*
-SystemBasic::outputFormatParams = 0;
-
-const char*
-SystemBasic::conversionTypeName = "char";
+const char *
+    SystemBasic::outputFileName = NULL;
 
 r_Data_Format
-SystemBasic::inputFormat = r_Array;
+    SystemBasic::outputFormat = r_Array;
 
-const char*
-SystemBasic::inputFormatParams = 0;
+const char *
+    SystemBasic::outputFormatParams = 0;
 
-r_Data_Format
-SystemBasic::transferFormat = r_Array;
-
-const char*
-SystemBasic::transferFormatParams = 0;
+const char *
+    SystemBasic::conversionTypeName = "char";
 
 r_Data_Format
-SystemBasic::storageFormat = r_Array;
+    SystemBasic::inputFormat = r_Array;
 
-const char*
-SystemBasic::storageFormatParams = 0;
+const char *
+    SystemBasic::inputFormatParams = 0;
 
-const char*
-SystemBasic::collName = NULL;
+r_Data_Format
+    SystemBasic::transferFormat = r_Array;
 
-const char*
-SystemBasic::setTypeName = NULL;
+const char *
+    SystemBasic::transferFormatParams = 0;
 
-const char*
-SystemBasic::mddTypeName = NULL;
+r_Data_Format
+    SystemBasic::storageFormat = r_Array;
+
+const char *
+    SystemBasic::storageFormatParams = 0;
+
+const char *
+    SystemBasic::collName = NULL;
+
+const char *
+    SystemBasic::setTypeName = NULL;
+
+const char *
+    SystemBasic::mddTypeName = NULL;
 
 r_OId
-SystemBasic::mddOId;
+    SystemBasic::mddOId;
 
 bool
-SystemBasic::mddOIdDef = false;
+    SystemBasic::mddOIdDef = false;
 
 r_OId
-SystemBasic::collOId;
+    SystemBasic::collOId;
 
 bool
-SystemBasic::collOIdDef = false;
+    SystemBasic::collOIdDef = false;
 
-const char*
-SystemBasic::fileName = NULL;
+const char *
+    SystemBasic::fileName = NULL;
 
 r_Database
-SystemBasic::db;
+    SystemBasic::db;
 
 r_Transaction
-SystemBasic::ta;
+    SystemBasic::ta;
 
 r_Minterval
-SystemBasic::mddDomain;
+    SystemBasic::mddDomain;
 
 bool
-SystemBasic::mddDomainDef = false;
+    SystemBasic::mddDomainDef = false;
 
 bool
-SystemBasic::polygonDefined = false;
+    SystemBasic::polygonDefined = false;
 
 r_PolygonCutOut
-SystemBasic::polygon;
+    SystemBasic::polygon;
 
 int
-SystemBasic::polygonShrinker;
+    SystemBasic::polygonShrinker;
 
 bool
-SystemBasic::transparent = false;
+    SystemBasic::transparent = false;
 
 string
-SystemBasic::outsidePatternSel;
+    SystemBasic::outsidePatternSel;
 
 bool
-SystemBasic::outsidePatternSelDef = false;
+    SystemBasic::outsidePatternSelDef = false;
 
 string
-SystemBasic::insidePatternSel;
+    SystemBasic::insidePatternSel;
 
 bool
-SystemBasic::insidePatternSelDef = false;
+    SystemBasic::insidePatternSelDef = false;
 
 string
-SystemBasic::outsidePattern;
+    SystemBasic::outsidePattern;
 
 bool
-SystemBasic::outsidePatternDef = false;
+    SystemBasic::outsidePatternDef = false;
 
 string
-SystemBasic::insidePattern;
+    SystemBasic::insidePattern;
 
 bool
-SystemBasic::insidePatternDef = false;
+    SystemBasic::insidePatternDef = false;
 
 const int
-SystemBasic::queryBufferLength = 512;
+    SystemBasic::queryBufferLength = 512;
 
-std::list<std::pair<double, char*>>*
-                                 SystemBasic::scaleLevels = NULL;
+std::list<std::pair<double, char *>> *
+    SystemBasic::scaleLevels = NULL;
 
 int
-SystemBasic::wrongBytes = 0;
+    SystemBasic::wrongBytes = 0;
 
 r_Scale_Function
-SystemBasic::scaleFunction = r_SubSampling;
+    SystemBasic::scaleFunction = r_SubSampling;
 
 size_t
-SystemBasic::updateBufferSize = 52428800;
+    SystemBasic::updateBufferSize = 52428800;
 
-const char*
-SystemBasic::defaultUpdateBufferSize = "52428800";
+const char *
+    SystemBasic::defaultUpdateBufferSize = "52428800";
 
-
-std::list<char*>
-SystemBasic:: layerList;
-
-std::list<unsigned int>
-SystemBasic::patternsTrue;
+std::list<char *>
+    SystemBasic::layerList;
 
 std::list<unsigned int>
-SystemBasic::patternsFalse;
+    SystemBasic::patternsTrue;
 
-const char*
-SystemBasic::noUsageHeader = "Please set SystemBasic::usageHeader to a meaningful value.\nThen you will help your users : )\n";
+std::list<unsigned int>
+    SystemBasic::patternsFalse;
 
-const char*
-SystemBasic::usageHeader = SystemBasic::noUsageHeader;
+const char *
+    SystemBasic::noUsageHeader = "Please set SystemBasic::usageHeader to a meaningful value.\nThen you will help your users : )\n";
 
-const char*
-SystemBasic::noUsageFooter = "Please set SystemBasic::usageFooter to a meaningful value.\nThen you will help your users : )\n";
+const char *
+    SystemBasic::usageHeader = SystemBasic::noUsageHeader;
 
-const char*
-SystemBasic::usageFooter = SystemBasic::noUsageFooter;
+const char *
+    SystemBasic::noUsageFooter = "Please set SystemBasic::usageFooter to a meaningful value.\nThen you will help your users : )\n";
+
+const char *
+    SystemBasic::usageFooter = SystemBasic::noUsageFooter;
 
 r_Minterval
-SystemBasic::overlayDomain;
+    SystemBasic::overlayDomain;
 
 bool
-SystemBasic::overlayDomainDef = false;
+    SystemBasic::overlayDomainDef = false;
 
 r_Range
-SystemBasic::align = 0;
+    SystemBasic::align = 0;
 
 bool
-SystemBasic::tiledUpdate = false;
+    SystemBasic::tiledUpdate = false;
 
 bool
-SystemBasic::force = false;
+    SystemBasic::force = false;
 
 //--tiling params description
 const string
-SystemBasic::tilingDesc = string("") +
-                          "<tiling-name> tiling strategy, specified as:" + CommandLineParameter::descLineSep +
-                          "  " + tiling_name_notiling          + "," + CommandLineParameter::descLineSep +
-                          "  " + tiling_name_sizetiling        + "," + CommandLineParameter::descLineSep +
-                          "  " + tiling_name_alignedtiling     + "," + CommandLineParameter::descLineSep +
-                          "  " + tiling_name_interesttiling    + "," + CommandLineParameter::descLineSep +
-                          "  " + tiling_name_directionaltiling + "," + CommandLineParameter::descLineSep +
-                          "  " + tiling_name_statisticaltiling;
+    SystemBasic::tilingDesc = string("") +
+                              "<tiling-name> tiling strategy, specified as:" + CommandLineParameter::descLineSep +
+                              "  " + tiling_name_notiling + "," + CommandLineParameter::descLineSep +
+                              "  " + tiling_name_sizetiling + "," + CommandLineParameter::descLineSep +
+                              "  " + tiling_name_alignedtiling + "," + CommandLineParameter::descLineSep +
+                              "  " + tiling_name_interesttiling + "," + CommandLineParameter::descLineSep +
+                              "  " + tiling_name_directionaltiling + "," + CommandLineParameter::descLineSep +
+                              "  " + tiling_name_statisticaltiling;
 
 const string
-SystemBasic::tilingParamsDesc =  string("") +
-                                 "<params> parameters for tiling strategy, specified as:" + CommandLineParameter::descLineSep +
-                                 "... for " + tiling_name_notiling + CommandLineParameter::descLineSep +
-                                 r_No_Tiling::description + CommandLineParameter::descLineSep +
-                                 "... for " + tiling_name_sizetiling + CommandLineParameter::descLineSep +
-                                 r_Size_Tiling::description + CommandLineParameter::descLineSep +
-                                 "... for " + tiling_name_alignedtiling + CommandLineParameter::descLineSep +
-                                 r_Aligned_Tiling::description + CommandLineParameter::descLineSep +
-                                 "... for " + tiling_name_interesttiling + CommandLineParameter::descLineSep +
-                                 r_Interest_Tiling::description + CommandLineParameter::descLineSep +
-                                 "... for " + tiling_name_directionaltiling + CommandLineParameter::descLineSep +
-                                 r_Dir_Tiling::description + CommandLineParameter::descLineSep +
-                                 "... for " + tiling_name_statisticaltiling + CommandLineParameter::descLineSep +
-                                 r_Stat_Tiling::description;
+    SystemBasic::tilingParamsDesc = string("") +
+                                    "<params> parameters for tiling strategy, specified as:" + CommandLineParameter::descLineSep +
+                                    "... for " + tiling_name_notiling + CommandLineParameter::descLineSep +
+                                    r_No_Tiling::description + CommandLineParameter::descLineSep +
+                                    "... for " + tiling_name_sizetiling + CommandLineParameter::descLineSep +
+                                    r_Size_Tiling::description + CommandLineParameter::descLineSep +
+                                    "... for " + tiling_name_alignedtiling + CommandLineParameter::descLineSep +
+                                    r_Aligned_Tiling::description + CommandLineParameter::descLineSep +
+                                    "... for " + tiling_name_interesttiling + CommandLineParameter::descLineSep +
+                                    r_Interest_Tiling::description + CommandLineParameter::descLineSep +
+                                    "... for " + tiling_name_directionaltiling + CommandLineParameter::descLineSep +
+                                    r_Dir_Tiling::description + CommandLineParameter::descLineSep +
+                                    "... for " + tiling_name_statisticaltiling + CommandLineParameter::descLineSep +
+                                    r_Stat_Tiling::description;
 
 bool
-SystemBasic::handleSignal = true;
+    SystemBasic::handleSignal = true;
 
-int
-SystemBasic::parseParams(int argc, char** argv)
+int SystemBasic::parseParams(int argc, char **argv)
 {
     int retval = 0;
     //program interface
-    CommandLineParser&    cmlInter      = CommandLineParser::getInstance();
-    CommandLineParameter& clp_help      = cmlInter.addFlagParameter('h', "help", "show command line switches");
-    CommandLineParameter& clp_tiling    = cmlInter.addStringParameter(CommandLineParser::noShortName, "tiling", tilingDesc.c_str(), tiling_name_sizetiling);
-    CommandLineParameter& tilingParams  = cmlInter.addStringParameter(CommandLineParser::noShortName, "tilingparams", tilingParamsDesc.c_str(), "131072");
-    CommandLineParameter& clp_testbed   = cmlInter.addFlagParameter(CommandLineParser::noShortName, "testbed", "testbed output flag.");
-    CommandLineParameter& clp_transparent   = cmlInter.addFlagParameter('t', "transparent", "transparent update flag.\n\t\tIf it is specified black data will be treated as transparent");
-    CommandLineParameter& clp_printtext = cmlInter.addFlagParameter(CommandLineParser::noShortName, "printtext", "output of char data will be printed as text - not numbers.\n\t\tUseful for printing the names of all collections/or text stored in mdds");
-    CommandLineParameter& clp_server    = cmlInter.addStringParameter('s', "server", "<host-name> host's name where rasmgr runs.", serverName);
-    CommandLineParameter& clp_port      = cmlInter.addStringParameter('p', "port", "<nnnn> port number used by rasmgr.", STRINGIFY(DEFAULT_PORT));
-    CommandLineParameter& clp_database  = cmlInter.addStringParameter('d', "database", "<db-name> name of database.", baseName);
-    CommandLineParameter& clp_user      = cmlInter.addStringParameter(CommandLineParser::noShortName, "user", "<user-name> name of user", userName);
-    CommandLineParameter& clp_passwd    = cmlInter.addStringParameter(CommandLineParser::noShortName, "passwd", "<user-passwd> password of user", passwd);
-    CommandLineParameter& clp_storage   = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformat", "<format> storage format.", format_name_array);
-    CommandLineParameter& clp_storageParams = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformatparams", "<params> parameters used for storing", NULL);
-    CommandLineParameter& clp_transfer  = cmlInter.addStringParameter(CommandLineParser::noShortName, "transformat", "<format> transfer format.", format_name_array);
-    CommandLineParameter& clp_transferParams    = cmlInter.addStringParameter(CommandLineParser::noShortName, "transformatparams", "<params> parameters used for transfer", NULL);
-    CommandLineParameter& clp_input     = cmlInter.addStringParameter(CommandLineParser::noShortName, "inputformat", "<format> input format.", format_name_array);
-    CommandLineParameter& clp_inputParams   = cmlInter.addStringParameter(CommandLineParser::noShortName, "inputformatparams", "<params> parameters used for input", NULL);
-    CommandLineParameter& clp_output    = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputformat", "<format> output format.", format_name_array);
-    CommandLineParameter& clp_outputParams  = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputformatparams", "<params> parameters used for output", NULL);
-    CommandLineParameter& clp_outputFileName    = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputfilename", "<name> file name of output file", NULL);
-    CommandLineParameter& clp_polygon   = cmlInter.addStringParameter(CommandLineParser::noShortName, "polygon", "<polygon-path> polygon path used for delimiting the data.  The polygon has to be given in counter clockwise direction.  Do not forget to supply insidepattern and/or outsidepattern", NULL);
-    CommandLineParameter& clp_shrink    = cmlInter.addStringParameter(CommandLineParser::noShortName, "shrink", "<number> pixels that will reduce the polygon.", "0");
-    CommandLineParameter& clp_fillinside    = cmlInter.addStringParameter(CommandLineParser::noShortName, "outsidepattern", "<pattern> will be used to fill the outside of the polygon.", NULL);
-    CommandLineParameter& clp_filloutside   = cmlInter.addStringParameter(CommandLineParser::noShortName, "insidepattern", "<pattern> will be used to fill the inside of the polygon.", NULL);
-    CommandLineParameter& clp_fillinsidesel = cmlInter.addStringParameter(CommandLineParser::noShortName, "outsidepatternbackdrop", "<pattern> will be used to fill the outside of the polygon in the backdrop mdd.", NULL);
-    CommandLineParameter& clp_filloutsidesel    = cmlInter.addStringParameter(CommandLineParser::noShortName, "insidepatternbackdrop", "<pattern> will be used to fill the inside of the polygon in the backdrop mdd.", NULL);
-    CommandLineParameter& clp_collType  = cmlInter.addStringParameter(CommandLineParser::noShortName, "colltype", "<coll-type> type of collection");
-    CommandLineParameter& clp_mddType   = cmlInter.addStringParameter(CommandLineParser::noShortName, "mddtype", "<mdd-type> type of marray");
-    CommandLineParameter& clp_collName  = cmlInter.addStringParameter('c', "collname", "<coll-name> name of collection");
-    CommandLineParameter& clp_mddoid    = cmlInter.addStringParameter(CommandLineParser::noShortName, "mddoid", "<mdd-oid> oid of the marray to work on");
-    CommandLineParameter& clp_colloid   = cmlInter.addStringParameter(CommandLineParser::noShortName, "colloid", "<coll-oid> oid of the set to work on");
-    CommandLineParameter& clp_mddDomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "mdddomain", "<mdd-domain> domain of marray");
-    CommandLineParameter& clp_overlayDomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "overlaydomain", "<overlay-domain> domain that is updated in the db in case of an overlay, default is the domain of the image");
-    CommandLineParameter& clp_align     = cmlInter.addStringParameter(CommandLineParser::noShortName, "align", "<pixels> number of pixels to align the domain to.  May be used instead of overlaydomain.", "0");
-    CommandLineParameter& clp_tiledupdate   = cmlInter.addFlagParameter(CommandLineParser::noShortName, "tiledupdate", "do job in smaller pieces.  Use update buffer size to compute the size of each update.  May not be used with a file insertion!");
-    CommandLineParameter& clp_read      = cmlInter.addStringParameter('r', "read", "<file-name> name of input file");
-    CommandLineParameter& clp_conversiontypename    = cmlInter.addStringParameter(CommandLineParser::noShortName, "conversiontype", "<type-name> name of type to be passed to the conversion module");
-    CommandLineParameter& clp_scalelevels   = cmlInter.addStringParameter(CommandLineParser::noShortName, "scalelevels", "<level-spec> list of scale levels: collection:1/scalefactor;...\n\t\te.g. coll:1;coll_1:2;coll_3:4;coll_4:8");
+    CommandLineParser &cmlInter = CommandLineParser::getInstance();
+    CommandLineParameter &clp_help = cmlInter.addFlagParameter('h', "help", "show command line switches");
+    CommandLineParameter &clp_tiling = cmlInter.addStringParameter(CommandLineParser::noShortName, "tiling", tilingDesc.c_str(), tiling_name_sizetiling);
+    CommandLineParameter &tilingParams = cmlInter.addStringParameter(CommandLineParser::noShortName, "tilingparams", tilingParamsDesc.c_str(), "131072");
+    CommandLineParameter &clp_testbed = cmlInter.addFlagParameter(CommandLineParser::noShortName, "testbed", "testbed output flag.");
+    CommandLineParameter &clp_transparent = cmlInter.addFlagParameter('t', "transparent", "transparent update flag.\n\t\tIf it is specified black data will be treated as transparent");
+    CommandLineParameter &clp_printtext = cmlInter.addFlagParameter(CommandLineParser::noShortName, "printtext", "output of char data will be printed as text - not numbers.\n\t\tUseful for printing the names of all collections/or text stored in mdds");
+    CommandLineParameter &clp_server = cmlInter.addStringParameter('s', "server", "<host-name> host's name where rasmgr runs.", serverName);
+    CommandLineParameter &clp_port = cmlInter.addStringParameter('p', "port", "<nnnn> port number used by rasmgr.", STRINGIFY(DEFAULT_PORT));
+    CommandLineParameter &clp_database = cmlInter.addStringParameter('d', "database", "<db-name> name of database.", baseName);
+    CommandLineParameter &clp_user = cmlInter.addStringParameter(CommandLineParser::noShortName, "user", "<user-name> name of user", userName);
+    CommandLineParameter &clp_passwd = cmlInter.addStringParameter(CommandLineParser::noShortName, "passwd", "<user-passwd> password of user", passwd);
+    CommandLineParameter &clp_storage = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformat", "<format> storage format.", format_name_array);
+    CommandLineParameter &clp_storageParams = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformatparams", "<params> parameters used for storing", NULL);
+    CommandLineParameter &clp_transfer = cmlInter.addStringParameter(CommandLineParser::noShortName, "transformat", "<format> transfer format.", format_name_array);
+    CommandLineParameter &clp_transferParams = cmlInter.addStringParameter(CommandLineParser::noShortName, "transformatparams", "<params> parameters used for transfer", NULL);
+    CommandLineParameter &clp_input = cmlInter.addStringParameter(CommandLineParser::noShortName, "inputformat", "<format> input format.", format_name_array);
+    CommandLineParameter &clp_inputParams = cmlInter.addStringParameter(CommandLineParser::noShortName, "inputformatparams", "<params> parameters used for input", NULL);
+    CommandLineParameter &clp_output = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputformat", "<format> output format.", format_name_array);
+    CommandLineParameter &clp_outputParams = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputformatparams", "<params> parameters used for output", NULL);
+    CommandLineParameter &clp_outputFileName = cmlInter.addStringParameter(CommandLineParser::noShortName, "outputfilename", "<name> file name of output file", NULL);
+    CommandLineParameter &clp_polygon = cmlInter.addStringParameter(CommandLineParser::noShortName, "polygon", "<polygon-path> polygon path used for delimiting the data.  The polygon has to be given in counter clockwise direction.  Do not forget to supply insidepattern and/or outsidepattern", NULL);
+    CommandLineParameter &clp_shrink = cmlInter.addStringParameter(CommandLineParser::noShortName, "shrink", "<number> pixels that will reduce the polygon.", "0");
+    CommandLineParameter &clp_fillinside = cmlInter.addStringParameter(CommandLineParser::noShortName, "outsidepattern", "<pattern> will be used to fill the outside of the polygon.", NULL);
+    CommandLineParameter &clp_filloutside = cmlInter.addStringParameter(CommandLineParser::noShortName, "insidepattern", "<pattern> will be used to fill the inside of the polygon.", NULL);
+    CommandLineParameter &clp_fillinsidesel = cmlInter.addStringParameter(CommandLineParser::noShortName, "outsidepatternbackdrop", "<pattern> will be used to fill the outside of the polygon in the backdrop mdd.", NULL);
+    CommandLineParameter &clp_filloutsidesel = cmlInter.addStringParameter(CommandLineParser::noShortName, "insidepatternbackdrop", "<pattern> will be used to fill the inside of the polygon in the backdrop mdd.", NULL);
+    CommandLineParameter &clp_collType = cmlInter.addStringParameter(CommandLineParser::noShortName, "colltype", "<coll-type> type of collection");
+    CommandLineParameter &clp_mddType = cmlInter.addStringParameter(CommandLineParser::noShortName, "mddtype", "<mdd-type> type of marray");
+    CommandLineParameter &clp_collName = cmlInter.addStringParameter('c', "collname", "<coll-name> name of collection");
+    CommandLineParameter &clp_mddoid = cmlInter.addStringParameter(CommandLineParser::noShortName, "mddoid", "<mdd-oid> oid of the marray to work on");
+    CommandLineParameter &clp_colloid = cmlInter.addStringParameter(CommandLineParser::noShortName, "colloid", "<coll-oid> oid of the set to work on");
+    CommandLineParameter &clp_mddDomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "mdddomain", "<mdd-domain> domain of marray");
+    CommandLineParameter &clp_overlayDomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "overlaydomain", "<overlay-domain> domain that is updated in the db in case of an overlay, default is the domain of the image");
+    CommandLineParameter &clp_align = cmlInter.addStringParameter(CommandLineParser::noShortName, "align", "<pixels> number of pixels to align the domain to.  May be used instead of overlaydomain.", "0");
+    CommandLineParameter &clp_tiledupdate = cmlInter.addFlagParameter(CommandLineParser::noShortName, "tiledupdate", "do job in smaller pieces.  Use update buffer size to compute the size of each update.  May not be used with a file insertion!");
+    CommandLineParameter &clp_read = cmlInter.addStringParameter('r', "read", "<file-name> name of input file");
+    CommandLineParameter &clp_conversiontypename = cmlInter.addStringParameter(CommandLineParser::noShortName, "conversiontype", "<type-name> name of type to be passed to the conversion module");
+    CommandLineParameter &clp_scalelevels = cmlInter.addStringParameter(CommandLineParser::noShortName, "scalelevels", "<level-spec> list of scale levels: collection:1/scalefactor;...\n\t\te.g. coll:1;coll_1:2;coll_3:4;coll_4:8");
     string t = string("") + "<function-name> name of the scaling algorithm.\n\t\teither " + scale_function_name_subsampling + " or " + scale_function_name_bitaggregation;
-    CommandLineParameter& clp_updatebuffer  = cmlInter.addStringParameter(CommandLineParser::noShortName, "buffersize", "<buffer-size> number of cells that can be written in one go when using tiledupdate.  If align is defined then the minimum update size is taken to be the value align in each dimension.", defaultUpdateBufferSize);
-    CommandLineParameter& cml_layerlist     = cmlInter.addStringParameter(CommandLineParser::noShortName, "layerlist", "<list> list of files for merging: <\"layer[[;layer]...]\"> \n\t\tlayer:  <filename:TruePattern:FalsePattern>\n\t\tTruePattern / FalsePattern:\n\t\tbinary pattern expressed as decimal number(e.g.: 01001 = 9)");
-    CommandLineParameter& clp_scalefunction = cmlInter.addStringParameter(CommandLineParser::noShortName, "scalefunction", t.c_str(), scale_function_name_subsampling);
-    CommandLineParameter& clientcommSleep   = cmlInter.addStringParameter(CommandLineParser::noShortName, "clientcommsleep", "<seconds> number of seconds to wait till retry", "1");
-    CommandLineParameter& clientcommMaxRetry = cmlInter.addStringParameter(CommandLineParser::noShortName, "clientcommretry", "<tries> number of retries before giving up", "10");
-    CommandLineParameter& rpcMaxRetry   = cmlInter.addStringParameter(CommandLineParser::noShortName, "rpcretry", "<tries> number of retries before giving up", "5");
-    CommandLineParameter& clp_Force     = cmlInter.addFlagParameter(CommandLineParser::noShortName, "force", "force writing of files");
+    CommandLineParameter &clp_updatebuffer = cmlInter.addStringParameter(CommandLineParser::noShortName, "buffersize", "<buffer-size> number of cells that can be written in one go when using tiledupdate.  If align is defined then the minimum update size is taken to be the value align in each dimension.", defaultUpdateBufferSize);
+    CommandLineParameter &cml_layerlist = cmlInter.addStringParameter(CommandLineParser::noShortName, "layerlist", "<list> list of files for merging: <\"layer[[;layer]...]\"> \n\t\tlayer:  <filename:TruePattern:FalsePattern>\n\t\tTruePattern / FalsePattern:\n\t\tbinary pattern expressed as decimal number(e.g.: 01001 = 9)");
+    CommandLineParameter &clp_scalefunction = cmlInter.addStringParameter(CommandLineParser::noShortName, "scalefunction", t.c_str(), scale_function_name_subsampling);
+    CommandLineParameter &clientcommSleep = cmlInter.addStringParameter(CommandLineParser::noShortName, "clientcommsleep", "<seconds> number of seconds to wait till retry", "1");
+    CommandLineParameter &clientcommMaxRetry = cmlInter.addStringParameter(CommandLineParser::noShortName, "clientcommretry", "<tries> number of retries before giving up", "10");
+    CommandLineParameter &rpcMaxRetry = cmlInter.addStringParameter(CommandLineParser::noShortName, "rpcretry", "<tries> number of retries before giving up", "5");
+    CommandLineParameter &clp_Force = cmlInter.addFlagParameter(CommandLineParser::noShortName, "force", "force writing of files");
     try
     {
         cmlInter.processCommandLine(argc, argv);
     }
-    catch (CmlException& err)
+    catch (CmlException &err)
     {
         cout << usageHeader;
         cmlInter.printHelp();
@@ -629,7 +622,7 @@ SystemBasic::parseParams(int argc, char** argv)
                 polygon.addPolygon(p);
                 polygonDefined = true;
             }
-            catch (r_Error& err)
+            catch (r_Error &err)
             {
                 RMInit::logOut << "Error reading the polygon: " << err.get_errorno() << " " << err.what() << endl;
                 return POLYGONCREATIONFAILED;
@@ -726,14 +719,14 @@ SystemBasic::parseParams(int argc, char** argv)
         updateBufferSize = cmlInter.getValueAsLong("buffersize");
         if (cmlInter.isPresent("layerlist"))
         {
-            const char* endPos = NULL;
-            char* layerName = NULL;
-            const char* patternTName = NULL;
+            const char *endPos = NULL;
+            char *layerName = NULL;
+            const char *patternTName = NULL;
             unsigned int patternT = 0;
             unsigned int patternF = 0;
             bool found = false;
             size_t length = 0;
-            const char* startPos = cmlInter.getValueAsString("layerlist");
+            const char *startPos = cmlInter.getValueAsString("layerlist");
             while (true)
             {
                 endPos = index(startPos, ':');
@@ -762,7 +755,7 @@ SystemBasic::parseParams(int argc, char** argv)
                 startPos = endPos + 1;
             }
             RMInit::logOut << "Layer list                : ";
-            std::list<char*>::iterator iterL = layerList.begin();
+            std::list<char *>::iterator iterL = layerList.begin();
             std::list<unsigned int>::iterator iterT = patternsTrue.begin();
             std::list<unsigned int>::iterator iterF = patternsFalse.begin();
             while (iterL != layerList.end())
@@ -775,17 +768,17 @@ SystemBasic::parseParams(int argc, char** argv)
             RMInit::logOut << std::endl;
             if (layerList.size() > (sizeof(r_ULong) * 8))
             {
-                std::list<char*>::iterator iterL = layerList.begin();
+                std::list<char *>::iterator iterL = layerList.begin();
                 while (iterL != layerList.end())
                 {
-                    delete[] *iterL;
+                    delete[] * iterL;
                     ++iterL;
                 }
                 return TOOMANYLAYERS;
             }
         }
     }
-    catch (CmlException& err)
+    catch (CmlException &err)
     {
         cout << usageHeader;
         cmlInter.printHelp();
@@ -797,12 +790,11 @@ SystemBasic::parseParams(int argc, char** argv)
     return retval;
 }
 
-int
-SystemBasic::saveData(const char* fileNamePat, const char* data, r_Bytes length, const r_Minterval& dom)
+int SystemBasic::saveData(const char *fileNamePat, const char *data, r_Bytes length, const r_Minterval &dom)
 {
     RMInit::logOut << "SystemBasic::saveData(" << fileNamePat << ", DATA, " << length << ", " << dom << ")" << std::endl;
-    r_Primitive_Type* tp = new r_Primitive_Type("Char", r_Type::CHAR);
-    r_Convertor* conv = r_Convertor_Factory::create(r_PNG, data, dom, tp);
+    r_Primitive_Type *tp = new r_Primitive_Type("Char", r_Type::CHAR);
+    r_Convertor *conv = r_Convertor_Factory::create(r_PNG, data, dom, tp);
     r_convDesc desc = conv->convertTo(NULL);
     size_t dtaSize = desc.destInterv.cell_count() * tp->size();
     std::ofstream o;
@@ -823,8 +815,7 @@ SystemBasic::saveData(const char* fileNamePat, const char* data, r_Bytes length,
     return 0;
 }
 
-void
-SystemBasic::openTransaction(bool readwrite)
+void SystemBasic::openTransaction(bool readwrite)
 {
     db.set_servername(serverName, serverPort);
     db.set_useridentification(userName, passwd);
@@ -841,55 +832,54 @@ SystemBasic::openTransaction(bool readwrite)
     db.set_storage_format(storageFormat, storageFormatParams);
 }
 
-void
-SystemBasic::printScalar(const r_Scalar& scalar)
+void SystemBasic::printScalar(const r_Scalar &scalar)
 {
     switch (scalar.get_type()->type_id())
     {
     case r_Type::BOOL:
-        cout << (((r_Primitive*)&scalar)->get_boolean() ? "T" : "F") << std::flush;
+        cout << (((r_Primitive *)&scalar)->get_boolean() ? "T" : "F") << std::flush;
         break;
 
     case r_Type::CHAR:
-        cout << (int)((r_Primitive*)&scalar)->get_char() << std::flush;
+        cout << (int)((r_Primitive *)&scalar)->get_char() << std::flush;
         break;
 
     case r_Type::OCTET:
-        cout << (int)((r_Primitive*)&scalar)->get_octet() << std::flush;
+        cout << (int)((r_Primitive *)&scalar)->get_octet() << std::flush;
         break;
 
     case r_Type::SHORT:
-        cout << ((r_Primitive*)&scalar)->get_short() << std::flush;
+        cout << ((r_Primitive *)&scalar)->get_short() << std::flush;
         break;
 
     case r_Type::USHORT:
-        cout << ((r_Primitive*)&scalar)->get_ushort() << std::flush;
+        cout << ((r_Primitive *)&scalar)->get_ushort() << std::flush;
         break;
 
     case r_Type::LONG:
-        cout << ((r_Primitive*)&scalar)->get_long() << std::flush;
+        cout << ((r_Primitive *)&scalar)->get_long() << std::flush;
         break;
 
     case r_Type::ULONG:
-        cout << ((r_Primitive*)&scalar)->get_ulong() << std::flush;
+        cout << ((r_Primitive *)&scalar)->get_ulong() << std::flush;
         break;
 
     case r_Type::FLOAT:
-        cout << ((r_Primitive*)&scalar)->get_float() << std::flush;
+        cout << ((r_Primitive *)&scalar)->get_float() << std::flush;
         break;
 
     case r_Type::DOUBLE:
-        cout << ((r_Primitive*)&scalar)->get_double() << std::flush;
+        cout << ((r_Primitive *)&scalar)->get_double() << std::flush;
         break;
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        cout << "(" << ((r_Complex*)&scalar)->get_re() << ", " << ((r_Complex*)&scalar)->get_im() << ")" << std::flush;
+        cout << "(" << ((r_Complex *)&scalar)->get_re() << ", " << ((r_Complex *)&scalar)->get_im() << ")" << std::flush;
         break;
 
     case r_Type::STRUCTURETYPE:
     {
-        r_Structure* structValue = (r_Structure*)&scalar;
+        r_Structure *structValue = (r_Structure *)&scalar;
         cout << "	{ " << std::flush;
         for (int i = 0; i < structValue->count_elements(); i++)
         {
@@ -905,8 +895,7 @@ SystemBasic::printScalar(const r_Scalar& scalar)
     }
 }
 
-int
-SystemBasic::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterval& interv, r_Base_Type*& tp, const char* options)
+int SystemBasic::convertFrom(r_Data_Format fmt, char *&src, size_t &dtaSize, r_Minterval &interv, r_Base_Type *&tp, const char *options)
 {
     int retval = 0;
 
@@ -923,7 +912,7 @@ SystemBasic::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minte
     {
         try
         {
-            r_Convertor* conv = r_Convertor_Factory::create(fmt, src, tmpInt, tp);
+            r_Convertor *conv = r_Convertor_Factory::create(fmt, src, tmpInt, tp);
             r_Storage_Man_CPP mySM;
             conv->set_storage_handler(mySM);
             r_convDesc desc = conv->convertFrom(options);
@@ -931,10 +920,10 @@ SystemBasic::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minte
             if (desc.destType->isBaseType())
             {
                 delete tp;
-                tp = (r_Base_Type*)desc.destType;
+                tp = (r_Base_Type *)desc.destType;
                 tmpInt = desc.destInterv;
                 dtaSize = tmpInt.cell_count() * tp->size();
-                delete [] src;
+                delete[] src;
                 src = desc.dest;
                 delete conv;
                 conv = 0;
@@ -965,7 +954,7 @@ SystemBasic::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minte
                 retval = CONVERSIONRETURNEDWRONGTYPE;
             }
         }
-        catch (r_Error& obj)
+        catch (r_Error &obj)
         {
             RMInit::logOut << "Error (" << obj.get_errorno() << ") when converting from " << fmt << " : " << obj.what() << endl;
             retval = CONVERSIONEXCEPTION;
@@ -988,14 +977,13 @@ SystemBasic::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minte
     return retval;
 }
 
-int
-SystemBasic::convertTo(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterval& interv, r_Base_Type*& tp, const char* options)
+int SystemBasic::convertTo(r_Data_Format fmt, char *&src, size_t &dtaSize, r_Minterval &interv, r_Base_Type *&tp, const char *options)
 {
     int retval = 0;
 
-    RMInit::logOut << "convertTo(...)"  << endl;
+    RMInit::logOut << "convertTo(...)" << endl;
     RMInit::logOut << "domain in    : " << interv << endl;
-    RMInit::logOut << "type   in    : " ;
+    RMInit::logOut << "type   in    : ";
     tp->print_status(RMInit::logOut);
     RMInit::logOut << endl;
 
@@ -1003,7 +991,7 @@ SystemBasic::convertTo(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterv
     {
         try
         {
-            r_Convertor* conv = r_Convertor_Factory::create(fmt, src, interv, tp);
+            r_Convertor *conv = r_Convertor_Factory::create(fmt, src, interv, tp);
             r_convDesc desc = conv->convertTo(options);
             RMInit::logOut << "Conversion type          : ";
             desc.destType->print_status(RMInit::logOut);
@@ -1011,21 +999,21 @@ SystemBasic::convertTo(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterv
             if (desc.destType->isBaseType())
             {
                 delete tp;
-                tp = (r_Base_Type*)desc.destType;
+                tp = (r_Base_Type *)desc.destType;
             }
             else
             {
                 RMInit::logOut << "Error conversion type is not a base type" << endl;
                 throw r_Error();
             }
-            dtaSize = desc.destInterv.cell_count() * tp->size(); // desc.destInterv[0].high() - desc.destInterv[0].low() + 1;
+            dtaSize = desc.destInterv.cell_count() * tp->size();  // desc.destInterv[0].high() - desc.destInterv[0].low() + 1;
             interv = desc.destInterv;
             delete src;
             src = desc.dest;
             delete conv;
             conv = 0;
         }
-        catch (r_Error& obj)
+        catch (r_Error &obj)
         {
             RMInit::logOut << "Error (" << obj.get_errorno() << ") when converting to " << fmt << " : " << obj.what() << endl;
             retval = CONVERSIONEXCEPTION;
@@ -1041,17 +1029,17 @@ SystemBasic::convertTo(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterv
     }
 
     RMInit::logOut << "domain out    : " << interv << endl;
-    RMInit::logOut << "type   out    : " ;
+    RMInit::logOut << "type   out    : ";
     tp->print_status(RMInit::logOut);
     RMInit::logOut << endl;
 
     return retval;
 }
 
-FILE*
-SystemBasic::checkFile(const char* fileN, int& retval)
+FILE *
+SystemBasic::checkFile(const char *fileN, int &retval)
 {
-    FILE* fileD = NULL;
+    FILE *fileD = NULL;
     if ((fileD = fopen(fileN, "r")) == NULL)
     {
         retval = FILEINACCESSIBLE;
@@ -1059,10 +1047,10 @@ SystemBasic::checkFile(const char* fileN, int& retval)
     return fileD;
 }
 
-char*
-SystemBasic::getData(FILE* file, size_t& dtaSize, int& retval)
+char *
+SystemBasic::getData(FILE *file, size_t &dtaSize, int &retval)
 {
-    char* dta = 0;
+    char *dta = 0;
     size_t size = 0;
     fseek(file, 0, SEEK_END);
     size = ftell(file);
@@ -1074,7 +1062,7 @@ SystemBasic::getData(FILE* file, size_t& dtaSize, int& retval)
     }
     catch (std::bad_alloc)
     {
-        RMInit::logOut << "Unable to claim memory(" << size << "B)!"  << endl;
+        RMInit::logOut << "Unable to claim memory(" << size << "B)!" << endl;
         retval = UNABLETOCLAIMRESOURCEFORFILE;
         return dta;
     }
@@ -1086,14 +1074,13 @@ SystemBasic::getData(FILE* file, size_t& dtaSize, int& retval)
     return dta;
 }
 
-int
-SystemBasic::readScaleLevels(const char* startPos)
+int SystemBasic::readScaleLevels(const char *startPos)
 {
     int retval = 0;
-    scaleLevels = new std::list<std::pair<double, char*>>();
-    const char* endPos = NULL;
-    char* levelName = NULL;
-    const char* factorName = NULL;
+    scaleLevels = new std::list<std::pair<double, char *>>();
+    const char *endPos = NULL;
+    char *levelName = NULL;
+    const char *factorName = NULL;
     double factor = 0;
     bool found = false;
     size_t length = 0;
@@ -1115,7 +1102,7 @@ SystemBasic::readScaleLevels(const char* startPos)
         endPos = index(startPos, ';');
         factor = atof(startPos);
         factor = 1 / factor;
-        scaleLevels->push_back(std::pair<double, char*>(factor, levelName));
+        scaleLevels->push_back(std::pair<double, char *>(factor, levelName));
         RMInit::logOut << "Scale level               : " << levelName << " (" << factor << ")" << endl;
         if (endPos == NULL)
         {
@@ -1126,24 +1113,23 @@ SystemBasic::readScaleLevels(const char* startPos)
     return retval;
 }
 
-void
-SystemBasic::explainRetval(int retval)
+void SystemBasic::explainRetval(int retval)
 {
     switch (retval)
     {
-    case  EXCEPTIONEXECUTEQUERY:
+    case EXCEPTIONEXECUTEQUERY:
         cout << "An exception occured during execution of the query" << endl;
         cout << "Check the RasDaMan exception." << endl;
         break;
-    case  TILINGPATAMETERSINCORRECT:
+    case TILINGPATAMETERSINCORRECT:
         cout << "Tiling parameters incorrect" << endl;
         cout << "Check the specification of the tiling parameters for the tiling strategy you chose." << endl;
         break;
-    case  UNKNOWNTILINGTYPE:
+    case UNKNOWNTILINGTYPE:
         cout << "Unknown tiling type specified" << endl;
         cout << "Please review your --tiling option." << endl;
         break;
-    case  TILINGPARAMETERSMISSING:
+    case TILINGPARAMETERSMISSING:
         cout << "You specified a tiling option which requires additional parameters" << endl;
         cout << "Please specify a --tilingparameter option.  For information on the format consult the --help option.  For information on the meaning of the parameters consult the RasDaMan c++ documentation of the apropriate tiling." << endl;
         break;
@@ -1302,10 +1288,10 @@ SystemBasic::explainRetval(int retval)
     case CONVERSIONTYPEMISSING:
         cout << "Conversion type is missing." << endl;
         break;
-    default :
+    default:
         cout << "Unknown execution code: " << retval << endl;
         break;
-    case  ALLDONE:
+    case ALLDONE:
     case 0:
         cout << "No errors" << endl;
     }
@@ -1313,11 +1299,11 @@ SystemBasic::explainRetval(int retval)
     theTiling = NULL;
     if (scaleLevels != NULL)
     {
-        std::list<std::pair<double, char*>>::iterator iter = scaleLevels->begin();
-        std::list<std::pair<double, char*>>::iterator end = scaleLevels->end();
+        std::list<std::pair<double, char *>>::iterator iter = scaleLevels->begin();
+        std::list<std::pair<double, char *>>::iterator end = scaleLevels->end();
         for (; iter != end; iter++)
         {
-            delete [](*iter).second;
+            delete[](*iter).second;
             (*iter).second = NULL;
         }
         delete scaleLevels;
@@ -1325,15 +1311,14 @@ SystemBasic::explainRetval(int retval)
     }
 }
 
-int
-SystemBasic::initGMarray(r_Ref<r_GMarray>& tempMDD, FILE* tempFile, r_Data_Format conversionFormat, r_Minterval& tempDataDomain, const char* conversionParams)
+int SystemBasic::initGMarray(r_Ref<r_GMarray> &tempMDD, FILE *tempFile, r_Data_Format conversionFormat, r_Minterval &tempDataDomain, const char *conversionParams)
 {
     int retval = 0;
-    char* mddData = NULL;
+    char *mddData = NULL;
     size_t mddDataSize = 0;
-    r_Type* tempType = NULL;
-    r_Base_Type* conversionType = NULL;
-    const r_Base_Type* tempBaseType = (r_Base_Type*)tempMDD->get_base_type_schema();
+    r_Type *tempType = NULL;
+    r_Base_Type *conversionType = NULL;
+    const r_Base_Type *tempBaseType = (r_Base_Type *)tempMDD->get_base_type_schema();
     if (tempBaseType != NULL)
     {
         mddData = getData(tempFile, mddDataSize, retval);
@@ -1345,7 +1330,7 @@ SystemBasic::initGMarray(r_Ref<r_GMarray>& tempMDD, FILE* tempFile, r_Data_Forma
         {
             tempType = r_Type::get_any_type(conversionTypeName);
         }
-        catch (const r_Error& err)
+        catch (const r_Error &err)
         {
             RMInit::logOut << "Resolving conversion type: Exception in get_any_type: " << err.get_errorno() << " " << err.what() << endl;
             delete tempType;
@@ -1360,13 +1345,13 @@ SystemBasic::initGMarray(r_Ref<r_GMarray>& tempMDD, FILE* tempFile, r_Data_Forma
         }
         else
         {
-            conversionType = (r_Base_Type*)tempType;
+            conversionType = (r_Base_Type *)tempType;
             retval = convertFrom(conversionFormat, mddData, mddDataSize, tempDataDomain, conversionType, conversionParams);
             if (retval == 0)
             {
                 tempMDD->set_array_size(mddDataSize);
                 tempMDD->set_type_length(conversionType->size());
-                delete [] tempMDD->get_array();
+                delete[] tempMDD->get_array();
                 tempMDD->set_array(mddData);
                 mddData = 0;
                 if (polygonDefined)
@@ -1395,7 +1380,7 @@ SystemBasic::initGMarray(r_Ref<r_GMarray>& tempMDD, FILE* tempFile, r_Data_Forma
             }
             else
             {
-                delete [] mddData;
+                delete[] mddData;
                 mddData = 0;
             }
             delete conversionType;
@@ -1409,14 +1394,13 @@ SystemBasic::initGMarray(r_Ref<r_GMarray>& tempMDD, FILE* tempFile, r_Data_Forma
     return retval;
 }
 
-int
-SystemBasic::compareGMarrays(const r_Ref<r_GMarray>& baseMDD, r_Ref<r_GMarray>& topMDD)
+int SystemBasic::compareGMarrays(const r_Ref<r_GMarray> &baseMDD, r_Ref<r_GMarray> &topMDD)
 {
     int retval = 0;
     //r_GMarray* baseMDD = (r_GMarray*)&(*baseMDD2);
-    const r_Minterval& tempDomain = baseMDD->spatial_domain();
-    char* topMDDCells = topMDD->get_array();
-    const char* baseMDDCells = baseMDD->get_array();
+    const r_Minterval &tempDomain = baseMDD->spatial_domain();
+    char *topMDDCells = topMDD->get_array();
+    const char *baseMDDCells = baseMDD->get_array();
     wrongBytes = 0;
 
     RMInit::logOut << "compareGMarrays: " << std::endl;
@@ -1454,18 +1438,17 @@ SystemBasic::compareGMarrays(const r_Ref<r_GMarray>& baseMDD, r_Ref<r_GMarray>& 
     return retval;
 }
 
-int
-SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>& replaceBlackMDD, const r_Ref<r_GMarray>& backgroundMDD)
+int SystemBasic::overlayGMarrays(r_Ref<r_GMarray> &targetMDD, const r_Ref<r_GMarray> &replaceBlackMDD, const r_Ref<r_GMarray> &backgroundMDD)
 {
     int retval = 0;
 
-    const r_Minterval& backgroundDomain = backgroundMDD->spatial_domain();
-    const r_Minterval& replaceBlackDomain = replaceBlackMDD->spatial_domain();
-    const r_Minterval& targetDomain = targetMDD->spatial_domain();
+    const r_Minterval &backgroundDomain = backgroundMDD->spatial_domain();
+    const r_Minterval &replaceBlackDomain = replaceBlackMDD->spatial_domain();
+    const r_Minterval &targetDomain = targetMDD->spatial_domain();
 
-    const char* replaceBlackMDDCells = replaceBlackMDD->get_array();
-    const char* backgroundMDDCells = backgroundMDD->get_array();
-    char* targetMDDCells = targetMDD->get_array();
+    const char *replaceBlackMDDCells = replaceBlackMDD->get_array();
+    const char *backgroundMDDCells = backgroundMDD->get_array();
+    char *targetMDDCells = targetMDD->get_array();
 
     RMInit::logOut << "overlayGMarrays: " << std::endl;
     RMInit::logOut << "background MDD domain   : " << backgroundMDD->spatial_domain() << " type length: " << backgroundMDD->get_type_length() << std::endl;
@@ -1475,10 +1458,10 @@ SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>
     r_Bytes typeLen = backgroundMDD->get_type_length();
     if ((typeLen == replaceBlackMDD->get_type_length()) && (typeLen == targetMDD->get_type_length()))
     {
-        char* reference = new char[typeLen];
+        char *reference = new char[typeLen];
         memset(reference, 0, typeLen);
         if (backgroundDomain.get_extent() == targetDomain.get_extent())
-            //if ((backgroundDomain.get_extent() == replaceBlackDomain.get_extent()) && ((backgroundDomain.get_extent() == targetDomain.get_extent())))
+        //if ((backgroundDomain.get_extent() == replaceBlackDomain.get_extent()) && ((backgroundDomain.get_extent() == targetDomain.get_extent())))
         {
             if (backgroundDomain.get_extent() == replaceBlackDomain.get_extent())
             {
@@ -1497,7 +1480,7 @@ SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>
                     }
                 }
             }
-            else     //background and target are equal in size, but not equal to transparent
+            else  //background and target are equal in size, but not equal to transparent
             {
                 if (backgroundMDDCells == targetMDDCells)
                 {
@@ -1513,12 +1496,12 @@ SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>
                 RMInit::logOut << "Overlay using slow method on " << overlayOn << endl;
                 r_Dimension dim = targetDomain.dimension();
                 r_Range width = overlayOn[dim - 1].get_extent();
-                r_MiterDirect replaceBlackIter((char*)replaceBlackMDDCells, replaceBlackDomain, overlayOn, typeLen);
-                r_MiterDirect targetIter((char*)targetMDDCells, targetDomain, overlayOn, typeLen);
+                r_MiterDirect replaceBlackIter((char *)replaceBlackMDDCells, replaceBlackDomain, overlayOn, typeLen);
+                r_MiterDirect targetIter((char *)targetMDDCells, targetDomain, overlayOn, typeLen);
                 while (!replaceBlackIter.isDone())
                 {
-                    replaceBlackMDDCells = (const char*)replaceBlackIter.getData();
-                    targetMDDCells = (char*)targetIter.getData();
+                    replaceBlackMDDCells = (const char *)replaceBlackIter.getData();
+                    targetMDDCells = (char *)targetIter.getData();
                     for (size_t elemNum = 0; elemNum < width; elemNum++)
                     {
                         if (memcmp(reference, &(replaceBlackMDDCells[elemNum * typeLen]), typeLen) != 0)
@@ -1533,7 +1516,7 @@ SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>
                 }
             }
         }
-        else     //background and target are not the same size.  it does not matter if transparent is same as background
+        else  //background and target are not the same size.  it does not matter if transparent is same as background
         {
             //need to use a miter, done as in Tile::copyTile, res is replaceBlack, op is background
             r_Minterval overlayOn = replaceBlackDomain.create_intersection(backgroundDomain);
@@ -1544,12 +1527,12 @@ SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>
                 r_Minterval copyBackgroundDomain = targetDomain.create_intersection(backgroundDomain);
                 r_Dimension dim = copyBackgroundDomain.dimension();
                 r_Range backgroundWidth = copyBackgroundDomain[dim - 1].get_extent();
-                r_MiterDirect backgroundIter((char*)backgroundMDDCells, backgroundDomain, overlayOn, typeLen);
-                r_MiterDirect targetIter((char*)targetMDDCells, targetDomain, overlayOn, typeLen);
+                r_MiterDirect backgroundIter((char *)backgroundMDDCells, backgroundDomain, overlayOn, typeLen);
+                r_MiterDirect targetIter((char *)targetMDDCells, targetDomain, overlayOn, typeLen);
                 while (!targetIter.isDone())
                 {
-                    backgroundMDDCells = (const char*)backgroundIter.getData();
-                    targetMDDCells = (char*)targetIter.getData();
+                    backgroundMDDCells = (const char *)backgroundIter.getData();
+                    targetMDDCells = (char *)targetIter.getData();
 
                     memcpy(targetMDDCells, backgroundMDDCells, typeLen * backgroundWidth);
 
@@ -1562,12 +1545,12 @@ SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>
 
                 //overlay transparent over target
                 r_Range width = overlayOn[dim - 1].get_extent();
-                r_MiterDirect replaceBlackIter((char*)replaceBlackMDDCells, replaceBlackDomain, overlayOn, typeLen);
-                r_MiterDirect targetIter2((char*)targetMDDCells, targetDomain, overlayOn, typeLen);
+                r_MiterDirect replaceBlackIter((char *)replaceBlackMDDCells, replaceBlackDomain, overlayOn, typeLen);
+                r_MiterDirect targetIter2((char *)targetMDDCells, targetDomain, overlayOn, typeLen);
                 while (!replaceBlackIter.isDone())
                 {
-                    replaceBlackMDDCells = (const char*)replaceBlackIter.getData();
-                    targetMDDCells = (char*)targetIter2.getData();
+                    replaceBlackMDDCells = (const char *)replaceBlackIter.getData();
+                    targetMDDCells = (char *)targetIter2.getData();
                     for (size_t elemNum = 0; elemNum < width; elemNum++)
                     {
                         if (memcmp(reference, &(replaceBlackMDDCells[elemNum * typeLen]), typeLen) != 0)
@@ -1587,7 +1570,7 @@ SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>
                 retval = OVERLAYDOMAINDOESNOTMATCH;
             }
         }
-        delete [] reference;
+        delete[] reference;
         reference = NULL;
     }
     else
@@ -1597,8 +1580,7 @@ SystemBasic::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>
     return retval;
 }
 
-int
-SystemBasic::scaleDomain(const r_Minterval& baseDomain, const r_Point& origin, double factor, r_Minterval& scaledDomain, r_Minterval& clipDomain, unsigned int& length)
+int SystemBasic::scaleDomain(const r_Minterval &baseDomain, const r_Point &origin, double factor, r_Minterval &scaledDomain, r_Minterval &clipDomain, unsigned int &length)
 {
     int retval = 0;
     r_Dimension dim = origin.dimension();
@@ -1617,7 +1599,7 @@ SystemBasic::scaleDomain(const r_Minterval& baseDomain, const r_Point& origin, d
         {
             for (; i < dim; i++)
             {
-                const r_Sinterval& baseSinterval = baseDomain[i];
+                const r_Sinterval &baseSinterval = baseDomain[i];
                 originVal = origin[i];
                 // simple trafo of low coordinate
                 low = (r_Range)(originVal + floor((baseSinterval.low() - originVal) * factor));
@@ -1643,7 +1625,7 @@ SystemBasic::scaleDomain(const r_Minterval& baseDomain, const r_Point& origin, d
                         scaledDomain << r_Sinterval(low, low + baseSteps - 1);
                         clipDomain << baseSinterval;
                     }
-                    else     // the scale is too small -> shrink the clip interval
+                    else  // the scale is too small -> shrink the clip interval
                     {
                         RMInit::logOut << "WARNING: " << baseDomain << " * " << factor << " : clipping the base interval" << endl;
                         scaledDomain << r_Sinterval(low, high);
@@ -1652,7 +1634,7 @@ SystemBasic::scaleDomain(const r_Minterval& baseDomain, const r_Point& origin, d
                 }
             }
         }
-        catch (r_Error& err)
+        catch (r_Error &err)
         {
             RMInit::logOut << "SystemBasic::scaleDomain(" << baseDomain << ", " << scaleDomain << ", " << factor << ", " << origin << ") caught error : " << err.get_errorno() << " " << err.what() << endl;
             retval = SCALEDOMAINISNOTCORRECT;
@@ -1665,28 +1647,27 @@ SystemBasic::scaleDomain(const r_Minterval& baseDomain, const r_Point& origin, d
     return retval;
 }
 
-int
-SystemBasic::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& clipDomain, const r_Minterval& downScaleDomain, unsigned int length, const char* collectionName)
+int SystemBasic::updateScaledMDD(const r_Ref<r_GMarray> &baseMDD, const r_Minterval &clipDomain, const r_Minterval &downScaleDomain, unsigned int length, const char *collectionName)
 {
     RMInit::logOut << "SystemBasic::updateScaledMDD(MDD, " << clipDomain << ", " << downScaleDomain << ", " << length << ", " << collectionName << ")" << endl;
     int retval = 0;
-    const r_Minterval& baseDomain = baseMDD->spatial_domain();
+    const r_Minterval &baseDomain = baseMDD->spatial_domain();
     if (retval == 0)
     {
         size_t tlen = baseMDD->get_type_length();
-        r_Ref<r_GMarray> scaledMDD = new(baseMDD->get_type_name())r_GMarray(downScaleDomain, tlen);
-        const r_Type* type = scaledMDD->get_base_type_schema();
+        r_Ref<r_GMarray> scaledMDD = new (baseMDD->get_type_name()) r_GMarray(downScaleDomain, tlen);
+        const r_Type *type = scaledMDD->get_base_type_schema();
         if (type != NULL)
         {
             if (type->isPrimitiveType())
             {
-                fast_scale_process_primitive_type((const r_Primitive_Type*)type, scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
+                fast_scale_process_primitive_type((const r_Primitive_Type *)type, scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
             }
             else
             {
                 if (type->isStructType())
                 {
-                    fast_scale_process_structured_type((const r_Structure_Type*)type, scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
+                    fast_scale_process_structured_type((const r_Structure_Type *)type, scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
                 }
                 else
                 {
@@ -1705,43 +1686,46 @@ SystemBasic::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval&
             stream << "UPDATE " << collectionName << " AS A SET A" << downScaleDomain << " ASSIGN $1";
             r_OQL_Query query(stream.str().c_str());
             query << *scaledMDD;
-            RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL", \
-                    RMInit::dbgOut << "Waiting 10 sec before execute\n" << std::endl; \
-                    sleep(10); \
-                    RMInit::dbgOut << "Continue now\n" << std::endl;);
+            RMDBGIF(20, RMDebug::module_tools, "WAITBEFOREQL",
+                    RMInit::dbgOut << "Waiting 10 sec before execute\n"
+                                   << std::endl;
+                    sleep(10);
+                    RMInit::dbgOut << "Continue now\n"
+                                   << std::endl;);
             r_oql_execute(query, &ta);
-            RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL", \
-                    RMInit::dbgOut << "Waiting 10 sec after execute\n" << std::endl; \
-                    sleep(10); \
-                    RMInit::dbgOut << "Continue now\n" << std::endl;);
+            RMDBGIF(20, RMDebug::module_tools, "WAITAFTERQL",
+                    RMInit::dbgOut << "Waiting 10 sec after execute\n"
+                                   << std::endl;
+                    sleep(10);
+                    RMInit::dbgOut << "Continue now\n"
+                                   << std::endl;);
         }
         scaledMDD.destroy();
     }
     return retval;
 }
 
-int
-SystemBasic::compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& clipDomain, const r_Minterval& downScaleDomain, unsigned int length, const char* collectionName)
+int SystemBasic::compareScaledMDD(const r_Ref<r_GMarray> &baseMDD, const r_Minterval &clipDomain, const r_Minterval &downScaleDomain, unsigned int length, const char *collectionName)
 {
     RMInit::logOut << "SystemBasic::compareScaledMDD(MDD, " << clipDomain << ", " << downScaleDomain << ", " << length << ", " << collectionName << ")" << endl;
     int retval = 0;
-    const r_Minterval& baseDomain = baseMDD->spatial_domain();
+    const r_Minterval &baseDomain = baseMDD->spatial_domain();
     if (retval == 0)
     {
         size_t tlen = baseMDD->get_type_length();
-        r_Ref<r_GMarray> scaledMDD = new(baseMDD->get_type_name())r_GMarray(downScaleDomain, tlen);
-        const r_Type* type = ((r_GMarray*)&*baseMDD)->get_base_type_schema();
+        r_Ref<r_GMarray> scaledMDD = new (baseMDD->get_type_name()) r_GMarray(downScaleDomain, tlen);
+        const r_Type *type = ((r_GMarray *)&*baseMDD)->get_base_type_schema();
         if (type != NULL)
         {
             if (type->isPrimitiveType())
             {
-                fast_scale_process_primitive_type((const r_Primitive_Type*)type, scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
+                fast_scale_process_primitive_type((const r_Primitive_Type *)type, scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
             }
             else
             {
                 if (type->isStructType())
                 {
-                    fast_scale_process_structured_type((const r_Structure_Type*)type, scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
+                    fast_scale_process_structured_type((const r_Structure_Type *)type, scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
                 }
                 else
                 {
@@ -1770,7 +1754,7 @@ SystemBasic::compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval
                 retval = compareGMarrays(selectedMDD, scaledMDD);
                 if ((outputFileName != NULL) && ((retval != 0) || (force)))
                 {
-                    char* tempName = new char[strlen(outputFileName) + strlen("image.png") + strlen(collectionName) + 1];
+                    char *tempName = new char[strlen(outputFileName) + strlen("image.png") + strlen(collectionName) + 1];
                     strcpy(tempName, outputFileName);
                     strcat(tempName, collectionName);
                     strcat(tempName, ".db.png");
@@ -1779,7 +1763,7 @@ SystemBasic::compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval
                     strcat(tempName, collectionName);
                     strcat(tempName, ".scaled.png");
                     saveData(tempName, scaledMDD->get_array(), scaledMDD->get_array_size(), scaledMDD->spatial_domain());
-                    delete [] tempName;
+                    delete[] tempName;
                     tempName = NULL;
                 }
             }
@@ -1790,8 +1774,7 @@ SystemBasic::compareScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval
     return retval;
 }
 
-void
-fast_scale_process_primitive_type(const r_Primitive_Type* primType, char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func)
+void fast_scale_process_primitive_type(const r_Primitive_Type *primType, char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func)
 {
     if (func == r_BitAggregation)
     {
@@ -1800,19 +1783,19 @@ fast_scale_process_primitive_type(const r_Primitive_Type* primType, char* dest, 
         case r_Primitive_Type::BOOL:
         case r_Primitive_Type::CHAR:
         case r_Primitive_Type::OCTET:
-            fast_scale_aggregate_array((char*)dest, (const char*)src, destIv, srcIv, srcIter, type_len, length);
+            fast_scale_aggregate_array((char *)dest, (const char *)src, destIv, srcIv, srcIter, type_len, length);
             break;
         case r_Primitive_Type::SHORT:
         case r_Primitive_Type::USHORT:
-            fast_scale_aggregate_array((short*)dest, (const short*)src, destIv, srcIv, srcIter, type_len, length);
+            fast_scale_aggregate_array((short *)dest, (const short *)src, destIv, srcIv, srcIter, type_len, length);
             break;
         case r_Primitive_Type::LONG:
         case r_Primitive_Type::ULONG:
         case r_Primitive_Type::FLOAT:
-            fast_scale_aggregate_array((int*)dest, (const int*)src, destIv, srcIv, srcIter, type_len, length);
+            fast_scale_aggregate_array((int *)dest, (const int *)src, destIv, srcIv, srcIter, type_len, length);
             break;
         case r_Primitive_Type::DOUBLE:
-            fast_scale_aggregate_array((long long*)dest, (const long long*)src, destIv, srcIv, srcIter, type_len, length);
+            fast_scale_aggregate_array((long long *)dest, (const long long *)src, destIv, srcIv, srcIter, type_len, length);
             break;
         default:
             RMInit::logOut << "Resample Array: unknown primitive type " << primType->type_id() << endl;
@@ -1824,31 +1807,31 @@ fast_scale_process_primitive_type(const r_Primitive_Type* primType, char* dest, 
         switch (primType->type_id())
         {
         case r_Primitive_Type::BOOL:
-            fast_scale_resample_array((r_Boolean*)dest, (const r_Boolean*)src, destIv, srcIv, srcIter, type_len, length, true);
+            fast_scale_resample_array((r_Boolean *)dest, (const r_Boolean *)src, destIv, srcIv, srcIter, type_len, length, true);
             break;
         case r_Primitive_Type::CHAR:
-            fast_scale_resample_array((r_Char*)dest, (const r_Char*)src, destIv, srcIv, srcIter, type_len, length, true);
+            fast_scale_resample_array((r_Char *)dest, (const r_Char *)src, destIv, srcIv, srcIter, type_len, length, true);
             break;
         case r_Primitive_Type::OCTET:
-            fast_scale_resample_array((r_Octet*)dest, (const r_Octet*)src, destIv, srcIv, srcIter, type_len, length, true);
+            fast_scale_resample_array((r_Octet *)dest, (const r_Octet *)src, destIv, srcIv, srcIter, type_len, length, true);
             break;
         case r_Primitive_Type::SHORT:
-            fast_scale_resample_array((r_Short*)dest, (const r_Short*)src, destIv, srcIv, srcIter, type_len, length, true);
+            fast_scale_resample_array((r_Short *)dest, (const r_Short *)src, destIv, srcIv, srcIter, type_len, length, true);
             break;
         case r_Primitive_Type::USHORT:
-            fast_scale_resample_array((r_UShort*)dest, (const r_UShort*)src, destIv, srcIv, srcIter, type_len, length, true);
+            fast_scale_resample_array((r_UShort *)dest, (const r_UShort *)src, destIv, srcIv, srcIter, type_len, length, true);
             break;
         case r_Primitive_Type::LONG:
-            fast_scale_resample_array((r_Long*)dest, (const r_Long*)src, destIv, srcIv, srcIter, type_len, length, true);
+            fast_scale_resample_array((r_Long *)dest, (const r_Long *)src, destIv, srcIv, srcIter, type_len, length, true);
             break;
         case r_Primitive_Type::ULONG:
-            fast_scale_resample_array((r_ULong*)dest, (const r_ULong*)src, destIv, srcIv, srcIter, type_len, length, true);
+            fast_scale_resample_array((r_ULong *)dest, (const r_ULong *)src, destIv, srcIv, srcIter, type_len, length, true);
             break;
         case r_Primitive_Type::FLOAT:
-            fast_scale_resample_array((r_Float*)dest, (const r_Float*)src, destIv, srcIv, srcIter, type_len, length, false);
+            fast_scale_resample_array((r_Float *)dest, (const r_Float *)src, destIv, srcIv, srcIter, type_len, length, false);
             break;
         case r_Primitive_Type::DOUBLE:
-            fast_scale_resample_array((r_Double*)dest, (const r_Double*)src, destIv, srcIv, srcIter, type_len, length, false);
+            fast_scale_resample_array((r_Double *)dest, (const r_Double *)src, destIv, srcIv, srcIter, type_len, length, false);
             break;
         default:
             break;
@@ -1856,13 +1839,12 @@ fast_scale_process_primitive_type(const r_Primitive_Type* primType, char* dest, 
     }
 }
 
-void
-fast_scale_process_structured_type(const r_Structure_Type* structType, char* dest, const char* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func)
+void fast_scale_process_structured_type(const r_Structure_Type *structType, char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &srcIter, unsigned int type_len, unsigned int length, r_Scale_Function func)
 {
     r_Structure_Type::attribute_iterator iter(structType->defines_attribute_begin());
     while (iter != structType->defines_attribute_end())
     {
-        r_Type* newType;
+        r_Type *newType;
         unsigned long offset;
 
         newType = (*iter).type_of().clone();
@@ -1870,12 +1852,12 @@ fast_scale_process_structured_type(const r_Structure_Type* structType, char* des
 
         if (newType->isStructType())
         {
-            r_Structure_Type* newStructType = (r_Structure_Type*)newType;
+            r_Structure_Type *newStructType = (r_Structure_Type *)newType;
             fast_scale_process_structured_type(newStructType, dest + offset, src + offset, destIv, srcIv, srcIter, type_len, length, func);
         }
         else
         {
-            r_Primitive_Type* newPrimType = (r_Primitive_Type*)newType;
+            r_Primitive_Type *newPrimType = (r_Primitive_Type *)newType;
             fast_scale_process_primitive_type(newPrimType, dest + offset, src + offset, destIv, srcIv, srcIter, type_len, length, func);
         }
         delete newType;
@@ -1883,15 +1865,14 @@ fast_scale_process_structured_type(const r_Structure_Type* structType, char* des
     }
 }
 
-
 // always iterate over the full dest domain, but not over the full src domain.
-template<class T>
-void fast_scale_resample_array(T* dest, const T* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length, bool round)
+template <class T>
+void fast_scale_resample_array(T *dest, const T *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length, bool round)
 {
     //cout << "here " << destIv << srcIv << iterDom << ", " << type_len << " " << length << endl;
-    r_MiterDirect destIter((void*)dest, destIv, destIv, type_len, 1);
-    r_MiterDirect subIter((void*)src, srcIv, iterDom, type_len, 1);
-    r_MiterDirect srcIter((void*)src, srcIv, iterDom, type_len, length);
+    r_MiterDirect destIter((void *)dest, destIv, destIv, type_len, 1);
+    r_MiterDirect subIter((void *)src, srcIv, iterDom, type_len, 1);
+    r_MiterDirect srcIter((void *)src, srcIv, iterDom, type_len, length);
     unsigned int dim = (unsigned int)srcIv.dimension();
     unsigned int i;
 
@@ -1922,17 +1903,17 @@ void fast_scale_resample_array(T* dest, const T* src, const r_Minterval& destIv,
         }
         while (subIter.done == 0)
         {
-            sum += *((const T*)(subIter.getData()));
+            sum += *((const T *)(subIter.getData()));
             ++subIter;
         }
         // use round to nearest
         if (round)
         {
-            *((T*)(destIter.getData())) = (T)(sum / count + 0.5);
+            *((T *)(destIter.getData())) = (T)(sum / count + 0.5);
         }
         else
         {
-            *((T*)(destIter.getData())) = (T)(sum / count);
+            *((T *)(destIter.getData())) = (T)(sum / count);
         }
         //cout << (long)(((const T*)(srcIter.getData())) - src) << " , " << (long)(((T*)(destIter.getData())) - dest) << endl;
         ++srcIter;
@@ -1941,13 +1922,13 @@ void fast_scale_resample_array(T* dest, const T* src, const r_Minterval& destIv,
 }
 
 // always iterate over the full dest domain, but not over the full src domain.
-template<class T>
-void fast_scale_aggregate_array(T* dest, const T* src, const r_Minterval& destIv, const r_Minterval& srcIv, const r_Minterval& iterDom, unsigned int type_len, unsigned int length)
+template <class T>
+void fast_scale_aggregate_array(T *dest, const T *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length)
 {
     //cout << "here " << destIv << srcIv << iterDom << ", " << type_len << " " << length << endl;
-    r_MiterDirect destIter((void*)dest, destIv, destIv, type_len, 1);
-    r_MiterDirect subIter((void*)src, srcIv, iterDom, type_len, 1);
-    r_MiterDirect srcIter((void*)src, srcIv, iterDom, type_len, length);
+    r_MiterDirect destIter((void *)dest, destIv, destIv, type_len, 1);
+    r_MiterDirect subIter((void *)src, srcIv, iterDom, type_len, 1);
+    r_MiterDirect srcIter((void *)src, srcIv, iterDom, type_len, length);
     unsigned int dim = (unsigned int)srcIv.dimension();
     unsigned int i;
 
@@ -1978,10 +1959,10 @@ void fast_scale_aggregate_array(T* dest, const T* src, const r_Minterval& destIv
         }
         while (subIter.done == 0)
         {
-            sum |= *((const T*)(subIter.getData()));
+            sum |= *((const T *)(subIter.getData()));
             ++subIter;
         }
-        *((T*)(destIter.getData())) = sum;
+        *((T *)(destIter.getData())) = sum;
         //cout << (long)(((const T*)(srcIter.getData())) - src) << " , " << (long)(((T*)(destIter.getData())) - dest) << endl;
         ++srcIter;
         ++destIter;
@@ -1989,8 +1970,7 @@ void fast_scale_aggregate_array(T* dest, const T* src, const r_Minterval& destIv
 }
 
 #ifdef TESTBASIC
-int
-main(int argc, const char** argv)
+int main(int argc, const char **argv)
 {
     r_Minterval baseDomain("[0:1024]");
     r_Point origin("[0]");

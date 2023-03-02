@@ -30,33 +30,28 @@
  *
 */
 
-
 #include "raslib/rmdebug.hh"
 #include <logging.hh>
 
 using namespace std;
 
-inline
-RMTimer::RMTimer(const char *newClass, const char *newFunc, int newBmLevel)
+inline RMTimer::RMTimer(const char *newClass, const char *newFunc, int newBmLevel)
     : myClass(newClass), myFunc(newFunc), bmLevel(newBmLevel), running(0)
 {
     start();
 }
 
-inline
-RMTimer::~RMTimer()
+inline RMTimer::~RMTimer()
 {
     stop();
 }
 
-void
-RMTimer::setOutput(int newOutput)
+void RMTimer::setOutput(int newOutput)
 {
     output = newOutput;
 }
 
-void
-RMTimer::start()
+void RMTimer::start()
 {
     // reset accu
     accuTime = 0;
@@ -65,8 +60,7 @@ RMTimer::start()
     resume();
 }
 
-void
-RMTimer::pause()
+void RMTimer::pause()
 {
     if (running)
     {
@@ -76,8 +70,7 @@ RMTimer::pause()
     }
 }
 
-void
-RMTimer::resume()
+void RMTimer::resume()
 {
     static struct timezone dummy;
     gettimeofday(&acttime, &dummy);
@@ -85,8 +78,7 @@ RMTimer::resume()
     running = 1;
 }
 
-void
-RMTimer::stop()
+void RMTimer::stop()
 {
     pause();
 
@@ -99,18 +91,16 @@ RMTimer::stop()
     }
 }
 
-int
-RMTimer::getTime()
+int RMTimer::getTime()
 {
     fetchTime();
     return static_cast<int>(accuTime);
 }
 
-void
-RMTimer::fetchTime()
+void RMTimer::fetchTime()
 {
     // save start time
-    oldsec  = acttime.tv_sec;
+    oldsec = acttime.tv_sec;
     oldusec = acttime.tv_usec;
 
     // get stop time
@@ -120,4 +110,3 @@ RMTimer::fetchTime()
     // add new time to accu
     accuTime += (acttime.tv_sec - oldsec) * 1000000 + acttime.tv_usec - oldusec;
 }
-

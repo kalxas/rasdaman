@@ -59,7 +59,6 @@ size).
 class SRCIndexLogic
 {
 public:
-
     static unsigned int computeNumberOfTiles(const StorageLayout &sl, const r_Minterval &mddDomain);
     /*@Doc:
         Compute the number of tiles that will have to be allocated by the index.
@@ -108,7 +107,6 @@ public:
     */
 
 protected:
-    
     static r_Minterval computeNormalizedDomain(
         const r_Point &mddDomainExtent,
         const r_Point &tileConfigExtent);

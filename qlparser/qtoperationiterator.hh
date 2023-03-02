@@ -97,4 +97,3 @@ private:
 #include "qlparser/qtoperationiterator.icc"
 
 #endif
-

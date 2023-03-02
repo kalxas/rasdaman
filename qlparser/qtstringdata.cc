@@ -26,15 +26,11 @@ rasdaman GmbH.
 #include <iostream>
 #include <cstring>
 
-
-
 QtStringData::QtStringData(const std::string &str)
     : QtData(),
       stringData(str)
 {
 }
-
-
 
 QtDataType
 QtStringData::getDataType() const
@@ -42,10 +38,7 @@ QtStringData::getDataType() const
     return QT_STRING;
 }
 
-
-
-bool
-QtStringData::equal(const QtData *obj) const
+bool QtStringData::equal(const QtData *obj) const
 {
     bool returnValue = false;  // not equal by initialization
 
@@ -57,25 +50,18 @@ QtStringData::equal(const QtData *obj) const
     return returnValue;
 }
 
-
-
 std::string
 QtStringData::getSpelling() const
 {
     return stringData;
 }
 
-
-
 char *QtStringData::getTypeStructure() const
 {
     return strdup("string");
 }
 
-
-
-void
-QtStringData::printStatus(std::ostream &stream) const
+void QtStringData::printStatus(std::ostream &stream) const
 {
     stream << "string, value: " << stringData.c_str() << std::flush;
 

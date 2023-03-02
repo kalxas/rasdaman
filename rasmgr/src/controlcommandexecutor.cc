@@ -43,11 +43,12 @@ namespace rasmgr
 {
 ControlCommandExecutor::ControlCommandExecutor(std::shared_ptr<RasControl> control)
     : grammar(control), rascontrol(control)
-{}
+{
+}
 
 ControlCommandExecutor::~ControlCommandExecutor()
-{}
-
+{
+}
 
 std::string ControlCommandExecutor::executeCommand(const std::string &command,
                                                    const std::string &userName,
@@ -126,4 +127,4 @@ bool ControlCommandExecutor::canRunCommand(const std::string &userName,
     return result;
 }
 
-}
+}  // namespace rasmgr

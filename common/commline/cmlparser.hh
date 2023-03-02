@@ -43,8 +43,6 @@ rasdaman GmbH.
 #ifndef AK_CMLPARSER_HH
 #define AK_CMLPARSER_HH
 
-
-
 #include <list>
 #include <string>
 #include <exception>
@@ -64,21 +62,19 @@ public:
     virtual const char *what() const noexcept;
 
 protected:
-    std::string  problem;
+    std::string problem;
 };
-
 
 class CommandLineParameter
 {
 public:
-
     static const char *defaultTitle;
     static const char *descSep;
     static const char *descTab;
     static const char *descIndent;
     static const char *descLineSep;
-    static const char  descOpen;
-    static const char  descClose;
+    static const char descOpen;
+    static const char descClose;
     static const char *descLeftDefault;
     static const char *descRightDefault;
 
@@ -90,8 +86,8 @@ public:
     bool doesMatch(char c);
     bool doesMatch(const char *s);
 
-    char         getShortName() const;
-    const char  *getLongName() const;
+    char getShortName() const;
+    const char *getLongName() const;
 
     virtual bool setPresent(char c) = 0;
     virtual bool setPresent(const char *s) = 0;
@@ -107,9 +103,9 @@ public:
     virtual bool isPresent() = 0;
 
     virtual const char *getValueAsString() = 0;
-    virtual long        getValueAsLong() = 0;
-    virtual int         getValueAsInt() = 0;
-    virtual double      getValueAsDouble() = 0;
+    virtual long getValueAsLong() = 0;
+    virtual int getValueAsInt() = 0;
+    virtual double getValueAsDouble() = 0;
 
     virtual std::ostream &printStatus(std::ostream & = std::cout) = 0;
     std::ostream &printHelp(std::ostream & = std::cout);
@@ -119,21 +115,19 @@ protected:
     CommandLineParameter(char newShortName, const char *newLongName, long newDefaultValue);
 
 protected:
-
-    char  shortName;
+    char shortName;
     char *longName;
-    bool  present;
-    bool  wasLongName;
+    bool present;
+    bool wasLongName;
 
     char *defaultValue;
-    char  shNameString[2];
+    char shNameString[2];
 
     char *descriptionText;
     char *paramDescription;
 };
 
-
-class FlagParameter: public CommandLineParameter
+class FlagParameter : public CommandLineParameter
 {
 public:
     FlagParameter(char nShortName, const char *nLongName);
@@ -148,14 +142,14 @@ public:
     void popValue() override;
 
     const char *getValueAsString() override;
-    long        getValueAsLong() override;
-    int         getValueAsInt() override;
-    double      getValueAsDouble() override;
+    long getValueAsLong() override;
+    int getValueAsInt() override;
+    double getValueAsDouble() override;
 
     std::ostream &printStatus(std::ostream & = std::cout) override;
 };
 
-class StringParameter: public CommandLineParameter
+class StringParameter : public CommandLineParameter
 {
 private:
     std::list<char *> value;
@@ -174,16 +168,16 @@ public:
     void popValue() override;
 
     const char *getValueAsString() override;
-    long        getValueAsLong() override;
-    int         getValueAsInt() override;
-    double      getValueAsDouble() override;
+    long getValueAsLong() override;
+    int getValueAsInt() override;
+    double getValueAsDouble() override;
 
     void reset() override;
 
     std::ostream &printStatus(std::ostream & = std::cout) override;
 };
 
-class DeprecatedParameter: public CommandLineParameter
+class DeprecatedParameter : public CommandLineParameter
 {
 private:
     std::list<char *> value;
@@ -192,25 +186,24 @@ private:
 public:
     DeprecatedParameter(char nShortName, const char *nLongName, bool flag = false);
     ~DeprecatedParameter() override = default;
-    
+
     bool setPresent(char c) override;
     bool setPresent(const char *s) override;
     bool isPresent() override;
-    
+
     bool needsValue() override;
     bool takeValue(const char *s) override;
     void popValue() override;
-    
+
     const char *getValueAsString() override;
-    long        getValueAsLong() override;
-    int         getValueAsInt() override;
-    double      getValueAsDouble() override;
+    long getValueAsLong() override;
+    int getValueAsInt() override;
+    double getValueAsDouble() override;
 
     void reset() override;
-    
+
     std::ostream &printStatus(std::ostream & = std::cout) override;
 };
-
 
 class CommandLineParser
 {
@@ -219,7 +212,6 @@ public:
     static const char *noLongName;
     static const char *ShortSign;
     static const char *LongSign;
-
 
     static CommandLineParser &getInstance();
 
@@ -233,20 +225,20 @@ public:
         Otherwise no <>!
     */
     CommandLineParameter &addFlagParameter(char shortName, const char *longName, const char *description);
-    CommandLineParameter &addStringParameter(char shortName, const char *longName,  const char *description, const char *newDefaultValue = NULL);
-    CommandLineParameter &addLongParameter(char shortName, const char *longName,  const char *description, long newDefaultValue = 0L);
+    CommandLineParameter &addStringParameter(char shortName, const char *longName, const char *description, const char *newDefaultValue = NULL);
+    CommandLineParameter &addLongParameter(char shortName, const char *longName, const char *description, long newDefaultValue = 0L);
     CommandLineParameter &addDeprecatedParameter(char shortName, const char *longName, bool flag = false);
 
     bool isPresent(char shortName);
     bool isPresent(const char *longName);
 
     const char *getValueAsString(char shortName);
-    long        getValueAsLong(char shortName);
-    double      getValueAsDouble(char shortName);
+    long getValueAsLong(char shortName);
+    double getValueAsDouble(char shortName);
 
     const char *getValueAsString(const char *longName);
-    long        getValueAsLong(const char *longName);
-    double      getValueAsDouble(const char *longName);
+    long getValueAsLong(const char *longName);
+    double getValueAsDouble(const char *longName);
 
     void processCommandLine(int argc, char **argv);
 

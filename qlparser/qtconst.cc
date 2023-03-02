@@ -35,7 +35,7 @@ rasdaman GmbH.
 #include "qlparser/qtscalardata.hh"
 #include "qlparser/qtstringdata.hh"
 
-#include "qlparser/qtmdd.hh"            // these three can be deleted with new memory management
+#include "qlparser/qtmdd.hh"  // these three can be deleted with new memory management
 
 #include "relcatalogif/basetype.hh"
 #include "relcatalogif/mddbasetype.hh"
@@ -50,14 +50,12 @@ using namespace std;
 const QtNode::QtNodeType QtConst::nodeType = QtNode::QT_CONST;
 
 QtConst::QtConst(QtData *newDataObj)
-    :  QtOperation(),
-       dataObj(newDataObj)
+    : QtOperation(),
+      dataObj(newDataObj)
 {
     // store parse info of the data object
     setParseInfo(dataObj->getParseInfo());
 }
-
-
 
 QtConst::~QtConst()
 {
@@ -67,10 +65,7 @@ QtConst::~QtConst()
     }
 }
 
-
-
-bool
-QtConst::equalMeaning(QtNode *node)
+bool QtConst::equalMeaning(QtNode *node)
 {
     bool result = false;
 
@@ -84,18 +79,16 @@ QtConst::equalMeaning(QtNode *node)
     return result;
 }
 
-
 string
 QtConst::getSpelling()
 {
     char tempStr[20];
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
-    string result  = string(tempStr);
+    string result = string(tempStr);
     result.append(dataObj->getSpelling());
 
     return result;
 }
-
 
 QtNode::QtAreaType
 QtConst::getAreaType()
@@ -110,9 +103,7 @@ QtConst::getAreaType()
     }
 }
 
-
-void
-QtConst::optimizeLoad(QtTrimList *trimList)
+void QtConst::optimizeLoad(QtTrimList *trimList)
 {
     if (trimList)
     {
@@ -125,7 +116,7 @@ QtConst::optimizeLoad(QtTrimList *trimList)
                 QtTrimList::iterator i;
 
                 for (i = trimList->begin(); i != trimList->end(); i++)
-                    // get the maximum
+                // get the maximum
                 {
                     maxDimension = maxDimension > (*i)->dimension ? maxDimension : (*i)->dimension;
                 }
@@ -136,7 +127,7 @@ QtConst::optimizeLoad(QtTrimList *trimList)
                 // fill the loadDomain object with the QtTrimList specifications
                 for (i = trimList->begin(); i != trimList->end(); i++)
                 {
-                    loadDomain[(*i)->dimension]    = (*i)->interval;
+                    loadDomain[(*i)->dimension] = (*i)->interval;
                 }
 
                 (static_cast<QtMDD *>(dataObj))->setLoadDomain(loadDomain);
@@ -156,19 +147,18 @@ QtConst::optimizeLoad(QtTrimList *trimList)
     }
 }
 
-
 QtData *
 QtConst::evaluate(QtDataList * /*inputList*/)
 {
     startTimer("QtConst");
 
     QtData *returnValue = NULL;
-   
+
     if (dataObj)
     {
         if (dataObj->getDataType() == QT_MDD)
         {
-            QtMDD  *qtMDD = static_cast<QtMDD *>(dataObj);
+            QtMDD *qtMDD = static_cast<QtMDD *>(dataObj);
             MDDObj *currentMDDObj = qtMDD->getMDDObject();
             const auto &currDomain = currentMDDObj->getCurrentDomain();
             r_Minterval loadDomain = qtMDD->getLoadDomain();
@@ -183,12 +173,11 @@ QtConst::evaluate(QtDataList * /*inputList*/)
             qtMDD->incRef();
             returnValue = qtMDD;
         }
-        else 
+        else
         {
             dataObj->incRef();
             returnValue = dataObj;
         }
-    
     }
 
     stopTimer();
@@ -196,10 +185,7 @@ QtConst::evaluate(QtDataList * /*inputList*/)
     return returnValue;
 }
 
-
-
-void
-QtConst::printTree(int tab, ostream &s, QtChildType /*mode*/)
+void QtConst::printTree(int tab, ostream &s, QtChildType /*mode*/)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtConst Object: type " << flush;
     dataStreamType.printStatus(s);
@@ -220,10 +206,7 @@ QtConst::printTree(int tab, ostream &s, QtChildType /*mode*/)
     s << endl;
 }
 
-
-
-void
-QtConst::printAlgebraicExpression(ostream &s)
+void QtConst::printAlgebraicExpression(ostream &s)
 {
     if (dataObj->isScalarData())
     {
@@ -264,8 +247,6 @@ QtConst::printAlgebraicExpression(ostream &s)
     }
 }
 
-
-
 const QtTypeElement &
 QtConst::checkType(__attribute__((unused)) QtTypeTuple *typeTuple)
 {
@@ -297,6 +278,3 @@ QtConst::checkType(__attribute__((unused)) QtTypeTuple *typeTuple)
 
     return dataStreamType;
 }
-
-
-

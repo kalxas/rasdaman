@@ -26,10 +26,8 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 #include <logging.hh>
 
-#include <cstring>              // for memcpy, memset
-#include <iostream>             // for operator<<, ostream, endl, basic_ostream
-
-
+#include <cstring>   // for memcpy, memset
+#include <iostream>  // for operator<<, ostream, endl, basic_ostream
 
 using std::endl;
 
@@ -84,7 +82,6 @@ void DBTile::setNoModificationData(char *newCells) const
     }
 }
 
-
 void DBTile::setNoModificationSize(r_Bytes newSize) const
 {
     size = newSize;
@@ -125,12 +122,12 @@ DBTile::DBTile(r_Data_Format dataformat)
 }
 
 DBTile::DBTile(r_Bytes newSize, r_Data_Format dataformat)
-    :   DBObject(),
-        size(newSize),
-        cells(NULL),
-        dataFormat(dataformat),
-        currentFormat(r_Array),
-        ownCells{true}
+    : DBObject(),
+      size(newSize),
+      cells(NULL),
+      dataFormat(dataformat),
+      currentFormat(r_Array),
+      ownCells{true}
 {
     LTRACE << "allocating " << newSize << " bytes for blob cells, not initialized with any value ";
     cells = static_cast<char *>(mymalloc(newSize));
@@ -231,13 +228,13 @@ DBTile::~DBTile() noexcept(false)
 {
     if (!ownCells)
     {
-//        LTRACE << "DBTile::~DBTile() blob cells of size " << size << " are not owned, nothing to free";
+        //        LTRACE << "DBTile::~DBTile() blob cells of size " << size << " are not owned, nothing to free";
         return;
     }
 
     if (cells)
     {
-//        LTRACE << "DBTile::~DBTile() freeing blob cells of size: " << size;
+        //        LTRACE << "DBTile::~DBTile() freeing blob cells of size: " << size;
         if (!allocatedWithNew)
         {
             free(cells);
@@ -248,10 +245,10 @@ DBTile::~DBTile() noexcept(false)
         }
         cells = NULL;
     }
-//    else
-//    {
-//        LTRACE << "DBTile::~DBTile() blob cells of size " << size << " null, nothing to free";
-//    }
+    //    else
+    //    {
+    //        LTRACE << "DBTile::~DBTile() blob cells of size " << size << " null, nothing to free";
+    //    }
 }
 
 void DBTile::resize(r_Bytes newSize)
@@ -307,4 +304,3 @@ std::ostream &operator<<(std::ostream &stream, DBTile &b)
 #endif
     return stream;
 }
-

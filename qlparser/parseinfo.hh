@@ -33,7 +33,6 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -48,7 +47,6 @@ rasdaman GmbH.
 class ParseInfo
 {
 public:
-
     /// default constructor
     ParseInfo();
 
@@ -68,19 +66,19 @@ public:
     ///
     inline const std::string &getToken() const;
     ///
-    inline unsigned int  getLineNo() const;
+    inline unsigned int getLineNo() const;
     ///
-    inline unsigned int  getColumnNo() const;
+    inline unsigned int getColumnNo() const;
     ///
-    inline void          setErrorNo(int errorNo);
+    inline void setErrorNo(int errorNo);
     ///
-    inline void          setToken(const std::string &text);
+    inline void setToken(const std::string &text);
     ///
-    inline void          setToken(const char *text);
+    inline void setToken(const char *text);
     ///
-    inline void          setLineNo(unsigned int lineNo);
+    inline void setLineNo(unsigned int lineNo);
     ///
-    inline void          setColumnNo(unsigned int columnNo);
+    inline void setColumnNo(unsigned int columnNo);
     ///
     //@}
 

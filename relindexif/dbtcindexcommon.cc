@@ -21,27 +21,26 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "dbtcindex.hh"              // for DBTCIndex
-#include "hierindex.hh"              // for DBHierIndex
-#include "reladminif/adminif.hh"     // for AdminIf
-#include "reladminif/dbobject.hh"    // for DBObjectId, DBObject
-#include "reladminif/objectbroker.hh"// for ObjectBroker
-#include "reladminif/oidif.hh"       // for OId, operator<<, OId::INLINETILEOID
-#include "indexmgr/hierindexds.hh"   // for HierIndexDS
-#include "indexmgr/keyobject.hh"     // for KeyObject, operator<<
-#include "relblobif/inlinetile.hh"   // for InlineTile
-#include "reladminif/lists.h"        // for DBObjectPMap, KeyObjectVector
-#include "raslib/error.hh"           // for r_Error, r_Error::r_Error_Featur...
-#include "raslib/mddtypes.hh"        // for r_Dimension
+#include "dbtcindex.hh"                  // for DBTCIndex
+#include "hierindex.hh"                  // for DBHierIndex
+#include "reladminif/adminif.hh"         // for AdminIf
+#include "reladminif/dbobject.hh"        // for DBObjectId, DBObject
+#include "reladminif/objectbroker.hh"    // for ObjectBroker
+#include "reladminif/oidif.hh"           // for OId, operator<<, OId::INLINETILEOID
+#include "indexmgr/hierindexds.hh"       // for HierIndexDS
+#include "indexmgr/keyobject.hh"         // for KeyObject, operator<<
+#include "relblobif/inlinetile.hh"       // for InlineTile
+#include "reladminif/lists.h"            // for DBObjectPMap, KeyObjectVector
+#include "raslib/error.hh"               // for r_Error, r_Error::r_Error_Featur...
+#include "raslib/mddtypes.hh"            // for r_Dimension
 #include "storagemgr/sstoragelayout.hh"  // for StorageLayout, StorageLayout::De...
-#include <logging.hh>                // for Writer, CTRACE, LTRACE
+#include <logging.hh>                    // for Writer, CTRACE, LTRACE
 
-#include <map>                       // for _Rb_tree_iterator, map<>::iterator
-#include <memory>                    // for allocator_traits<>::value_type
-#include <ostream>                   // for operator<<, ostream, basic_ostream
-#include <utility>                   // for pair
-#include <vector>                    // for vector, vector<>::iterator
-
+#include <map>      // for _Rb_tree_iterator, map<>::iterator
+#include <memory>   // for allocator_traits<>::value_type
+#include <ostream>  // for operator<<, ostream, basic_ostream
+#include <utility>  // for pair
+#include <vector>   // for vector, vector<>::iterator
 
 void DBTCIndex::setMappingHasChanged()
 {
@@ -86,7 +85,8 @@ DBTCIndex::DBTCIndex(r_Dimension dim, bool isNode)
 void DBTCIndex::printStatus(unsigned int level, std::ostream &stream) const
 {
     auto *indent = new char[level * 2 + 1];
-    for (unsigned int j = 0; j < level * 2; j++) indent[j] = ' ';
+    for (unsigned int j = 0; j < level * 2; j++)
+        indent[j] = ' ';
     indent[level * 2] = '\0';
 
     stream << indent << "DBTCIndex ";
@@ -287,7 +287,7 @@ void DBTCIndex::decideForInlining()
             if ((*it).getObject().getOId().getType() == OId::INLINETILEOID)
             {
                 if ((itile = static_cast<InlineTile *>(ObjectBroker::isInMemory(
-                        (*it).getObject().getOId()))) != nullptr)
+                         (*it).getObject().getOId()))) != nullptr)
                 {
                     LTRACE << "in memory";
                     // decide for inlineing

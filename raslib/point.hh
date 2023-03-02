@@ -45,7 +45,7 @@ public:
     // the coordinates underlying type
     using value_type = r_Range;
     using DimType = r_Dimension;
-    
+
     /// default constructor
     r_Point() = default;
     /// constructor getting dimensionality for stream initializing
@@ -69,15 +69,15 @@ public:
 
     /// destructor: cleanup dynamic memory
     ~r_Point() = default;
-    
+
     /// stream-input operator for stream initializing
     r_Point &operator<<(r_Range);
-    
+
     /// subscriptor for read access
     r_Range operator[](r_Dimension) const;
     /// subscriptor for write access
     r_Range &operator[](r_Dimension);
-    
+
     /// subscriptor for read access with bound-checking
     r_Range at(r_Dimension) const;
     /// subscriptor for write access with bound-checking
@@ -105,10 +105,10 @@ public:
 
     /// non equal operator - negation of equal operator
     bool operator!=(const r_Point &) const;
-    bool operator < (const r_Point &) const;
-    bool operator > (const r_Point &) const;
-    bool operator <= (const r_Point &) const;
-    bool operator >= (const r_Point &) const;
+    bool operator<(const r_Point &) const;
+    bool operator>(const r_Point &) const;
+    bool operator<=(const r_Point &) const;
+    bool operator>=(const r_Point &) const;
 
     /// vector addition
     r_Point operator+(const r_Point &) const;
@@ -148,7 +148,7 @@ public:
 
 private:
     void checkDimensionMatch(const r_Point &pt) const;
-    
+
     /// array holding the point coordinates
     std::vector<r_Range> points;
     size_t streamIndex{};

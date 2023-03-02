@@ -31,7 +31,7 @@ rasdaman GmbH.
 /**
   * \ingroup raslib
   */
-class r_Complex_Type :  public r_Primitive_Type
+class r_Complex_Type : public r_Primitive_Type
 {
 public:
     r_Complex_Type();
@@ -57,7 +57,7 @@ public:
 
     virtual void convertToLittleEndian(char *cells, r_Area noCells) const;
     virtual void convertToBigEndian(char *cells, r_Area noCells) const;
-    
+
     virtual bool isComplexType() const;
 
 private:
@@ -65,7 +65,7 @@ private:
     void swapEndianessDouble(char *cells, r_Area noCells) const;
     template <typename T>
     void swapEndianessLong(char *cells, r_Area noCells) const;
-    
+
     r_Bytes imOff{};
 };
 

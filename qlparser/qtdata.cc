@@ -24,7 +24,6 @@ rasdaman GmbH.
 #include "qlparser/qtdata.hh"
 #include <logging.hh>
 
-
 QtData::QtData()
     : NullValuesHandler(),
       parseInfo(NULL),
@@ -33,8 +32,6 @@ QtData::QtData()
 {
     LTRACE << "QtData::QtData() Obj: " << this;
 }
-
-
 
 QtData::QtData(const std::string name)
     : NullValuesHandler(),
@@ -45,8 +42,6 @@ QtData::QtData(const std::string name)
 {
     LTRACE << "QtData::QtData( const std::string ) Obj: " << this;
 }
-
-
 
 QtData::QtData(const QtData &obj)
     : NullValuesHandler(),
@@ -63,8 +58,6 @@ QtData::QtData(const QtData &obj)
     }
 }
 
-
-
 QtData::~QtData()
 {
     LTRACE << "QtData::~QtData() Obj: " << this;
@@ -76,16 +69,11 @@ QtData::~QtData()
     }
 }
 
-
-
-bool
-QtData::isScalarData() const
+bool QtData::isScalarData() const
 {
     // default implementation returns false
     return false;
 }
-
-
 
 const QtData &
 QtData::operator=(const QtData &obj)
@@ -94,8 +82,8 @@ QtData::operator=(const QtData &obj)
 
     if (this != &obj)
     {
-        iteratorName     = obj.iteratorName;
-        persistent       = obj.persistent;
+        iteratorName = obj.iteratorName;
+        persistent = obj.persistent;
         referenceCounter = 1;
 
         if (parseInfo)
@@ -113,10 +101,7 @@ QtData::operator=(const QtData &obj)
     return *this;
 }
 
-
-
-void
-QtData::printStatus(std::ostream &stream) const
+void QtData::printStatus(std::ostream &stream) const
 {
     if (iteratorName.size())
     {
@@ -124,5 +109,5 @@ QtData::printStatus(std::ostream &stream) const
     }
 
     stream << ", ref#: " << referenceCounter
-           << (persistent == QT_TRANSIENT ? " trans " : " pers ")  << std::flush;
+           << (persistent == QT_TRANSIENT ? " trans " : " pers ") << std::flush;
 }

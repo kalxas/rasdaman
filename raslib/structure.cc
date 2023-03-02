@@ -49,7 +49,7 @@ r_Structure::r_Structure(const char *newBuffer, const r_Structure_Type *newType)
     if (newType)
     {
         numElements = newType->count_elements();
-        elements = new r_Scalar*[numElements];
+        elements = new r_Scalar *[numElements];
 
         valueBuffer = static_cast<char *>(mymalloc(newType->size()));
 
@@ -80,7 +80,7 @@ r_Structure::r_Structure(const r_Structure &obj)
 {
     if (numElements)
     {
-        elements = new r_Scalar*[numElements];
+        elements = new r_Scalar *[numElements];
         for (unsigned int i = 0; i < numElements; i++)
             elements[i] = obj.elements[i]->clone();
     }
@@ -134,7 +134,7 @@ r_Structure::operator=(const r_Structure &obj)
         if (obj.numElements)
         {
             numElements = obj.numElements;
-            elements = new r_Scalar*[numElements];
+            elements = new r_Scalar *[numElements];
             for (unsigned int i = 0; i < numElements; i++)
                 elements[i] = obj.elements[i]->clone();
         }
@@ -176,8 +176,7 @@ r_Structure::get_buffer() const
     return valueBuffer;
 }
 
-bool
-r_Structure::isStructure() const
+bool r_Structure::isStructure() const
 {
     return true;
 }
@@ -217,8 +216,7 @@ r_Structure::operator[](const char *name) const
     throw r_Error(r_Error::r_Error_NameInvalid);
 }
 
-void
-r_Structure::print_status(std::ostream &s) const
+void r_Structure::print_status(std::ostream &s) const
 {
     if (valueType)
     {
@@ -242,4 +240,3 @@ std::ostream &operator<<(std::ostream &s, const r_Structure &obj)
     obj.print_status(s);
     return s;
 }
-

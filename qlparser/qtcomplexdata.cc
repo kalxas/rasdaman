@@ -41,12 +41,10 @@ QtComplexData::QtComplexData()
 {
 }
 
-
-
 QtComplexData::QtComplexData(QtComplexData::QtScalarDataList *&scalarDataList)
     : QtScalarData()
 {
-    unsigned int                  i = 0;
+    unsigned int i = 0;
     std::list<QtScalarData *>::iterator iter;
 
     // Take care of dynamic memory management:
@@ -67,8 +65,8 @@ QtComplexData::QtComplexData(QtComplexData::QtScalarDataList *&scalarDataList)
     // add type to typeFactory
     TypeFactory::addTempType(structType);
 
-    valueBuffer = new char[ structType->getSize() ];
-    valueType   = structType;
+    valueBuffer = new char[structType->getSize()];
+    valueType = structType;
 
     // copy data
     for (iter = scalarDataList->begin(), i = 0; iter != scalarDataList->end(); iter++, i++)
@@ -88,17 +86,12 @@ QtComplexData::QtComplexData(QtComplexData::QtScalarDataList *&scalarDataList)
     scalarDataList = NULL;
 }
 
-
-
 QtComplexData::QtComplexData(const QtComplexData &obj)
     : QtScalarData(obj)
 {
 }
 
-
-
-void
-QtComplexData::printStatus(std::ostream &stream) const
+void QtComplexData::printStatus(std::ostream &stream) const
 {
     stream << "complex, " << std::flush;
     QtScalarData::printStatus(stream);

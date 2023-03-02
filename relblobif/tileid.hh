@@ -22,7 +22,6 @@ rasdaman GmbH.
 */
 #pragma once
 
-
 class DBTile;
 class BLOBTile;
 class InlineTile;
@@ -33,4 +32,3 @@ class DBRef;
 using BLOBTileId = DBRef<BLOBTile>;
 using InlineTileId = DBRef<InlineTile>;
 using DBTileId = DBRef<DBTile>;
-

@@ -23,46 +23,46 @@ rasdaman GmbH.
 // This is -*- C++ -*-
 
 #include "relcatalogif/typefactory.hh"
-#include "raslib/error.hh"                         // for r_Error
-#include "raslib/odmgtypes.hh"                     // for BOOLTYPE, CHAR, COMP...
+#include "raslib/error.hh"      // for r_Error
+#include "raslib/odmgtypes.hh"  // for BOOLTYPE, CHAR, COMP...
 #include "raslib/structuretype.hh"
 #include "raslib/type.hh"
-#include "reladminif/dbobject.hh"                  // for DBObjectId, DBObject
-#include "reladminif/dbref.hh"                     // for DBRef
-#include "reladminif/lists.h"                      // for OIdSet
-#include "reladminif/objectbroker.hh"              // for ObjectBroker
-#include "reladminif/oidif.hh"                     // for OId, operator<<, OId...
-#include "reladminif/dbobjectiterator.hh"          // for DBObjectIterator
-#include "relmddif/dbmddobj.hh"                    // for DBMDDObj
-#include "relmddif/dbmddset.hh"                    // for DBMDDSet
-#include "relmddif/mddid.hh"                       // for DBMDDObjId, DBMDDSetId
-#include "relcatalogif/syntaxtypes.hh"             // for BOOL_NAME, CHAR_NAME
-#include "relcatalogif/basetype.hh"                // for BaseType
-#include "relcatalogif/booltype.hh"                // for BoolType
-#include "relcatalogif/chartype.hh"                // for CharType
-#include "relcatalogif/collectiontype.hh"          // for CollectionType
-#include "relcatalogif/complextype.hh"             // for ComplexType1, Comple...
-#include "relcatalogif/dbnullvalues.hh"            // for DBNullvalues
-#include "relcatalogif/doubletype.hh"              // for DoubleType
-#include "relcatalogif/floattype.hh"               // for FloatType
-#include "relcatalogif/longtype.hh"                // for LongType
-#include "relcatalogif/mddbasetype.hh"             // for MDDBaseType
-#include "relcatalogif/mdddimensiontype.hh"        // for MDDDimensionType
-#include "relcatalogif/mdddomaintype.hh"           // for MDDDomainType
-#include "relcatalogif/mddtype.hh"                 // for MDDType, MDDType::MD...
-#include "relcatalogif/octettype.hh"               // for OctetType
-#include "relcatalogif/settype.hh"                 // for SetType
-#include "relcatalogif/shorttype.hh"               // for ShortType
-#include "relcatalogif/structtype.hh"              // for StructType
-#include "relcatalogif/type.hh"                    // for Type
-#include "relcatalogif/ulongtype.hh"               // for ULongType
-#include "relcatalogif/ushorttype.hh"              // for UShortType
-#include <common/string/stringutil.hh>             // for starts_with
-#include <logging.hh>                              // for Writer, CTRACE, LTRACE
+#include "reladminif/dbobject.hh"            // for DBObjectId, DBObject
+#include "reladminif/dbref.hh"               // for DBRef
+#include "reladminif/lists.h"                // for OIdSet
+#include "reladminif/objectbroker.hh"        // for ObjectBroker
+#include "reladminif/oidif.hh"               // for OId, operator<<, OId...
+#include "reladminif/dbobjectiterator.hh"    // for DBObjectIterator
+#include "relmddif/dbmddobj.hh"              // for DBMDDObj
+#include "relmddif/dbmddset.hh"              // for DBMDDSet
+#include "relmddif/mddid.hh"                 // for DBMDDObjId, DBMDDSetId
+#include "relcatalogif/syntaxtypes.hh"       // for BOOL_NAME, CHAR_NAME
+#include "relcatalogif/basetype.hh"          // for BaseType
+#include "relcatalogif/booltype.hh"          // for BoolType
+#include "relcatalogif/chartype.hh"          // for CharType
+#include "relcatalogif/collectiontype.hh"    // for CollectionType
+#include "relcatalogif/complextype.hh"       // for ComplexType1, Comple...
+#include "relcatalogif/dbnullvalues.hh"      // for DBNullvalues
+#include "relcatalogif/doubletype.hh"        // for DoubleType
+#include "relcatalogif/floattype.hh"         // for FloatType
+#include "relcatalogif/longtype.hh"          // for LongType
+#include "relcatalogif/mddbasetype.hh"       // for MDDBaseType
+#include "relcatalogif/mdddimensiontype.hh"  // for MDDDimensionType
+#include "relcatalogif/mdddomaintype.hh"     // for MDDDomainType
+#include "relcatalogif/mddtype.hh"           // for MDDType, MDDType::MD...
+#include "relcatalogif/octettype.hh"         // for OctetType
+#include "relcatalogif/settype.hh"           // for SetType
+#include "relcatalogif/shorttype.hh"         // for ShortType
+#include "relcatalogif/structtype.hh"        // for StructType
+#include "relcatalogif/type.hh"              // for Type
+#include "relcatalogif/ulongtype.hh"         // for ULongType
+#include "relcatalogif/ushorttype.hh"        // for UShortType
+#include <common/string/stringutil.hh>       // for starts_with
+#include <logging.hh>                        // for Writer, CTRACE, LTRACE
 
-#include <unordered_map>                           // for map, _Rb_tree_const_...
-#include <utility>                                 // for pair, make_pair
-#include <vector>                                  // for vector, vector<>::it...
+#include <unordered_map>  // for map, _Rb_tree_const_...
+#include <utility>        // for pair, make_pair
+#include <vector>         // for vector, vector<>::it...
 
 using namespace std;
 
@@ -99,8 +99,7 @@ string TypeFactory::getInternalTypeFromSyntaxType(const std::string &syntaxTypeN
         {SyntaxType::COMPLEXTYPE1, ComplexType1::Name},
         {SyntaxType::COMPLEXTYPE2, ComplexType2::Name},
         {SyntaxType::CINT16, CInt16::Name},
-        {SyntaxType::CINT32, CInt32::Name}
-    };
+        {SyntaxType::CINT32, CInt32::Name}};
     string result = syntaxTypeName;
     auto it = m.find(syntaxTypeName);
     if (it != m.end())
@@ -125,8 +124,7 @@ string TypeFactory::getSyntaxTypeFromInternalType(const std::string &internalTyp
         {ComplexType1::Name, SyntaxType::COMPLEXTYPE1},
         {ComplexType2::Name, SyntaxType::COMPLEXTYPE2},
         {CInt16::Name, SyntaxType::CINT16},
-        {CInt32::Name, SyntaxType::CINT32}
-    };
+        {CInt32::Name, SyntaxType::CINT32}};
     string result = internalTypeName;
     auto it = m.find(internalTypeName);
     if (it != m.end())
@@ -142,13 +140,13 @@ const BaseType *TypeFactory::mapType(const char *typeName)
 {
     BaseType *resultType = nullptr;
     resultType = static_cast<BaseType *>(
-                     ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, typeName));
+        ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, typeName));
     if (resultType == nullptr)
     {
         try
         {
             resultType = static_cast<BaseType *>(
-                             ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, typeName));
+                ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, typeName));
         }
         catch (const r_Error &)
         {
@@ -184,7 +182,7 @@ const BaseType *TypeFactory::addStructType(const BaseType *type)
             for (unsigned int i = 0; i < stype->getNumElems(); i++)
             {
                 LTRACE << "adding element " << stype->getElemName(i)
-                        << " of type " << stype->getElemType(i)->getName();
+                       << " of type " << stype->getElemType(i)->getName();
 
                 auto elemType = stype->getElemType(i)->getType();
                 if (elemType <= NUMERICAL_TYPES_END)
@@ -192,11 +190,12 @@ const BaseType *TypeFactory::addStructType(const BaseType *type)
                     persistentType->addElement(
                         stype->getElemName(i),
                         static_cast<BaseType *>(ObjectBroker::getObjectByOId(
-                                                    stype->getElemType(i)->getOId())));
+                            stype->getElemType(i)->getOId())));
                 }
                 else if (elemType == STRUCT)
                 {
-                    delete persistentType; persistentType = nullptr;
+                    delete persistentType;
+                    persistentType = nullptr;
                     LERROR << "element is struct type " << stype->getElemName(i)
                            << " of type " << stype->getElemType(i)->getName()
                            << "; building a struct using a user-defined struct is currently not supported.";
@@ -204,7 +203,8 @@ const BaseType *TypeFactory::addStructType(const BaseType *type)
                 }
                 else
                 {
-                    delete persistentType; persistentType = nullptr;
+                    delete persistentType;
+                    persistentType = nullptr;
                     LERROR << "unknown band type " << elemType;
                     throw r_Error(r_Error::r_Error_General);
                 }
@@ -212,7 +212,8 @@ const BaseType *TypeFactory::addStructType(const BaseType *type)
         }
         else
         {
-            delete persistentType; persistentType = nullptr;
+            delete persistentType;
+            persistentType = nullptr;
             LERROR << "unknown type " << type->getType();
             throw r_Error(r_Error::r_Error_General);
         }
@@ -232,7 +233,7 @@ const SetType *TypeFactory::mapSetType(const char *typeName)
     try
     {
         resultType = static_cast<SetType *>(
-                         ObjectBroker::getObjectByName(OId::SETTYPEOID, typeName));
+            ObjectBroker::getObjectByName(OId::SETTYPEOID, typeName));
     }
     catch (const r_Error &)
     {
@@ -732,7 +733,7 @@ const Type *TypeFactory::fromRaslibType(const r_Type *type)
     }
     else if (type->isStructType())
     {
-        const r_Structure_Type *structType = (const r_Structure_Type *) type;
+        const r_Structure_Type *structType = (const r_Structure_Type *)type;
         std::vector<const Type *> attributeTypes(structType->count_elements());
         for (size_t i = 0; i < structType->count_elements(); ++i)
         {
@@ -741,7 +742,7 @@ const Type *TypeFactory::fromRaslibType(const r_Type *type)
         StructType *resultType = new StructType("tmp", structType->count_elements());
         for (size_t i = 0; i < structType->count_elements(); ++i)
         {
-            resultType->addElement((*structType)[i].name(), (const BaseType *) attributeTypes[i]);
+            resultType->addElement((*structType)[i].name(), (const BaseType *)attributeTypes[i]);
         }
         return TypeFactory::addTempType(resultType);
     }
@@ -751,4 +752,3 @@ const Type *TypeFactory::fromRaslibType(const r_Type *type)
         throw r_Error(r_Error::r_Error_General);
     }
 }
-

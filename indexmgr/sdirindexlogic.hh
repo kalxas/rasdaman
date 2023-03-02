@@ -70,7 +70,6 @@ class IndexDS;
 class SDirIndexLogic
 {
 public:
-
     static bool insertObject(IndexDS *theIx, const KeyObject &newObject, const StorageLayout &sl);
     /*@Doc:
         Inserts a new object in the index.
@@ -111,7 +110,6 @@ public:
     */
 
 private:
-    
     enum OrderPoint
     {
         Highest = 1,

@@ -259,7 +259,6 @@ public:
     static std::string getSyntaxTypeFromInternalType(const std::string &internalTypeName);
 
 private:
-
     static std::list<Type *> theTempTypes;
     /*@Doc:
     a vector containing pointers to temporary allocated types.

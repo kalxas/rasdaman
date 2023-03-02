@@ -31,16 +31,14 @@ rasdaman GmbH.
 const QtNode::QtNodeType QtOperation::nodeType = QtNode::QT_OPERATION;
 
 QtOperation::QtOperation()
-    :  QtNode()
+    : QtNode()
 {
 }
-
 
 QtOperation::QtOperation(QtNode *node)
-    :  QtNode(node)
+    : QtNode(node)
 {
 }
-
 
 QtOperation *
 QtOperation::getUniqueOrder(const QtNode::QtNodeType)
@@ -50,7 +48,6 @@ QtOperation::getUniqueOrder(const QtNode::QtNodeType)
     return this;
 }
 
-
 QtData *
 QtOperation::evaluate(QtDataList * /*inputList*/)
 {
@@ -58,9 +55,7 @@ QtOperation::evaluate(QtDataList * /*inputList*/)
     return NULL;
 }
 
-
-void
-QtOperation::optimizeLoad(QtTrimList *trimList)
+void QtOperation::optimizeLoad(QtTrimList *trimList)
 {
     if (trimList)
     {
@@ -77,8 +72,6 @@ QtOperation::optimizeLoad(QtTrimList *trimList)
     LERROR << "Error: Method optimizeLoad(...) is undefined for a QtOperation node in the query tree.";
 }
 
-
-
 const QtTypeElement &
 QtOperation::checkType(__attribute__((unused)) QtTypeTuple *typeTuple)
 {
@@ -87,9 +80,7 @@ QtOperation::checkType(__attribute__((unused)) QtTypeTuple *typeTuple)
     return dataStreamType;
 }
 
-
-void
-QtOperation::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtOperation::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtOperation Object: type " << std::flush;
     dataStreamType.printStatus(s);
@@ -99,13 +90,9 @@ QtOperation::printTree(int tab, std::ostream &s, QtChildType mode)
     {
         s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no operation" << std::endl;
     }
-
 }
 
-
-
-void
-QtOperation::printAlgebraicExpression(std::ostream &s)
+void QtOperation::printAlgebraicExpression(std::ostream &s)
 {
     s << "op<";
 

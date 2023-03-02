@@ -27,7 +27,6 @@ rasdaman GmbH.
 #include "qlparser/qtiterator.hh"
 #include "qlparser/qtoperation.hh"
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -97,5 +96,3 @@ private:
 #include "qlparser/qtselectioniterator.icc"
 
 #endif
-
-

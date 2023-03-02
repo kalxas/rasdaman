@@ -61,9 +61,8 @@
 namespace rasmgr
 {
 
-RasManager::RasManager(rasmgr::Configuration &config
-                       )
-  : running{false}, port{config.getPort()}
+RasManager::RasManager(rasmgr::Configuration &config)
+    : running{false}, port{config.getPort()}
 {
     RasMgrConfig::getInstance()->setRasMgrPort(std::int32_t(this->port));
 }
@@ -86,7 +85,7 @@ void RasManager::start()
     ServerManagerConfig serverMgrConfig;
     auto serverFactory = std::make_shared<ServerFactory>();
     auto serverGroupFactory = std::make_shared<ServerGroupFactory>(dbhManager, serverFactory);
-    auto serverManager = std::make_shared<ServerManager>(serverMgrConfig,  serverGroupFactory);
+    auto serverManager = std::make_shared<ServerManager>(serverMgrConfig, serverGroupFactory);
     auto peerManager = std::make_shared<PeerManager>();
 
     ClientManagerConfig clientManagerConfig;
@@ -108,7 +107,7 @@ void RasManager::start()
     //The health service will only be used to report on the health of the server
     auto healthService = std::make_shared<common::HealthServiceImpl>();
 
-    auto serverAddress = common::GrpcUtils::constructAddressString(ALL_IP_ADDRESSES,  this->port);
+    auto serverAddress = common::GrpcUtils::constructAddressString(ALL_IP_ADDRESSES, this->port);
 
     // Listen on the given address without any authentication mechanism.
     grpc::ServerBuilder builder;
@@ -130,7 +129,7 @@ void RasManager::start()
     {
         throw common::Exception("Failed to start rasmanager on port " + std::to_string(this->port) + ".");
     }
-    
+
     // Wait for the server to shutdown. Note that some other thread must be
     // responsible for shutting down the server for this call to ever return.
     server->Wait();
@@ -156,4 +155,4 @@ void RasManager::setIsConfigurationDirty(bool isDirty)
 {
     this->configManager->setIsDirty(isDirty);
 }
-}
+}  // namespace rasmgr

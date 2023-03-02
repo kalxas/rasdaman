@@ -55,29 +55,28 @@ class r_Conv_GDAL : public r_Convert_Memory
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_GDAL(const char* src, const r_Minterval& interv, const r_Type* tp);
+    r_Conv_GDAL(const char *src, const r_Minterval &interv, const r_Type *tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_GDAL(const char* src, const r_Minterval& interv, int tp);
+    r_Conv_GDAL(const char *src, const r_Minterval &interv, int tp);
     /// destructor
     ~r_Conv_GDAL(void) override;
 
     /// convert to format
-    r_Conv_Desc& convertTo(const char* options = NULL,
-                           const r_Range* nullValue = NULL) override;
+    r_Conv_Desc &convertTo(const char *options = NULL,
+                           const r_Range *nullValue = NULL) override;
     /// convert from format
-    r_Conv_Desc& convertFrom(const char* options = NULL) override;
+    r_Conv_Desc &convertFrom(const char *options = NULL) override;
 
-    r_Conv_Desc& convertFrom(r_Format_Params options) override;
+    r_Conv_Desc &convertFrom(r_Format_Params options) override;
 
     /// cloning
-    r_Convertor* clone(void) const override;
+    r_Convertor *clone(void) const override;
 
     /// identification
-    const char* get_name(void) const override;
+    const char *get_name(void) const override;
     r_Data_Format get_data_format(void) const override;
 
 private:
-
 #ifdef HAVE_GDAL
 
     /**
@@ -91,7 +90,7 @@ private:
      * @param numBands number of bands
      * @param rasBandType rasdaman band type
      */
-    void encodeImage(GDALDataType gdalBandType, r_Primitive_Type* rasBandType,
+    void encodeImage(GDALDataType gdalBandType, r_Primitive_Type *rasBandType,
                      unsigned int width, unsigned int height, unsigned int numBands);
 
     /**
@@ -104,7 +103,7 @@ private:
      * @param height image height
      * @param numBands number of bands
      */
-    template<typename T>
+    template <typename T>
     void encodeImage(GDALDataType gdalBandType, bool isBoolean,
                      unsigned int width, unsigned int height, unsigned int numBands, bool isComplex);
 
@@ -117,7 +116,7 @@ private:
     /**
      * Transforms the file read with GDAL to an internal rasdaman array.
      */
-    char* decodeImage();
+    char *decodeImage();
 
     /**
      * Copy and transform a single band data read with GDAL to an internal rasdaman array.
@@ -131,7 +130,7 @@ private:
      * @param gdalBandType GDAL band type
      * @param signedByte optional argument indicating if GDT_Byte is to be interpreted as a signed char
      */
-    void decodeBand(const char* bandCells, char* tileCells, size_t tileBaseTypeSize,
+    void decodeBand(const char *bandCells, char *tileCells, size_t tileBaseTypeSize,
                     int width, int height, GDALDataType gdalBandType, bool signedByte = false);
 
     /**
@@ -144,8 +143,8 @@ private:
      * @param N image width; it is int as this is the type that GDAL returns
      * @param M image height; it is int as this is the type that GDAL returns
      */
-    template<typename T>
-    void transposeBand(const char* __restrict__ srcIn, char* __restrict__ dstIn,
+    template <typename T>
+    void transposeBand(const char *__restrict__ srcIn, char *__restrict__ dstIn,
                        size_t tileBaseTypeSize, size_t N, size_t M);
 
     /**
@@ -161,14 +160,14 @@ private:
      * @return the base type of a single band (equals to baseType in case it is
      * a primitive type).
      */
-    r_Primitive_Type* getBandType(const r_Type* baseType);
+    r_Primitive_Type *getBandType(const r_Type *baseType);
 
     /**
      * @param buffer the current buffer
      * @param bufferSize the current buffer size in bytes, updated if the buffer is changed.
      * @return a potentially bigger buffer if bufferSize is greater than the previousBufferSize.
      */
-    char* upsizeBufferIfNeeded(char* buffer, size_t& bufferSize, size_t newBufferSize);
+    char *upsizeBufferIfNeeded(char *buffer, size_t &bufferSize, size_t newBufferSize);
 
     /**
      * Set the result array domain from decode (desc.destInterv).
@@ -180,7 +179,7 @@ private:
      *
      * @param params JSON or old-style key/value pairs
      */
-    void initEncodeParams(const std::string& params);
+    void initEncodeParams(const std::string &params);
 
     /**
      * Transfer format parameters (third parameter of the encode function) to the
@@ -193,7 +192,7 @@ private:
     void setNodata();
     void setGeoreference();
     void setGeotransform();
-    void setGCPs(const Json::Value& gcpsJson);
+    void setGCPs(const Json::Value &gcpsJson);
     void setColorPalette();
 
     /**
@@ -206,14 +205,14 @@ private:
      * @param paletteInterpVal one of Gray, RGB, CMYK, HSL.
      * @return the corresponding GDAL enum
      */
-    GDALPaletteInterp getPaletteInterp(const std::string& paletteInterpVal);
+    GDALPaletteInterp getPaletteInterp(const std::string &paletteInterpVal);
 
     /**
      * @param stringList this parameter is populated with a list of key/value
      * format parameters.
      */
-    void getFormatParameters(CPLStringList& stringList, r_Primitive_Type* rasBandType);
-    
+    void getFormatParameters(CPLStringList &stringList, r_Primitive_Type *rasBandType);
+
     /**
      * @param stringList this parameter is populated with a list of key/value
      * open options from the format parameters.
@@ -227,7 +226,7 @@ private:
      * @param paramsList a list of key/value parameter pairs
      * @return the value of paramName as a double, a DBL_MAX otherwise.
      */
-    double getDouble(const std::string& paramName, const CPLStringList& paramsList);
+    double getDouble(const std::string &paramName, const CPLStringList &paramsList);
 
     /**
      * Convert the value of a given parameter to string.
@@ -236,16 +235,16 @@ private:
      * @param paramsList a list of key/value parameter pairs
      * @return the value of paramName as a string, an empty string otherwise.
      */
-    std::string getString(const std::string& paramName, const CPLStringList& paramsList);
+    std::string getString(const std::string &paramName, const CPLStringList &paramsList);
 
     /**
      * Set GDAL configuration parameters from any formatParameters key/values.
      */
     void setConfigOptions();
 
-    GDALDataset* poDataset{NULL};
+    GDALDataset *poDataset{NULL};
 
-#endif // HAVE_GDAL
+#endif  // HAVE_GDAL
 
     static const std::string GDAL_KEY_METADATA;
     static const std::string GDAL_KEY_NODATA_VALUES;

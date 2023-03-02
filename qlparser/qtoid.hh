@@ -25,10 +25,8 @@ rasdaman GmbH.
 
 #include "qlparser/qtunaryoperation.hh"
 
-
 // forward declarations
 class QtVariable;
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -67,4 +65,3 @@ private:
 #include "qlparser/qtoid.icc"
 
 #endif
-

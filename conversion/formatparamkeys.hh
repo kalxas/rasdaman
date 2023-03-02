@@ -21,7 +21,6 @@ rasdaman GmbH.
  * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
 #ifndef _FORMATPARAMKEYS_HH_
 #define _FORMATPARAMKEYS_HH_
 
@@ -39,7 +38,7 @@ static const std::string FORMAT_PARAMETERS{"formatParameters"};
 static const std::string CONFIG_OPTIONS{"configOptions"};
 static const std::string OPEN_OPTIONS{"openOptions"};
 static const std::string CONFIG_OPTIONS_LEGACY{"config"};
-}
+}  // namespace General
 
 namespace Encode
 {
@@ -57,7 +56,7 @@ namespace ColorMap
 {
 static const std::string TYPE{"type"};
 static const std::string COLORTABLE{"colorTable"};
-}
+}  // namespace ColorMap
 
 namespace NetCDF
 {
@@ -65,7 +64,7 @@ static const std::string DIMENSIONS{"dimensions"};
 static const std::string NAME{"name"};
 static const std::string DATA{"data"};
 static const std::string TYPE{"type"};
-}
+}  // namespace NetCDF
 
 namespace CSV
 {
@@ -82,7 +81,7 @@ static const std::string COMPONENT_SEPARATOR{"componentSeparator"};
 static const std::string STRUCT_VALUE_START{"structValueStart"};
 static const std::string STRUCT_VALUE_END{"structValueEnd"};
 static const std::string OUTER_DELIMITERS{"outerDelimiters"};
-}
+}  // namespace CSV
 
 namespace GDAL
 {
@@ -103,9 +102,9 @@ static const std::string PALETTE_INTERP_VAL_CMYK{"CMYK"};
 static const std::string PALETTE_INTERP_VAL_HLS{"HLS"};
 static const std::string COLOR_TABLE{"colorTable"};
 static const std::string COLOR_INTERP{"colorInterp"};
-}
+}  // namespace GDAL
 
-}
+}  // namespace Encode
 
 namespace Decode
 {
@@ -118,16 +117,16 @@ namespace Grib
 static const std::string MESSAGE_DOMAINS{"messageDomains"};
 static const std::string MESSAGE_ID{"msgId"};
 static const std::string MESSAGE_DOMAIN{"domain"};
-}
+}  // namespace Grib
 
 namespace CSV
 {
 static const std::string DATA_DOMAIN{"domain"};
 static const std::string BASETYPE{"basetype"};
-}
+}  // namespace CSV
 
-}
+}  // namespace Decode
 
-}
+}  // namespace FormatParamKeys
 
 #endif

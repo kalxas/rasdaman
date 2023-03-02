@@ -42,12 +42,12 @@ public:
     r_String() = default;
     /// constructs a string from the string representation
     explicit r_String(const char *v);
-    
+
     ~r_String() = default;
 
     /// debug output
     void print_status(std::ostream &s) const;
-    
+
     const std::string get_value() const;
 
 private:

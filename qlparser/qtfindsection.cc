@@ -25,7 +25,7 @@ rasdaman GmbH.
 
 using std::vector;
 
-FindSection::FindSection(const vector< std::pair< r_PointDouble, double >> &linEqnArg, const vector<r_Dimension> &keptDimsArg)
+FindSection::FindSection(const vector<std::pair<r_PointDouble, double>> &linEqnArg, const vector<r_Dimension> &keptDimsArg)
     : keptDims(keptDimsArg)
 {
     //target type       std::pair< vector< vector<double> >, vector<double> >
@@ -34,7 +34,7 @@ FindSection::FindSection(const vector< std::pair< r_PointDouble, double >> &linE
     linEqn.second.reserve(linEqnArg.size());
     //initialization tool for a vector of vectors
     std::vector<double> emptyVector;
-    for (size_t i = 0; i < linEqnArg.size(); i++) //iterate over the rows
+    for (size_t i = 0; i < linEqnArg.size(); i++)  //iterate over the rows
     {
         //add a row
         linEqn.second.emplace_back(linEqnArg[i].second);
@@ -49,8 +49,7 @@ FindSection::FindSection(const vector< std::pair< r_PointDouble, double >> &linE
     }
 }
 
-void
-FindSection::prepareSection()
+void FindSection::prepareSection()
 {
     //determine the lost dimensions, for simplifying loops later
     size_t keptDimPos = 0;
@@ -73,8 +72,7 @@ FindSection::prepareSection()
     //and upper right triangular matrices.
     factorAI();
 }
-void
-FindSection::decomposeAIJ()
+void FindSection::decomposeAIJ()
 {
     //#rows = codimension = lostDims.size()
     matAJ.reserve(lostDims.size());
@@ -90,10 +88,10 @@ FindSection::decomposeAIJ()
         matAI[i].reserve(lostDims.size());
     }
 
-    for (size_t j = 0; j < linEqn.first.size(); j++) //iterate over rows
+    for (size_t j = 0; j < linEqn.first.size(); j++)  //iterate over rows
     {
         size_t keptDimPos = 0;
-        for (size_t i = 0; i < linEqn.first[j].size(); i++) //iterate over columns
+        for (size_t i = 0; i < linEqn.first[j].size(); i++)  //iterate over columns
         {
             if (i == keptDims[keptDimPos])
             {
@@ -108,8 +106,7 @@ FindSection::decomposeAIJ()
     }
 }
 
-void
-FindSection::factorAI()
+void FindSection::factorAI()
 {
     //allocate and initialize L and U
     L.reserve(lostDims.size());
@@ -230,7 +227,7 @@ FindSection::solveLU(const r_Point &arg)
     r_Dimension preresultIndex = 0;
     for (size_t i = 0; i < linEqn.first[0].size(); i++)
     {
-        if (keptDims[keptDimPos] != i) //this optimization assumes codimension < overall dimension
+        if (keptDims[keptDimPos] != i)  //this optimization assumes codimension < overall dimension
         {
             result[i] = preresult[preresultIndex];
             preresultIndex++;

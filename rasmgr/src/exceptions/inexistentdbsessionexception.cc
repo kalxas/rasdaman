@@ -26,13 +26,16 @@ namespace rasmgr
 {
 
 InexistentDbSessionException::InexistentDbSessionException(std::uint32_t dbSession)
-  : common::MissingResourceException("The database session " + std::to_string(dbSession) + " does not exist.")
-{}
+    : common::MissingResourceException("The database session " + std::to_string(dbSession) + " does not exist.")
+{
+}
 
 InexistentDbSessionException::InexistentDbSessionException(std::uint32_t dbSession, const std::string &details)
-  : common::MissingResourceException("The database session " + std::to_string(dbSession) + " does not exist: " + details)
-{}
+    : common::MissingResourceException("The database session " + std::to_string(dbSession) + " does not exist: " + details)
+{
+}
 
 InexistentDbSessionException::~InexistentDbSessionException() noexcept
-{}
+{
 }
+}  // namespace rasmgr

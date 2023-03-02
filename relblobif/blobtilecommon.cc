@@ -35,21 +35,22 @@ rasdaman GmbH.
  *  has common code for all database interface implementations
  */
 
-#include "blobtile.hh"               // for BLOBTile
-#include "dbtile.hh"                 // for DBTile
-#include "reladminif/oidif.hh"       // for OId, OId::BLOBOID, operator<<
+#include "blobtile.hh"          // for BLOBTile
+#include "dbtile.hh"            // for DBTile
+#include "reladminif/oidif.hh"  // for OId, OId::BLOBOID, operator<<
 #include "reladminif/sqlerror.hh"
-#include "reladminif/objectbroker.hh"// for ObjectBroker
-#include "raslib/mddtypes.hh"    // for r_Data_Format, r_Bytes, r_Array
+#include "reladminif/objectbroker.hh"  // for ObjectBroker
+#include "raslib/mddtypes.hh"          // for r_Data_Format, r_Bytes, r_Array
 #include "mymalloc/mymalloc.h"
 #include <logging.hh>
 
-#include <stdlib.h>                  // for malloc
-#include <cstring>                   // for memset
+#include <stdlib.h>  // for malloc
+#include <cstring>   // for memset
 
 const long long BLOBTile::NO_TILE_FOUND;
 
-BLOBTile::BLOBTile(r_Data_Format dataformat) : DBTile(dataformat)
+BLOBTile::BLOBTile(r_Data_Format dataformat)
+    : DBTile(dataformat)
 {
     LTRACE << "BLOBTile(" << dataformat << ")";
     objecttype = OId::BLOBOID;
@@ -123,7 +124,8 @@ BLOBTile::BLOBTile(r_Bytes newSize, const char *newCells,
     ObjectBroker::registerDBObject(this);
 }
 
-BLOBTile::BLOBTile(const OId &id) : DBTile(id)
+BLOBTile::BLOBTile(const OId &id)
+    : DBTile(id)
 {
     readFromDb();
 }
@@ -142,7 +144,7 @@ BLOBTile::BLOBTile(const OId &id, r_Bytes newSize, r_Data_Format newFmt)
     cells = static_cast<char *>(mymalloc(size * sizeof(char)));
 
     // memset seems unnecessary here
-//    memset(cells, 0, size);
+    //    memset(cells, 0, size);
 
     ObjectBroker::registerDBObject(this);
 }
@@ -151,4 +153,3 @@ BLOBTile::~BLOBTile() noexcept(false)
 {
     validate();
 }
-

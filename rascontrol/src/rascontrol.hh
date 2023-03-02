@@ -53,9 +53,9 @@ public:
     void start();
 
 private:
-    RasControlConfig &config; /*!< Reference to the RasControlConfig object used for configuring the behavior of this object*/
+    RasControlConfig &config;               /*!< Reference to the RasControlConfig object used for configuring the behavior of this object*/
     const UserCredentials &userCredentials; /*!< Reference to the user credentials object */
-    EditLine editLine; /*!< Object used to retrieve input from the user */
+    EditLine editLine;                      /*!< Object used to retrieve input from the user */
 
     std::unique_ptr<CommandExecutor> comm; /*!< Executor of user commands */
 
@@ -79,6 +79,6 @@ private:
      */
     void startTestLogin();
 };
-}
+}  // namespace rascontrol
 
-#endif // RASCONTROL_X_SRC_RASCONTROL_HH
+#endif  // RASCONTROL_X_SRC_RASCONTROL_HH

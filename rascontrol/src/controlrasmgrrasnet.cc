@@ -36,12 +36,12 @@
 namespace rascontrol
 {
 
-using common::GrpcUtils;
 using common::ConnectionFailedException;
+using common::GrpcUtils;
 
 using std::runtime_error;
-using std::unique_ptr;
 using std::shared_ptr;
+using std::unique_ptr;
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -51,9 +51,8 @@ using rasnet::service::RasCtrlRequest;
 using rasnet::service::RasCtrlResponse;
 using rasnet::service::RasMgrRasCtrlService;
 
-
-ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials &userCredentials, RasControlConfig &config):
-    userCredentials(userCredentials), config(config)
+ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials &userCredentials, RasControlConfig &config)
+    : userCredentials(userCredentials), config(config)
 {
     try
     {
@@ -71,7 +70,6 @@ ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials &userCredentials,
         throw ConnectionFailedException(ex.what());
     }
 }
-
 
 std::string ControlRasMgrRasnet::processCommand(const std::string &command)
 {

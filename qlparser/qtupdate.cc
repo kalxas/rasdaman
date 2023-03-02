@@ -23,7 +23,6 @@ rasdaman GmbH.
 
 #include "config.h"
 
-
 #include "qtupdate.hh"
 #include "qlparser/qtdata.hh"
 #include "qlparser/qtmdd.hh"
@@ -45,8 +44,6 @@ rasdaman GmbH.
 
 const QtNode::QtNodeType QtUpdate::nodeType = QtNode::QT_UPDATE;
 
-
-
 QtUpdate::QtUpdate(QtOperation *initUpdateTarget, QtOperation *initUpdateDomain, QtOperation *initUpdateSource)
     : QtExecute(), input(NULL),
       updateTarget(initUpdateTarget),
@@ -67,8 +64,6 @@ QtUpdate::QtUpdate(QtOperation *initUpdateTarget, QtOperation *initUpdateDomain,
     }
 }
 
-
-
 QtUpdate::~QtUpdate()
 {
     delete updateTarget;
@@ -76,8 +71,6 @@ QtUpdate::~QtUpdate()
     delete updateSource;
     delete input;
 }
-
-
 
 QtData *
 QtUpdate::evaluate()
@@ -89,7 +82,7 @@ QtUpdate::evaluate()
     {
         try
         {
-            input->open(); // open input stream
+            input->open();  // open input stream
 
             QtNode::QtDataList *nextTuple;
             while ((nextTuple = input->next()))
@@ -106,7 +99,7 @@ QtUpdate::evaluate()
                         (*it)->deleteRef();
                     }
                 delete nextTuple, nextTuple = NULL;
-            } // while
+            }  // while
         }
         catch (...)
         {
@@ -126,9 +119,7 @@ QtUpdate::evaluate()
     return 0;
 }
 
-
-void
-QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
+void QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
 {
     LDEBUG << "Evaluating MDD update...";
 
@@ -214,10 +205,10 @@ QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
     }
     else
     {
-        LINFO  << "  target MDD";
+        LINFO << "  target MDD";
     }
     targetMDD->printStatus(RMInit::logOut);
-    LINFO  << "  source MDD, domain " << sourceMDDDomain;
+    LINFO << "  source MDD, domain " << sourceMDDDomain;
     sourceMDD->printStatus(RMInit::logOut);
 #endif
 
@@ -426,13 +417,12 @@ QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
             }
 
             LDEBUG << "  update domains: target tile " << newPersTile->getDomain()
-                   << " update target at " << updateSourceTileDomain <<
-                   ", source tile " << (*sourceIt)->getDomain()
+                   << " update target at " << updateSourceTileDomain << ", source tile " << (*sourceIt)->getDomain()
                    << " update with data at " << sourceTileDomain;
 
             targetObj->insertTile(newPersTile);
         }
-    }//for is done
+    }  //for is done
 
     for (auto retvalIt = retval.begin(); retvalIt != retval.end(); retvalIt++)
     {
@@ -442,8 +432,7 @@ QtUpdate::evaluateTuple(QtNode::QtDataList *nextTuple)
     targetObj->setDbDomain(targetObj->getCurrentDomain());
 }
 
-bool
-QtUpdate::checkOperands(QtNode::QtDataList *nextTuple, QtData *target, QtData *source)
+bool QtUpdate::checkOperands(QtNode::QtDataList *nextTuple, QtData *target, QtData *source)
 {
     // Test, if the operands are valid.
     if (target && source)
@@ -481,19 +470,15 @@ QtUpdate::checkOperands(QtNode::QtDataList *nextTuple, QtData *target, QtData *s
     return true;
 }
 
-
-void
-QtUpdate::throwError(QtNode::QtDataList *nextTuple, QtData *target, QtData *source, int errorNumber, QtData *domainData)
+void QtUpdate::throwError(QtNode::QtDataList *nextTuple, QtData *target, QtData *source, int errorNumber, QtData *domainData)
 {
     parseInfo.setErrorNo(static_cast<unsigned long>(errorNumber));
     throw parseInfo;
 }
 
-
-void
-QtUpdate::checkDomainCompatibility(QtNode::QtDataList *nextTuple, QtData *target,
-                                   QtData *source, QtData *domainData,
-                                   QtMDD *targetMDD, QtMDD *sourceMDD)
+void QtUpdate::checkDomainCompatibility(QtNode::QtDataList *nextTuple, QtData *target,
+                                        QtData *source, QtData *domainData,
+                                        QtMDD *targetMDD, QtMDD *sourceMDD)
 {
     // In case of update domain existence, test for compatibility.
     if (domainData)
@@ -533,13 +518,12 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList *nextTuple, QtData *target
         unsigned int j = 0;
         for (r_Dimension i = 0; i < domain.dimension(); i++)
         {
-            if ((*trimFlags)[i]) // consider only trims
+            if ((*trimFlags)[i])  // consider only trims
             {
                 if ((domain[i].is_low_fixed() && (!(sourceDomain[j].is_low_fixed()) || domain[i].low() > sourceDomain[j].low())) ||
-                        (domain[i].is_high_fixed() && (!(sourceDomain[j].is_high_fixed()) || domain[i].high() < sourceDomain[j].high())))
+                    (domain[i].is_high_fixed() && (!(sourceDomain[j].is_high_fixed()) || domain[i].high() < sourceDomain[j].high())))
                 {
-                    LERROR << "source domain " <<
-                           sourceDomain << " isn't within the target domain " << domain;
+                    LERROR << "source domain " << sourceDomain << " isn't within the target domain " << domain;
 
                     // delete tuple vector received by next()
                     for (auto dataIter = nextTuple->begin(); dataIter != nextTuple->end(); dataIter++)
@@ -556,15 +540,16 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList *nextTuple, QtData *target
                 ++j;
             }
         }
-
     }
 }
 
-#define GET_CHILDREN(n) \
-    if (n) { \
-        QtNodeList* subList = (n)->getChilds(flag); \
+#define GET_CHILDREN(n)                                    \
+    if (n)                                                 \
+    {                                                      \
+        QtNodeList *subList = (n)->getChilds(flag);        \
         resultList->splice(resultList->begin(), *subList); \
-        delete subList; subList = NULL; \
+        delete subList;                                    \
+        subList = NULL;                                    \
     }
 
 QtNode::QtNodeList *
@@ -595,10 +580,7 @@ QtUpdate::getChilds(QtChildType flag)
     return resultList;
 }
 
-
-
-void
-QtUpdate::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtUpdate::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtUpdate Object" << getEvaluationTime() << endl;
 
@@ -648,10 +630,7 @@ QtUpdate::printTree(int tab, std::ostream &s, QtChildType mode)
     }
 }
 
-
-
-void
-QtUpdate::printAlgebraicExpression(std::ostream &s)
+void QtUpdate::printAlgebraicExpression(std::ostream &s)
 {
     s << "update<" << std::flush;
     if (updateTarget)
@@ -689,10 +668,7 @@ QtUpdate::printAlgebraicExpression(std::ostream &s)
     }
 }
 
-
-
-void
-QtUpdate::setStreamInput(QtONCStream *newInput)
+void QtUpdate::setStreamInput(QtONCStream *newInput)
 {
     input = newInput;
     input->setParent(this);
@@ -722,17 +698,13 @@ QtUpdate::getInput()
     return input;
 }
 
-
-
-void
-QtUpdate::checkType()
+void QtUpdate::checkType()
 {
     // check operand branches
     if (updateTarget && input)
     {
-
         // get input type
-        QtTypeTuple inputType  = input->checkType();
+        QtTypeTuple inputType = input->checkType();
 
         // check target
         const QtTypeElement &targetType = updateTarget->checkType(&inputType);
@@ -784,7 +756,7 @@ QtUpdate::checkType()
                      updateSource->getNodeType() == QT_DECODE ||
                      (convChildren != NULL && !convChildren->empty()) ||
                      (decodeChildren != NULL && !decodeChildren->empty()) ||
-                     type1->compatibleWith(type2); //(strcmp(type1, type2) == 0);
+                     type1->compatibleWith(type2);  //(strcmp(type1, type2) == 0);
         delete convChildren, convChildren = NULL;
         delete decodeChildren, decodeChildren = NULL;
 

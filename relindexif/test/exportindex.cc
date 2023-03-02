@@ -46,15 +46,15 @@ get domain
 #include "cmlparser.hh"
 #include "relindexif/indexid.hh"
 
-#define ALLDONE         0
+#define ALLDONE 0
 #define ERRORPARSINGCOMMANDLINE 1
-#define DOMAINMISSING       2
-#define OIDMISSING      3
-#define OIDINVALID      4
-#define DOMAINMISMATCH      5
-#define FAILED          6
-#define DOMAININVALID       7
-#define UNKNOWNDATAFORMAT   8
+#define DOMAINMISSING 2
+#define OIDMISSING 3
+#define OIDINVALID 4
+#define DOMAINMISMATCH 5
+#define FAILED 6
+#define DOMAININVALID 7
+#define UNKNOWNDATAFORMAT 8
 
 char globalConnectId[256];
 char globalDbUser[255] = {0};
@@ -65,25 +65,24 @@ RMINITGLOBALS('S')
 r_Minterval domain;
 OId oid;
 
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     RMInit::logOut.rdbuf(cout.rdbuf());
     RMInit::dbgOut.rdbuf(cout.rdbuf());
     int retval = 0;
     bool import = false;
-    const char* fileName = NULL;
-    CommandLineParser&    cmlInter      = CommandLineParser::getInstance();
-    CommandLineParameter& clp_help      = cmlInter.addFlagParameter('h', "help", "show command line switches");
-    CommandLineParameter& clp_import    = cmlInter.addStringParameter('i', "import", "import data");
+    const char *fileName = NULL;
+    CommandLineParser &cmlInter = CommandLineParser::getInstance();
+    CommandLineParameter &clp_help = cmlInter.addFlagParameter('h', "help", "show command line switches");
+    CommandLineParameter &clp_import = cmlInter.addStringParameter('i', "import", "import data");
 
-    CommandLineParameter& clp_connect   = cmlInter.addStringParameter(CommandLineParser::noShortName, "connect", "database connect string", "/");
-    CommandLineParameter& clp_oid       = cmlInter.addStringParameter(CommandLineParser::noShortName, "oid", "the oid of the mdd to operate on");
+    CommandLineParameter &clp_connect = cmlInter.addStringParameter(CommandLineParser::noShortName, "connect", "database connect string", "/");
+    CommandLineParameter &clp_oid = cmlInter.addStringParameter(CommandLineParser::noShortName, "oid", "the oid of the mdd to operate on");
     try
     {
         cmlInter.processCommandLine(argc, argv);
     }
-    catch (CmlException& err)
+    catch (CmlException &err)
     {
         cmlInter.printHelp();
         cout << "Error parsing command line:" << endl;
@@ -117,7 +116,7 @@ main(int argc, char** argv)
             return OIDMISSING;
         }
     }
-    strcpy((char*)globalConnectId, cmlInter.getValueAsString("connect"));
+    strcpy((char *)globalConnectId, cmlInter.getValueAsString("connect"));
     cout << "connect " << globalConnectId << endl;
     cout << "set up done" << endl;
     AdminIf::instance();
@@ -140,11 +139,11 @@ main(int argc, char** argv)
             i.seekg(0, std::ios::beg);
             i.read(brp.binaryData, end);
             i.close();
-            DBHierIndex* p = new DBHierIndex(0, false, false);
+            DBHierIndex *p = new DBHierIndex(0, false, false);
             p->setBinaryRepresentation(brp);
-            delete [] brp.binaryData;
+            delete[] brp.binaryData;
             brp.binaryData = NULL;
-            delete [] brp.binaryName;
+            delete[] brp.binaryName;
             brp.binaryName = NULL;
             p->printStatus();
             try
@@ -155,21 +154,21 @@ main(int argc, char** argv)
                 t.commit();
                 d.close();
             }
-            catch (const r_Error& e)
+            catch (const r_Error &e)
             {
                 cout << "Caught exception " << e.get_errorno() << " " << e.what() << endl;
                 try
                 {
                     t.abort();
                 }
-                catch (const r_Error& ee)
+                catch (const r_Error &ee)
                 {
                     cout << "Caugh exception while aborting " << ee.get_errorno() << " " << ee.what() << endl;
                     try
                     {
                         t.abort();
                     }
-                    catch (const r_Error& eee)
+                    catch (const r_Error &eee)
                     {
                         cout << "Caugh exception while 2nd aborting " << eee.get_errorno() << " " << eee.what() << endl;
                     }
@@ -178,7 +177,7 @@ main(int argc, char** argv)
                 {
                     d.close();
                 }
-                catch (const r_Error& eeee)
+                catch (const r_Error &eeee)
                 {
                     cout << "Caugh exception while closing " << eeee.get_errorno() << " " << eeee.what() << endl;
                 }
@@ -211,26 +210,26 @@ main(int argc, char** argv)
             {
                 cout << "Unable to open file " << bin.binaryName << endl;
             }
-            delete [] bin.binaryName;
-            delete [] bin.binaryData;
+            delete[] bin.binaryName;
+            delete[] bin.binaryData;
             t.commit();
             d.close();
         }
-        catch (const r_Error& e)
+        catch (const r_Error &e)
         {
             cout << "Caught exception " << e.get_errorno() << " " << e.what() << endl;
             try
             {
                 t.abort();
             }
-            catch (const r_Error& ee)
+            catch (const r_Error &ee)
             {
                 cout << "Caugh exception while aborting " << ee.get_errorno() << " " << ee.what() << endl;
                 try
                 {
                     t.abort();
                 }
-                catch (const r_Error& eee)
+                catch (const r_Error &eee)
                 {
                     cout << "Caugh exception while 2nd aborting " << eee.get_errorno() << " " << eee.what() << endl;
                 }
@@ -239,7 +238,7 @@ main(int argc, char** argv)
             {
                 d.close();
             }
-            catch (const r_Error& eeee)
+            catch (const r_Error &eeee)
             {
                 cout << "Caugh exception while closing " << eeee.get_errorno() << " " << eeee.what() << endl;
             }

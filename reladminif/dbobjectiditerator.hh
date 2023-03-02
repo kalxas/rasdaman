@@ -107,4 +107,3 @@ private:
 
 class DBMDDObj;
 extern template class DBObjectIdIterator<DBMDDObj>;
-

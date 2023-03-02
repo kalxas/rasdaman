@@ -33,18 +33,17 @@ rasdaman GmbH.
 */
 
 #include "transdirix.hh"
-#include "keyobject.hh"           // for KeyObject, operator<<
-#include "reladminif/oidif.hh"    // for OId, OId::OIdPrimitive
-#include "raslib/error.hh"        // for r_Error, TRANSIENT_INDEX_OUT_OF_BO...
-#include "raslib/mddtypes.hh"     // for r_Bytes, r_Ptr, r_Dimension
+#include "keyobject.hh"         // for KeyObject, operator<<
+#include "reladminif/oidif.hh"  // for OId, OId::OIdPrimitive
+#include "raslib/error.hh"      // for r_Error, TRANSIENT_INDEX_OUT_OF_BO...
+#include "raslib/mddtypes.hh"   // for r_Bytes, r_Ptr, r_Dimension
 #include <logging.hh>
 
-#include <boost/shared_ptr.hpp>    // for operator==, shared_ptr
-#include <ext/alloc_traits.h>      // for __alloc_traits<>::value_type
-#include <memory>                  // for allocator_traits<>::value_type
-#include <ostream>                 // for operator<<, ostream, std::endl, basic_o...
-#include <vector>                  // for vector
-
+#include <boost/shared_ptr.hpp>  // for operator==, shared_ptr
+#include <ext/alloc_traits.h>    // for __alloc_traits<>::value_type
+#include <memory>                // for allocator_traits<>::value_type
+#include <ostream>               // for operator<<, ostream, std::endl, basic_o...
+#include <vector>                // for vector
 
 IndexDS *TransDirIx::getNewInstance() const
 {
@@ -68,9 +67,10 @@ bool TransDirIx::isPersistent() const
     return false;
 }
 
-TransDirIx::TransDirIx(r_Dimension dim) : currDomain(dim), tiles()
+TransDirIx::TransDirIx(r_Dimension dim)
+    : currDomain(dim), tiles()
 {
-    LTRACE << "TransDirIx() " << (r_Ptr) this;
+    LTRACE << "TransDirIx() " << (r_Ptr)this;
 }
 
 void TransDirIx::printStatus(__attribute__((unused)) unsigned int level,
@@ -122,7 +122,7 @@ bool TransDirIx::removeObject(const KeyObject &tileToRemove)
 
 OId::OIdPrimitive TransDirIx::getIdentifier() const
 {
-    return (OId::OIdPrimitive)(r_Ptr) this;
+    return (OId::OIdPrimitive)(r_Ptr)this;
 }
 
 void TransDirIx::setAssignedDomain(const r_Minterval &newDomain)
@@ -239,4 +239,3 @@ bool TransDirIx::removeObject(unsigned int pos)
     }
     return found;
 }
-

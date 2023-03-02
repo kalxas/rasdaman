@@ -50,7 +50,6 @@ const size_t QtCommand::MAX_COLLECTION_NAME_LENGTH;
 const string QtCommand::tmpMddTypePrefix = string("autoMdd-");
 const string QtCommand::tmpSetTypePrefix = string("autoSet-");
 
-
 QtCommand::QtCommand(QtCommandType initCommand, const QtCollection &initCollection, const std::string &initType)
     : QtExecute(),
       command(initCommand),
@@ -66,8 +65,6 @@ QtCommand::QtCommand(QtCommandType initCommand, const QtCollection &initCollecti
     }
 }
 
-
-
 QtCommand::QtCommand(QtCommandType initCommand, const QtCollection &initCollection)
     : QtExecute(),
       command(initCommand),
@@ -81,8 +78,6 @@ QtCommand::QtCommand(QtCommandType initCommand, const QtCollection &initCollecti
         throw parseInfo;
     }
 }
-
-
 
 QtCommand::QtCommand(QtCommandType initCommand, const QtCollection &initCollection, QtOperationIterator *collectionitr)
     : QtExecute(),
@@ -173,7 +168,7 @@ void QtCommand::alterCollection(const QtCollection &collection2, string typeName
     // get new collection type
     unique_ptr<CollectionType> newCollType;
     newCollType.reset(static_cast<CollectionType *>(const_cast<SetType *>(
-                          TypeFactory::mapSetType(typeName2.c_str()))));
+        TypeFactory::mapSetType(typeName2.c_str()))));
 
     if (newCollType)
     {
@@ -215,7 +210,7 @@ void QtCommand::alterCollection(const QtCollection &collection2, string typeName
 
 string QtCommand::getSelectedDataType(vector<QtData *> *data)
 {
-    char *typestr       = NULL;
+    char *typestr = NULL;
     QtData *firstResult = NULL;
     vector<QtData *>::iterator dataIter = data->begin();
 
@@ -357,7 +352,7 @@ bool QtCommand::collectionExists(const QtCollection &collection2)
     }
     catch (r_Error &e)
     {
-        return false; // collection not found
+        return false;  // collection not found
     }
 }
 
@@ -411,7 +406,6 @@ QtCommand::evaluate()
                 LERROR << "Error: unknown exception while evaluating insert sub-query, re-throwing.";
                 throw;
             }
-
 
             if (data == NULL)
             {
@@ -483,17 +477,14 @@ QtCommand::evaluate()
     return 0;
 }
 
-
-
-void
-QtCommand::printTree(int tab, std::ostream &s, __attribute__((unused)) QtChildType mode)
+void QtCommand::printTree(int tab, std::ostream &s, __attribute__((unused)) QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCommand Object" << std::endl;
 
     switch (command)
     {
     case QT_DROP_COLLECTION:
-        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  drop collection("   << collection.getCollectionName().c_str() << ")";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  drop collection(" << collection.getCollectionName().c_str() << ")";
         break;
     case QT_CREATE_COLLECTION:
         s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  create collection(" << collection.getCollectionName().c_str() << ", " << typeName.c_str() << ")";
@@ -510,17 +501,14 @@ QtCommand::printTree(int tab, std::ostream &s, __attribute__((unused)) QtChildTy
     s << std::endl;
 }
 
-
-
-void
-QtCommand::printAlgebraicExpression(std::ostream &s)
+void QtCommand::printAlgebraicExpression(std::ostream &s)
 {
     s << "command<";
 
     switch (command)
     {
     case QT_DROP_COLLECTION:
-        s << "drop collection("   << collection.getCollectionName().c_str() << ")";
+        s << "drop collection(" << collection.getCollectionName().c_str() << ")";
         break;
     case QT_CREATE_COLLECTION:
         s << "create collection(" << collection.getCollectionName().c_str() << ", " << typeName.c_str() << ")";
@@ -537,11 +525,7 @@ QtCommand::printAlgebraicExpression(std::ostream &s)
     s << ">";
 }
 
-
-
-void
-QtCommand::checkType()
+void QtCommand::checkType()
 {
     // nothing to do here
 }
-

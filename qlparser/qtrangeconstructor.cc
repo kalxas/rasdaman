@@ -44,7 +44,6 @@ rasdaman GmbH.
 
 using namespace std;
 
-
 const QtNode::QtNodeType QtRangeConstructor::nodeType = QT_RANGE_CONSTRUCTOR;
 
 QtRangeConstructor::QtRangeConstructor(QtOperationList *opList)
@@ -53,19 +52,17 @@ QtRangeConstructor::QtRangeConstructor(QtOperationList *opList)
     //setOperationObject();
 }
 
-bool
-QtRangeConstructor::equalMeaning(QtNode *node)
+bool QtRangeConstructor::equalMeaning(QtNode *node)
 {
     bool result = false;
 
     if (nodeType == node->getNodeType())
     {
         QtRangeConstructor *condNode;
-        condNode = static_cast<QtRangeConstructor *>(node); // by force
+        condNode = static_cast<QtRangeConstructor *>(node);  // by force
 
         // check domain and cell expression
         result = QtNaryOperation::equalMeaning(condNode);
-
     };
 
     return (result);
@@ -74,21 +71,18 @@ QtRangeConstructor::equalMeaning(QtNode *node)
 string
 QtRangeConstructor::getSpelling()
 {
-
     char tempStr[20];
     sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result = string(tempStr);
     result.append("{");
     result.append(QtNaryOperation::getSpelling());
 
-
     result.append("}");
 
     return result;
 }
 
-void
-QtRangeConstructor::simplify()
+void QtRangeConstructor::simplify()
 {
     LTRACE << "simplify() warning: QtRangeConstructor itself is not simplified yet";
 
@@ -243,16 +237,14 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
         return nullptr;
 }
 
-void
-QtRangeConstructor::printTree(int tab, ostream &s, QtChildType mode)
+void QtRangeConstructor::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtRangeConstructor Object " << static_cast<int>(getNodeType()) << endl;
 
     QtNaryOperation::printTree(tab, s, mode);
 }
 
-void
-QtRangeConstructor::printAlgebraicExpression(ostream &s)
+void QtRangeConstructor::printAlgebraicExpression(ostream &s)
 {
     s << "rangeCostructor(";
 
@@ -350,7 +342,6 @@ QtRangeConstructor::getAreaType()
 
 const BaseType *QtRangeConstructor::getResultType(const BaseType *op1, const BaseType *op2)
 {
-
     if ((op1->getType() == STRUCT) || (op2->getType() == STRUCT))
     {
         if (op1->compatibleWith(op2))
@@ -367,7 +358,6 @@ const BaseType *QtRangeConstructor::getResultType(const BaseType *op1, const Bas
         return op1;
     }
 
-
     // if only one of operand is signed, result also has to be signed.
     if (isSignedType(op1) && !isSignedType(op2))
     {
@@ -383,7 +373,7 @@ const BaseType *QtRangeConstructor::getResultType(const BaseType *op1, const Bas
         // it is signed.
         if (op2->getType() == COMPLEXTYPE1 || op2->getType() == COMPLEXTYPE2 ||
             op2->getType() == FLOAT || op2->getType() == DOUBLE || op2->getType() == LONG ||
-            op2->getType() == CINT32  || op2->getType() == CINT16)
+            op2->getType() == CINT32 || op2->getType() == CINT16)
         {
             return op2;
         }

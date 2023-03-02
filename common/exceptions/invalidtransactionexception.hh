@@ -28,16 +28,17 @@ rasdaman GmbH.
 
 #include "logicexception.hh"
 
-namespace common {
+namespace common
+{
 
-class InvalidTransactionException : public LogicException {
- public:
-  InvalidTransactionException(const std::string& message);
+class InvalidTransactionException : public LogicException
+{
+public:
+    InvalidTransactionException(const std::string &message);
 
-  ~InvalidTransactionException() override;
+    ~InvalidTransactionException() override;
 };
 
 } /* namespace common */
 
 #endif
-

@@ -21,20 +21,22 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include "settype.hh"         // for SetType
-#include "mddtype.hh"         // for MDDType
-#include "raslib/odmgtypes.hh" // for SETTYPE
+#include "settype.hh"           // for SetType
+#include "mddtype.hh"           // for MDDType
+#include "raslib/odmgtypes.hh"  // for SETTYPE
 #include "reladminif/oidif.hh"
 
-#include <string.h>           // for sprintf
+#include <string.h>  // for sprintf
 
-SetType::SetType() : CollectionType("unnamed settype")
+SetType::SetType()
+    : CollectionType("unnamed settype")
 {
     myType = SETTYPE;
     objecttype = OId::SETTYPEOID;
 }
 
-SetType::SetType(const OId &id) : CollectionType(id)
+SetType::SetType(const OId &id)
+    : CollectionType(id)
 {
     objecttype = OId::SETTYPEOID;
     readFromDb();
@@ -55,7 +57,7 @@ SetType::~SetType() noexcept(false)
 std::string SetType::getTypeStructure() const
 {
     auto baseType = myMDDType->getTypeStructure();
-    auto resultLen = 6 + baseType.size();    
+    auto resultLen = 6 + baseType.size();
     std::string ret;
     ret.reserve(resultLen);
     ret += "set <";

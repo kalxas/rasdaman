@@ -70,7 +70,6 @@ private:
     r_Data_Format data_format;
     bool *nullMask;
     size_t nullMaskSize;
-
 };
 
-#endif // TURBOQUERYRESULT_H
+#endif  // TURBOQUERYRESULT_H

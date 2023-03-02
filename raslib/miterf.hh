@@ -41,9 +41,9 @@ public:
 
     r_FixedPointNumber &operator=(const r_FixedPointNumber &) = default;
     r_FixedPointNumber &operator=(const double &);
-    
+
     // returns carry of fracPart
-    inline bool    stepForwardFlag(const r_FixedPointNumber &);
+    inline bool stepForwardFlag(const r_FixedPointNumber &);
 
     inline r_Range getIntPart();
 
@@ -79,7 +79,7 @@ class r_MiterFloat
 public:
     /// Constructor getting the source tile, the source domain and the destination domain
     r_MiterFloat(r_Bytes srcCellSize,
-                 const char* srcTile,
+                 const char *srcTile,
                  const r_Minterval &tileDomain,
                  const r_Minterval &srcDomain,
                  const r_Minterval &destDomain);
@@ -104,12 +104,12 @@ protected:
 
         r_Range dimStep;
         r_Range scaleStep;
-        char    *cell;
+        char *cell;
     };
 
-    char        *currentCell{NULL};
-    const char  *firstCell{NULL};
-    iter_desc   *iterDesc{NULL};
+    char *currentCell{NULL};
+    const char *firstCell{NULL};
+    iter_desc *iterDesc{NULL};
     r_Dimension dim{};
     bool done{false};
 };

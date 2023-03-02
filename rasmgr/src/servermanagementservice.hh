@@ -39,7 +39,7 @@ class ClientManager;
  * Service offered to rasservers, used to register a server process after a
  * successful initialization.
  */
-class ServerManagementService: public ::rasnet::service::RasMgrRasServerService::Service
+class ServerManagementService : public ::rasnet::service::RasMgrRasServerService::Service
 {
 public:
     explicit ServerManagementService(std::shared_ptr<ServerManager> serverManager,

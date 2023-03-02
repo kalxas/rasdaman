@@ -34,7 +34,7 @@ rasdaman GmbH.
 #include <iostream.h>
 #include <vector.h>
 
-#include "o2lib_CC.hxx" // declaration of O2-collection-classes
+#include "o2lib_CC.hxx"  // declaration of O2-collection-classes
 
 #include "indexmgr/clusterix.hh"
 #include "dbclusterix.hh"
@@ -55,11 +55,10 @@ static char O2BenchSchemaName[] = "TestSMSchema";
 #include "raslib/rminit.hh"
 RMINITGLOBALS('C')
 
-static void ClearDB(d_Database& DB);
+static void ClearDB(d_Database &DB);
 static void testAccessing();
 static void testConstructors();
 static void testSearch();
-
 
 /*************************************************************
  * Function name.: int main( int argc, char** argv)
@@ -71,11 +70,10 @@ static void testSearch();
  * Description...: none
  ************************************************************/
 
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // variables representing O2 database, ta and session
-    d_Session  session;
+    d_Session session;
     d_Database database;
     d_Transaction ta;
 
@@ -139,7 +137,7 @@ main(int argc, char** argv)
 
 static void testConstructors()
 {
-    ClusterIx* indexObj2;
+    ClusterIx *indexObj2;
     ULongType anyType;
     char anyCell[4];
 
@@ -156,24 +154,24 @@ static void testConstructors()
     r_Sinterval limits2Obj1(20l, 24l);
     r_Minterval dom(2);
     dom << limits1Obj1 << limits2Obj1;
-    PersTile* tile1Obj1 = new PersTile(dom, &anyType, (const char*) anyCell);
+    PersTile *tile1Obj1 = new PersTile(dom, &anyType, (const char *)anyCell);
 
     cout << "       tile 2 = nil, 0-400, 22-24 " << endl;
     dom[0].set_interval(0l, 400l);
     dom[1].set_interval(22l, 24l);
-    PersTile* tile2Obj1 = new PersTile(dom, &anyType, (const char*) anyCell);
+    PersTile *tile2Obj1 = new PersTile(dom, &anyType, (const char *)anyCell);
 
     cout << "       tile 3 = nil, 0-600, 10-1000 " << endl;
     dom[0].set_interval(0l, 600l);
     dom[1].set_interval(10l, 1000l);
-    PersTile* tile3Obj1 = new PersTile(dom, &anyType, (const char*) anyCell);
+    PersTile *tile3Obj1 = new PersTile(dom, &anyType, (const char *)anyCell);
 
-    vector<PersTile*> newTiles;
+    vector<PersTile *> newTiles;
     newTiles.push_back(tile1Obj1);
     newTiles.push_back(tile2Obj1);
     newTiles.push_back(tile3Obj1);
 
-    ClusterIx* indexObj1 = new ClusterIx(newTiles);
+    ClusterIx *indexObj1 = new ClusterIx(newTiles);
     indexList.insert_element_last(indexObj1->getDBMDDObjIxId());
 
     // create DBclusterix Object
@@ -185,14 +183,14 @@ static void testConstructors()
     r_Sinterval limits3Obj2(30l, 59l);
     r_Minterval dom2(3);
     dom2 << limits1Obj2 << limits2Obj2 << limits3Obj2;
-    PersTile* tile1Obj2 = new PersTile(dom2, &anyType, (const char*) anyCell);
+    PersTile *tile1Obj2 = new PersTile(dom2, &anyType, (const char *)anyCell);
     indexObj2 = new ClusterIx(tile1Obj2);
 
     cout << "       tile 2 = nil, 20-39, 60-79, 60-89 " << endl;
     dom2[0].set_interval(20l, 39l);
     dom2[1].set_interval(60l, 79l);
     dom2[2].set_interval(60l, 89l);
-    PersTile* tile2Obj2 = new PersTile(dom2, &anyType, (const char*) anyCell);
+    PersTile *tile2Obj2 = new PersTile(dom2, &anyType, (const char *)anyCell);
     indexObj2->insertTile(tile2Obj2);
     indexList.insert_element_last(indexObj2->getDBMDDObjIxId());
 
@@ -219,14 +217,13 @@ static void testAccessing()
     // used for iterating
     d_Iterator<DBMDDObjIxId> indexIt = indexList.create_iterator();
 
-    for (int i = 1 ; indexIt.not_done(); i++, indexIt.advance())
+    for (int i = 1; indexIt.not_done(); i++, indexIt.advance())
     {
         accessedIndex = indexIt.get_element();
         cout << "    --" << i << ". index object in list:" << endl;
         accessedIndex->printStatus();
         cout << endl;
     }
-
 }
 
 /*************************************************************
@@ -239,7 +236,6 @@ static void testAccessing()
 
 static void testSearch()
 {
-
     DBMDDObjIxId accessedIndex;
     ULongType anyType;
 
@@ -250,9 +246,9 @@ static void testSearch()
     // used for iterating
     d_Iterator<DBMDDObjIxId> indexIt = indexList.create_iterator();
 
-    for (int i = 0 ; indexIt.not_done(); i++, indexIt.advance())
+    for (int i = 0; indexIt.not_done(); i++, indexIt.advance())
     {
-        vector<Tile*>* entriesList;
+        vector<Tile *> *entriesList;
 
         accessedIndex = indexIt.get_element();
 
@@ -281,13 +277,13 @@ static void testSearch()
                 break;
             }
             cout << "    -- Search result: " << endl;
-            vector<Tile*>::iterator entryIt = entriesList->begin();
+            vector<Tile *>::iterator entryIt = entriesList->begin();
 
             // O2 d_List d_Iterator< d_Ref<TilesIxEntry> > entryIt = entriesList->create_iterator();
             // O2 d_List for ( ; entryIt.not_done() ; entryIt.advance() )
             // O2 d_List     entryIt.get_element()->printStatus();
 
-            while (entryIt !=  entriesList->end())
+            while (entryIt != entriesList->end())
             {
                 // (*entryIt)->printStatus();
                 r_Minterval tileInterval = (*entryIt)->getDomain();
@@ -306,17 +302,15 @@ static void testSearch()
         }
 
         // release(entriesList->begin(), entriesList->end());
-        for (vector<Tile*>::iterator entIt = entriesList->begin();
-                entIt != entriesList->end();
-                entIt++)
+        for (vector<Tile *>::iterator entIt = entriesList->begin();
+             entIt != entriesList->end();
+             entIt++)
         {
             delete *entIt;
         }
 
         delete entriesList;
-
     }
-
 }
 /*************************************************************
  * Function......: clearDB( d_Database &DB )
@@ -328,7 +322,7 @@ static void testSearch()
  *                 existed) and recreates an empty base
  ************************************************************/
 
-static void ClearDB(d_Database& DB)
+static void ClearDB(d_Database &DB)
 {
     d_Transaction trans;
     trans.begin();

@@ -24,8 +24,7 @@ rasdaman GmbH.
 #include "raslib/stringtype.hh"
 #include <ostream>
 
-bool
-r_String_Type::isStringType() const
+bool r_String_Type::isStringType() const
 {
     return true;
 }
@@ -42,18 +41,15 @@ r_String_Type::type_id() const
     return STRINGTYPE;
 }
 
-void
-r_String_Type::convertToLittleEndian(char *, r_Area) const
+void r_String_Type::convertToLittleEndian(char *, r_Area) const
 {
 }
 
-void
-r_String_Type::convertToBigEndian(char *, r_Area) const
+void r_String_Type::convertToBigEndian(char *, r_Area) const
 {
 }
 
-void
-r_String_Type::print_status(std::ostream &s) const
+void r_String_Type::print_status(std::ostream &s) const
 {
     s << "string";
 }

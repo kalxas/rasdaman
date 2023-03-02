@@ -38,7 +38,6 @@ rasdaman GmbH.
 
 #include "conversion/convertor.hh"
 
-
 //@ManMemo: Module {\bf conversion}
 
 /*@Doc:
@@ -56,25 +55,24 @@ class r_Conv_JPEG : public r_Convert_Memory
 {
 public:
     /// constructor using an r_Type object
-    r_Conv_JPEG(const char* src, const r_Minterval& interv, const r_Type* tp);
+    r_Conv_JPEG(const char *src, const r_Minterval &interv, const r_Type *tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_JPEG(const char* src, const r_Minterval& interv, int tp);
+    r_Conv_JPEG(const char *src, const r_Minterval &interv, int tp);
     /// destructor
     ~r_Conv_JPEG(void);
 
     /// convert to JPEG
-    virtual r_Conv_Desc& convertTo(const char* options = NULL,
-                                   const r_Range* nullValue = NULL);
+    virtual r_Conv_Desc &convertTo(const char *options = NULL,
+                                   const r_Range *nullValue = NULL);
     /// convert from JPEG
-    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
+    virtual r_Conv_Desc &convertFrom(const char *options = NULL);
     /// convert data in a specific format to array
-    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
+    virtual r_Conv_Desc &convertFrom(r_Format_Params options);
     /// cloning
-    virtual r_Convertor* clone(void) const;
+    virtual r_Convertor *clone(void) const;
     /// identification
-    virtual const char* get_name(void) const;
+    virtual const char *get_name(void) const;
     virtual r_Data_Format get_data_format(void) const;
-
 
 private:
     /// init JPEG class

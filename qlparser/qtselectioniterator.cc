@@ -35,20 +35,17 @@ using namespace std;
 
 const QtNode::QtNodeType QtSelectionIterator::nodeType = QtNode::QT_SELECTION_ITERATOR;
 
-
 QtSelectionIterator::QtSelectionIterator()
     : QtIterator(),
       conditionTree(NULL)
 {
 }
 
-
 QtSelectionIterator::QtSelectionIterator(QtNode *node)
     : QtIterator(node),
       conditionTree(NULL)
 {
 }
-
 
 QtSelectionIterator::~QtSelectionIterator()
 {
@@ -58,7 +55,6 @@ QtSelectionIterator::~QtSelectionIterator()
         conditionTree = NULL;
     }
 }
-
 
 QtNode::QtNodeList *
 QtSelectionIterator::getChilds(QtChildType flag)
@@ -100,7 +96,6 @@ QtSelectionIterator::getChilds(QtChildType flag)
                 (*debugIter)->printTree(2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS);
             }
 
-
             LTRACE << "4. old list (must be empty)";
             for (list<QtNode *>::iterator debugIter = subList->begin(); debugIter != subList->end(); debugIter++)
             {
@@ -130,9 +125,7 @@ QtSelectionIterator::getChilds(QtChildType flag)
     return resultList;
 }
 
-
-void
-QtSelectionIterator::printTree(int tab, ostream &s, QtChildType mode)
+void QtSelectionIterator::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtSelectionIterator Object: type " << flush;
     dataStreamType.printStatus(s);
@@ -155,10 +148,7 @@ QtSelectionIterator::printTree(int tab, ostream &s, QtChildType mode)
     QtIterator::printTree(tab, s, mode);
 }
 
-
-
-void
-QtSelectionIterator::printAlgebraicExpression(ostream &s)
+void QtSelectionIterator::printAlgebraicExpression(ostream &s)
 {
     s << "sel<";
 
@@ -169,8 +159,6 @@ QtSelectionIterator::printAlgebraicExpression(ostream &s)
     QtIterator::printAlgebraicExpression(s);
 }
 
-
-
 QtNode::QtDataList *
 QtSelectionIterator::next()
 {
@@ -180,7 +168,7 @@ QtSelectionIterator::next()
 
     if (inputs)
     {
-        bool        nextTupleValid = false;
+        bool nextTupleValid = false;
         QtDataList *actualTuple = NULL;
 
         while (!nextTupleValid)
@@ -244,7 +232,6 @@ QtSelectionIterator::next()
 
     return returnValue;
 }
-
 
 const QtTypeTuple &
 QtSelectionIterator::checkType()

@@ -28,23 +28,25 @@ rasdaman GmbH.
 
 #include "exception.hh"
 
-namespace common {
+namespace common
+{
 /**
  * @brief The LogicException class defines a type of object to be thrown as
  * exception.
  *  It reports errors that arise because a programmer has made an invalid
  * assumption.
  */
-class LogicException : public Exception {
+class LogicException : public Exception
+{
 public:
     /**
    * @brief LogicException
    * @param message Detailed information about the cause of the logic exception.
      */
-  LogicException(const std::string& message);
+    LogicException(const std::string &message);
 
-  ~LogicException() noexcept override;
+    ~LogicException() noexcept override;
 };
-} // namespace common
+}  // namespace common
 
 #endif

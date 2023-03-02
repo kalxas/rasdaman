@@ -30,8 +30,6 @@ rasdaman GmbH.
 #include "catalogmgr/ops.hh"
 #include <string>
 
-
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -46,7 +44,7 @@ class QtUnaryInduce : public QtUnaryOperation
 public:
     /// constructor getting the operand
     QtUnaryInduce(QtOperation *input);
-    
+
     /// type checking of the subtree
     const QtTypeElement &checkOperandType(Ops::OpType optype, QtTypeTuple *typeTuple);
 
@@ -81,8 +79,6 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -121,8 +117,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -159,8 +153,6 @@ private:
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };
-
-
 
 //@ManMemo: Module: {\bf qlparser}
 
@@ -218,7 +210,6 @@ private:
     */
 };
 
-
 //--------------------------------------------
 //  QtCast
 //--------------------------------------------
@@ -233,8 +224,15 @@ class QtCast : public QtUnaryInduce
 public:
     enum cast_types
     {
-        t_bool, t_octet, t_char, t_short, t_ushort,
-        t_long, t_ulong, t_float, t_double
+        t_bool,
+        t_octet,
+        t_char,
+        t_short,
+        t_ushort,
+        t_long,
+        t_ulong,
+        t_float,
+        t_double
     };
 
     QtCast(QtOperation *, cast_types);
@@ -257,7 +255,6 @@ private:
     cast_types castType;
     std::string typeName;
 };
-
 
 //--------------------------------------------
 //  QtRealPartOp
@@ -299,6 +296,4 @@ private:
 #include "qlparser/qtunaryinduce.icc"
 #include "autogen_qtui.icc"
 
-
 #endif
-

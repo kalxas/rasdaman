@@ -109,7 +109,7 @@ private:
     bool isFlag(const std::string &, int pos = -1);
 
     std::string getValueOf(const std::string &,
-                           bool acceptMinus = false); //'-' alone, only void right string
+                           bool acceptMinus = false);  //'-' alone, only void right string
     std::string getValueOptionalFlag(const std::string &,
                                      bool acceptMinus = false);
     std::string getValueMandatoryFlag(const std::string &,
@@ -154,7 +154,6 @@ private:
     DefineOutpeer defOutpeer;
 
 public:
-
     // Define literal strings used by the rules
     static const std::string defineLit;
     static const std::string hostLit;
@@ -219,6 +218,7 @@ public:
     RCError();
     explicit RCError(const std::string &what);
     virtual std::string getString();
+
 private:
     std::string what;
 };
@@ -228,6 +228,7 @@ class RCErrorUnexpToken : public RCError
 public:
     explicit RCErrorUnexpToken(const std::string &);
     std::string getString() override;
+
 private:
     std::string pcc;
 };
@@ -237,6 +238,7 @@ class RCErrorNoPermission : public RCError
 public:
     RCErrorNoPermission();
     std::string getString() override;
+
 private:
 };
 
@@ -245,6 +247,7 @@ class RCErrorInvalidName : public RCError
 public:
     explicit RCErrorInvalidName(const std::string &);
     std::string getString() override;
+
 private:
     std::string pcc;
 };
@@ -254,6 +257,7 @@ class RCErrorMissingParam : public RCError
 public:
     explicit RCErrorMissingParam(const std::string &);
     std::string getString() override;
+
 private:
     std::string pcc;
 };
@@ -263,11 +267,11 @@ class RCErrorIncorNumberValue : public RCError
 public:
     explicit RCErrorIncorNumberValue(const std::string &);
     std::string getString() override;
+
 private:
     std::string pcc;
 };
 
-}
+}  // namespace rasmgr
 
 #endif
-

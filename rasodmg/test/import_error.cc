@@ -29,7 +29,6 @@ using namespace std;
 #include "rasodmg/template_inst.hh"
 #endif
 
-
 #include <exception>
 #include <cstring>
 
@@ -55,22 +54,22 @@ ImportError::~ImportError()
 
 /// print error message (including error code)
 /// NB: not all messages can occur
-const char*
+const char *
 ImportError::what()
 {
-    char* errorMsg;
+    char *errorMsg;
     switch (importErrno)
     {
-    case  EXCEPTIONEXECUTEQUERY:
+    case EXCEPTIONEXECUTEQUERY:
         errorMsg = "Query execution error.";
         break;
-    case  TILINGPATAMETERSINCORRECT:
+    case TILINGPATAMETERSINCORRECT:
         errorMsg = "Illegal tiling parameters.";
         break;
-    case  UNKNOWNTILINGTYPE:
+    case UNKNOWNTILINGTYPE:
         errorMsg = "Illegal tiling type.";
         break;
-    case  TILINGPARAMETERSMISSING:
+    case TILINGPARAMETERSMISSING:
         errorMsg = "Tiling option requires additional parameters, use --tilingparameter.";
         break;
     case CONVERSIONEXCEPTION:
@@ -325,10 +324,10 @@ ImportError::what()
     case DOMAINEXTENTMISMATCH:
         errorMsg = "Database and input extents don't match.";
         break;
-    default :
+    default:
         errorMsg = "Unknown error code.";
         break;
-    case  ALLDONE:
+    case ALLDONE:
     case 0:
         errorMsg = "No errors.";
     }
@@ -353,6 +352,4 @@ ImportError::what()
     }
 
     return errorText;
-} // what()
-
-
+}  // what()

@@ -77,7 +77,6 @@ QueryTree::QueryTree(QtNode *root)
 {
 }
 
-
 QueryTree::~QueryTree()
 {
     if (rootNode)
@@ -88,9 +87,7 @@ QueryTree::~QueryTree()
     releaseDynamicObjects();
 }
 
-
-void
-QueryTree::checkSemantics()
+void QueryTree::checkSemantics()
 {
     if (!rootNode)
     {
@@ -137,9 +134,9 @@ QueryTree::evaluateRetrieval()
     if (rootNode)
     {
         if (rootNode->getNodeType() != QtNode::QT_MDD_ACCESS &&
-                rootNode->getNodeType() != QtNode::QT_OPERATION_ITERATOR &&
-                rootNode->getNodeType() != QtNode::QT_JOIN_ITERATOR &&
-                rootNode->getNodeType() != QtNode::QT_SELECTION_ITERATOR)
+            rootNode->getNodeType() != QtNode::QT_OPERATION_ITERATOR &&
+            rootNode->getNodeType() != QtNode::QT_JOIN_ITERATOR &&
+            rootNode->getNodeType() != QtNode::QT_SELECTION_ITERATOR)
         {
             LERROR << "Retrieval query must start with an ONC node.";
             ParseInfo errorInfo = rootNode->getParseInfo();
@@ -147,9 +144,9 @@ QueryTree::evaluateRetrieval()
             throw errorInfo;
         }
 
-        QtNode::QtDataList          *dataList = NULL;
+        QtNode::QtDataList *dataList = NULL;
         QtNode::QtDataList::iterator dataIter;
-        QtONCStream                 *oncRootNode = static_cast<QtONCStream *>(rootNode);
+        QtONCStream *oncRootNode = static_cast<QtONCStream *>(rootNode);
 
         try
         {
@@ -304,8 +301,6 @@ QueryTree::evaluateRetrieval()
     return returnValue;
 }
 
-
-
 vector<QtData *> *
 QueryTree::evaluateUpdate()
 {
@@ -313,16 +308,15 @@ QueryTree::evaluateUpdate()
 
     if (rootNode)
     {
-        if (rootNode->getNodeType() != QtNode::QT_UPDATE  &&
-                rootNode->getNodeType() != QtNode::QT_INSERT  &&
-                rootNode->getNodeType() != QtNode::QT_DELETE  &&
-                rootNode->getNodeType() != QtNode::QT_COMMAND &&
-                rootNode->getNodeType() != QtNode::QT_PYRAMID &&
-                rootNode->getNodeType() != QtNode::QT_CREATE_CELL_TYPE &&
-                rootNode->getNodeType() != QtNode::QT_CREATE_MDD_TYPE &&
-                rootNode->getNodeType() != QtNode::QT_CREATE_SET_TYPE &&
-                rootNode->getNodeType() != QtNode::QT_DROP_TYPE
-           )
+        if (rootNode->getNodeType() != QtNode::QT_UPDATE &&
+            rootNode->getNodeType() != QtNode::QT_INSERT &&
+            rootNode->getNodeType() != QtNode::QT_DELETE &&
+            rootNode->getNodeType() != QtNode::QT_COMMAND &&
+            rootNode->getNodeType() != QtNode::QT_PYRAMID &&
+            rootNode->getNodeType() != QtNode::QT_CREATE_CELL_TYPE &&
+            rootNode->getNodeType() != QtNode::QT_CREATE_MDD_TYPE &&
+            rootNode->getNodeType() != QtNode::QT_CREATE_SET_TYPE &&
+            rootNode->getNodeType() != QtNode::QT_DROP_TYPE)
         {
             LERROR << "Update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement.";
             ParseInfo errorInfo = rootNode->getParseInfo();
@@ -346,13 +340,11 @@ QueryTree::evaluateUpdate()
     return resultData;
 }
 
-
-
 void QueryTree::printTree(int tab, ostream &s)
 {
     if (rootNode)
     {
-        s <<  SPACE_STR(static_cast<size_t>(tab)).c_str() << "QueryTree:\n";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QueryTree:\n";
         rootNode->printTree(tab + 2, s);
     }
     else
@@ -449,7 +441,7 @@ void QueryTree::releaseDynamicObjects()
         }
     }
 
-    for (list<vector<QtONCStream *>*>::iterator iter = vectorList.begin(); iter != vectorList.end(); iter++)
+    for (list<vector<QtONCStream *> *>::iterator iter = vectorList.begin(); iter != vectorList.end(); iter++)
     {
         if (*iter != NULL)
         {
@@ -466,7 +458,6 @@ void QueryTree::releaseDynamicObjects()
             *iter = NULL;
         }
     }
-
 }
 
 void QueryTree::addDomainObject(QtDomainOperation *dop)
@@ -501,12 +492,10 @@ void QueryTree::releaseDomainObjects()
 
 void QueryTree::rewriteDomainObjects(__attribute__((unused)) r_Minterval *greatDomain, string *greatIterator, QtMarrayOp2::mddIntervalListType *greatList)
 {
-
     list<QtDomainOperation *>::iterator iter;
 
     for (iter = dopList.begin(); iter != dopList.end(); iter++)
     {
-
         // 1. get var name from iter
         QtVariable *qtVar = (static_cast<QtVariable *>((*iter)->getInput()));
         string stVar = qtVar->getIteratorName();
@@ -519,7 +508,6 @@ void QueryTree::rewriteDomainObjects(__attribute__((unused)) r_Minterval *greatD
         r_Long varpos = 0;
         for (varIter = varList->begin(); varIter != varList->end(); varIter++)
         {
-
             if (!strcmp(varname, varIter->variable.c_str()))
             {
                 bcond = true;
@@ -533,18 +521,14 @@ void QueryTree::rewriteDomainObjects(__attribute__((unused)) r_Minterval *greatD
 
         if (bcond)
         {
-
             // 3. set domain expression to old one incremented by varpos
             QtNode::QtOperationList *lop = new QtNode::QtOperationList(1);
             (*lop)[0] =
                 new QtPlus(
-                (*iter)->getMintervalOp(),
-                new QtConst(
-                    new QtAtomicData(
-                        varpos, sizeof(varpos)
-                    )
-                )
-            );
+                    (*iter)->getMintervalOp(),
+                    new QtConst(
+                        new QtAtomicData(
+                            varpos, sizeof(varpos))));
 
             // set properly parent to new op -- DM 2013-jun-26
             QtOperation *mintervalOp = (*iter)->getMintervalOp();
@@ -558,7 +542,6 @@ void QueryTree::rewriteDomainObjects(__attribute__((unused)) r_Minterval *greatD
             // 4. set varname to greatIterator
             QtVariable *var1 = new QtVariable(string(*greatIterator));
             (*iter)->setInput(var1);
-
         }
         else
         {
@@ -572,7 +555,6 @@ void QueryTree::addCString(char *str)
 {
     lexedCStringList.push_back(str);
 }
-
 
 void QueryTree::setInfoType(QtInfoType newInfoType)
 {

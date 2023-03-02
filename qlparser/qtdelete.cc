@@ -30,18 +30,12 @@ rasdaman GmbH.
 
 #include <iostream>
 
-
-
 const QtNode::QtNodeType QtDelete::nodeType = QtNode::QT_DELETE;
-
-
 
 QtDelete::QtDelete()
     : QtExecute(), input(NULL)
 {
 }
-
-
 
 QtDelete::~QtDelete()
 {
@@ -51,8 +45,6 @@ QtDelete::~QtDelete()
         input = NULL;
     }
 }
-
-
 
 QtData *
 QtDelete::evaluate()
@@ -97,11 +89,11 @@ QtDelete::evaluate()
                 throw parseInfo;
             }
 
-            QtMDD  *targetMDD = static_cast<QtMDD *>(target);
+            QtMDD *targetMDD = static_cast<QtMDD *>(target);
             MDDObj *targetObj = targetMDD->getMDDObject();
 
             // get leaf of ONC input
-            QtNodeList  *leafList = input->getChilds(QtNode::QT_LEAF_NODES);
+            QtNodeList *leafList = input->getChilds(QtNode::QT_LEAF_NODES);
             QtMDDAccess *inputLeaf = NULL;
             // take the last QtMDDAccess object from the list assuming that it is the right one
             for (std::list<QtNode *>::iterator iter = leafList->begin(); iter != leafList->end(); iter++)
@@ -118,7 +110,9 @@ QtDelete::evaluate()
                 inputLeaf->getMDDColl()->remove(targetObj);
             }
 
-            if (targetMDD && targetObj && !targetObj->isPersistent()) {};
+            if (targetMDD && targetObj && !targetObj->isPersistent())
+            {
+            };
             targetMDD->setLifetime(QtData::QT_TRANSIENT);
 
             // delete tuple vector received by next()
@@ -130,8 +124,7 @@ QtDelete::evaluate()
                 }
             delete nextTuple;
             nextTuple = NULL;
-        } // while
-
+        }  // while
     }
     catch (...)
     {
@@ -146,8 +139,6 @@ QtDelete::evaluate()
     return NULL;
 }
 
-
-
 QtNode::QtNodeList *
 QtDelete::getChilds(QtChildType flag)
 {
@@ -156,7 +147,9 @@ QtDelete::getChilds(QtChildType flag)
     if (input)
     {
         // allocate resultList
-        if (flag == QT_DIRECT_CHILDS) {};
+        if (flag == QT_DIRECT_CHILDS)
+        {
+        };
         resultList = new QtNodeList();
 
         if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
@@ -178,10 +171,7 @@ QtDelete::getChilds(QtChildType flag)
     return resultList;
 }
 
-
-
-void
-QtDelete::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtDelete::printTree(int tab, std::ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtDelete Object" << getEvaluationTime() << std::endl;
 
@@ -201,10 +191,7 @@ QtDelete::printTree(int tab, std::ostream &s, QtChildType mode)
     }
 }
 
-
-
-void
-QtDelete::printAlgebraicExpression(std::ostream &s)
+void QtDelete::printAlgebraicExpression(std::ostream &s)
 {
     s << "delete";
 
@@ -220,10 +207,7 @@ QtDelete::printAlgebraicExpression(std::ostream &s)
     }
 }
 
-
-
-void
-QtDelete::setStreamInput(QtONCStream *newInput)
+void QtDelete::setStreamInput(QtONCStream *newInput)
 {
     input = newInput;
     input->setParent(this);
@@ -235,16 +219,13 @@ QtDelete::getStreamInput()
     return input;
 }
 
-
-void
-QtDelete::checkType()
+void QtDelete::checkType()
 {
     // check operand branches
     if (input)
     {
-
         // get input type
-        QtTypeTuple inputType  = input->checkType();
+        QtTypeTuple inputType = input->checkType();
 
         if (inputType.tuple[0].getDataType() != QT_MDD)
         {
@@ -257,6 +238,4 @@ QtDelete::checkType()
     {
         LERROR << "Error: QtDelete::checkType() - operand branch invalid.";
     }
-
 }
-

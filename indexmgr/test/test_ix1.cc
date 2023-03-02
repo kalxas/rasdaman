@@ -39,10 +39,9 @@ rasdaman GmbH.
 #include <iostream.h>
 #include <vector.h>
 
-
-#include "o2lib_CC.hxx"       // declaration of O2-collection-classes
-#include <o2.h>               //   O2 Engine
-#include <o2_error.h>         //   O2 error from O2 Engine
+#include "o2lib_CC.hxx"  // declaration of O2-collection-classes
+#include <o2.h>          //   O2 Engine
+#include <o2_error.h>    //   O2 error from O2 Engine
 
 #include "dbmddobjix.hh"
 #include "basetype.hh"
@@ -57,7 +56,6 @@ rasdaman GmbH.
 #include "indexmgr/dirix.hh"
 #include "raslib/rmdebug.hh"
 
-
 #include <math.h>
 
 // This test program must use a different base because it
@@ -65,41 +63,40 @@ rasdaman GmbH.
 static char O2BenchDBName[] = "TestIxBase";
 static char O2BenchSchemaName[] = "TestSMSchema";
 
-extern char* myExecArgv0 = "";
+extern char *myExecArgv0 = "";
 
 unsigned maximumFill = 10;
 
 #include "raslib/rminit.hh"
 RMINITGLOBALS('C')
 
-static void ClearDB(d_Database& DB);
+static void ClearDB(d_Database &DB);
 
 // indexType 1 : R+ tree, 2: DirIx
 static void testPopulateIx(int indexType,
-                           const vector<r_Minterval>& tilesDoms);
+                           const vector<r_Minterval> &tilesDoms);
 
 // static void createTilesArr( Tile** tiles, float alignFactor, int numberTiles );
 
-
 void testCompareIxs();
 
-void calculateGrid(const r_Minterval& baseTile,
-                   const r_Minterval& gridDesc,
-                   long& numberParts,
-                   vector<r_Minterval>*& grid);  //r_Minterval*& grid );
+void calculateGrid(const r_Minterval &baseTile,
+                   const r_Minterval &gridDesc,
+                   long &numberParts,
+                   vector<r_Minterval> *&grid);  //r_Minterval*& grid );
 
-static void testCompareIxs(char* index,             char* index1,
-                           MultiDimIx<Tile>* ix,    MultiDimIx<Tile>* ix1,
-                           r_Minterval* searchInts, int numInts);
+static void testCompareIxs(char *index, char *index1,
+                           MultiDimIx<Tile> *ix, MultiDimIx<Tile> *ix1,
+                           r_Minterval *searchInts, int numInts);
 
-float calculateAlignFactor(const vector<r_Minterval>& partition);
+float calculateAlignFactor(const vector<r_Minterval> &partition);
 
-int isDisjunctive(const vector<r_Minterval>& parts);
+int isDisjunctive(const vector<r_Minterval> &parts);
 
-void createTilesDomains(ofstream& outPopFile,
-                        ofstream& outBMFile,
+void createTilesDomains(ofstream &outPopFile,
+                        ofstream &outBMFile,
                         float alignFactor,
-                        vector<r_Minterval>*& tgIntsVec,
+                        vector<r_Minterval> *&tgIntsVec,
                         int numberTiles,
                         unsigned dim);
 int randomInsertion;
@@ -113,12 +110,10 @@ int randomInsertion;
  * Return value..: exit status
  * Description...: none
  ************************************************************/
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-
     // variables representing O2 database, ta and session
-    d_Session  session;
+    d_Session session;
     d_Database database;
     d_Transaction ta;
 
@@ -144,7 +139,7 @@ main(int argc, char** argv)
         cout << " Error : number of tiles outside supported limits !" << endl;
         return -1;
     }
-    if (af < 0.05 || af  > 1)
+    if (af < 0.05 || af > 1)
     {
         cout << " Error : alignment fator outside supported limits !" << endl;
         return -1;
@@ -158,7 +153,6 @@ main(int argc, char** argv)
     {
         randomInsertion = 0;
     }
-
 
     cout << "Dimensionality " << dim << endl;
     cout << "Number of Tiles " << numberTiles << endl;
@@ -237,12 +231,10 @@ main(int argc, char** argv)
      */
     // ta.commit();
 
+    vector<r_Minterval> *tgIntsVec;
 
-    vector<r_Minterval>* tgIntsVec;
-
-
-    char  namePopFile[100];
-    char  nameBMFile[100];
+    char namePopFile[100];
+    char nameBMFile[100];
     int afint = af * 100;
     if (randomInsertion)
     {
@@ -268,9 +260,8 @@ main(int argc, char** argv)
     }
 
     cout << "Dim                " << dim << endl;
-    cout  << "NTiles wanted      " << numberTiles << endl;
+    cout << "NTiles wanted      " << numberTiles << endl;
     cout << "AlignFactor wanted " << af << endl;
-
 
     // numberTiles = 80 * i;
     createTilesDomains(ixStreamPopResults, ixStreamBMResults, af, tgIntsVec, numberTiles, dim);
@@ -310,21 +301,19 @@ main(int argc, char** argv)
  *
  *
  ************************************************************************/
-void
-testPopulateIx(int indexType, const vector<r_Minterval>& tilesDomains)
+void testPopulateIx(int indexType, const vector<r_Minterval> &tilesDomains)
 {
     CharType anyType;
-    char* anyCells;
+    char *anyCells;
     const int numberTiles = tilesDomains.size();
     const int dim = tilesDomains[1].dimension();
-
 
     cout << "....testPopulateIx" << endl;
     d_List<DBMDDObjIxId> indexList("HierIndexContainer");
 
-    PersDirIx* ix = new PersDirIx(dim, &anyType);
+    PersDirIx *ix = new PersDirIx(dim, &anyType);
 
-    MultiDimIx<Tile>* rix;
+    MultiDimIx<Tile> *rix;
 
     cout << "Ix of type ";
     switch (indexType)
@@ -346,31 +335,32 @@ testPopulateIx(int indexType, const vector<r_Minterval>& tilesDomains)
     cout << "just created: " << endl;
     rix->printStatus();
 
-    Tile* tiles[100000];
+    Tile *tiles[100000];
 
     for (int i = 0; i < tilesDomains.size(); i++)
     {
-        anyCells = (char*)mymalloc(tilesDomains[i].cell_count() * anyType.getSize());
+        anyCells = (char *)mymalloc(tilesDomains[i].cell_count() * anyType.getSize());
         tiles[i] =
-            new PersTile(tilesDomains[i], (const BaseType*) &anyType, anyCells);
+            new PersTile(tilesDomains[i], (const BaseType *)&anyType, anyCells);
     }
 
-
     cout << endl;
-    for (i = 0; i < numberTiles ; i++)
+    for (i = 0; i < numberTiles; i++)
     {
-        cout << endl << "Insert new tile " << i << " " << tiles[i]->getDomain() << endl;
+        cout << endl
+             << "Insert new tile " << i << " " << tiles[i]->getDomain() << endl;
 
         rix->insertObject(tiles[i]);
 
         // rix->printStatus( );
         // cout << endl;
     }
-    cout << endl << "Finished, index contents: " << endl;
+    cout << endl
+         << "Finished, index contents: " << endl;
     rix->printStatus();
     cout << endl;
-    indexList.insert_element_last(((PersIx*)(rix->getIxDS()))->getDBMDDObjIxId());
-    for (i = 0; i < numberTiles ; i++)
+    indexList.insert_element_last(((PersIx *)(rix->getIxDS()))->getDBMDDObjIxId());
+    for (i = 0; i < numberTiles; i++)
     {
         delete tiles[i];
     }
@@ -381,63 +371,59 @@ testPopulateIx(int indexType, const vector<r_Minterval>& tilesDomains)
  *
  *
  ************************************************************************/
-void
-calculateGrid(const r_Minterval& baseTile,
-              const r_Minterval& gridDesc,
-              long& numberParts,
-              vector<r_Minterval>*& grid)  // grid r_Minterval*& grid)
+void calculateGrid(const r_Minterval &baseTile,
+                   const r_Minterval &gridDesc,
+                   long &numberParts,
+                   vector<r_Minterval> *&grid)  // grid r_Minterval*& grid)
 {
     cout << "calculateGrid( " << baseTile << ", " << gridDesc << ") " << endl;
     numberParts = gridDesc.cell_count();
-    grid = new vector<r_Minterval>(numberParts); //new r_Minterval[numberParts];
+    grid = new vector<r_Minterval>(numberParts);  //new r_Minterval[numberParts];
     r_Point ix(baseTile.dimension());
     r_Point ext = baseTile.get_extent();
-    for (int i = 0; i < numberParts ; i++)
+    for (int i = 0; i < numberParts; i++)
     {
         ix = gridDesc.cell_point(i) * ext;
         (*grid)[i] = baseTile.create_translation(ix);
         // grid[i] = r_Minterval( baseTile.create_translation( ix ) );
     }
-
 }
 
 /*************************************************************************
  *
  *
  ************************************************************************/
-void
-createTilesDomains(ofstream& outPopFile,  // file for test_populate
-                   ofstream& outBMFile,  // file for benchmark
-                   float alignFactor,
-                   vector<r_Minterval>*& tgIntsVec,
-                   int numberTiles,
-                   unsigned dim)
+void createTilesDomains(ofstream &outPopFile,  // file for test_populate
+                        ofstream &outBMFile,   // file for benchmark
+                        float alignFactor,
+                        vector<r_Minterval> *&tgIntsVec,
+                        int numberTiles,
+                        unsigned dim)
 {
-
     if (alignFactor > 1 || alignFactor == 0)
     {
         cout << "Error: invalid alignment factor." << endl;
         exit(0);
     }
 
-    cout << "Alignment factor wanted "  << alignFactor << endl;
+    cout << "Alignment factor wanted " << alignFactor << endl;
     cout << "Number of tiles, dim " << numberTiles << ", " << dim << endl;
 
     // number of partitions of the total grid
     double ntgdouble = numberTiles / alignFactor;
     // cout <<"Number of tiles in total grid (double)== " << ntgdouble << endl;
-    long ntg =  ntgdouble;
+    long ntg = ntgdouble;
     cout << "Number of tiles in total grid (long)== " << ntg << endl;
 
     // r_Minterval* tgInts;
 
-    float f = float (1 / float(dim));
+    float f = float(1 / float(dim));
     long n = pow(ntg, f);
-    cout << "Number of tiles in d-1 first directions (n) == "  << n << endl;
+    cout << "Number of tiles in d-1 first directions (n) == " << n << endl;
     r_Minterval tile(dim);
     const unsigned tileLength = 5;
     r_Minterval totalGrid(dim);
-    for (int i = 0; i <  dim - 1; i++)
+    for (int i = 0; i < dim - 1; i++)
     {
         tile[i].set_interval(r_Range(0), tileLength - 1);
         totalGrid[i].set_interval(r_Range(0), n - 1);
@@ -477,24 +463,23 @@ createTilesDomains(ofstream& outPopFile,  // file for test_populate
     */
     int numberMerges = ntg1 - numberTiles;
     int cont = 1;
-    for (i = 0; i < numberMerges && cont ;)
+    for (i = 0; i < numberMerges && cont;)
     {
         int found = 0;
-        int r = rand()  % (tgIntsVec->size());
+        int r = rand() % (tgIntsVec->size());
         // merge randomly
         int notFinished = 1;
 
         int contr = 1;
-        for (int ri = 0; contr  && cont ; ri++)
+        for (int ri = 0; contr && cont; ri++)
         {
             notFinished = 1;
             int init = rand() % tgIntsVec->size();
-            for (int j = init; notFinished ;)
+            for (int j = init; notFinished;)
             {
                 // cout <<"i,j"<< i <<","<< j<<endl;
                 if ((*tgIntsVec)[j].is_mergeable((*tgIntsVec)[r]))
                 {
-
                     if (i % 100 == 0)
                         cout << numberMerges - i << ". Merging j,r " << j << "," << r << " "
                              << (*tgIntsVec)[j] << ", " << (*tgIntsVec)[r] << " resulting ";
@@ -522,7 +507,7 @@ createTilesDomains(ofstream& outPopFile,  // file for test_populate
                     notFinished = 0;
                     found = 1;
                 }
-                j = (j + 1) %  tgIntsVec->size();
+                j = (j + 1) % tgIntsVec->size();
                 if (j == init)
                 {
                     notFinished = 0;
@@ -530,20 +515,20 @@ createTilesDomains(ofstream& outPopFile,  // file for test_populate
             }
             // cout << " r == " << r << ", j == " << j << " , notFinished == " << notFinished << endl;
             //  cout << " ri == " << ri << " , tgIntsVec->size( ) " << tgIntsVec->size( ) << endl;
-            r = (r + 1)  % tgIntsVec->size();
+            r = (r + 1) % tgIntsVec->size();
             if (found)
             {
-                contr = 0;    // already found
+                contr = 0;  // already found
             }
             else
             {
                 if (ri >= tgIntsVec->size())
                 {
-                    cont = 0;    // no more merges possible
+                    cont = 0;  // no more merges possible
                 }
                 else
                 {
-                    r = (r + 1)  % tgIntsVec->size();
+                    r = (r + 1) % tgIntsVec->size();
                 }
             }
         }
@@ -559,7 +544,7 @@ createTilesDomains(ofstream& outPopFile,  // file for test_populate
     unsigned ntilesObta = tgIntsVec->size();
     cout << "NTiles obtained    " << ntilesObta << endl;
 
-    float faObta = float (tgIntsVec->size()) / ntg1;
+    float faObta = float(tgIntsVec->size()) / ntg1;
     cout << "  Alignment factor obtained " << faObta << endl;
 
     /*
@@ -591,9 +576,9 @@ createTilesDomains(ofstream& outPopFile,  // file for test_populate
      *   HowToStore:
      *   IndexType: R+TreeIx
      */
-    char  collName[100];
-    char  collTypeName[100];
-    char  mddTypeName[100];
+    char collName[100];
+    char collTypeName[100];
+    char mddTypeName[100];
     int faInt = faObta * 100;
     if (randomInsertion)
     {
@@ -611,25 +596,29 @@ createTilesDomains(ofstream& outPopFile,  // file for test_populate
 
     sprintf(collTypeName, "Char%dDSet", dim);
     sprintf(mddTypeName, "Char%dD", dim);
-    outPopFile << "Database: BmarkIxBase " << endl << endl;
-    outPopFile << "MDDColl: " << collName << "; " << collTypeName << endl << endl;
+    outPopFile << "Database: BmarkIxBase " << endl
+               << endl;
+    outPopFile << "MDDColl: " << collName << "; " << collTypeName << endl
+               << endl;
     outPopFile << "MDDObj: " << dom << " ; " << mddTypeName << endl;
     outPopFile << "HowToStore:" << endl;
-    outPopFile << "IndexType: R+TreeIx " << endl << endl;
+    outPopFile << "IndexType: R+TreeIx " << endl
+               << endl;
     if (randomInsertion)
     {
-        unsigned vecSz =  tgIntsVec->size();
-        vector<r_Minterval>* tgIntsVec2;
+        unsigned vecSz = tgIntsVec->size();
+        vector<r_Minterval> *tgIntsVec2;
         tgIntsVec2 = new vector<r_Minterval>(vecSz);
         unsigned tix = i;
         for (i = 0; i < vecSz; i++)
         {
             tix = rand() % tgIntsVec->size();
-            outPopFile << "Tile :    " << " " << (*tgIntsVec)[tix]  << "; 0x0000" << endl;
+            outPopFile << "Tile :    "
+                       << " " << (*tgIntsVec)[tix] << "; 0x0000" << endl;
             (*tgIntsVec2)[i] = (*tgIntsVec)[tix];
             tgIntsVec->erase(tgIntsVec->begin() + tix);
         }
-        vector<r_Minterval>* tmpIntsVec;
+        vector<r_Minterval> *tmpIntsVec;
         tmpIntsVec = tgIntsVec;
         tgIntsVec = tgIntsVec2;
         delete tmpIntsVec;
@@ -638,7 +627,8 @@ createTilesDomains(ofstream& outPopFile,  // file for test_populate
     {
         for (i = 0; i < tgIntsVec->size(); i++)
         {
-            outPopFile << "Tile :    " << " " << (*tgIntsVec)[i]  << "; 0x0000" << endl;
+            outPopFile << "Tile :    "
+                       << " " << (*tgIntsVec)[i] << "; 0x0000" << endl;
         }
     }
 
@@ -657,7 +647,6 @@ createTilesDomains(ofstream& outPopFile,  // file for test_populate
         // exit( 0);
     }
     // calculateAlignFactor( tgIntsVec );
-
 }
 
 /*************************************************************************
@@ -688,8 +677,7 @@ createTilesArr( Tile** tiles,
  *
  *
  ************************************************************************/
-float
-calculateAlignFactor(const vector<r_Minterval>& part)
+float calculateAlignFactor(const vector<r_Minterval> &part)
 {
     float fa;
     // for ( int i = 0; i < part.size( ); i++ ) ;
@@ -701,7 +689,7 @@ calculateAlignFactor(const vector<r_Minterval>& part)
  *
  *
  ************************************************************************/
-int isDisjunctive(const vector<r_Minterval>& parts)
+int isDisjunctive(const vector<r_Minterval> &parts)
 {
     for (int i = 0; i < parts.size(); i++)
     {
@@ -727,8 +715,7 @@ int isDisjunctive(const vector<r_Minterval>& parts)
  *   index1: name of second index
  *
  ************************************************************/
-void
-testCompareIxs()
+void testCompareIxs()
 {
     DBMDDObjIxId accessedIndex;
     CharType anyType;
@@ -740,12 +727,12 @@ testCompareIxs()
     // used for iterating
     d_Iterator<DBMDDObjIxId> indexIt = indexList.create_iterator();
 
-    MultiDimIx<Tile>* ix = 0;
-    MultiDimIx<Tile>* ix1 = 0;
-    PersIx* dix;
-    PersIx* dix1;
+    MultiDimIx<Tile> *ix = 0;
+    MultiDimIx<Tile> *ix1 = 0;
+    PersIx *dix;
+    PersIx *dix1;
 
-    for (int i = 1 ; indexIt.not_done(); i++, indexIt.advance())
+    for (int i = 1; indexIt.not_done(); i++, indexIt.advance())
     {
         accessedIndex = indexIt.get_element();
         cout << "    --" << i << ". index object in list:" << endl;
@@ -757,9 +744,10 @@ testCompareIxs()
             {
                 delete ix1;
             }
-            cout << endl << "Creating DirIx ... ";
-            dix1 = new PersDirIx(accessedIndex, (const BaseType*) &anyType);
-            ix1 = new DirIx<PersDirIx, Tile>((PersDirIx*)dix1);
+            cout << endl
+                 << "Creating DirIx ... ";
+            dix1 = new PersDirIx(accessedIndex, (const BaseType *)&anyType);
+            ix1 = new DirIx<PersDirIx, Tile>((PersDirIx *)dix1);
         }
         else
         {
@@ -768,8 +756,9 @@ testCompareIxs()
             {
                 delete ix;
             }
-            cout << endl << "Creating R+-tree ... ";
-            dix = new PersHierIx(accessedIndex, (const BaseType*) &anyType);
+            cout << endl
+                 << "Creating R+-tree ... ";
+            dix = new PersHierIx(accessedIndex, (const BaseType *)&anyType);
             ix = new RPlusTreeIx<Tile>(dix, maximumFill);
         }
         cout << endl;
@@ -779,7 +768,7 @@ testCompareIxs()
     const int numInts = 30;
     r_Minterval searchInts[numInts];
 
-    for (i = 0; i < numInts ; i++)
+    for (i = 0; i < numInts; i++)
     {
         r_Range l1 = rand() % 25;
         r_Range l2 = rand() % 30;
@@ -796,7 +785,7 @@ testCompareIxs()
         */
     }
 
-    testCompareIxs("R+-tree ", "DirIx   ", ix,  ix1, searchInts, numInts);
+    testCompareIxs("R+-tree ", "DirIx   ", ix, ix1, searchInts, numInts);
 
     delete ix;
     delete ix1;
@@ -806,16 +795,14 @@ testCompareIxs()
  *
  *
  ************************************************************************/
-void
-testCompareIxs(char* index,             char* index1,
-               MultiDimIx<Tile>* ix,    MultiDimIx<Tile>* ix1,
-               r_Minterval* searchInts, int numInts)
+void testCompareIxs(char *index, char *index1,
+                    MultiDimIx<Tile> *ix, MultiDimIx<Tile> *ix1,
+                    r_Minterval *searchInts, int numInts)
 {
     cout << "....testCompareIxs" << endl;
 
     //ULongType anyType;
     // char anyCell[4];
-
 
     cout << "Comparison of      Index  " << index << endl;
     cout << "with               Index1 " << index1 << endl;
@@ -824,22 +811,23 @@ testCompareIxs(char* index,             char* index1,
     {
         Timer time;
         Timer time1;
-        RMTimer* rtime = new RMTimer(index, "intersect");
-        RMTimer* rtime1 = new RMTimer(index1, "intersect");
+        RMTimer *rtime = new RMTimer(index, "intersect");
+        RMTimer *rtime1 = new RMTimer(index1, "intersect");
 
-        cout << "Intersect with " <<  searchInts[i] << endl;
+        cout << "Intersect with " << searchInts[i] << endl;
 
         // Index
         time.start();
         rtime->start();
-        vector<Tile*>* rqResult = ix->intersect(searchInts[i]);
+        vector<Tile *> *rqResult = ix->intersect(searchInts[i]);
         int num, num1;
         rtime->stop();
         time.stop();
         if (rqResult)
         {
             num = rqResult->size();
-            cout << index << endl << " No. of tiles, time , time/noTiles = "
+            cout << index << endl
+                 << " No. of tiles, time , time/noTiles = "
                  << rqResult->size() << " , " << time << " , ";
             if (rqResult->size())
             {
@@ -856,13 +844,14 @@ testCompareIxs(char* index,             char* index1,
         // Index 1
         time1.start();
         rtime1->start();
-        vector<Tile*>* rqResult1 = ix1->intersect(searchInts[i]);
+        vector<Tile *> *rqResult1 = ix1->intersect(searchInts[i]);
         rtime1->stop();
         time1.stop();
         if (rqResult1)
         {
             num1 = rqResult1->size();
-            cout << index1 << endl << " No. of tiles, time1, time1/noTiles = "
+            cout << index1 << endl
+                 << " No. of tiles, time1, time1/noTiles = "
                  << rqResult1->size() << " , " << time1 << " , ";
             if (rqResult1->size())
             {
@@ -887,7 +876,7 @@ testCompareIxs(char* index,             char* index1,
             for (int j = 0; j < rqResult->size(); j++)
             {
                 cout << (*rqResult)[j]->getDomain() << endl;
-                delete(*rqResult)[j];
+                delete (*rqResult)[j];
             }
             delete rqResult;
         }
@@ -899,11 +888,10 @@ testCompareIxs(char* index,             char* index1,
             for (int j = 0; j < rqResult1->size(); j++)
             {
                 cout << (*rqResult1)[j]->getDomain() << endl;
-                delete(*rqResult1)[j];
+                delete (*rqResult1)[j];
             }
             delete rqResult1;
         }
         cout << endl;
     }
-
 }

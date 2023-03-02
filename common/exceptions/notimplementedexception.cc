@@ -22,7 +22,8 @@ rasdaman GmbH.
 */
 #include "notimplementedexception.hh"
 
-namespace common {
+namespace common
+{
 
 NotImplementedException::NotImplementedException()
     : LogicException("Execution reached an unimplemented method.") {}
@@ -31,4 +32,4 @@ NotImplementedException::NotImplementedException(const std::string &msgArg)
     : LogicException(msgArg) {}
 
 NotImplementedException::~NotImplementedException() = default;
-}
+}  // namespace common

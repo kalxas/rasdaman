@@ -27,7 +27,6 @@ rasdaman GmbH.
 
 #include "qlparser/qtbinaryoperation.hh"
 
-
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -67,8 +66,6 @@ private:
     static const QtNodeType nodeType;
 };
 
-
 #include "qlparser/qtintervalop.icc"
 
 #endif
-

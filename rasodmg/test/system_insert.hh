@@ -26,10 +26,10 @@ rasdaman GmbH.
 
 #include "system_basic.hh"
 
-class SystemInsert  :   public SystemBasic
+class SystemInsert : public SystemBasic
 {
 public:
-    static int doStuff(int argc, const char** argv);
+    static int doStuff(int argc, const char **argv);
 
     static void printUsage();
 

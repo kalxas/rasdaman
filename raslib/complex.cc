@@ -27,13 +27,13 @@ rasdaman GmbH.
 #include <logging.hh>
 
 r_Complex::r_Complex(const char *newBuffer, const r_Complex_Type *newType)
-    :   r_Primitive(newBuffer, newType)
+    : r_Primitive(newBuffer, newType)
 {
     checkTypeAndBuffer();
 }
 
 r_Complex::r_Complex(const r_Complex &obj)
-    :   r_Primitive(obj)
+    : r_Primitive(obj)
 {
     checkTypeAndBuffer();
 }
@@ -51,7 +51,7 @@ r_Complex::operator=(const r_Complex &obj)
     return *this;
 }
 
-// float / double complex 
+// float / double complex
 
 r_Double
 r_Complex::get_re() const
@@ -63,18 +63,16 @@ r_Complex::get_im() const
 {
     return static_cast<r_Complex_Type *>(valueType)->get_im(get_buffer());
 }
-void
-r_Complex::set_re(r_Double re)
+void r_Complex::set_re(r_Double re)
 {
     static_cast<r_Complex_Type *>(valueType)->set_re(valueBuffer, re);
 }
-void
-r_Complex::set_im(r_Double im)
+void r_Complex::set_im(r_Double im)
 {
     static_cast<r_Complex_Type *>(valueType)->set_im(valueBuffer, im);
 }
 
-// short / long complex 
+// short / long complex
 
 r_Long
 r_Complex::get_re_long() const
@@ -86,13 +84,11 @@ r_Complex::get_im_long() const
 {
     return static_cast<r_Complex_Type *>(valueType)->get_im_long(valueBuffer);
 }
-void
-r_Complex::set_re_long(r_Long re)
+void r_Complex::set_re_long(r_Long re)
 {
     static_cast<r_Complex_Type *>(valueType)->set_re_long(valueBuffer, re);
 }
-void
-r_Complex::set_im_long(r_Long im)
+void r_Complex::set_im_long(r_Long im)
 {
     static_cast<r_Complex_Type *>(valueType)->set_im_long(valueBuffer, im);
 }
@@ -111,9 +107,7 @@ void r_Complex::checkTypeAndBuffer() const
     }
 }
 
-bool
-r_Complex::isComplex() const
+bool r_Complex::isComplex() const
 {
     return true;
 }
-

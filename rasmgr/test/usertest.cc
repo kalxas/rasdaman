@@ -13,9 +13,9 @@ namespace test
 {
 TEST(UserTest, serializeToProto)
 {
-    using rasmgr::UserDatabaseRights;
-    using rasmgr::UserAdminRights;
     using rasmgr::User;
+    using rasmgr::UserAdminRights;
+    using rasmgr::UserDatabaseRights;
     using rasmgr::UserProto;
     using rasmgr::test::TestUtil;
 
@@ -54,12 +54,12 @@ TEST(UserTest, serializeToProto)
 
 TEST(UserTest, parseFromProto)
 {
+    using rasmgr::User;
     using rasmgr::UserAdminRights;
     using rasmgr::UserAdminRightsProto;
-    using rasmgr::UserDatabaseRightsProto;
     using rasmgr::UserDatabaseRights;
+    using rasmgr::UserDatabaseRightsProto;
     using rasmgr::UserProto;
-    using rasmgr::User;
     using rasmgr::test::TestUtil;
 
     std::string name = "name";
@@ -70,7 +70,7 @@ TEST(UserTest, parseFromProto)
     bool adminRights = TestUtil::generateRandomElement(false, true);
     bool configRights = TestUtil::generateRandomElement(false, true);
 
-    UserAdminRightsProto* userAdminRights = new UserAdminRightsProto();
+    UserAdminRightsProto *userAdminRights = new UserAdminRightsProto();
     userAdminRights->set_access_control_rights(controlRights);
     userAdminRights->set_info_rights(infoRights);
     userAdminRights->set_server_admin_rights(adminRights);
@@ -79,7 +79,7 @@ TEST(UserTest, parseFromProto)
     bool readRights = TestUtil::generateRandomElement(false, true);
     bool writeRights = TestUtil::generateRandomElement(false, true);
 
-    UserDatabaseRightsProto* userDbRights = new UserDatabaseRightsProto();
+    UserDatabaseRightsProto *userDbRights = new UserDatabaseRightsProto();
     userDbRights->set_read(readRights);
     userDbRights->set_write(writeRights);
 
@@ -103,5 +103,5 @@ TEST(UserTest, parseFromProto)
     ASSERT_EQ(writeRights, user.getDefaultDbRights().hasWriteAccess());
 }
 
-}
-}
+}  // namespace test
+}  // namespace rasmgr

@@ -46,7 +46,7 @@ public:
     r_OId(const char *initSystemName, const char *initBaseName, long long initLocalOId);
     r_OId(const r_OId &) = default;
     r_OId &operator=(const r_OId &o);
-    
+
     ~r_OId() = default;
 
     /// debug output
@@ -59,9 +59,9 @@ public:
     /// operator for not equal
     bool operator!=(const r_OId &) const;
     /// operator for greater than
-    bool operator> (const r_OId &) const;
+    bool operator>(const r_OId &) const;
     /// operator for less than
-    bool operator< (const r_OId &) const;
+    bool operator<(const r_OId &) const;
     /// operator for greater or equal than
     bool operator>=(const r_OId &) const;
     /// operator for less than or equal

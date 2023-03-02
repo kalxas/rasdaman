@@ -41,7 +41,6 @@ rasdaman GmbH.
 #define TEST_PROTECTED
 #define TEST_PRIVATE
 
-
 #include "ulongtype.hh"
 
 #include "tilemgr/persmddcoll.hh"
@@ -61,23 +60,23 @@ rasdaman GmbH.
 #include "mdddomaintype.hh"
 #include "settype.hh"
 
-extern char* myExecArgv0 = "";
+extern char *myExecArgv0 = "";
 
 RMINITGLOBALS('C')
 
-static char* O2DBName;
-char* collName;
+static char *O2DBName;
+char *collName;
 char defaultCollName[] = "ObjsContainer";
-static int createMDDColl(const char* collName, DatabaseIf* db);
-static void ClearDB(d_Database& DB);
+static int createMDDColl(const char *collName, DatabaseIf *db);
+static void ClearDB(d_Database &DB);
 static void testAccessing();
 static void testConstructors();
 static void testRemove();
 static void testSearch();
 static void testGetFunctions();
 static void testLaterInsert();
-PersTile* createPersTile(const r_Minterval& dom, const BaseType* type);
-static int openCreateDB(const char* O2DBName, DatabaseIf& database);
+PersTile *createPersTile(const r_Minterval &dom, const BaseType *type);
+static int openCreateDB(const char *O2DBName, DatabaseIf &database);
 
 TransactionIf ta;
 
@@ -91,8 +90,7 @@ TransactionIf ta;
  * Description...: none
  ************************************************************/
 
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // variables representing O2 database, ta and session
     DatabaseIf database;
@@ -115,7 +113,7 @@ main(int argc, char** argv)
 
     // don't forget to initialize before using AdminIf!
     myExecArgv0 = argv[0];
-    AdminIf* myAdmin = AdminIf::instance();
+    AdminIf *myAdmin = AdminIf::instance();
 
     // connect to the database
     cout << "Connecting to database " << O2DBName
@@ -129,9 +127,8 @@ main(int argc, char** argv)
         return errorDBOpen;
     }
 
-
-
-    cout << endl << "Deleting root object from the database ..." << endl;
+    cout << endl
+         << "Deleting root object from the database ..." << endl;
     ta.begin(&database);
     int i = PersMDDColl::destroyRoot(collName, &database);
     cout << " i == " << i << endl;
@@ -139,19 +136,20 @@ main(int argc, char** argv)
     // database.destroyRootObj( collName );
     ta.commit();
 
-
     ta.begin(&database);
     createMDDColl(collName, &database);
     ta.commit();
 
     // create collection and objects and put them in the collection
-    cout << endl << "Populate collection ..." << endl;
+    cout << endl
+         << "Populate collection ..." << endl;
     ta.begin(&database);
     testConstructors();
     ta.commit();
 
     // read coll and print contents
-    cout << endl << "Read collection and print contents..." << endl;
+    cout << endl
+         << "Read collection and print contents..." << endl;
     ta.begin(&database);
     testAccessing();
     ta.commit();
@@ -162,7 +160,8 @@ main(int argc, char** argv)
     database.close();
 
     // connect to the database
-    cout << endl << "Connecting to database SecondBase "
+    cout << endl
+         << "Connecting to database SecondBase "
          << "..." << endl;
     // database1.open( "SecondBase" );
 
@@ -175,12 +174,14 @@ main(int argc, char** argv)
     }
 
     // read coll and print contents
-    cout << endl << "Read collection and print contents..." << endl;
+    cout << endl
+         << "Read collection and print contents..." << endl;
     cout << "Read only? " << endl;
     int ro;
     cin >> ro;
     ta.begin(&database1, ro);
-    cout << endl << " testAccessing before " << endl;
+    cout << endl
+         << " testAccessing before " << endl;
     testAccessing();
     ta.commit();
 
@@ -222,7 +223,8 @@ main(int argc, char** argv)
       testAccessing( );
       ta.commit( );
     */
-    cout << endl << "Ending O2 session..." << endl;
+    cout << endl
+         << "Ending O2 session..." << endl;
     database.close();
     delete myAdmin;
 }
@@ -230,11 +232,11 @@ main(int argc, char** argv)
  * Function......: testConstructors()
  *
  ************************************************************/
-PersTile*
-createPersTile(const r_Minterval& dom, const BaseType* type)
+PersTile *
+createPersTile(const r_Minterval &dom, const BaseType *type)
 {
-    char* cells = (char*)mymalloc(dom.cell_count() * type->getSize());
-    PersTile* t = new PersTile(dom, type, cells);
+    char *cells = (char *)mymalloc(dom.cell_count() * type->getSize());
+    PersTile *t = new PersTile(dom, type, cells);
     return t;
 }
 
@@ -249,18 +251,17 @@ createPersTile(const r_Minterval& dom, const BaseType* type)
 
 static void testConstructors()
 {
-    const BaseType* ulongTypeObj = TypeFactory::mapType("ULong");
-    const BaseType* boolTypeObj = TypeFactory::mapType("Bool");
-    char* uLongCells;
-    char* boolCells;
+    const BaseType *ulongTypeObj = TypeFactory::mapType("ULong");
+    const BaseType *boolTypeObj = TypeFactory::mapType("Bool");
+    char *uLongCells;
+    char *boolCells;
 
-    const MDDBaseType* mType1 =
-        (const MDDBaseType*) TypeFactory::mapMDDType("TestSMDomainType2D");
-    const MDDBaseType* mType2 =
-        (const MDDBaseType*) TypeFactory::mapMDDType("TestSMDomainType3D");
+    const MDDBaseType *mType1 =
+        (const MDDBaseType *)TypeFactory::mapMDDType("TestSMDomainType2D");
+    const MDDBaseType *mType2 =
+        (const MDDBaseType *)TypeFactory::mapMDDType("TestSMDomainType3D");
 
     cout << "....testConstructors" << endl;
-
 
     // read root object
 
@@ -299,31 +300,29 @@ static void testConstructors()
     r_Minterval dom(2);
     dom << limits1Obj1 << limits2Obj1;
 
+    r_Minterval tmpInt = *((MDDDomainType *)mType1)->getDomain();
+    PersMDDObj *MDDObj1 = new PersMDDObj(mType1, tmpInt);
 
-    r_Minterval tmpInt =  *((MDDDomainType*) mType1)->getDomain();
-    PersMDDObj* MDDObj1 = new PersMDDObj(mType1, tmpInt);
-
-    PersTile* tile1Obj1 = createPersTile(dom, ulongTypeObj);
+    PersTile *tile1Obj1 = createPersTile(dom, ulongTypeObj);
     MDDObj1->insertTile(tile1Obj1);
 
     cout << "       tile 2 = nil, 0-400, 22-24 " << endl;
     dom[0].set_interval(0l, 400l);
     dom[1].set_interval(22l, 24l);
-    PersTile* tile2Obj1 = createPersTile(dom, ulongTypeObj);
+    PersTile *tile2Obj1 = createPersTile(dom, ulongTypeObj);
     MDDObj1->insertTile(tile2Obj1);
 
     cout << "       tile 3 = nil, 0-600, 10-1000 " << endl;
     dom[0].set_interval(0l, 600l);
     dom[1].set_interval(10l, 1000l);
-    PersTile* tile3Obj1 = createPersTile(dom, ulongTypeObj);
+    PersTile *tile3Obj1 = createPersTile(dom, ulongTypeObj);
     MDDObj1->insertTile(tile3Obj1);
 
-    cout << " MDDObj1 == isPersistent:" << MDDObj1->isPersistent() << ";" ;
+    cout << " MDDObj1 == isPersistent:" << MDDObj1->isPersistent() << ";";
     MDDObj1->printStatus();
     cout << endl;
 
     objsSet.insert(MDDObj1);
-
 
     // create MDD Object
 
@@ -336,28 +335,27 @@ static void testConstructors()
     dom2 << limits1Obj2 << limits2Obj2 << limits3Obj2;
     // PersMDDObj* MDDObj2 = new PersMDDObj( dom2, "Bool");
 
-    tmpInt = *((MDDDomainType*) mType2)->getDomain();
-    PersMDDObj* MDDObj2 = new PersMDDObj(mType2, tmpInt);
+    tmpInt = *((MDDDomainType *)mType2)->getDomain();
+    PersMDDObj *MDDObj2 = new PersMDDObj(mType2, tmpInt);
 
-    PersTile* tile1Obj2 = createPersTile(dom2, boolTypeObj);
+    PersTile *tile1Obj2 = createPersTile(dom2, boolTypeObj);
     MDDObj2->insertTile(tile1Obj2);
 
     cout << "       tile 2 = nil, 20-39, 60-79, 60-89 " << endl;
     dom2[0].set_interval(20l, 39l);
     dom2[1].set_interval(60l, 79l);
     dom2[2].set_interval(60l, 89l);
-    PersTile* tile2Obj2 = createPersTile(dom2, boolTypeObj);
+    PersTile *tile2Obj2 = createPersTile(dom2, boolTypeObj);
 
     MDDObj2->insertTile(tile2Obj2);
 
-    cout << " MDDObj2 == isPersistent:" << MDDObj2->isPersistent() << ";" ;
+    cout << " MDDObj2 == isPersistent:" << MDDObj2->isPersistent() << ";";
     MDDObj2->printStatus();
     cout << endl;
 
     objsSet.insert(MDDObj2);
 
     objsSet.releaseAll();
-
 }
 
 /*************************************************************
@@ -370,7 +368,7 @@ static void testConstructors()
 
 static void testAccessing()
 {
-    PersMDDObj* accessedObj;
+    PersMDDObj *accessedObj;
 
     cout << "....testAccessing" << endl;
     try
@@ -383,16 +381,16 @@ static void testAccessing()
         // To test PersMDDObj::printStatus( ), MDDCollIter::createIterator( ) and
         // MDDCollIter methods :
 
-
         cout << "Iterating through the collection with PersMDDCollIter " << endl;
-        MDDCollIter* objsIt = objsSet.createIterator();
+        MDDCollIter *objsIt = objsSet.createIterator();
 
-        for (int i = 1 ; objsIt->notDone(); i++, objsIt->advance())
+        for (int i = 1; objsIt->notDone(); i++, objsIt->advance())
         {
-            accessedObj = (PersMDDObj*) objsIt->getElement();
+            accessedObj = (PersMDDObj *)objsIt->getElement();
             cout << i << ". MDD object in set:" << endl;
             accessedObj->printStatus();
-            cout << endl << endl;
+            cout << endl
+                 << endl;
         }
         delete objsIt;
         objsSet.releaseAll();
@@ -412,7 +410,7 @@ static void testAccessing()
 
 static void testLaterInsert()
 {
-    PersMDDObj* accessedObj;
+    PersMDDObj *accessedObj;
 
     cout << "....testAccessing" << endl;
 
@@ -424,23 +422,21 @@ static void testLaterInsert()
     // To test PersMDDObj::printStatus( ), MDDCollIter::createIterator( ) and
     // MDDCollIter methods :
 
-
     cout << "Iterating through the collection with PersMDDCollIter " << endl;
-    MDDCollIter* objsIt = objsSet.createIterator();
+    MDDCollIter *objsIt = objsSet.createIterator();
 
-
-    PersTile* t, *t2, *t3;
-    for (int i = 1 ; objsIt->notDone(); i++, objsIt->advance())
+    PersTile *t, *t2, *t3;
+    for (int i = 1; objsIt->notDone(); i++, objsIt->advance())
     {
-        accessedObj = (PersMDDObj*) objsIt->getElement();
+        accessedObj = (PersMDDObj *)objsIt->getElement();
         switch (accessedObj->getDimension())
         {
-        case 2 :
+        case 2:
             t2 = new PersTile(r_Minterval("[40:60,80:100]"),
                               accessedObj->getCellType());
             t = t2;
             break;
-        case 3 :
+        case 3:
             t3 = new PersTile(r_Minterval("[40:60,80:100,0:20]"),
                               accessedObj->getCellType());
             t = t3;
@@ -452,12 +448,12 @@ static void testLaterInsert()
         accessedObj->insertTile(t);
         cout << i << ". MDD object in set:" << endl;
         accessedObj->printStatus();
-        cout << endl << endl;
+        cout << endl
+             << endl;
     }
     delete objsIt;
     objsSet.releaseAll();
 }
-
 
 /*************************************************************
  * Function......: testSearch()
@@ -469,18 +465,17 @@ static void testLaterInsert()
 
 static void testSearch()
 {
-
-    MDDObj* accessedObj;
+    MDDObj *accessedObj;
 
     cout << "....testSearch" << endl;
 
     PersMDDColl objsSet(collName);
 
-    MDDCollIter* objsIt = objsSet.createIterator();
+    MDDCollIter *objsIt = objsSet.createIterator();
 
-    for (int i = 1 ; objsIt->notDone(); i++, objsIt->advance())
+    for (int i = 1; objsIt->notDone(); i++, objsIt->advance())
     {
-        accessedObj =  objsIt->getElement();
+        accessedObj = objsIt->getElement();
 
         cout << "Accessed Object " << endl;
         accessedObj->printStatus();
@@ -490,7 +485,7 @@ static void testSearch()
         {
             r_Minterval searchInt1(2);
             r_Minterval searchInt2(3);
-            vector<Tile*>* entriesList;
+            vector<Tile *> *entriesList;
 
             cout << "    -- " << i << ". MDD object in list. Search for:";
             switch (i)
@@ -512,9 +507,9 @@ static void testSearch()
                 break;
             }
             cout << "    -- Search result: " << endl;
-            vector<Tile*>::iterator entryIt = entriesList->begin();
+            vector<Tile *>::iterator entryIt = entriesList->begin();
 
-            while (entryIt !=  entriesList->end())
+            while (entryIt != entriesList->end())
             {
                 // (*entryIt)->printStatus();
                 r_Minterval tileInterval = (*entryIt)->getDomain();
@@ -546,24 +541,23 @@ static void testSearch()
 
 static void testGetFunctions()
 {
-    PersMDDObj* accessedObj;
+    PersMDDObj *accessedObj;
 
     cout << "....testGetFunctions" << endl;
 
     PersMDDColl objsSet(collName);
 
-    MDDCollIter* objsIt = objsSet.createIterator();
+    MDDCollIter *objsIt = objsSet.createIterator();
 
-    vector<Tile*>* entriesList;
+    vector<Tile *> *entriesList;
 
-    for (int i = 1 ; objsIt->notDone(); i++, objsIt->advance())
+    for (int i = 1; objsIt->notDone(); i++, objsIt->advance())
     {
         r_Minterval currDom;
         r_Minterval defDom;
 
         cout << "  " << i << ". Object" << endl;
-        accessedObj = (PersMDDObj*) objsIt->getElement();
-
+        accessedObj = (PersMDDObj *)objsIt->getElement();
 
         defDom = accessedObj->getDefinitionDomain();
         cout << "     GetDefinitionDomain result: ";
@@ -577,9 +571,9 @@ static void testGetFunctions()
 
         entriesList = accessedObj->getTiles();
         cout << "     -- GetTiles result: " << endl;
-        vector<Tile*>::iterator entryIt = entriesList->begin();
+        vector<Tile *>::iterator entryIt = entriesList->begin();
 
-        while (entryIt !=  entriesList->end())
+        while (entryIt != entriesList->end())
         {
             // (*entryIt)->printStatus();
             r_Minterval tileInterval = (*entryIt)->getDomain();
@@ -610,7 +604,7 @@ static void testGetFunctions()
 
 static void testRemove()
 {
-    PersMDDObj* accessedObj;
+    PersMDDObj *accessedObj;
 
     cout << "....testRemove" << endl;
 
@@ -618,14 +612,13 @@ static void testRemove()
     // PersMDDColl objsSet("Qualquercoisa");
     // To test PersMDDColl::printStatus and PersMDDColl::remove
 
-
-    MDDCollIter* objsIt = objsSet.createIterator();
+    MDDCollIter *objsIt = objsSet.createIterator();
 
     cout << "-- Remove second element from collection " << endl;
 
-    for (int i = 1 ; objsIt->notDone() && i < 2; i++, objsIt->advance())
+    for (int i = 1; objsIt->notDone() && i < 2; i++, objsIt->advance())
     {
-        accessedObj = (PersMDDObj*) objsIt->getElement();
+        accessedObj = (PersMDDObj *)objsIt->getElement();
     }
     cout << "Delete of objsIt:" << endl;
     delete objsIt;
@@ -640,14 +633,14 @@ static void testRemove()
  *
  ************************************************************/
 
-static int openCreateDB(const char* O2DBName, DatabaseIf& database)
+static int openCreateDB(const char *O2DBName, DatabaseIf &database)
 {
     cout << "openCreateDB " << O2DBName << endl;
 
     int errorDBOpen;
     try
     {
-        errorDBOpen =  database.open(O2DBName);
+        errorDBOpen = database.open(O2DBName);
     }
     catch (...)
     {
@@ -660,12 +653,13 @@ static int openCreateDB(const char* O2DBName, DatabaseIf& database)
         cout << "Creating new database " << O2DBName
              << "..." << endl;
         database.create(O2DBName, "TestSMSchema");
-        cout << endl << "Connecting to database " << O2DBName
+        cout << endl
+             << "Connecting to database " << O2DBName
              << "..." << endl;
 
         try
         {
-            errorDBOpen =  database.open(O2DBName);
+            errorDBOpen = database.open(O2DBName);
         }
         catch (...)
         {
@@ -685,23 +679,22 @@ static int openCreateDB(const char* O2DBName, DatabaseIf& database)
  * Function......: createMDDColl( )
  ************************************************************/
 static int
-createMDDColl(const char* collName, DatabaseIf* db)
+createMDDColl(const char *collName, DatabaseIf *db)
 {
-    MDDDomainType* mType1 = 0;
-    MDDDomainType* mType2 = 0;
-    MDDType* mt = 0;
-    CollectionType* collType1 = 0;
+    MDDDomainType *mType1 = 0;
+    MDDDomainType *mType2 = 0;
+    MDDType *mt = 0;
+    CollectionType *collType1 = 0;
 
-    const BaseType* ulongTypeObj = TypeFactory::mapType("ULong");
+    const BaseType *ulongTypeObj = TypeFactory::mapType("ULong");
 
-    const MDDDomainType* cmType1 =
-        (MDDDomainType*) TypeFactory::mapMDDType("TestSMDomainType2D");
-    const MDDDomainType* cmType2 =
-        (MDDDomainType*) TypeFactory::mapMDDType("TestSMDomainType3D");
+    const MDDDomainType *cmType1 =
+        (MDDDomainType *)TypeFactory::mapMDDType("TestSMDomainType2D");
+    const MDDDomainType *cmType2 =
+        (MDDDomainType *)TypeFactory::mapMDDType("TestSMDomainType3D");
 
-    const CollectionType* collType =
-        (CollectionType*)TypeFactory::mapSetType("ObjsContainerType");
-
+    const CollectionType *collType =
+        (CollectionType *)TypeFactory::mapSetType("ObjsContainerType");
 
     if (!cmType1 || !cmType2 || !collType)
     {
@@ -724,10 +717,10 @@ createMDDColl(const char* collName, DatabaseIf* db)
 
         // MDDDomainType* mType1 =
         mType1 =
-            new  MDDDomainType((char*) name1, (BaseType*) ulongTypeObj, dom1);
+            new MDDDomainType((char *)name1, (BaseType *)ulongTypeObj, dom1);
         // MDDDomainType* mType2 =
         mType2 =
-            new  MDDDomainType((char*) name2, (BaseType*) ulongTypeObj, dom2);
+            new MDDDomainType((char *)name2, (BaseType *)ulongTypeObj, dom2);
 
         cout << "MDD Type1 == ";
         mType1->print_status(cout);
@@ -748,11 +741,9 @@ createMDDColl(const char* collName, DatabaseIf* db)
             collType1 = new SetType("ObjsContainerType", mType1);
             cout << "Set Type created ... ";
             collType = collType1;
-            TypeFactory::addSetType((SetType*)  collType);
+            TypeFactory::addSetType((SetType *)collType);
             cout << " and added " << endl;
-
         }
-
     }
     cout << "Creating root collection" << endl;
 
@@ -766,7 +757,7 @@ createMDDColl(const char* collName, DatabaseIf* db)
         cout << "Error allocating OId for collection " << endl;
     }
 
-    PersMDDColl* col;
+    PersMDDColl *col;
     try
     {
         // CollectionType* ct = TypeFactory::mapSetType( "ObjsContainerType" );

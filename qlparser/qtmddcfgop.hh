@@ -37,19 +37,17 @@ rasdaman GmbH.
 #include "qlparser/qtmddconfig.hh"
 #include "rasodmg/interesttiling.hh"
 #include <iostream>
-#include<fstream>
+#include <fstream>
 #include <string>
 using namespace std;
 
-
-class QtMddCfgOp: public QtOperation
+class QtMddCfgOp : public QtOperation
 {
 private:
     QtMDDConfig *mddCfgObj;
     QtOperation *input;
 
 public:
-
     QtMddCfgOp();
     ~QtMddCfgOp();
 

@@ -31,23 +31,17 @@ QtNullvaluesData::QtNullvaluesData(const r_Nullvalues &nullvaluesArg)
 {
 }
 
-
 QtDataType
 QtNullvaluesData::getDataType() const
 {
     return QT_NULLVALUES;
 }
 
-
-
-bool
-QtNullvaluesData::equal(const QtData *) const
+bool QtNullvaluesData::equal(const QtData *) const
 {
     bool returnValue = false;
     return returnValue;
 }
-
-
 
 std::string
 QtNullvaluesData::getSpelling() const
@@ -56,8 +50,6 @@ QtNullvaluesData::getSpelling() const
     return result;
 }
 
-
-
 char *QtNullvaluesData::getTypeStructure() const
 {
     return strdup("nullvalues");
@@ -65,17 +57,16 @@ char *QtNullvaluesData::getTypeStructure() const
 
 void QtNullvaluesData::printStatus(std::ostream &stream) const
 {
-
     stream << "null values: " << std::flush;
     stream << "[" << std::flush;
     bool printComma = false;
-    for (const auto &p : nullvalues.getNullvalues())
+    for (const auto &p: nullvalues.getNullvalues())
     {
         if (printComma)
         {
             stream << ",";
         }
-        printComma = true; // add a comma before the second entry and on
+        printComma = true;  // add a comma before the second entry and on
 
         stream << p.first << ":" << p.second;
     }

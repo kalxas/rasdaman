@@ -29,8 +29,6 @@ rasdaman GmbH.
  *          None
 */
 
-
-
 #include <iostream.h>
 
 #define __EXECUTABLE__
@@ -45,22 +43,20 @@ rasdaman GmbH.
 #include "servercomm/cliententry.hh"
 #include "globals.hh"
 
-
-extern char* myExecArgv0 = "";
-extern int   tiling = 1;
+extern char *myExecArgv0 = "";
+extern int tiling = 1;
 extern unsigned long maxTransferBufferSize = 4000000;
-extern int           globalOptimizationLevel = 4;
-extern int           noTimeOut = 0;
-char         globalConnectId[255] = {0};
-char         globalDbUser[255] = {0};
-char         globalDbPasswd[255] = {0};
+extern int globalOptimizationLevel = 4;
+extern int noTimeOut = 0;
+char globalConnectId[255] = {0};
+char globalDbUser[255] = {0};
+char globalDbPasswd[255] = {0};
 
 RMINITGLOBALS('C');
 
 #include <signal.h>
 
-
-int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
+int checkArguments(int argc, char **argv, const char *searchText, int &optionValueIndex)
 {
     int found = 0;
     int i = 1;
@@ -82,8 +78,7 @@ int checkArguments(int argc, char** argv, const char* searchText, int& optionVal
     return found;
 }
 
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     strcpy(globalConnectId, "tcp:postgresql://localhost:5432/RASBASE");
 
@@ -92,11 +87,11 @@ int main(int argc, char** argv)
 
     DatabaseIf database;
     TransactionIf ta;
-    AdminIf* myAdmin = AdminIf::instance();
+    AdminIf *myAdmin = AdminIf::instance();
     database.open("RASSERVICE");
     ta.begin(&database);
 
-    ClientTblElt* r = new ClientTblElt("testclient", 2);
+    ClientTblElt *r = new ClientTblElt("testclient", 2);
 
     server.addClientTblEntry(r);
 
@@ -105,21 +100,21 @@ int main(int argc, char** argv)
     server.openDB(2, "RASBASE", "costea");
     SET_OUTPUT(TRUE);
 
-    char* buff = new char[1000];
+    char *buff = new char[1000];
     unsigned int size;
 
-    QtScalarData* t;
+    QtScalarData *t;
 
     try
     {
         server.executeQuery(2, "SELECT a from RAS_COLLECTIONNAMES as a", result);
-        vector<QtData*>::iterator i;
+        vector<QtData *>::iterator i;
         /*    for (i=r->transferData->begin(); i!=r->transferData->end(); ++i) {
           // t = (QtScalarData*)(*i);
           // t->printStatus();
           }*/
     }
-    catch (r_Error& errorObj)
+    catch (r_Error &errorObj)
     {
         cerr << errorObj.what() << endl;
         return -1;

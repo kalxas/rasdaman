@@ -32,7 +32,7 @@
 
 #ifdef HAVE_GDAL
 class GDALDataset;
-using GDALDatasetPtr = std::unique_ptr<GDALDataset, void(*)(GDALDataset *)>;
+using GDALDatasetPtr = std::unique_ptr<GDALDataset, void (*)(GDALDataset *)>;
 /// Closes and frees the dataset
 void deleteGDALDataset(GDALDataset *dataset);
 #endif
@@ -83,7 +83,6 @@ public:
     virtual QtNodeType getNodeType() const;
 
 private:
-
 #ifdef HAVE_GDAL
 
     // Conversion methods between rasdaman and GDAL
@@ -103,7 +102,5 @@ private:
     double errThreshold{common::defaultErrorThreshold};
 
     static const QtNodeType nodeType;
-
 };
 #endif  // _QTPROJECT_
-

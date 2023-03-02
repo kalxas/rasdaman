@@ -48,8 +48,8 @@ typedef struct BoundingBox
     r_PointDouble bBoxSizes;
 
     // constructor
-    BoundingBox(r_PointDouble minP, r_PointDouble maxP, r_PointDouble bSize) : minPoint(minP), maxPoint(maxP), bBoxSizes(bSize)
-    {    };
+    BoundingBox(r_PointDouble minP, r_PointDouble maxP, r_PointDouble bSize)
+        : minPoint(minP), maxPoint(maxP), bBoxSizes(bSize){};
 
     // return the respective r_Minterval
     r_Minterval getHull()
@@ -74,7 +74,6 @@ typedef struct BoundingBox
 
 /// compute the box in which the polytope lies
 BoundingBox *computeBoundingBox(const QtMShapeData *mshape);
-
 
 /// compute the box in which the polytope lies
 BoundingBox *computeBoundingBoxFromList(std::vector<r_Point> &vertices);
@@ -109,17 +108,17 @@ std::vector<r_Point> computeNDBresenhamSegment(const std::vector<r_PointDouble> 
 bool isRedundant(const r_Minterval &interval);
 
 // returns a pair consisting of the vector of extrapolated linestring data and a vector consisting of the domains of each segment.
-std::pair< std::vector< std::vector< r_Point >>, std::vector< r_Minterval>> computeLinestring(QtMShapeData *linestringData);
+std::pair<std::vector<std::vector<r_Point>>, std::vector<r_Minterval>> computeLinestring(QtMShapeData *linestringData);
 // returns a pair consisting of teh vector of non-extrapolated linestring data and a vector consisting of the domain of the full linestring.
 // meant to be used in place of the above in discrete corridors.
-std::pair< std::vector< std::vector< r_Point >>, std::vector< r_Minterval >> computeDiscreteLinestring(QtMShapeData *lineStringData);
+std::pair<std::vector<std::vector<r_Point>>, std::vector<r_Minterval>> computeDiscreteLinestring(QtMShapeData *lineStringData);
 
 // builds a vector of pairs of r_PointDouble to be passed sequentially into computeNDBresenhamSegments, using computeNDBresenhamSegment
-std::vector< std::vector< r_PointDouble >> vectorOfPairsWithoutMultiplicity(const std::vector<r_PointDouble> &polytopeVertices, size_t numSteps);
+std::vector<std::vector<r_PointDouble>> vectorOfPairsWithoutMultiplicity(const std::vector<r_PointDouble> &polytopeVertices, size_t numSteps);
 
 // constructs a vector of 1-D r_Mintervals given a vector of bounding boxes and their corresponding longest dimensions
 // this method removes point duplicity on the edges. Primarily used for linestrings
-std::vector< r_Minterval > vectorOfResultTileDomains(const std::vector<r_Minterval> &bBoxes, const std::vector<r_Dimension> &projectionDims);
+std::vector<r_Minterval> vectorOfResultTileDomains(const std::vector<r_Minterval> &bBoxes, const std::vector<r_Dimension> &projectionDims);
 
 //generate a vector of tiles with the given domains and base type, initialized to 0.
 //std::vector<std::shared_ptr<Tile>> initializeTileVector(const std::vector<r_Minterval>& resTileDomains, const BaseType* resTileBasetype);

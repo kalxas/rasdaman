@@ -37,7 +37,7 @@ RasControl::RasControl(RasControlConfig &config1, const UserCredentials &userCre
     : config(config1), userCredentials(userCredentials1)
 {
     std::shared_ptr<ControlRasMgrRasnet> rasnet(
-                new ControlRasMgrRasnet(this->userCredentials, this->config));
+        new ControlRasMgrRasnet(this->userCredentials, this->config));
     this->comm.reset(new CommandExecutor(rasnet));
 }
 
@@ -149,7 +149,6 @@ void RasControl::startInteractiveMode()
     {
         history.close();
     }
-
 }
 
 void RasControl::startBatchMode()
@@ -167,13 +166,12 @@ void RasControl::startBatchMode()
 
     if (redirStdout)
     {
-        printCommand =  true;
+        printCommand = true;
     }
     else if (redirStdin)
     {
-        printCommand =  true;
+        printCommand = true;
     }
-
 
     try
     {
@@ -269,4 +267,4 @@ void RasControl::startTestLogin()
         std::cerr << "rascontrol failed for an unknown reason.";
     }
 }
-}
+}  // namespace rascontrol

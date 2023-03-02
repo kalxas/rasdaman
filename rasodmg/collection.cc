@@ -44,7 +44,7 @@ rasdaman GmbH.
 
 using namespace std;
 
-template<class T>
+template <class T>
 r_Collection<T>::r_Collection()
     : r_Object(2), card(0)
 {
@@ -52,8 +52,7 @@ r_Collection<T>::r_Collection()
     init_node_list(removed_objects);
 }
 
-
-template<class T>
+template <class T>
 r_Collection<T>::r_Collection(const r_Collection<T> &collection)
     : r_Object(collection, 2)
 {
@@ -84,23 +83,21 @@ r_Collection<T>::r_Collection(const r_Collection<T> &collection)
     init_node_list(removed_objects);
 }
 
-template<class T>
+template <class T>
 r_Collection<T>::~r_Collection()
 {
     r_deactivate();
 }
 
-template<class T>
-void
-r_Collection<T>::r_deactivate()
+template <class T>
+void r_Collection<T>::r_deactivate()
 {
     remove_all_nodes(coll);
     remove_all_nodes(removed_objects);
 }
 
-template<class T>
-bool
-r_Collection<T>::contains_element(const T &element) const
+template <class T>
+bool r_Collection<T>::contains_element(const T &element) const
 {
     CNode *ptr = coll;
 
@@ -110,9 +107,8 @@ r_Collection<T>::contains_element(const T &element) const
     return *(ptr->elem) == element;
 }
 
-template<class T>
-void
-r_Collection<T>::insert_element(const T &element, int no_modification)
+template <class T>
+void r_Collection<T>::insert_element(const T &element, int no_modification)
 {
     // add node to list...
     add_node(coll, element);
@@ -125,13 +121,12 @@ r_Collection<T>::insert_element(const T &element, int no_modification)
 
     if (!no_modification)
     {
-        mark_modified();    // remember modification
+        mark_modified();  // remember modification
     }
 }
 
-template<class T>
-void
-r_Collection<T>::remove_element(const T &element)
+template <class T>
+void r_Collection<T>::remove_element(const T &element)
 {
     // remove node from list...
     if (remove_node(coll, element))
@@ -142,13 +137,12 @@ r_Collection<T>::remove_element(const T &element)
         // decrease cardinality
         card--;
 
-        mark_modified(); // remember modification
+        mark_modified();  // remember modification
     }
 }
 
-template<class T>
-void
-r_Collection<T>::remove_all()
+template <class T>
+void r_Collection<T>::remove_all()
 {
     CNode *ptr = coll;
     CNode *ptrLast = coll;
@@ -176,10 +170,10 @@ r_Collection<T>::remove_all()
     coll->next = NULL;
     card = 0;
 
-    mark_modified(); // remember modification
+    mark_modified();  // remember modification
 }
 
-template<class T>
+template <class T>
 const r_Collection<T> &
 r_Collection<T>::operator=(const r_Collection<T> &collection)
 {
@@ -221,23 +215,22 @@ r_Collection<T>::operator=(const r_Collection<T> &collection)
     return *this;
 }
 
-template<class T>
+template <class T>
 r_Iterator<T>
 r_Collection<T>::create_removed_iterator()
 {
     return r_Iterator<T>(*this, 1);
 }
 
-template<class T>
+template <class T>
 r_Iterator<T>
 r_Collection<T>::create_iterator()
 {
     return r_Iterator<T>(*this);
 }
 
-template<class T>
-void
-r_Collection<T>::insert_obj_into_db()
+template <class T>
+void r_Collection<T>::insert_obj_into_db()
 {
     if (!object_name || !strlen(object_name))
         throw r_Error(r_Error::r_Error_ObjectUnknown, object_name);
@@ -257,9 +250,8 @@ r_Collection<T>::insert_obj_into_db()
     }
 }
 
-template<class T>
-void
-r_Collection<T>::update_obj_in_db()
+template <class T>
+void r_Collection<T>::update_obj_in_db()
 {
     if (!object_name || !strlen(object_name))
         throw r_Error(r_Error::r_Error_ObjectUnknown, object_name);
@@ -355,9 +347,8 @@ r_Collection<T>::update_obj_in_db()
     }
 }
 
-template<class T>
-void
-r_Collection<T>::add_node(r_Collection<T>::CNode *&root, const T &element)
+template <class T>
+void r_Collection<T>::add_node(r_Collection<T>::CNode *&root, const T &element)
 {
     CNode *ptr = root;
 
@@ -381,13 +372,12 @@ r_Collection<T>::add_node(r_Collection<T>::CNode *&root, const T &element)
     }
 }
 
-template<class T>
-bool
-r_Collection<T>::remove_node(CNode *&root, const T &element)
+template <class T>
+bool r_Collection<T>::remove_node(CNode *&root, const T &element)
 {
-    CNode *ptr     = root;
+    CNode *ptr = root;
     CNode *ptrLast = root;
-    bool   success = false;
+    bool success = false;
 
     if (ptr && ptr->elem)
     {
@@ -414,16 +404,16 @@ r_Collection<T>::remove_node(CNode *&root, const T &element)
             success = true;
 
             delete ptr->elem;
-            if (ptr == ptrLast && ptr->next == NULL)    // case 1
+            if (ptr == ptrLast && ptr->next == NULL)  // case 1
             {
                 ptr->elem = NULL;
             }
-            else if (ptr->next == NULL)   // case 2
+            else if (ptr->next == NULL)  // case 2
             {
                 ptrLast->next = NULL;
                 delete ptr;
             }
-            else if (ptr == ptrLast)   // case 3
+            else if (ptr == ptrLast)  // case 3
             {
                 root = ptr->next;
                 delete ptr;
@@ -439,9 +429,8 @@ r_Collection<T>::remove_node(CNode *&root, const T &element)
     return success;
 }
 
-template<class T>
-void
-r_Collection<T>::remove_all_nodes(CNode *&root)
+template <class T>
+void r_Collection<T>::remove_all_nodes(CNode *&root)
 {
     if (root)
     {
@@ -462,20 +451,19 @@ r_Collection<T>::remove_all_nodes(CNode *&root)
     root = 0;
 }
 
-template<class T>
-void
-r_Collection<T>::init_node_list(CNode *&root)
+template <class T>
+void r_Collection<T>::init_node_list(CNode *&root)
 {
     root = new CNode;
     root->next = NULL;
     root->elem = NULL;
 }
 
-template<class T>
+template <class T>
 const r_Type *
 r_Collection<T>::get_element_type_schema()
 {
-    const r_Type        *typePtr = r_Object::get_type_schema();
+    const r_Type *typePtr = r_Object::get_type_schema();
     const r_Type *elementTypePtr = 0;
 
     if (typePtr)
@@ -490,37 +478,34 @@ r_Collection<T>::get_element_type_schema()
     return elementTypePtr;
 }
 
-template<class T>
+template <class T>
 unsigned long
 r_Collection<T>::cardinality() const
 {
     return card;
 }
 
-template<class T>
-bool
-r_Collection<T>::is_empty() const
+template <class T>
+bool r_Collection<T>::is_empty() const
 {
     return !coll->elem;
 }
 
-template<class T>
-bool
-r_Collection<T>::is_ordered() const
+template <class T>
+bool r_Collection<T>::is_ordered() const
 {
     return isOrdered;
 }
 
-template<class T>
-bool
-r_Collection<T>::allows_duplicates() const
+template <class T>
+bool r_Collection<T>::allows_duplicates() const
 {
     return allowsDuplicates;
 }
 
 // explicit instantiation
 #include "rasodmg/gmarray.hh"
-template class r_Collection<r_GMarray*>;
+template class r_Collection<r_GMarray *>;
 #include "rasodmg/collection.hh"
 template class r_Collection<r_Ref_Any>;
 #include "rasodmg/object.hh"

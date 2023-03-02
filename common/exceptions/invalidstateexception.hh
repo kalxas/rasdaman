@@ -25,7 +25,6 @@
 
 #include "logicexception.hh"
 
-
 namespace common
 {
 
@@ -40,7 +39,7 @@ public:
      * @brief InvalidStateException Constructs the exception object with whatArg as explanatory string that can be accessed through what().
      * @param whatArg explanatory string
      */
-    InvalidStateException(const std::string& whatArg);
+    InvalidStateException(const std::string &whatArg);
 
     virtual ~InvalidStateException() noexcept;
 };

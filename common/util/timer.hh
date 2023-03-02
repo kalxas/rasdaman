@@ -26,50 +26,57 @@ rasdaman GmbH.
 #include <chrono>
 #include <string>
 
-namespace common {
+namespace common
+{
 
 /**
  * Creating the object automatically starts the timer. Calling restart() resets
  * the timer. You can get the elapsed time with the elapsed* methods.
  */
-class Stopwatch {
-
- public:
-  Stopwatch() : startTime{getCurrentTimestamp()} {}
-
-  double elapsedS() const {
-    return double(elapsedNs()) * 1e-9;
-  }
-
-  double elapsedMs() const {
-    return double(elapsedNs()) * 1e-6;
-  }
-
-  long elapsedNs() const {
-    return getCurrentTimestamp() - startTime;
-  }
-
-  void restart() { startTime = getCurrentTimestamp(); }
-
- private:
-  static long getCurrentTimestamp() {
-    return std::chrono::high_resolution_clock::now().time_since_epoch().count();
-  }
-
-  long startTime;
-};
-
-class TimerUtil {
+class Stopwatch
+{
 public:
-  static std::string getCurrentDateTime();
-  
-  /// @return current UTC time, e.g. "2017-03-30 17:05:13.400455"
-  static std::string getCurrentDateTimeUTC();
-  
-  static uintmax_t getSecondsSinceEpoch();
+    Stopwatch()
+        : startTime{getCurrentTimestamp()} {}
+
+    double elapsedS() const
+    {
+        return double(elapsedNs()) * 1e-9;
+    }
+
+    double elapsedMs() const
+    {
+        return double(elapsedNs()) * 1e-6;
+    }
+
+    long elapsedNs() const
+    {
+        return getCurrentTimestamp() - startTime;
+    }
+
+    void restart() { startTime = getCurrentTimestamp(); }
+
+private:
+    static long getCurrentTimestamp()
+    {
+        return std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    }
+
+    long startTime;
 };
 
-}
+class TimerUtil
+{
+public:
+    static std::string getCurrentDateTime();
+
+    /// @return current UTC time, e.g. "2017-03-30 17:05:13.400455"
+    static std::string getCurrentDateTimeUTC();
+
+    static uintmax_t getSecondsSinceEpoch();
+};
+
+}  // namespace common
 
 // Enabled only if REPORT_PERF is defined
 #ifdef REPORT_PERF

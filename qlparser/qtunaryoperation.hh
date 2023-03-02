@@ -96,4 +96,3 @@ protected:
 #include "qlparser/qtunaryoperation.icc"
 
 #endif
-

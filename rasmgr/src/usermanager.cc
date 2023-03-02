@@ -46,10 +46,10 @@
 
 namespace rasmgr
 {
-using std::runtime_error;
 using std::list;
-using std::shared_ptr;
 using std::mutex;
+using std::runtime_error;
+using std::shared_ptr;
 using std::unique_lock;
 
 using common::InvalidArgumentException;
@@ -59,13 +59,14 @@ using google::protobuf::io::CodedOutputStream;
 using google::protobuf::io::IstreamInputStream;
 using google::protobuf::io::OstreamOutputStream;
 
-UserManager::UserManager():
-    rasmgrAuthFilePath(std::string(CONFDIR) + RASMGR_AUTH_FILE)
+UserManager::UserManager()
+    : rasmgrAuthFilePath(std::string(CONFDIR) + RASMGR_AUTH_FILE)
 {
 }
 
 UserManager::~UserManager()
-{}
+{
+}
 
 void UserManager::defineUser(const UserProto &userInfo)
 {
@@ -243,7 +244,6 @@ void UserManager::loadUserInformation()
     }
 }
 
-
 UserMgrProto UserManager::serializeToProto()
 {
     UserMgrProto result;
@@ -252,7 +252,7 @@ UserMgrProto UserManager::serializeToProto()
 
     for (auto it = this->userList.begin(); it != this->userList.end(); ++it)
     {
-        result.add_users()->CopyFrom(User::serializeToProto(* (*it).get()));
+        result.add_users()->CopyFrom(User::serializeToProto(*(*it).get()));
     }
 
     return result;
@@ -333,7 +333,7 @@ void UserManager::loadDefaultUserAuth()
     fullDbRights->set_read(true);
     fullDbRights->set_write(true);
 
-    UserDatabaseRightsProto *guestDbRights  = new UserDatabaseRightsProto();
+    UserDatabaseRightsProto *guestDbRights = new UserDatabaseRightsProto();
     guestDbRights->set_read(true);
     guestDbRights->set_write(false);
 

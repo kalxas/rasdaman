@@ -61,8 +61,6 @@ protected:
     r_Base_Type *valueType{NULL};
 };
 
-
-
 //@ManMemo: Module: {\bf raslib}
 /**
   Output stream operator for objects of type <tt>const</tt> r_Scalar.
@@ -70,4 +68,3 @@ protected:
 extern std::ostream &operator<<(std::ostream &s, const r_Scalar &obj);
 
 #endif
-

@@ -49,15 +49,15 @@ get domain
 #include "raslib/mitera.hh"
 #include "globals.hh"
 
-#define ALLDONE         0
+#define ALLDONE 0
 #define ERRORPARSINGCOMMANDLINE 1
-#define DOMAINMISSING       2
-#define OIDMISSING      3
-#define OIDINVALID      4
-#define DOMAINMISMATCH      5
-#define FAILED          6
-#define DOMAININVALID       7
-#define UNKNOWNDATAFORMAT   8
+#define DOMAINMISSING 2
+#define OIDMISSING 3
+#define OIDINVALID 4
+#define DOMAINMISMATCH 5
+#define FAILED 6
+#define DOMAININVALID 7
+#define UNKNOWNDATAFORMAT 8
 
 char globalConnectId[256];
 char globalDbUser[255] = {0};
@@ -68,25 +68,24 @@ RMINITGLOBALS('S')
 r_Minterval domain;
 OId oid;
 
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     RMInit::logOut.rdbuf(cout.rdbuf());
     RMInit::dbgOut.rdbuf(cout.rdbuf());
     int retval = 0;
-    CommandLineParser&    cmlInter      = CommandLineParser::getInstance();
-    CommandLineParameter& clp_help      = cmlInter.addFlagParameter('h', "help", "show command line switches");
-    CommandLineParameter& clp_connect   = cmlInter.addStringParameter(CommandLineParser::noShortName, "connect", "database connect string", "/");
-    CommandLineParameter& clp_mdddomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "mdddomain", "the domain to do the changes in.");
-    CommandLineParameter& clp_domain    = cmlInter.addStringParameter(CommandLineParser::noShortName, "domain", "the extent to be used when selecting data from the mdd.");
-    CommandLineParameter& clp_oid       = cmlInter.addStringParameter(CommandLineParser::noShortName, "oid", "the oid of the mdd to operate on");
-    CommandLineParameter& clp_comptype  = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformat", "name of storage format", "Array");
-    CommandLineParameter& clp_readonly  = cmlInter.addFlagParameter('r', "readonly", "read only check");
+    CommandLineParser &cmlInter = CommandLineParser::getInstance();
+    CommandLineParameter &clp_help = cmlInter.addFlagParameter('h', "help", "show command line switches");
+    CommandLineParameter &clp_connect = cmlInter.addStringParameter(CommandLineParser::noShortName, "connect", "database connect string", "/");
+    CommandLineParameter &clp_mdddomain = cmlInter.addStringParameter(CommandLineParser::noShortName, "mdddomain", "the domain to do the changes in.");
+    CommandLineParameter &clp_domain = cmlInter.addStringParameter(CommandLineParser::noShortName, "domain", "the extent to be used when selecting data from the mdd.");
+    CommandLineParameter &clp_oid = cmlInter.addStringParameter(CommandLineParser::noShortName, "oid", "the oid of the mdd to operate on");
+    CommandLineParameter &clp_comptype = cmlInter.addStringParameter(CommandLineParser::noShortName, "storageformat", "name of storage format", "Array");
+    CommandLineParameter &clp_readonly = cmlInter.addFlagParameter('r', "readonly", "read only check");
     try
     {
         cmlInter.processCommandLine(argc, argv);
     }
-    catch (CmlException& err)
+    catch (CmlException &err)
     {
         cmlInter.printHelp();
         cout << "Error parsing command line:" << endl;
@@ -118,13 +117,13 @@ main(int argc, char** argv)
         cout << "oid is missing" << endl;
         return OIDMISSING;
     }
-    strcpy((char*)globalConnectId, cmlInter.getValueAsString("connect"));
+    strcpy((char *)globalConnectId, cmlInter.getValueAsString("connect"));
     cout << "connect " << globalConnectId << endl;
     try
     {
         domain = r_Minterval(cmlInter.getValueAsString("domain"));
     }
-    catch (const r_Error& e)
+    catch (const r_Error &e)
     {
         cout << "domain is not valid: " << e.what() << " " << e.get_errorno() << endl;
         return DOMAININVALID;
@@ -148,9 +147,9 @@ main(int argc, char** argv)
     AdminIf::instance();
     DatabaseIf d;
     TransactionIf t;
-    MDDObj* mdd = NULL;
+    MDDObj *mdd = NULL;
     r_Minterval completeDomain;
-    r_MiterArea* miter = NULL;
+    r_MiterArea *miter = NULL;
     try
     {
         d.open(DEFAULT_DBNAME);
@@ -179,7 +178,7 @@ main(int argc, char** argv)
                         return DOMAINMISMATCH;
                     }
                 }
-                catch (const r_Error& e2)
+                catch (const r_Error &e2)
                 {
                     cout << "mdddomain parameter is not correct: " << e2.get_errorno() << " " << e2.what() << endl;
                     delete mdd;
@@ -202,7 +201,7 @@ main(int argc, char** argv)
         t.commit();
         d.close();
     }
-    catch (const r_Error& e)
+    catch (const r_Error &e)
     {
         delete miter;
         miter = NULL;
@@ -211,14 +210,14 @@ main(int argc, char** argv)
         {
             t.abort();
         }
-        catch (const r_Error& ee)
+        catch (const r_Error &ee)
         {
             cout << "Caugh exception while aborting " << ee.get_errorno() << " " << ee.what() << endl;
             try
             {
                 t.abort();
             }
-            catch (const r_Error& eee)
+            catch (const r_Error &eee)
             {
                 cout << "Caugh exception while 2nd aborting " << eee.get_errorno() << " " << eee.what() << endl;
             }
@@ -227,15 +226,15 @@ main(int argc, char** argv)
         {
             d.close();
         }
-        catch (const r_Error& eeee)
+        catch (const r_Error &eeee)
         {
             cout << "Caugh exception while closing " << eeee.get_errorno() << " " << eeee.what() << endl;
         }
         return FAILED;
     }
-    std::vector<Tile*>* tiles = NULL;
-    std::vector<Tile*>::iterator here;
-    std::vector<Tile*>::iterator end;
+    std::vector<Tile *> *tiles = NULL;
+    std::vector<Tile *>::iterator here;
+    std::vector<Tile *>::iterator end;
     r_Minterval currentDomain;
     while (!miter->isDone())
     {
@@ -277,7 +276,7 @@ main(int argc, char** argv)
             t.commit();
             d.close();
         }
-        catch (const r_Error& e)
+        catch (const r_Error &e)
         {
             delete miter;
             miter = NULL;
@@ -288,14 +287,14 @@ main(int argc, char** argv)
             {
                 t.abort();
             }
-            catch (const r_Error& ee)
+            catch (const r_Error &ee)
             {
                 cout << "Caugh exception while aborting " << ee.get_errorno() << " " << ee.what() << endl;
                 try
                 {
                     t.abort();
                 }
-                catch (const r_Error& eee)
+                catch (const r_Error &eee)
                 {
                     cout << "Caugh exception while 2nd aborting " << eee.get_errorno() << " " << eee.what() << endl;
                 }
@@ -304,7 +303,7 @@ main(int argc, char** argv)
             {
                 d.close();
             }
-            catch (const r_Error& eeee)
+            catch (const r_Error &eeee)
             {
                 cout << "Caugh exception while closing " << eeee.get_errorno() << " " << eeee.what() << endl;
             }

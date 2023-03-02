@@ -60,9 +60,9 @@ void testFunc3(void)
     RMDebug localRMDebug("Class1", "testFunc3", "server",
                          __FILE__, __LINE__);
 
-//  RMDBGMOUT( 2, RMDebug::module_server, NULL, "D: testing 1" );
-//  RMDBGMOUT( 3, RMDebug::module_server, "Class1", "D: testing 2" );
-//  RMDBGMINOUT( 4, RMDebug::module_server, "Class1", "D: testing 3" );
+    //  RMDBGMOUT( 2, RMDebug::module_server, NULL, "D: testing 1" );
+    //  RMDBGMOUT( 3, RMDebug::module_server, "Class1", "D: testing 2" );
+    //  RMDBGMINOUT( 4, RMDebug::module_server, "Class1", "D: testing 3" );
 }
 
 void testFunc4(int reclevel)
@@ -95,20 +95,23 @@ void oldMain()
 
     cout << "Test of RMTimer" << endl;
 
-    cout << "The following should hold approximately: timer2 + timer3 = timer1" << endl << endl;
+    cout << "The following should hold approximately: timer2 + timer3 = timer1" << endl
+         << endl;
 
-    RMTimer* timer1 = new RMTimer("main", "timer1");
-    RMTimer* timer2 = new RMTimer("main", "timer2");
+    RMTimer *timer1 = new RMTimer("main", "timer1");
+    RMTimer *timer2 = new RMTimer("main", "timer2");
 
     timer2->pause();
 
-    RMTimer* timer3 = new RMTimer("main", "timer3");
-    for (long busy = 0; busy <= 50000000; busy++);
+    RMTimer *timer3 = new RMTimer("main", "timer3");
+    for (long busy = 0; busy <= 50000000; busy++)
+        ;
     delete timer3;
 
     timer2->resume();
 
-    for (busy = 0; busy <= 30000000; busy++);
+    for (busy = 0; busy <= 30000000; busy++)
+        ;
 
     delete timer2;
     delete timer1;
@@ -132,7 +135,7 @@ double testStatic(double dummy)
 double testDynamic(double dummy)
 {
 #ifdef RMANBENCHMARK
-    RMTimer* localRMTimer = 0;
+    RMTimer *localRMTimer = 0;
 
     if (RManBenchmark >= 3)
     {
@@ -179,12 +182,10 @@ int main()
 {
     RMDebug::initRMDebug();
     RManBenchmark = 4;
-//  RMInit::bmOut = cout.rdbuf();
+    //  RMInit::bmOut = cout.rdbuf();
 
     oldMain();
     // testPerf();
 
     return 0;
 }
-
-

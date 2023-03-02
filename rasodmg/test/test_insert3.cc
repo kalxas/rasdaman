@@ -66,36 +66,31 @@ rasdaman GmbH.
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/stattiling.hh"
 
-
 const int MAX_STR_LEN = 255;
 
 static int INIT = 0;
-static r_Long  minNo = 0;
-static r_Long  maxNo = 0;
+static r_Long minNo = 0;
+static r_Long maxNo = 0;
 static ifstream fileStream;
 
 using namespace std;
 
-r_ULong initWithCounter(const r_Point& /*pt*/)
+r_ULong initWithCounter(const r_Point & /*pt*/)
 {
     return INIT++;
 }
 
-
-r_Char initWithCounterChar(const r_Point& /*pt*/)
+r_Char initWithCounterChar(const r_Point & /*pt*/)
 {
-    return (r_Char) INIT++;
+    return (r_Char)INIT++;
 }
 
-
-r_UShort initWithCounterUShort(const r_Point& /*pt*/)
+r_UShort initWithCounterUShort(const r_Point & /*pt*/)
 {
-    return (r_UShort) INIT++;
+    return (r_UShort)INIT++;
 }
 
-
-
-r_ULong initWithCrossfoot(const r_Point& pt)
+r_ULong initWithCrossfoot(const r_Point &pt)
 {
     r_ULong value = 0;
 
@@ -107,38 +102,33 @@ r_ULong initWithCrossfoot(const r_Point& pt)
     return value;
 }
 
-
-r_ULong initWithCoordinates(const r_Point& pt)
+r_ULong initWithCoordinates(const r_Point &pt)
 {
     r_ULong value = 0;
     r_ULong factor = 1;
 
     for (int i = pt.dimension() - 1; i >= 0; i--)
     {
-        value  += (r_ULong)(factor * pt[i]);
+        value += (r_ULong)(factor * pt[i]);
         factor *= 100;
     }
 
     return value;
 }
 
-
-
-r_Char initWithCurve(const r_Point& pt)
+r_Char initWithCurve(const r_Point &pt)
 {
     r_ULong value = 0;
 
     for (r_Dimension i = 0; i < pt.dimension(); i++)
     {
-        value  += (r_Char)(255 * sin(.25 * (float)pt[i]));
+        value += (r_Char)(255 * sin(.25 * (float)pt[i]));
     }
 
     return (r_Char)value;
 }
 
-
-
-r_ULong initWithColorCube(const r_Point& pt)
+r_ULong initWithColorCube(const r_Point &pt)
 {
     r_ULong value = 0;
 
@@ -150,27 +140,25 @@ r_ULong initWithColorCube(const r_Point& pt)
     return value;
 }
 
-
-r_Char initWithRandomChar(const r_Point& /*pt*/)
+r_Char initWithRandomChar(const r_Point & /*pt*/)
 {
     // rand creates numbers between 0 and 32767
-    r_ULong   number = rand();
-    double        factor = (maxNo - minNo) / 32767.0;
+    r_ULong number = rand();
+    double factor = (maxNo - minNo) / 32767.0;
 
     return (r_Char)(minNo + (number * factor));
 }
 
-r_ULong initWithRandomULong(const r_Point& /*pt*/)
+r_ULong initWithRandomULong(const r_Point & /*pt*/)
 {
     // rand creates numbers between 0 and 32767
-    r_ULong   number = rand();
-    double        factor = (maxNo - minNo) / 32767.0;
+    r_ULong number = rand();
+    double factor = (maxNo - minNo) / 32767.0;
 
     return (r_ULong)(minNo + (number * factor));
 }
 
-
-r_Char initFromFile(const r_Point& /*pt*/)
+r_Char initFromFile(const r_Point & /*pt*/)
 {
     char ch;
 
@@ -185,12 +173,12 @@ r_Char initFromFile(const r_Point& /*pt*/)
 }
 
 #ifdef QUERY_TEST
-r_Ref<r_Marray<r_ULong>> readFile(r_Database& db)
+r_Ref<r_Marray<r_ULong>> readFile(r_Database &db)
 {
     r_Ref<r_Marray<r_ULong>> image;
-    r_Minterval            domain(3);
-    long                   dx, dy, dz, depth, cx, cy, cz;
-    int                    i;
+    r_Minterval domain(3);
+    long dx, dy, dz, depth, cx, cy, cz;
+    int i;
 
     ifstream fileStream("hw8.full.vol");
     if (!fileStream)
@@ -206,18 +194,18 @@ r_Ref<r_Marray<r_ULong>> readFile(r_Database& db)
         fileStream >> charDummy;
     }
 
-    dx    = 256;
-    dy    = 256;
-    dz    = 20;
+    dx = 256;
+    dy = 256;
+    dz = 20;
     depth = 8;
 
     domain << r_Sinterval((r_Long)0, (r_Long)(dx - 1)) << r_Sinterval((r_Long)0, (r_Long)(dy - 1)) << r_Sinterval((r_Long)0, (r_Long)(dz - 1));
 
     std::cout << domain << "... " << std::flush;
 
-    image = new(&db) r_Marray<r_ULong>(domain);
+    image = new (&db) r_Marray<r_ULong>(domain);
 
-    r_ULong* dataPtr = (r_ULong*)image->get_array();
+    r_ULong *dataPtr = (r_ULong *)image->get_array();
 
     r_Point pt(3);
 
@@ -249,8 +237,7 @@ r_Ref<r_Marray<r_ULong>> readFile(r_Database& db)
 }
 #endif
 
-
-void printColl(r_Ref<r_Set<r_Ref<r_GMarray>>>& image_set, int output, int hexOutput)
+void printColl(r_Ref<r_Set<r_Ref<r_GMarray>>> &image_set, int output, int hexOutput)
 {
     std::cout << "Collection" << std::endl;
     std::cout << "  Oid...................: " << image_set->get_oid() << std::endl;
@@ -282,7 +269,7 @@ void printColl(r_Ref<r_Set<r_Ref<r_GMarray>>>& image_set, int output, int hexOut
     r_Iterator<r_Ref<r_GMarray>> iter = image_set->create_iterator();
 
     std::cout << std::endl;
-    for (int i = 1 ; iter.not_done(); iter++, i++)
+    for (int i = 1; iter.not_done(); iter++, i++)
     {
         // do not dereference the object
         std::cout << "Image " << i << " oid: " << (*iter).get_oid() << std::endl;
@@ -296,9 +283,7 @@ void printColl(r_Ref<r_Set<r_Ref<r_GMarray>>>& image_set, int output, int hexOut
     std::cout << std::endl;
 }
 
-
-
-int checkArguments(int argc, char** argv, const char* searchText, int& optionValueIndex)
+int checkArguments(int argc, char **argv, const char *searchText, int &optionValueIndex)
 {
     int found = 0;
     int i = 1;
@@ -320,11 +305,12 @@ int checkArguments(int argc, char** argv, const char* searchText, int& optionVal
     return found;
 }
 
-void printUsage(char* name)
+void printUsage(char *name)
 {
     std::cout << name << " v1.1 systemtest insert utility" << std::endl;
     std::cout << "Description: Systemtest insert utility for creation and update of sets in RasDaMan" << std::endl;
-    std::cout << "Usage:   " << name << " [options]" << std::endl << std::endl;
+    std::cout << "Usage:   " << name << " [options]" << std::endl
+              << std::endl;
     std::cout << "Options: -h                                      ... this help" << std::endl;
     std::cout << "         -server                 <srvname>       ... name of server.(mandatory)" << std::endl;
     std::cout << "         -port                   <nnnn>          ... port of server.(default " << DEFAULT_PORT << ")" << std::endl;
@@ -342,15 +328,16 @@ void printUsage(char* name)
     std::cout << "         -tilingparams           <tilingparams>  ... tiling strategy params.(default 131072)" << std::endl;
     std::cout << "         -file                   <filename>      ... file name used to read data from a file" << std::endl;
     std::cout << "         -testbed                                ... turn on output for testbed.default(default off)" << std::endl;
-    std::cout << std::endl << std::endl;
+    std::cout << std::endl
+              << std::endl;
 
     std::cout << "Report bugs to <support@active�knowledge.com>" << std::endl;
 }
 
-r_Tiling*
-getTilingScheme(r_Tiling_Scheme& tilingS, char* tilingP)
+r_Tiling *
+getTilingScheme(r_Tiling_Scheme &tilingS, char *tilingP)
 {
-    r_Tiling* retval = NULL;
+    r_Tiling *retval = NULL;
 
     try
     {
@@ -378,27 +365,27 @@ getTilingScheme(r_Tiling_Scheme& tilingS, char* tilingP)
         }
         std::cout << "OK" << std::flush;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         std::cout << "FAILED" << std::endl;
-        std::cout << "Error " << err.get_errorno() << " : "  << err.what() << std::endl;
+        std::cout << "Error " << err.get_errorno() << " : " << err.what() << std::endl;
     }
 
     return retval;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    int  optionValueIndex = 0;
-    int  testbed = 0;
+    int optionValueIndex = 0;
+    int testbed = 0;
 
     r_Tiling_Scheme tilingScheme = r_SizeTiling;
-    char* tilingSchemeParams = "131072";
+    char *tilingSchemeParams = "131072";
 
     r_Data_Format transferFormat = r_Array;
-    char* transferFormatParams = NULL;
+    char *transferFormatParams = NULL;
     r_Data_Format storageFormat = r_Array;
-    char* storageFormatParams = NULL;
+    char *storageFormatParams = NULL;
 
     char serverName[MAX_STR_LEN] = "";
     r_ULong serverPort = DEFAULT_PORT;
@@ -411,7 +398,6 @@ int main(int argc, char** argv)
     char setTypeName[MAX_STR_LEN] = "";
     char mddTypeName[MAX_STR_LEN] = "";
     char fileName[MAX_STR_LEN] = "";
-
 
     if (checkArguments(argc, argv, "-h", optionValueIndex))
     {
@@ -435,8 +421,8 @@ int main(int argc, char** argv)
     }
 
     if (!strcmp(serverName, "") ||
-            !strcmp(baseName,   "") ||
-            !strcmp(collName,   ""))
+        !strcmp(baseName, "") ||
+        !strcmp(collName, ""))
     {
         std::cerr << "Mandatory parameters are missing!" << std::endl;
         printUsage(argv[0]);
@@ -445,7 +431,7 @@ int main(int argc, char** argv)
 
     if (checkArguments(argc, argv, "-port", optionValueIndex) && optionValueIndex)
     {
-        serverPort = strtoul(argv[optionValueIndex], (char**)NULL, 10) ;
+        serverPort = strtoul(argv[optionValueIndex], (char **)NULL, 10);
     }
 
     if (checkArguments(argc, argv, "-user", optionValueIndex) && optionValueIndex)
@@ -470,7 +456,7 @@ int main(int argc, char** argv)
 
     if (checkArguments(argc, argv, "-transferformatparams", optionValueIndex) && optionValueIndex)
     {
-        transferFormatParams = argv[optionValueIndex] ;
+        transferFormatParams = argv[optionValueIndex];
     }
 
     if (checkArguments(argc, argv, "-storageformat", optionValueIndex) && optionValueIndex)
@@ -485,7 +471,7 @@ int main(int argc, char** argv)
 
     if (checkArguments(argc, argv, "-storageformatparams", optionValueIndex) && optionValueIndex)
     {
-        storageFormatParams = argv[optionValueIndex] ;
+        storageFormatParams = argv[optionValueIndex];
     }
 
     if (checkArguments(argc, argv, "-settype", optionValueIndex) && optionValueIndex)
@@ -498,7 +484,7 @@ int main(int argc, char** argv)
         strcpy(mddTypeName, argv[optionValueIndex]);
     }
 
-    testbed   =  checkArguments(argc, argv, "-testbed", optionValueIndex);
+    testbed = checkArguments(argc, argv, "-testbed", optionValueIndex);
 
     if (checkArguments(argc, argv, "-tiling", optionValueIndex) && optionValueIndex)
     {
@@ -517,7 +503,7 @@ int main(int argc, char** argv)
 
     if (checkArguments(argc, argv, "-tilingparams", optionValueIndex) && optionValueIndex)
     {
-        tilingSchemeParams = argv[optionValueIndex] ;
+        tilingSchemeParams = argv[optionValueIndex];
     }
 
     if (checkArguments(argc, argv, "-file", optionValueIndex) && optionValueIndex)
@@ -525,24 +511,25 @@ int main(int argc, char** argv)
         strcpy(fileName, argv[optionValueIndex]);
     }
 
-    std::cout << std::endl << std::endl;
+    std::cout << std::endl
+              << std::endl;
     std::cout << "Insertion of one MDD into the database" << std::endl;
-    std::cout << "======================================" << std::endl << std::endl;
+    std::cout << "======================================" << std::endl
+              << std::endl;
 
     r_Database db;
     r_Transaction ta;
-    r_Ref<r_Set<r_Ref<r_GMarray>>>  image_set;
-    r_Ref<r_GMarray>                    image;
-    r_Minterval                           domain;
-    r_Dimension                           dim;
-    r_Range                               low, high;
-    r_ULong                         initMode, initValue;
+    r_Ref<r_Set<r_Ref<r_GMarray>>> image_set;
+    r_Ref<r_GMarray> image;
+    r_Minterval domain;
+    r_Dimension dim;
+    r_Range low, high;
+    r_ULong initMode, initValue;
 
-    RGBPixel                              rgbValue = { 1, 2, 3 };
+    RGBPixel rgbValue = {1, 2, 3};
 
     db.set_servername(serverName, serverPort);
     db.set_useridentification(userName, userPasswd);
-
 
     try
     {
@@ -550,7 +537,8 @@ int main(int argc, char** argv)
         std::cout << "                     1 - Marray<r_ULong> with counter" << std::endl;
         std::cout << "                     2 - Marray<r_ULong> with coordinates" << std::endl;
         std::cout << "                     3 - Marray<r_ULong> with crossfoot" << std::endl;
-        std::cout << "                     4 - Marray<r_ULong> with color cube" << std::endl << std::endl;
+        std::cout << "                     4 - Marray<r_ULong> with color cube" << std::endl
+                  << std::endl;
 
         std::cout << "                     5 - Marray<r_Char> with constant" << std::endl;
         std::cout << "                     6 - insert RGBImage with constant" << std::endl;
@@ -568,7 +556,7 @@ int main(int argc, char** argv)
         std::cout << "                    17 - Marray<r_Boolean>" << std::endl;
         std::cout << "                    18 - Marray<r_Char> from file" << std::endl;
 
-        cin  >> initMode;
+        cin >> initMode;
         std::cout << "Selected mode : " << initMode << std::endl;
 
         if (initMode == 18)
@@ -584,26 +572,26 @@ int main(int argc, char** argv)
         if (initMode == 0 || initMode == 5 || initMode == 17)
         {
             std::cout << "Constant value : ";
-            cin  >> initValue;
+            cin >> initValue;
             std::cout << initValue << std::endl;
         }
         if (initMode <= 7 || initMode >= 13)
         {
             std::cout << "Number of dimensions : ";
-            cin  >> dim;
+            cin >> dim;
             std::cout << dim << std::endl;
 
             domain = r_Minterval(dim);
 
-            for (r_Dimension i = 1; i <= dim ; i++)
+            for (r_Dimension i = 1; i <= dim; i++)
             {
                 std::cout << setw(2) << i << " Dimension( lower bound : ";
-                cin  >> low;
+                cin >> low;
                 std::cout << low << " upper bound : ";
-                cin  >> high;
-                std::cout << high << " ); " ;
+                cin >> high;
+                std::cout << high << " ); ";
 
-                domain << r_Sinterval((r_Range) low, (r_Range) high);
+                domain << r_Sinterval((r_Range)low, (r_Range)high);
             }
 
             std::cout << std::endl;
@@ -612,11 +600,11 @@ int main(int argc, char** argv)
         if (initMode == 14 || initMode == 16)
         {
             std::cout << "Minimum number : ";
-            cin  >> minNo;
+            cin >> minNo;
             std::cout << minNo << std::endl;
 
             std::cout << "Maximum number : ";
-            cin  >> maxNo;
+            cin >> maxNo;
             std::cout << maxNo << std::endl;
         }
 
@@ -635,7 +623,7 @@ int main(int argc, char** argv)
             db.set_storage_format(storageFormat, storageFormatParams);
             std::cout << "OK" << std::endl;
         }
-        catch (r_Error& obj)
+        catch (r_Error &obj)
         {
             std::cout << "FAILED" << std::endl;
             std::cout << "Error " << obj.get_errorno() << " : " << obj.what() << std::endl;
@@ -656,7 +644,7 @@ int main(int argc, char** argv)
             {
                 image_set = db.lookup_object(collName);
             }
-            catch (r_Error& obj)
+            catch (r_Error &obj)
             {
                 std::cout << "FAILED" << std::endl;
                 std::cout << "Error " << obj.get_errorno() << " : " << obj.what() << std::endl;
@@ -682,12 +670,13 @@ int main(int argc, char** argv)
                 printColl(image_set, 0, 0);
 
                 std::cout << "Please enter the image number to delete: ";
-                cin  >> imageNo;
+                cin >> imageNo;
                 std::cout << imageNo << std::endl;
 
                 r_Iterator<r_Ref<r_GMarray>> iter = image_set->create_iterator();
 
-                for (int i = 1; iter.not_done() && i < imageNo; iter++, i++);
+                for (int i = 1; iter.not_done() && i < imageNo; iter++, i++)
+                    ;
 
                 if (imageNo && iter.not_done())
                 {
@@ -696,7 +685,8 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    std::cout << "Number not valid." << std::endl << std::endl;
+                    std::cout << "Number not valid." << std::endl
+                              << std::endl;
                 }
             }
         }
@@ -710,7 +700,7 @@ int main(int argc, char** argv)
             {
                 image_set = db.lookup_object(collName);
             }
-            catch (r_Error& /*obj*/)
+            catch (r_Error & /*obj*/)
             {
                 std::cout << "FAILED" << std::endl;
                 //std::cout << "Error " << obj.get_errorno() << " : " << obj.what() << std::endl;
@@ -728,7 +718,7 @@ int main(int argc, char** argv)
                         strcpy(setTypeName, "GreySet");
                     }
 
-                    image_set = new(&db, setTypeName) r_Set<r_Ref<r_Marray<r_Char>>>;
+                    image_set = new (&db, setTypeName) r_Set<r_Ref<r_Marray<r_Char>>>;
                 }
                 else if (initMode == 6)
                 {
@@ -737,7 +727,7 @@ int main(int argc, char** argv)
                         strcpy(setTypeName, "RGBSet");
                     }
 
-                    image_set = new(&db, setTypeName) r_Set<r_Ref<r_Marray<RGBPixel>>>;
+                    image_set = new (&db, setTypeName) r_Set<r_Ref<r_Marray<RGBPixel>>>;
                 }
                 else if (initMode == 15)
                 {
@@ -746,7 +736,7 @@ int main(int argc, char** argv)
                         strcpy(setTypeName, "UShortSet");
                     }
 
-                    image_set = new(&db, setTypeName) r_Set<r_Ref<r_Marray<r_UShort>>>;
+                    image_set = new (&db, setTypeName) r_Set<r_Ref<r_Marray<r_UShort>>>;
                 }
                 else if (initMode == 17)
                 {
@@ -755,7 +745,7 @@ int main(int argc, char** argv)
                         strcpy(setTypeName, "BoolSet");
                     }
 
-                    image_set = new(&db, setTypeName) r_Set<r_Ref<r_Marray<r_Boolean>>>;
+                    image_set = new (&db, setTypeName) r_Set<r_Ref<r_Marray<r_Boolean>>>;
                 }
                 else
                 {
@@ -764,7 +754,7 @@ int main(int argc, char** argv)
                         strcpy(setTypeName, "ULongSet");
                     }
 
-                    image_set = new(&db, setTypeName) r_Set<r_Ref<r_Marray<r_ULong>>>;
+                    image_set = new (&db, setTypeName) r_Set<r_Ref<r_Marray<r_ULong>>>;
                 }
 
                 // create a name for the persistent set in order to be able to look it up again
@@ -780,14 +770,14 @@ int main(int argc, char** argv)
                 std::cout << "Creating the marray ..." << std::flush;
 
                 // create storage layout object
-                r_Tiling* tilingObj = getTilingScheme(tilingScheme, tilingSchemeParams);
+                r_Tiling *tilingObj = getTilingScheme(tilingScheme, tilingSchemeParams);
 
                 if (tilingObj == NULL)
                 {
                     return EXIT_FAILURE;
                 }
 
-                r_Storage_Layout* stl = new r_Storage_Layout(tilingObj);
+                r_Storage_Layout *stl = new r_Storage_Layout(tilingObj);
 
                 // create the image
                 switch (initMode)
@@ -798,7 +788,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "ULongImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, (r_ULong)initValue, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_ULong>(domain, (r_ULong)initValue, stl);
                     break;
                 case 1:
                     if (!strlen(mddTypeName))
@@ -806,7 +796,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "ULongImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithCounter, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithCounter, stl);
                     break;
                 case 2:
                     if (!strlen(mddTypeName))
@@ -814,7 +804,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "ULongImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithCoordinates, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithCoordinates, stl);
                     break;
                 case 3:
                     if (!strlen(mddTypeName))
@@ -822,7 +812,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "ULongImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithCrossfoot, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithCrossfoot, stl);
                     break;
                 case 4:
                     if (!strlen(mddTypeName))
@@ -830,7 +820,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "ULongImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithColorCube, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithColorCube, stl);
                     break;
                 case 5:
                     if (!strlen(mddTypeName))
@@ -838,7 +828,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "GreyImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_Char>(domain, (r_Char)initValue, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_Char>(domain, (r_Char)initValue, stl);
                     break;
                 case 6:
                     if (!strlen(mddTypeName))
@@ -846,7 +836,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "RGBImage");
                     }
 
-                    image = new(&db, mddTypeName)  RGBImage(domain, rgbValue, stl);
+                    image = new (&db, mddTypeName) RGBImage(domain, rgbValue, stl);
                     break;
                 case 7:
                     if (!strlen(mddTypeName))
@@ -854,7 +844,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "GreyImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_Char>(domain, &initWithCurve, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_Char>(domain, &initWithCurve, stl);
                     break;
                 case 13:
                     if (!strlen(mddTypeName))
@@ -862,7 +852,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "GreyImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_Char>(domain, &initWithCounterChar, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_Char>(domain, &initWithCounterChar, stl);
                     break;
                 case 14:
                     if (!strlen(mddTypeName))
@@ -870,7 +860,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "GreyImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_Char>(domain, &initWithRandomChar, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_Char>(domain, &initWithRandomChar, stl);
                     break;
                 case 15:
                     if (!strlen(mddTypeName))
@@ -878,7 +868,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "UShortImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_UShort>(domain, &initWithCounterUShort, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_UShort>(domain, &initWithCounterUShort, stl);
                     break;
                 case 16:
                     if (!strlen(mddTypeName))
@@ -886,7 +876,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "ULongImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithRandomULong, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_ULong>(domain, &initWithRandomULong, stl);
                     break;
                 case 17:
                     if (!strlen(mddTypeName))
@@ -894,7 +884,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "BoolImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_Boolean>(domain, (r_Boolean)initValue, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_Boolean>(domain, (r_Boolean)initValue, stl);
                     break;
                 case 18:
                     if (!strlen(mddTypeName))
@@ -902,7 +892,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "GreyImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_Char>(domain, &initFromFile, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_Char>(domain, &initFromFile, stl);
                     break;
                 default:
                     if (!strlen(mddTypeName))
@@ -910,7 +900,7 @@ int main(int argc, char** argv)
                         strcpy(mddTypeName, "ULongImage");
                     }
 
-                    image = new(&db, mddTypeName) r_Marray<r_ULong>(domain, (r_ULong)0, stl);
+                    image = new (&db, mddTypeName) r_Marray<r_ULong>(domain, (r_ULong)0, stl);
                 }
 
                 std::cout << " Marray type " << mddTypeName << " ... OK" << std::endl;
@@ -919,16 +909,17 @@ int main(int argc, char** argv)
                 std::cout << "Inserting one image with domain " << domain << " into collection " << collName << "..." << std::flush;
                 // put in into the persistent list
                 image_set->insert_element(image);
-                std::cout << "OK" << std::endl << std::endl;
+                std::cout << "OK" << std::endl
+                          << std::endl;
 
                 if (testbed)
                 {
-                    std::cout << std::endl << "Testbed output:" << std::endl;
+                    std::cout << std::endl
+                              << "Testbed output:" << std::endl;
                     std::cout << "-- Testbed: set_oid=" << image_set->get_oid() << std::endl;
                     std::cout << "-- Testbed: image_oid=" << image->get_oid() << std::endl;
                     std::cout << std::endl;
                 }
-
             }
         }
 
@@ -938,7 +929,7 @@ int main(int argc, char** argv)
             ta.commit();
             std::cout << "OK" << std::endl;
         }
-        catch (r_Error& obj)
+        catch (r_Error &obj)
         {
             std::cerr << "Error " << obj.get_errorno() << " : " << obj.what() << std::endl;
             return EXIT_FAILURE;
@@ -953,7 +944,7 @@ int main(int argc, char** argv)
             fileStream.close();
         }
     }
-    catch (r_Error& obj)
+    catch (r_Error &obj)
     {
         std::cerr << "Error " << obj.get_errorno() << " : " << obj.what() << std::endl;
         return EXIT_FAILURE;
@@ -961,6 +952,3 @@ int main(int argc, char** argv)
 
     return EXIT_SUCCESS;
 }
-
-
-

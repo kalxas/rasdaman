@@ -38,20 +38,20 @@ namespace common
  */
 class IPv4Resolver : public AbstractNetworkResolver
 {
-
 public:
     /**
      * @brief IPv4Resolver Constructor taking an in_addr and a port.
      * @param address The in_addr representation of the host.
      * @param port The port.
      */
-    IPv4Resolver(const struct in_addr& address, std::uint32_t port);
+    IPv4Resolver(const struct in_addr &address, std::uint32_t port);
 
     /**
      * @brief isPortBusy Checks if the port is busy.
      * @return True if the port is busy, false otherwise.
      */
     virtual bool isPortBusy();
+
 private:
     /**
      * @brief address The in_addr representaiton of the host.
@@ -59,6 +59,6 @@ private:
     struct in_addr address;
 };
 
-}//namespace common
+}  //namespace common
 
-#endif // IPV4RESOLVER_HH
+#endif  // IPV4RESOLVER_HH

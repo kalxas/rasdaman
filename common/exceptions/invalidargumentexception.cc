@@ -23,12 +23,13 @@ rasdaman GmbH.
 
 #include "invalidargumentexception.hh"
 
-namespace common {
+namespace common
+{
 InvalidArgumentException::InvalidArgumentException()
     : LogicException("Invalid argument.") {}
 
-InvalidArgumentException::InvalidArgumentException(const std::string& message)
+InvalidArgumentException::InvalidArgumentException(const std::string &message)
     : LogicException(message) {}
 
 InvalidArgumentException::~InvalidArgumentException() noexcept = default;
-}
+}  // namespace common

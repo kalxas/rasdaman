@@ -91,7 +91,6 @@ public:
     /// type checking
     virtual void checkType();
 
-
 private:
     /// insert expression
     QtOperation *source;
@@ -112,4 +111,3 @@ private:
 #include "qlparser/qtinsert.icc"
 
 #endif
-

@@ -25,12 +25,11 @@ rasdaman GmbH.
 #ifndef _COLLECTIONTYPE_HH_
 #define _COLLECTIONTYPE_HH_
 
-#include <iosfwd>                             // for ostream
+#include <iosfwd>  // for ostream
 
-#include "raslib/mddtypes.hh"                 // for r_Bytes
-#include "type.hh"                            // for Type, ostream
+#include "raslib/mddtypes.hh"  // for r_Bytes
+#include "type.hh"             // for Type, ostream
 #include "dbnullvalues.hh"
-
 
 class OId;
 class MDDType;
@@ -80,7 +79,7 @@ public:
 
 protected:
     const MDDType *myMDDType{NULL};
-    
+
     DBNullvalues *nullValues{NULL};
 
     explicit CollectionType(const char *name);
@@ -89,4 +88,3 @@ protected:
 };
 
 #endif
-

@@ -32,16 +32,16 @@ rasdaman GmbH.
 #include "relblobif/tileid.hh"        // for DBTileId
 #include "relblobif/dbtile.hh"        // for DBTile
 #include "raslib/mitera.hh"
-#include "raslib/error.hh"            // for r_Error, TILECONFIGMARRAYINCOMP...
-#include "raslib/mddtypes.hh"         // for r_Range, r_Dimension
-#include "raslib/odmgtypes.hh"        // for r_Double
-#include "raslib/minterval.hh"        // for r_Minterval, operator<<
-#include "raslib/point.hh"            // for r_Point, operator<<
-#include "raslib/sinterval.hh"        // for r_Sinterval, operator<<
+#include "raslib/error.hh"      // for r_Error, TILECONFIGMARRAYINCOMP...
+#include "raslib/mddtypes.hh"   // for r_Range, r_Dimension
+#include "raslib/odmgtypes.hh"  // for r_Double
+#include "raslib/minterval.hh"  // for r_Minterval, operator<<
+#include "raslib/point.hh"      // for r_Point, operator<<
+#include "raslib/sinterval.hh"  // for r_Sinterval, operator<<
 #include "storagemgr/sstoragelayout.hh"
-#include "logging.hh"                 // for LTRACE, LERROR
+#include "logging.hh"  // for LTRACE, LERROR
 
-#include <cmath>                      // for fmod
+#include <cmath>  // for fmod
 
 unsigned int
 SRCIndexLogic::computeNumberOfTiles(const StorageLayout &sl, const r_Minterval &mddDomain)
@@ -72,7 +72,7 @@ SRCIndexLogic::computeNormalizedDomain(const r_Point &mddDomainExtent, const r_P
         //cout << "division                           " << mddDomainExtent[dim]/tileConfigExtent[dim] << endl;
         //cout << "normalized                         " << normalized << endl;
         //remove this if we support rc index with border tiles
-        if ((normalized + 1)* tileConfigExtent[dim] != mddDomainExtent[dim])
+        if ((normalized + 1) * tileConfigExtent[dim] != mddDomainExtent[dim])
         {
             //cout << "got you" << endl;
             LERROR << "SRCIndexLogic::computeNormalizedDomain() the mdd domain does not fit the tile configuration";
@@ -136,8 +136,7 @@ OId SRCIndexLogic::computeOId(const r_Minterval &mddDomain,
     return OId(counter, type);
 }
 
-bool
-SRCIndexLogic::insertObject(IndexDS *ixDS, const KeyObject &newKeyObject, const StorageLayout &sl)
+bool SRCIndexLogic::insertObject(IndexDS *ixDS, const KeyObject &newKeyObject, const StorageLayout &sl)
 {
     // this method should check if the tile is actually in the tiling
 
@@ -302,4 +301,3 @@ bool SRCIndexLogic::removeObject(__attribute__((unused)) IndexDS *ixDS,
     LTRACE << "removeObject(" << objToRemove << ")";
     return true;
 }
-

@@ -33,12 +33,10 @@
 #include "common/exceptions/exception.hh"
 #include "loggingutils.hh"
 
-
 #include <sys/prctl.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
-
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -48,8 +46,8 @@ void shutdownHandler(int sig, siginfo_t *info, void *ucontext);
 using common::Crypto;
 using rasmgr::Configuration;
 using rasmgr::RasManager;
-using rasmgr::RASMGR_RESULT_OK;
 using rasmgr::RASMGR_RESULT_FAILED;
+using rasmgr::RASMGR_RESULT_OK;
 
 // RasManager object that orchestrates
 std::shared_ptr<rasmgr::RasManager> manager;
@@ -76,7 +74,8 @@ void crashHandler(int sig, siginfo_t *info, void * /* ucontext */)
     {
         alreadyExecuting = true;
         LERROR << "Interrupted by signal " << common::SignalHandler::toString(info)
-               << "... stacktrace:\n" << common::SignalHandler::getStackTrace();
+               << "... stacktrace:\n"
+               << common::SignalHandler::getStackTrace();
         if (manager)
             manager->stop();
         exit(sig);
@@ -93,12 +92,12 @@ void configureLogging(const Configuration &config)
             outputLogFilePath += "/";
         outputLogFilePath += "rasmgr." + std::to_string(::getpid()) + ".log";
     }
-  
+
     // setup log config
     common::LogConfiguration logConfig(CONFDIR, RASMGR_LOG_CONF);
     logConfig.configServerLogging(outputLogFilePath, config.isQuiet());
     common::GrpcUtils::redirectGRPCLogToEasyLogging();
-  
+
     // should come after the log config as it logs msgs
     common::SignalHandler::handleShutdownSignals(shutdownHandler);
 }
@@ -108,13 +107,13 @@ Configuration parseCmdLine(int argc, char **argv)
     // handle abort signals and ignore irrelevant signals
     common::SignalHandler::handleAbortSignals(crashHandler);
     common::SignalHandler::ignoreStandardSignals();
-  
+
     if (Crypto::isMessageDigestAvailable(DEFAULT_DIGEST) == false)
     {
         std::cerr << "Error: Message Digest MD5 not available." << std::endl;
         exit(rasmgr::RASMGR_RESULT_NO_MD5);
     }
-    
+
     Configuration config;
     bool result = config.parseCommandLineParameters(argc, argv);
     if (result == false)
@@ -134,13 +133,13 @@ int main(int argc, char **argv)
           << " on base DBMS " << BASEDBSTRING << ".";
     LINFO << "Copyright (c) 2003-2021 Peter Baumann, rasdaman GmbH.\n"
           << "Rasdaman community is free software: you can redistribute it and/or modify "
-          "it under the terms of the GNU General Public License as published by "
-          "the Free Software Foundation, either version 3 of the License, or "
-          "(at your option) any later version.\n"
-          "Rasdaman community is distributed in the hope that it will be useful, "
-          "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-          "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
-          "GNU General Public License for more details.\n";
+             "it under the terms of the GNU General Public License as published by "
+             "the Free Software Foundation, either version 3 of the License, or "
+             "(at your option) any later version.\n"
+             "Rasdaman community is distributed in the hope that it will be useful, "
+             "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+             "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+             "GNU General Public License for more details.\n";
 
     int ret = RASMGR_RESULT_OK;
 

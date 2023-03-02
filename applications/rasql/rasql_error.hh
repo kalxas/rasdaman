@@ -25,6 +25,7 @@
 
 #include <string>
 
+// clang-format off
 /// valid error codes:
 #define ALLDONE                         -1
 #define OK                              0
@@ -41,23 +42,23 @@
 #define FILEEMPTY                       11
 #define FILEREADERROR                   12
 #define FILEWRITEERROR                  13
-#define NOCONNECTION					14
+#define NOCONNECTION                    14
 #define NOCONNECTSTRING                 17
+// clang-format on
 
 class RasqlError
 {
 public:
-
     /// constructor receiving an error number
     explicit RasqlError(int e);
-    
+
     /// get an error description
-    const char* what();
-    
+    const char *what();
+
 private:
     /// error information
     int error_code;
     std::string msg;
 };
 
-#endif // _RASQL_ERROR_HH_
+#endif  // _RASQL_ERROR_HH_

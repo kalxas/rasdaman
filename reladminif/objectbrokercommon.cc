@@ -20,39 +20,39 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-#include "objectbroker.hh"                      // for ObjectBroker
-#include "dbobject.hh"                          // for DBObject
-#include "oidif.hh"                             // for OId, operator<<, OId:...
-#include "dbnamedobject.hh"                     // for DBNamedObject
-#include "dbref.hh"                             // for DBRef
-#include "lists.h"                              // for DBObjectPMap, OIdMap
-#include "relindexif/dbrcindexds.hh"            // for DBRCIndexDS
-#include "relindexif/dbtcindex.hh"              // for DBTCIndex
-#include "relindexif/hierindex.hh"              // for DBHierIndex
-#include "relmddif/dbmddobj.hh"                 // for DBMDDObj
-#include "relmddif/dbmddset.hh"                 // for DBMDDSet
-#include "relblobif/blobtile.hh"                // for BLOBTile
-#include "relstorageif/dbstoragelayout.hh"      // for DBStorageLayout
-#include "relcatalogif/dbminterval.hh"          // for DBMinterval
-#include "relcatalogif/booltype.hh"             // for BoolType, BoolType::Name
-#include "relcatalogif/chartype.hh"             // for CharType, CharType::Name
-#include "relcatalogif/complextype.hh"          // for ComplexType1, Complex...
-#include "relcatalogif/dbnullvalues.hh"         // for DBNullvalues
-#include "relcatalogif/doubletype.hh"           // for DoubleType, DoubleTyp...
-#include "relcatalogif/floattype.hh"            // for FloatType, FloatType:...
-#include "relcatalogif/longtype.hh"             // for LongType, LongType::Name
-#include "relcatalogif/mddbasetype.hh"          // for MDDBaseType
-#include "relcatalogif/mdddimensiontype.hh"     // for MDDDimensionType
-#include "relcatalogif/mdddomaintype.hh"        // for MDDDomainType
-#include "relcatalogif/mddtype.hh"              // for MDDType
-#include "relcatalogif/octettype.hh"            // for OctetType, OctetType:...
-#include "relcatalogif/settype.hh"              // for SetType
-#include "relcatalogif/shorttype.hh"            // for ShortType, ShortType:...
-#include "relcatalogif/structtype.hh"           // for StructType
-#include "relcatalogif/ulongtype.hh"            // for ULongType, ULongType:...
-#include "relcatalogif/ushorttype.hh"           // for UShortType, UShortTyp...
-#include "raslib/error.hh"                      // for r_Error, INVALID_OIDTYPE
-#include <logging.hh>                           // for Writer, CTRACE, CFATAL
+#include "objectbroker.hh"                   // for ObjectBroker
+#include "dbobject.hh"                       // for DBObject
+#include "oidif.hh"                          // for OId, operator<<, OId:...
+#include "dbnamedobject.hh"                  // for DBNamedObject
+#include "dbref.hh"                          // for DBRef
+#include "lists.h"                           // for DBObjectPMap, OIdMap
+#include "relindexif/dbrcindexds.hh"         // for DBRCIndexDS
+#include "relindexif/dbtcindex.hh"           // for DBTCIndex
+#include "relindexif/hierindex.hh"           // for DBHierIndex
+#include "relmddif/dbmddobj.hh"              // for DBMDDObj
+#include "relmddif/dbmddset.hh"              // for DBMDDSet
+#include "relblobif/blobtile.hh"             // for BLOBTile
+#include "relstorageif/dbstoragelayout.hh"   // for DBStorageLayout
+#include "relcatalogif/dbminterval.hh"       // for DBMinterval
+#include "relcatalogif/booltype.hh"          // for BoolType, BoolType::Name
+#include "relcatalogif/chartype.hh"          // for CharType, CharType::Name
+#include "relcatalogif/complextype.hh"       // for ComplexType1, Complex...
+#include "relcatalogif/dbnullvalues.hh"      // for DBNullvalues
+#include "relcatalogif/doubletype.hh"        // for DoubleType, DoubleTyp...
+#include "relcatalogif/floattype.hh"         // for FloatType, FloatType:...
+#include "relcatalogif/longtype.hh"          // for LongType, LongType::Name
+#include "relcatalogif/mddbasetype.hh"       // for MDDBaseType
+#include "relcatalogif/mdddimensiontype.hh"  // for MDDDimensionType
+#include "relcatalogif/mdddomaintype.hh"     // for MDDDomainType
+#include "relcatalogif/mddtype.hh"           // for MDDType
+#include "relcatalogif/octettype.hh"         // for OctetType, OctetType:...
+#include "relcatalogif/settype.hh"           // for SetType
+#include "relcatalogif/shorttype.hh"         // for ShortType, ShortType:...
+#include "relcatalogif/structtype.hh"        // for StructType
+#include "relcatalogif/ulongtype.hh"         // for ULongType, ULongType:...
+#include "relcatalogif/ushorttype.hh"        // for UShortType, UShortTyp...
+#include "raslib/error.hh"                   // for r_Error, INVALID_OIDTYPE
+#include <logging.hh>                        // for Writer, CTRACE, CFATAL
 
 #ifdef __APPLE__
 #include <sys/malloc.h>
@@ -60,11 +60,10 @@ rasdaman GmbH.
 #include <malloc.h>
 #endif
 #include <cassert>
-#include <cstring>                              // for strcmp
-#include <set>                                  // for _Rb_tree_iterator, set
-#include <utility>                              // for pair
-#include <vector>                               // for vector
-
+#include <cstring>  // for strcmp
+#include <set>      // for _Rb_tree_iterator, set
+#include <utility>  // for pair
+#include <vector>   // for vector
 
 class DBTile;
 class InlineTile;
@@ -77,7 +76,7 @@ template class DBRef<InlineTile>;
 using namespace std;
 
 OId::OIdType
-ObjectBroker::clearingObjectsOfType = OId::INVALID;
+    ObjectBroker::clearingObjectsOfType = OId::INVALID;
 
 LongType *ObjectBroker::theLong = nullptr;
 ShortType *ObjectBroker::theShort = nullptr;
@@ -201,17 +200,17 @@ DBObject *ObjectBroker::getObjectByOId(const OId &id)
 {
     if (id.getType() == OId::INVALID)
     {
-        return nullptr;    // invalid OId, can't return any valid object
+        return nullptr;  // invalid OId, can't return any valid object
     }
 
     auto *cached = ObjectBroker::isInMemory(id);
     if (cached)
     {
-        return cached;    // return already cached
+        return cached;  // return already cached
     }
     else
     {
-        return loadObjectByOId(id);    // not cached, have to load it from the database
+        return loadObjectByOId(id);  // not cached, have to load it from the database
     }
 }
 
@@ -372,8 +371,7 @@ OIdSet *ObjectBroker::getAllObjects(OId::OIdType type)
     }
 }
 
-OId
-ObjectBroker::getOIdByName(OId::OIdType type, const char *name)
+OId ObjectBroker::getOIdByName(OId::OIdType type, const char *name)
 {
     switch (type)
     {
@@ -446,14 +444,13 @@ ObjectBroker::getOIdByName(OId::OIdType type, const char *name)
         }
         else
         {
-            return OId();    // invalid OId
+            return OId();  // invalid OId
         }
     default:
         LERROR << "Retrival of OId of type " << type << " and name '" << name << "' failed: invalid OId type.";
         throw r_Error(INVALID_OIDTYPE);
     }
 }
-
 
 DBObject *
 ObjectBroker::getObjectByName(OId::OIdType type, const char *name)
@@ -512,8 +509,7 @@ ObjectBroker::getObjectByName(OId::OIdType type, const char *name)
     return retval;
 }
 
-void
-ObjectBroker::clearMap(DBObjectPMap &theMap)
+void ObjectBroker::clearMap(DBObjectPMap &theMap)
 {
     if (theMap.size() > 0)
     {
@@ -526,7 +522,7 @@ ObjectBroker::clearMap(DBObjectPMap &theMap)
             clearingObjectsOfType = obj->getOId().getType();
         }
     }
-    for (auto &p : theMap)
+    for (auto &p: theMap)
     {
         delete p.second;
     }
@@ -534,10 +530,9 @@ ObjectBroker::clearMap(DBObjectPMap &theMap)
     clearingObjectsOfType = OId::INVALID;
 }
 
-void
-ObjectBroker::validateMap(DBObjectPMap &theMap)
+void ObjectBroker::validateMap(DBObjectPMap &theMap)
 {
-    for (auto &p : theMap)
+    for (auto &p: theMap)
     {
         p.second->validate();
     }
@@ -550,17 +545,16 @@ void ObjectBroker::clearBroker()
 
     LDEBUG << "Clearing ObjectBroker...";
     static const std::vector<OId::OIdType> objTypes =
-    {
-        OId::STRUCTTYPEOID, OId::DBMINTERVALOID, OId::DBNULLVALUESOID,
-        OId::MDDDOMTYPEOID, OId::MDDDIMTYPEOID, OId::MDDBASETYPEOID, OId::MDDTYPEOID, OId::SETTYPEOID,
-        OId::BLOBOID,
-        OId::INLINETILEOID, OId::STORAGEOID,
-        OId::MDDOID, OId::MDDCOLLOID,
-        OId::MDDHIERIXOID, OId::MDDRCIXOID, OId::DBTCINDEXOID
-    };
+        {
+            OId::STRUCTTYPEOID, OId::DBMINTERVALOID, OId::DBNULLVALUESOID,
+            OId::MDDDOMTYPEOID, OId::MDDDIMTYPEOID, OId::MDDBASETYPEOID, OId::MDDTYPEOID, OId::SETTYPEOID,
+            OId::BLOBOID,
+            OId::INLINETILEOID, OId::STORAGEOID,
+            OId::MDDOID, OId::MDDCOLLOID,
+            OId::MDDHIERIXOID, OId::MDDRCIXOID, OId::DBTCINDEXOID};
 
     // validate from smaller to upper
-    for (auto objType : objTypes)
+    for (auto objType: objTypes)
     {
         LTRACE << "Validating map for objects of type: " << objType;
         validateMap(getMap(objType));

@@ -35,10 +35,10 @@ rasdaman GmbH.
 #include "adminif.hh"       // for AdminIf, SYSTEMNAME_MAXLEN
 #include "objectbroker.hh"  // for ObjectBroker
 
-#include <logging.hh>       // for Writer, CTRACE, LTRACE
-#include <string.h>         // for strcpy
-#include <errno.h>          // for errno
-#include <unistd.h>         // for gethostname
+#include <logging.hh>  // for Writer, CTRACE, LTRACE
+#include <string.h>    // for strcpy
+#include <errno.h>     // for errno
+#include <unistd.h>    // for gethostname
 
 AdminIf *AdminIf::myInstance = nullptr;
 bool AdminIf::validConnection = false;
@@ -76,7 +76,7 @@ AdminIf *AdminIf::instance(bool createDb)
     if (hostResult != 0)
     {
         LDEBUG << "Error: cannot obtain hostname, using 'localhost'; " << strerror(errno);
-        (void) strcpy(systemName, DEFAULT_SYSTEM_NAME);
+        (void)strcpy(systemName, DEFAULT_SYSTEM_NAME);
     }
     if (!myInstance)
     {
@@ -119,4 +119,3 @@ char *AdminIf::getSystemName()
 {
     return systemName;
 }
-

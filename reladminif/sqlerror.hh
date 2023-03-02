@@ -36,7 +36,6 @@ rasdaman GmbH.
 #include "config.h"
 #include <cstddef>
 
-
 const int SQLOK = 0;
 const short INDNULL = -1;
 

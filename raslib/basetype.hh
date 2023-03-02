@@ -66,7 +66,6 @@ public:
 protected:
     /// storing size of type in bytes
     r_Bytes typeSize{};
-
 };
 
 #endif

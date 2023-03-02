@@ -43,32 +43,31 @@ class RasmgrComm
 public:
     RasmgrComm(const std::string &rasmgrHost, const std::uint32_t rasmgrPort);
     ~RasmgrComm() = default;
-    
+
     void registerServerWithRasmgr(const std::string &serverId);
-    
+
 private:
-    
     std::string rasmgrHost;
     std::string serverId;
-    
+
     /// Service stub used to communicate with the rasmgr process
     std::shared_ptr<rasnet::service::RasMgrRasServerService::Stub> rasmgrService;
     /// Flag used to indicate if the service was initialized
     bool rasmgrServiceInitialized{false};
     /// Mutex to serialize access to the rasmgrService from multiple threads
     boost::shared_mutex rasmgrServiceMutex;
-    
+
     std::shared_ptr<common::HealthService::Stub> rasmgrHealthService;
-    
+
     // -------------------------------------------------------------------------
-    
+
     std::shared_ptr<rasnet::service::RasMgrRasServerService::Stub>
     getRasmgrService(bool throwIfConnectionFailed);
-    
+
     void initRasmgrService();
-    
+
     void configureDeadline(grpc::ClientContext &context, int deadline);
 };
 
-}
-#endif // RASSERVER_X_SRC_RASMGRCOMM_HH
+}  // namespace rasserver
+#endif  // RASSERVER_X_SRC_RASMGRCOMM_HH

@@ -109,4 +109,3 @@ private:
 #include "qlparser/qtiterator.icc"
 
 #endif
-

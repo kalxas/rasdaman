@@ -52,13 +52,13 @@ public:
     //@Man: Operations of the ONC protocol
     //@{
     ///
-    virtual void        open() = 0;
+    virtual void open() = 0;
     ///
     virtual QtDataList *next() = 0;
     ///
-    virtual void        close() = 0;
+    virtual void close() = 0;
     ///
-    virtual void        reset() = 0;
+    virtual void reset() = 0;
     //@}
 
     /// type checking of the subtree
@@ -72,7 +72,7 @@ public:
     //@{
     ///
     ///
-    void               setDataStreamType(const QtTypeTuple &type);
+    void setDataStreamType(const QtTypeTuple &type);
     ///
     inline const QtTypeTuple &getDataStreamType() const;
     ///
@@ -88,4 +88,3 @@ private:
 };
 
 #endif
-

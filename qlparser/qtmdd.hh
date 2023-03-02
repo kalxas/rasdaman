@@ -139,4 +139,3 @@ private:
 #include "qlparser/qtmdd.icc"
 
 #endif
-

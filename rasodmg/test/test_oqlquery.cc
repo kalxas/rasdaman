@@ -44,10 +44,11 @@ rasdaman GmbH.
 
 int main()
 {
-    cout << endl << endl;
+    cout << endl
+         << endl;
     cout << "r_OQL_Query Examples" << endl;
-    cout << "====================" << endl << endl;
-
+    cout << "====================" << endl
+         << endl;
 
     // 1. Example
 
@@ -56,16 +57,17 @@ int main()
 
     try
     {
-        q1 << "Images d" << "<id>";
+        q1 << "Images d"
+           << "<id>";
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << err.what() << endl;
     }
 
     cout << "Parameterized query string : " << q1.get_parameterized_query() << endl;
-    cout << "Query string               : " << q1.get_query() << endl << endl;
-
+    cout << "Query string               : " << q1.get_query() << endl
+         << endl;
 
     // 2. Example
 
@@ -74,16 +76,18 @@ int main()
 
     try
     {
-        q2 << "Images d" << "<id>" << "too many";
+        q2 << "Images d"
+           << "<id>"
+           << "too many";
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << err.what() << endl;
     }
 
     cout << "Parameterized query string : " << q2.get_parameterized_query() << endl;
-    cout << "Query string               : " << q2.get_query() << endl << endl;
-
+    cout << "Query string               : " << q2.get_query() << endl
+         << endl;
 
     // 3. Example
 
@@ -94,13 +98,14 @@ int main()
     {
         q3 << (unsigned char)'d' << "Images" << (unsigned char)'d' << (r_Long)100l << (r_Long)20l;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << err.what() << endl;
     }
 
     cout << "Parameterized query string : " << q3.get_parameterized_query() << endl;
-    cout << "Query string               : " << q3.get_query() << endl << endl;
+    cout << "Query string               : " << q3.get_query() << endl
+         << endl;
 
     // 4. Example
 
@@ -114,13 +119,14 @@ int main()
            << (r_Minterval(2) << r_Sinterval((r_Long)300l, (r_Long)399l) << r_Sinterval((r_Long)400l, (r_Long)499l))
            << (r_Long)127l;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << err.what() << endl;
     }
 
     cout << "Parameterized query string : " << q4.get_parameterized_query() << endl;
-    cout << "Query string               : " << q4.get_query() << endl << endl;
+    cout << "Query string               : " << q4.get_query() << endl
+         << endl;
 
     // 5. Example
 
@@ -132,29 +138,23 @@ int main()
         r_GMarray mdd;
 
         cout << "Parameterized query string : " << q5.get_parameterized_query() << endl;
-        cout << "Query string               : " << q5.get_query() << endl << endl;
+        cout << "Query string               : " << q5.get_query() << endl
+             << endl;
         q5 << mdd;
         cout << "Parameterized query string : " << q5.get_parameterized_query() << endl;
-        cout << "Query string               : " << q5.get_query() << endl << endl;
+        cout << "Query string               : " << q5.get_query() << endl
+             << endl;
         q5 << mdd;
         cout << "Parameterized query string : " << q5.get_parameterized_query() << endl;
-        cout << "Query string               : " << q5.get_query() << endl << endl;
+        cout << "Query string               : " << q5.get_query() << endl
+             << endl;
     }
-    catch (r_Error& err)
+    catch (r_Error &err)
     {
         cout << err.what() << endl;
     }
 
     cout << "Parameterized query string : " << q5.get_parameterized_query() << endl;
-    cout << "Query string               : " << q5.get_query() << endl << endl;
+    cout << "Query string               : " << q5.get_query() << endl
+         << endl;
 }
-
-
-
-
-
-
-
-
-
-

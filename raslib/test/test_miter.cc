@@ -49,9 +49,9 @@ RMINITGLOBALS('C')
 // (perhaps add dimension for reordering later)
 typedef struct
 {
-    int repeat; // total number of repeats
-    int inc;    // increment per repeat
-    int curr;   // current repeat
+    int repeat;  // total number of repeats
+    int inc;     // increment per repeat
+    int curr;    // current repeat
 } incArrElem;
 
 // for repeating inside the test functions
@@ -84,10 +84,9 @@ createCube(int size, int dim)
     return res;
 }
 
-void
-test_Miter(r_Minterval& m1, r_Minterval& m2, char* data)
+void test_Miter(r_Minterval &m1, r_Minterval &m2, char *data)
 {
-    char* currCell;
+    char *currCell;
 
     // just to do something inside the loop
     unsigned long sum = 0;
@@ -98,14 +97,14 @@ test_Miter(r_Minterval& m1, r_Minterval& m2, char* data)
     RMTimer mIterTimer("Iterator", "r_Miter");
     mIterTimer.start();
 
-    r_Miter iter(&m2, &m1, 4, (char*)data);
+    r_Miter iter(&m2, &m1, 4, (char *)data);
     for (int i = 0; i < numRepeat; i++)
     {
         iter.reset();
         while (!iter.isDone())
         {
             currCell = iter.nextCell();
-            sum += *(long*)currCell;
+            sum += *(long *)currCell;
         }
     }
 
@@ -113,18 +112,17 @@ test_Miter(r_Minterval& m1, r_Minterval& m2, char* data)
     cout << sum << endl;
 }
 
-void
-test_DirectIter(r_Minterval& m1, r_Minterval& m2, char* data)
+void test_DirectIter(r_Minterval &m1, r_Minterval &m2, char *data)
 {
     int opSize = 4;
     int dim = m1.dimension();
     int i;
-    char* currCell;
+    char *currCell;
 
     // just to do something inside the loop
     unsigned long sum = 0;
 
-    incArrElem* incArrIter;
+    incArrElem *incArrIter;
 
     cout << "Iteration direct: ";
 
@@ -134,16 +132,15 @@ test_DirectIter(r_Minterval& m1, r_Minterval& m2, char* data)
 
     for (int r = 0; r < numRepeat; r++)
     {
-
         // stores the increments
         incArrIter = new incArrElem[dim];
 
-        currCell = (char*)data;
+        currCell = (char *)data;
 
         // the following initializes incArrIter and calculates the first offset
-        int tIncIter = 1;     // total increment for current dimension
-        int prevTIncIter = 1; // total increment for previous dimension
-        int incIter = 4;      // current increment, corresponds to cell size
+        int tIncIter = 1;      // total increment for current dimension
+        int prevTIncIter = 1;  // total increment for previous dimension
+        int incIter = 4;       // current increment, corresponds to cell size
         int firstOff = 0;
 
         for (i = 0; i < dim; i++)
@@ -181,7 +178,7 @@ test_DirectIter(r_Minterval& m1, r_Minterval& m2, char* data)
             for (i = 0; i < incArrIter[0].repeat; i++)
             {
                 // execute operation
-                sum += *(long*)currCell;
+                sum += *(long *)currCell;
                 // increment adresses
                 currCell += incArrIter[0].inc;
             }
@@ -207,14 +204,13 @@ test_DirectIter(r_Minterval& m1, r_Minterval& m2, char* data)
                 done = 1;
             }
         }
-        delete [] incArrIter;
+        delete[] incArrIter;
     }
     iterTimer.stop();
     cout << sum << endl;
 }
 
-void
-test_OldIter(r_Minterval& m1, r_Minterval& m2, char* data)
+void test_OldIter(r_Minterval &m1, r_Minterval &m2, char *data)
 {
     // just to do something inside the loop
     unsigned long sum = 0;
@@ -231,7 +227,7 @@ test_OldIter(r_Minterval& m1, r_Minterval& m2, char* data)
     const int opSize = 4;
     int dim = m2.dimension();
     int innerExtent = (m2.get_extent())[dim - 1];
-    char* cellOp;
+    char *cellOp;
 
     // initialize points
     for (i = 0; i < dim; i++)
@@ -250,14 +246,14 @@ test_OldIter(r_Minterval& m1, r_Minterval& m2, char* data)
             pOp[i] = m2[i].low();
         }
 
-        cellOp = (char*)data + m1.cell_offset(pOp) * 4;
+        cellOp = (char *)data + m1.cell_offset(pOp) * 4;
 
         // iterate over all cells
         while (!done)
         {
             if (recalc)
             {
-                cellOp = (char*)data + m1.cell_offset(pOp) * 4;
+                cellOp = (char *)data + m1.cell_offset(pOp) * 4;
                 recalc = 0;
             }
 
@@ -265,7 +261,7 @@ test_OldIter(r_Minterval& m1, r_Minterval& m2, char* data)
             for (j = 0; j < innerExtent; j++)
             {
                 // execute operation on cell
-                sum += *(long*)cellOp;
+                sum += *(long *)cellOp;
                 cellOp += opSize;
             }
 
@@ -296,8 +292,7 @@ test_OldIter(r_Minterval& m1, r_Minterval& m2, char* data)
     cout << sum << endl;
 }
 
-void
-test_CppIter(unsigned long cells, char* data)
+void test_CppIter(unsigned long cells, char *data)
 {
     unsigned long sum = 0;
     RMTimer cppIterTimer("Iterator", "cppIter");
@@ -318,14 +313,14 @@ test_CppIter(unsigned long cells, char* data)
 int main()
 {
     const unsigned long noCells = 1048576;
-    unsigned long* data;
+    unsigned long *data;
 
     for (int dim = 1; dim <= 7; dim++)
     {
         r_Minterval m2;
         r_Minterval m1(dim);
 
-        m2 =  createCube(noCells, dim);
+        m2 = createCube(noCells, dim);
 
         for (int i = 0; i < dim; i++)
         {
@@ -346,11 +341,11 @@ int main()
 
         for (int i = 0; i < 5; i++)
         {
-            test_Miter(m1, m2, (char*)data);
-            test_OldIter(m1, m2, (char*)data);
-            test_DirectIter(m1, m2, (char*)data);
+            test_Miter(m1, m2, (char *)data);
+            test_OldIter(m1, m2, (char *)data);
+            test_DirectIter(m1, m2, (char *)data);
         }
-        delete [] data;
+        delete[] data;
     }
 
     RMInit::bmOut << "1-D Iteration in C++:" << endl;
@@ -364,7 +359,7 @@ int main()
 
     for (int i = 0; i < 5; i++)
     {
-        test_CppIter(noCells, (char*)data);
+        test_CppIter(noCells, (char *)data);
     }
-    delete [] data;
+    delete[] data;
 }

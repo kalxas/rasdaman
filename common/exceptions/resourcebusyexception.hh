@@ -26,7 +26,8 @@ rasdaman GmbH.
 
 #include "runtimeexception.hh"
 
-namespace common {
+namespace common
+{
 /**
  * @brief The ResourceBusyException class defines a type of object to be thrown
  * as exception.
@@ -34,15 +35,16 @@ namespace common {
  * but it cannot be completed
  * because the object is being used.
  */
-class ResourceBusyException : public RuntimeException {
- public:
-  /**
+class ResourceBusyException : public RuntimeException
+{
+public:
+    /**
    * @brief ResourceBusyException
    * @param message Information detailing the cause of the exception.
    */
-  ResourceBusyException(const std::string& message);
+    ResourceBusyException(const std::string &message);
 
-  ~ResourceBusyException() noexcept override;
+    ~ResourceBusyException() noexcept override;
 };
-}
-#endif // COMMON_SRC_EXCEPTIONS_RESOURCEBUSYEXCEPTION_HH
+}  // namespace common
+#endif  // COMMON_SRC_EXCEPTIONS_RESOURCEBUSYEXCEPTION_HH

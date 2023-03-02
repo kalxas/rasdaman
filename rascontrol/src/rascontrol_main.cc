@@ -32,7 +32,6 @@
 #include "rascontrolconstants.hh"
 #include "rascontrol.hh"
 
-
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"
 #endif
@@ -54,7 +53,6 @@ int main(int argc, char **argv)
 
     try
     {
-
         if (config.parseCommandLineParameters(argc, argv) == false)
         {
             return EXIT_FAILURE;
@@ -71,14 +69,15 @@ int main(int argc, char **argv)
         {
             std::cout << "rascontrol: rasdaman server remote control utility " << RMANVERSION << "." << std::endl;
             std::cout << "Copyright (c) 2003-2021 Peter Baumann rasdaman GmbH.\n"
-                      "Rasdaman community is free software: you can redistribute it and/or modify "
-                      "it under the terms of the GNU General Public License as published by "
-                      "the Free Software Foundation, either version 3 of the License, or "
-                      "(at your option) any later version.\n"
-                      "Rasdaman community is distributed in the hope that it will be useful, "
-                      "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-                      "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
-                      "GNU General Public License for more details." << std::endl;
+                         "Rasdaman community is free software: you can redistribute it and/or modify "
+                         "it under the terms of the GNU General Public License as published by "
+                         "the Free Software Foundation, either version 3 of the License, or "
+                         "(at your option) any later version.\n"
+                         "Rasdaman community is distributed in the hope that it will be useful, "
+                         "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+                         "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+                         "GNU General Public License for more details."
+                      << std::endl;
         }
 
         if (config.isHelpRequested())
@@ -105,13 +104,11 @@ int main(int argc, char **argv)
         rascontrol::RasControl control(config, userCredentials);
 
         control.start();
-
     }
     catch (std::exception &ex)
     {
         std::cout << ex.what() << std::endl;
         return EXIT_FAILURE;
-
     }
     catch (...)
     {

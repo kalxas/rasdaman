@@ -46,19 +46,19 @@ namespace rasmgr
 {
 namespace test
 {
-using ::testing::AtLeast;                     // #1
 using ::testing::_;
+using ::testing::AtLeast;  // #1
 using ::testing::Return;
 using ::testing::ReturnRef;
 
-using rasnet::service::RasServerService;
-using rasmgr::ServerGroup;
 using rasmgr::RasMgrConfig;
-using rasmgr::test::TestUtil;
-using rasmgr::ServerGroupConfigProto;
 using rasmgr::ServerFactory;
+using rasmgr::ServerGroup;
+using rasmgr::ServerGroupConfigProto;
+using rasmgr::test::TestUtil;
+using rasnet::service::RasServerService;
 
-class ServerGroupTest: public ::testing::Test
+class ServerGroupTest : public ::testing::Test
 {
 protected:
     ServerGroupTest()
@@ -74,7 +74,6 @@ protected:
     std::shared_ptr<rasmgr::DatabaseHostManager> dbHostManager;
     std::shared_ptr<rasmgr::Server> server;
 };
-
 
 TEST_F(ServerGroupTest, constructorValidation)
 {
@@ -115,7 +114,8 @@ TEST_F(ServerGroupTest, constructorValidation)
     if (hasAliveServers || hasAvailableServers)
     {
         groupConfig.set_min_alive_server_no(20);
-        for (size_t i = 0; i < 20; ++i) {
+        for (size_t i = 0; i < 20; ++i)
+        {
             groupConfig.add_ports(2035 + uint32_t(i));
         }
     }
@@ -140,8 +140,7 @@ TEST_F(ServerGroupTest, constructorValidation)
         groupConfig.set_countdown(123);
     }
 
-
-    ServerGroup* group = nullptr;
+    ServerGroup *group = nullptr;
 
     // If one of these properties is not set, an exception shoulb be thrown
     if (!hasName || !hasHost || !hasDbHost || !hasPorts)
@@ -153,16 +152,16 @@ TEST_F(ServerGroupTest, constructorValidation)
         //The server count will be decreased in the destructor of the server group
         //so it is neccessary to increase it
         this->dbHost->increaseServerCount();
-        DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+        DatabaseHostManagerMock &dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
         EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
         ASSERT_NO_THROW(group = new ServerGroup(groupConfig, this->dbHostManager, this->serverFactory));
-//        try {
-//            group = new ServerGroup(groupConfig, this->dbHostManager, this->serverFactory);
-//        }
-//        catch (common::InvalidArgumentException &ex) {
-//            LERROR << "exception: " << ex.what();
-//        }
+        //        try {
+        //            group = new ServerGroup(groupConfig, this->dbHostManager, this->serverFactory);
+        //        }
+        //        catch (common::InvalidArgumentException &ex) {
+        //            LERROR << "exception: " << ex.what();
+        //        }
         ASSERT_TRUE(group->isStopped());
 
         ASSERT_EQ(groupConfig.name(), group->getConfig().name());
@@ -216,11 +215,9 @@ TEST_F(ServerGroupTest, constructorValidation)
             ASSERT_EQ(rasmgr::MAX_SERVER_SESSIONS, group->getConfig().countdown());
         }
 
-
         delete group;
     }
 }
-
 
 TEST_F(ServerGroupTest, start)
 {
@@ -229,16 +226,16 @@ TEST_F(ServerGroupTest, start)
     //The created servers will be started
     //The servers will be stopped in the destructor
     this->dbHost->increaseServerCount();
-    DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+    DatabaseHostManagerMock &dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
     std::string serverId = "serverId";
-    MockRasServer& serverRef = *std::dynamic_pointer_cast<MockRasServer>(this->server);
+    MockRasServer &serverRef = *std::dynamic_pointer_cast<MockRasServer>(this->server);
     EXPECT_CALL(serverRef, startProcess());
     EXPECT_CALL(serverRef, getServerId()).WillOnce(ReturnRef(serverId));
     EXPECT_CALL(serverRef, stop(_));
 
-    ServerFactoryMock& factoryRef = *std::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
+    ServerFactoryMock &factoryRef = *std::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
     EXPECT_CALL(factoryRef, createServer(_)).WillOnce(Return(this->server));
 
     ServerGroupConfigProto groupConfig;
@@ -261,17 +258,16 @@ TEST_F(ServerGroupTest, tryRegisterServer)
 {
     std::uint32_t runningPort = 2034;
     this->dbHost->increaseServerCount();
-    DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+    DatabaseHostManagerMock &dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
     std::string serverId = "serverId";
-    MockRasServer& serverRef = *std::dynamic_pointer_cast<MockRasServer>(this->server);
+    MockRasServer &serverRef = *std::dynamic_pointer_cast<MockRasServer>(this->server);
     EXPECT_CALL(serverRef, startProcess());
     EXPECT_CALL(serverRef, getServerId()).WillRepeatedly(ReturnRef(serverId));
     EXPECT_CALL(serverRef, registerServer(serverId));
 
-
-    ServerFactoryMock& factoryRef = *std::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
+    ServerFactoryMock &factoryRef = *std::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
     EXPECT_CALL(factoryRef, createServer(_)).WillOnce(Return(this->server));
 
     ServerGroupConfigProto groupConfig;
@@ -298,7 +294,7 @@ TEST_F(ServerGroupTest, tryRegisterServer)
 TEST_F(ServerGroupTest, stopFailure)
 {
     this->dbHost->increaseServerCount();
-    DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+    DatabaseHostManagerMock &dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
     ServerGroupConfigProto groupConfig;
@@ -321,11 +317,11 @@ TEST_F(ServerGroupTest, stop)
     std::uint32_t runningPort = 2035;
 
     this->dbHost->increaseServerCount();
-    DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+    DatabaseHostManagerMock &dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
     std::string runningServerId = "runningServerId";
-    MockRasServer& runningServerRef = *std::dynamic_pointer_cast<MockRasServer>(this->server);
+    MockRasServer &runningServerRef = *std::dynamic_pointer_cast<MockRasServer>(this->server);
     EXPECT_CALL(runningServerRef, startProcess());
     EXPECT_CALL(runningServerRef, registerServer(runningServerId));
     EXPECT_CALL(runningServerRef, getServerId()).WillRepeatedly(ReturnRef(runningServerId));
@@ -333,7 +329,7 @@ TEST_F(ServerGroupTest, stop)
     //Because the server is stopped isAlive will return false.
     EXPECT_CALL(runningServerRef, isAlive()).WillOnce(Return(false));
 
-    ServerFactoryMock& factoryRef = *std::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
+    ServerFactoryMock &factoryRef = *std::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
     EXPECT_CALL(factoryRef, createServer(_)).WillOnce(Return(this->server));
 
     ServerGroupConfigProto groupConfig;
@@ -360,7 +356,7 @@ TEST_F(ServerGroupTest, evaluateServerGroupNoStart)
     std::uint32_t runningPort = 2035;
 
     this->dbHost->increaseServerCount();
-    DatabaseHostManagerMock& dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
+    DatabaseHostManagerMock &dbhManager = *std::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDatabaseHost(_)).WillOnce(Return(this->dbHost));
 
     ServerGroupConfigProto groupConfig;
@@ -434,7 +430,7 @@ TEST_F(ServerGroupTest, evaluateServerGroupNoStart)
 //    groupConfig.set_starting_server_lifetime(1);
 
 //    ServerGroup group(groupConfig, this->dbHostManager, this->serverFactory);
-    
+
 //    {
 //        group.start();
 //        group.tryRegisterServer(runningServerId);
@@ -454,5 +450,5 @@ TEST_F(ServerGroupTest, evaluateServerGroupNoStart)
 //    }
 //}
 
-}
-}
+}  // namespace test
+}  // namespace rasmgr

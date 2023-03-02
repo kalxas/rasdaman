@@ -20,7 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-
 #ifndef RASMGR_X_SRC_DATABASE_HH_
 #define RASMGR_X_SRC_DATABASE_HH_
 
@@ -87,9 +86,9 @@ public:
 
 private:
     std::string dbName; /*!< Name of this database */
-    
+
     std::set<std::pair<std::uint32_t, std::uint32_t>> sessionList; /*! List of <clientId,sessionId> pairs representing open sessions on the db*/
-    mutable boost::shared_mutex sessionListMutex; /*! For thread-safe access to sessionList */
+    mutable boost::shared_mutex sessionListMutex;                  /*! For thread-safe access to sessionList */
 };
 
 } /* namespace rasmgr */

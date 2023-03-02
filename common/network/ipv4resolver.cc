@@ -25,10 +25,9 @@
 namespace common
 {
 
-IPv4Resolver::IPv4Resolver(const in_addr& addressArg, std::uint32_t portArg) :
-    AbstractNetworkResolver(portArg), address(addressArg)
+IPv4Resolver::IPv4Resolver(const in_addr &addressArg, std::uint32_t portArg)
+    : AbstractNetworkResolver(portArg), address(addressArg)
 {
-
 }
 
 bool IPv4Resolver::isPortBusy()
@@ -41,7 +40,7 @@ bool IPv4Resolver::isPortBusy()
     clientV4.sin_family = AF_INET;
     clientV4.sin_port = htons(this->port);
 
-    if (connect(sock, (struct sockaddr*) &clientV4, sizeof(clientV4)) == 0)
+    if (connect(sock, (struct sockaddr *)&clientV4, sizeof(clientV4)) == 0)
     {
         isBusy = true;
         close(sock);
@@ -50,4 +49,4 @@ bool IPv4Resolver::isPortBusy()
     return isBusy;
 }
 
-}//namespace common
+}  //namespace common

@@ -58,30 +58,30 @@ class r_Conv_GRIB : public r_Convert_Memory
 {
 public:
     /// constructor using an r_Type object. Exception if the type isn't atomic.
-    r_Conv_GRIB(const char* src, const r_Minterval& interv, const r_Type* tp);
+    r_Conv_GRIB(const char *src, const r_Minterval &interv, const r_Type *tp);
     /// constructor using convert_type_e shortcut
-    r_Conv_GRIB(const char* src, const r_Minterval& interv, int tp);
+    r_Conv_GRIB(const char *src, const r_Minterval &interv, int tp);
     /// destructor
     ~r_Conv_GRIB(void);
 
     /// convert to GRIB
-    virtual r_Conv_Desc& convertTo(const char* options = NULL,
-                                   const r_Range* nullValue = NULL);
+    virtual r_Conv_Desc &convertTo(const char *options = NULL,
+                                   const r_Range *nullValue = NULL);
     /// convert from GRIB
-    virtual r_Conv_Desc& convertFrom(const char* options = NULL);
+    virtual r_Conv_Desc &convertFrom(const char *options = NULL);
     /// convert data in a specific format to array
-    virtual r_Conv_Desc& convertFrom(r_Format_Params options);
+    virtual r_Conv_Desc &convertFrom(r_Format_Params options);
     /// cloning
-    virtual r_Convertor* clone(void) const;
+    virtual r_Convertor *clone(void) const;
 
     /// identification
-    virtual const char* get_name(void) const;
+    virtual const char *get_name(void) const;
     virtual r_Data_Format get_data_format(void) const;
 
 private:
     /// transpose src 2D array of size NxM to dst of size MxN
     template <class baseType>
-    void transpose(baseType* src, baseType* dst, const size_t N, const size_t M);
+    void transpose(baseType *src, baseType *dst, const size_t N, const size_t M);
 
 #ifdef HAVE_GRIB
 
@@ -89,22 +89,22 @@ private:
     Json::Value getMessageDomainsJson();
 
     /// get a handle to the GRIB file
-    FILE* getFileHandle();
+    FILE *getFileHandle();
 
     /// collect the message ids from the format parameters
-    std::unordered_map<int, r_Minterval> getMessageDomainsMap(const Json::Value& messageDomains);
+    std::unordered_map<int, r_Minterval> getMessageDomainsMap(const Json::Value &messageDomains);
 
     /// compute final bounding box from all message domains
-    r_Minterval computeBoundingBox(const std::unordered_map<int, r_Minterval>& messageDomains);
+    r_Minterval computeBoundingBox(const std::unordered_map<int, r_Minterval> &messageDomains);
 
     /// set the target domain of the decode result
-    void setTargetDomain(const r_Minterval& fullBoundingBox);
+    void setTargetDomain(const r_Minterval &fullBoundingBox);
 
     /// set the target data and type of the decode result
     void setTargetDataAndType();
 
     /// check if the message bounds correspond to the bounds given by the format parameters
-    void validateMessageDomain(FILE* in, grib_handle* h, int messageIndex,
+    void validateMessageDomain(FILE *in, grib_handle *h, int messageIndex,
                                size_t messageWidth, size_t messageHeight, size_t messageArea);
 
     /**
@@ -116,25 +116,24 @@ private:
      * @param targetDomain domain of the subset of the message
      * @param subsetOffset offset in the nD rasdaman array
      */
-    void decodeSubset(char* messageData, r_Minterval messageDomain, r_Minterval targetDomain,
+    void decodeSubset(char *messageData, r_Minterval messageDomain, r_Minterval targetDomain,
                       size_t subsetOffset, size_t subsetWidth, size_t subsetHeight, size_t subsetArea);
 
     /// get an r_Minterval object for domain in string representation
-    r_Minterval domainStringToMinterval(const  char* domain);
+    r_Minterval domainStringToMinterval(const char *domain);
 
     /// the first dims-2 bounds must be slices (low == high); the last two (x/y) must be trims
-    void checkDomain(const r_Minterval& domain);
+    void checkDomain(const r_Minterval &domain);
 
     /// return true if domainAxis is a slice (lower = upper bound)
-    bool isSlice(const r_Sinterval& domainAxis);
+    bool isSlice(const r_Sinterval &domainAxis);
 
     /// return the offset in bytes of messageDomain within domain
-    size_t getSliceOffset(const r_Minterval& domain, const r_Minterval& messageDomain, size_t xyLen);
+    size_t getSliceOffset(const r_Minterval &domain, const r_Minterval &messageDomain, size_t xyLen);
 
     bool subsetSpecified;
 
-#endif // HAVE_GRIB
-
+#endif  // HAVE_GRIB
 };
 
 #endif

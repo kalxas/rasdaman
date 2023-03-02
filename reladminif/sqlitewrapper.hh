@@ -35,7 +35,6 @@ rasdaman GmbH.
 #include <sqlite3.h>
 #include <string>
 
-
 /**
  * Convenience class for executing SQLite queries.
  */
@@ -173,7 +172,7 @@ public:
      * Execute query in one step.
      */
     static void execute(const char *query);
-    
+
     /**
      * Execute query in one step.
      */
@@ -200,7 +199,7 @@ public:
      * @return the sqlite statement.
      */
     sqlite3_stmt *getStatement();
-    
+
     /**
      * This method is called when a connection is attempted while a write
      * query is already running at the same time. The method sleeps for
@@ -211,7 +210,7 @@ public:
     static void closeConnection();
 
     static void openConnection(const char *globalConnectId);
-    
+
     static void interruptTransaction();
 
     static bool isConnected();
@@ -227,7 +226,6 @@ public:
     static void warnOnError(const char *msg);
 
 private:
-
     sqlite3_stmt *stmt{NULL};
     // saved for debugging purposes, e.g. in case the query execution fails
     std::string query;

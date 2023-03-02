@@ -38,22 +38,19 @@ rasdaman GmbH.
 #include <string>
 using namespace std;
 
-
 const QtNode::QtNodeType QtMintervalOp::nodeType = QT_MINTERVALOP;
 
 QtMintervalOp::QtMintervalOp(QtOperationList *opList)
-    :  QtNaryOperation(opList)
+    : QtNaryOperation(opList)
 {
 }
-
-
 
 QtData *
 QtMintervalOp::evaluate(QtDataList *inputList)
 {
     startTimer("QtMintervalOp");
 
-    QtData     *returnValue = NULL;
+    QtData *returnValue = NULL;
     QtDataList *operandList = NULL;
 
     if (getOperands(inputList, operandList))
@@ -61,14 +58,14 @@ QtMintervalOp::evaluate(QtDataList *inputList)
         QtDataListDeleter operandListDeleter{operandList};
 
         vector<QtData *>::iterator dataIter;
-        bool              goOn = true;
+        bool goOn = true;
 
         // check for point operand
         if (operandList->size() == 1 && ((*operandList)[0])->getDataType() == QT_MINTERVAL)
         {
             // pass point as minterval projection
             returnValue = (*operandList)[0];
-            operandListDeleter.obj = NULL; // avoid deleting items in operandList
+            operandListDeleter.obj = NULL;  // avoid deleting items in operandList
             delete operandList;
             operandList = NULL;
         }
@@ -77,9 +74,9 @@ QtMintervalOp::evaluate(QtDataList *inputList)
             // first check operand types
             for (dataIter = operandList->begin(); dataIter != operandList->end() && goOn; dataIter++)
                 if (!((*dataIter)->getDataType() == QT_SHORT || (*dataIter)->getDataType() == QT_USHORT ||
-                        (*dataIter)->getDataType() == QT_LONG  || (*dataIter)->getDataType() == QT_ULONG  ||
-                        (*dataIter)->getDataType() == QT_OCTET || (*dataIter)->getDataType() == QT_CHAR   ||
-                        (*dataIter)->getDataType() == QT_INTERVAL))
+                      (*dataIter)->getDataType() == QT_LONG || (*dataIter)->getDataType() == QT_ULONG ||
+                      (*dataIter)->getDataType() == QT_OCTET || (*dataIter)->getDataType() == QT_CHAR ||
+                      (*dataIter)->getDataType() == QT_INTERVAL))
                 {
                     goOn = false;
                     break;
@@ -95,7 +92,7 @@ QtMintervalOp::evaluate(QtDataList *inputList)
             //
             // create a QtMintervalData object and fill it
             //
-            r_Minterval   domainData(operandList->size());
+            r_Minterval domainData(operandList->size());
             vector<bool> *trimFlags = new vector<bool>(operandList->size());
             unsigned int pos;
 
@@ -109,8 +106,8 @@ QtMintervalOp::evaluate(QtDataList *inputList)
                 else
                 {
                     if ((*dataIter)->getDataType() == QT_SHORT ||
-                            (*dataIter)->getDataType() == QT_LONG  ||
-                            (*dataIter)->getDataType() == QT_OCTET)
+                        (*dataIter)->getDataType() == QT_LONG ||
+                        (*dataIter)->getDataType() == QT_OCTET)
                     {
                         domainData << (static_cast<QtAtomicData *>(*dataIter))->getSignedValue();
                     }
@@ -132,20 +129,14 @@ QtMintervalOp::evaluate(QtDataList *inputList)
     return returnValue;
 }
 
-
-
-void
-QtMintervalOp::printTree(int tab, ostream &s, QtChildType mode)
+void QtMintervalOp::printTree(int tab, ostream &s, QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMintervalOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtNaryOperation::printTree(tab, s, mode);
 }
 
-
-
-void
-QtMintervalOp::printAlgebraicExpression(ostream &s)
+void QtMintervalOp::printAlgebraicExpression(ostream &s)
 {
     s << "[";
 
@@ -154,15 +145,13 @@ QtMintervalOp::printAlgebraicExpression(ostream &s)
     s << "]";
 }
 
-
-
 const QtTypeElement &
 QtMintervalOp::checkType(QtTypeTuple *typeTuple)
 {
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     QtOperationList::iterator iter;
-    bool              opTypesValid = true;
+    bool opTypesValid = true;
 
     for (iter = operationList->begin(); iter != operationList->end() && opTypesValid; iter++)
     {
@@ -170,12 +159,12 @@ QtMintervalOp::checkType(QtTypeTuple *typeTuple)
 
         // valid types: interval, integers
         if (!(type.getDataType() == QT_INTERVAL ||
-                type.getDataType() == QT_SHORT    ||
-                type.getDataType() == QT_LONG     ||
-                type.getDataType() == QT_OCTET    ||
-                type.getDataType() == QT_USHORT   ||
-                type.getDataType() == QT_ULONG    ||
-                type.getDataType() == QT_CHAR))
+              type.getDataType() == QT_SHORT ||
+              type.getDataType() == QT_LONG ||
+              type.getDataType() == QT_OCTET ||
+              type.getDataType() == QT_USHORT ||
+              type.getDataType() == QT_ULONG ||
+              type.getDataType() == QT_CHAR))
         {
             opTypesValid = false;
             break;

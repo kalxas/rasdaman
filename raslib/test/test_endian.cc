@@ -37,7 +37,6 @@
 #include <string.h>
 #include <iostream>
 
-
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #endif
@@ -49,11 +48,9 @@
 #include "raslib/rminit.hh"
 #include "raslib/endian.hh"
 
-
 RMINITGLOBALS('C')
 
-
-static void print_numbers(const unsigned char* data, int size)
+static void print_numbers(const unsigned char *data, int size)
 {
     int i;
 
@@ -74,21 +71,21 @@ static void print_numbers(const unsigned char* data, int size)
     fflush(stdout);
 }
 
-static void test_endian(const char* schema, const r_Minterval& dom)
+static void test_endian(const char *schema, const r_Minterval &dom)
 {
-    r_Base_Type* type;
-    r_Primitive_Type* primType;
-    unsigned char* srcArray;
-    unsigned char* testArray;
-    unsigned char* smallArray;
+    r_Base_Type *type;
+    r_Primitive_Type *primType;
+    unsigned char *srcArray;
+    unsigned char *testArray;
+    unsigned char *smallArray;
     unsigned long size;
     unsigned long smallSize;
     unsigned long i;
 
     std::cout << "test type <" << schema << ">" << endl;
 
-    type = (r_Base_Type*)r_Type::get_any_type(schema);
-    primType = (r_Primitive_Type*)r_Type::get_any_type("long");
+    type = (r_Base_Type *)r_Type::get_any_type(schema);
+    primType = (r_Primitive_Type *)r_Type::get_any_type("long");
 
     size = type->size() * dom.cell_count();
 
@@ -139,13 +136,12 @@ static void test_endian(const char* schema, const r_Minterval& dom)
     delete type;
     delete primType;
 
-    delete [] smallArray;
-    delete [] testArray;
-    delete [] srcArray;
+    delete[] smallArray;
+    delete[] testArray;
+    delete[] srcArray;
 }
 
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     r_Minterval dom(2);
 
